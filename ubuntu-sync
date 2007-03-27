@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Syncronise new ubuntu CD images, depending on command-line flags given.
+# If none are given, sync all images.
+
+if [ -e /tmp/ubuntu-sync.01532-lock ]; then
+	echo "Another copy of the script is running."
+	exit 1
+fi
+
+Ubuntu_Distro_Dir=$HOME/distros/ubuntu
+Dist=feisty
+
+# Only sync the oldest images, and only i386 images if low bandwidth.
+Low_Bandwidth=1
+
+while [ "$1" ]; do
+	case "$1" in
+		-u)
+			Image_Sets="${Image_Sets} ubuntu"
+			shift 1
+			break
+		;;
+		-k)
+			Image_Sets="${Image_Sets} kubuntu"
+			shift 1
+			break
+		;;
+		-e)
+			Image_Sets="${Image_Sets} edubuntu"
+			shift 1
+			break
+		;;
+		-x)
+			Image_Sets="${Image_Sets} xubuntu"
+			shift 1
+			break
+		;;
+		-s)
+			Image_Sets="${Image_Sets} ubuntu-server"
+			shift 1
+			break
+		;;
+	esac
+done
+if [ "${Low_Bandwidth}" == 1 ] && [ "${Image_Sets}" == "" ]; then
+	cd ${Ubuntu_Distro_Dir}
+	Image_Sets=`ls -td1 */${Dist} | tail -1 | cut -f 1 -d /`
+elif [ "${Low_Bandwidth}" == 0 ] && [ "${Image_Sets}" == "" ]; then
+	Image_Sets="ubuntu xubuntu ubuntu-server edubuntu kubuntu"
+fi
+
+# Sync images.
+if [ ! -e /tmp/ubuntu-sync.01532-lock ]; then
+        touch /tmp/ubuntu-sync.01532-lock
+fi
+for Current_Set in ${Image_Sets}
+do
+cd ${Ubuntu_Distro_Dir}/${Current_Set}/${Dist}
+Rsync_Options="--partial-dir=${Ubuntu_Distro_Dir}/${Current_Set}/${Dist}/.partial"
+	if [ "${Current_Set}" == "ubuntu" ]; then
+		if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/daily/current/${Dist}-alternate-i386.iso ${Dist}-alternate-i386.iso ; then
+			date > alternate-i386-sync
+		fi
+		if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/daily-live/current/${Dist}-desktop-i386.iso ${Dist}-desktop-i386.iso ; then
+			date > desktop-i386-sync
+		fi
+		if [ "${Low_Bandwidth}" == 0 ]; then
+			if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/ports/daily/current/${Dist}-alternate-powerpc.iso ${Dist}-alternate-powerpc.iso ; then
+				date > alternate-powerpc-sync
+			fi
+			if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/ports/daily-live/current/${Dist}-desktop-powerpc.iso ${Dist}-desktop-powerpc.iso ; then
+				date > desktop-powerpc-sync
+			fi
+		fi
+	else
+		if [ "${Current_Set}" == "edubuntu" ]; then
+			Install=install
+			Live=live
+		elif [ "${Current_Set}" == "ubuntu-server" ]; then
+			Install=server
+			Live=live
+		else
+			Install=alternate
+			Live=desktop
+		fi
+		if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/${Current_Set}/daily/current/${Dist}-${Install}-i386.iso ${Dist}-${Install}-i386.iso ; then
+		        date > ${Install}-i386-sync
+		fi
+		if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/${Current_Set}/daily-live/current/${Dist}-${Live}-i386.iso ${Dist}-${Live}-i386.iso ; then
+		        date > ${Live}-i386-sync
+		fi
+		if [ "${Low_Bandwidth}" == 0 ]; then
+			if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/${Current_Set}/daily/current/${Dist}-${Install}-powerpc.iso ${Dist}-${Install}-powerpc.iso ; then
+			        date > ${Install}-powerpc-sync
+			fi
+			if rsync ${Rsync_Options} rsync://cdimage.ubuntu.com/cdimage/${Current_Set}/daily-live/current/${Dist}-${Live}-powerpc.iso ${Dist}-${Live}-powerpc.iso ; then
+			        date > ${Live}-powerpc-sync
+			fi
+		fi
+	fi
+done
+rm /tmp/ubuntu-sync.01532-lock

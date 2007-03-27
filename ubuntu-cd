@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Get the latest CD snapshot release.
+Distro=$1
+Ver=feisty
+Code=herd
+
+cd ~/distros/ubuntu/${Distro}/${Ver}
+mkdir -p ${Code}-$2
+cd ${Code}-$2
+
+cp ../*.iso .
+
+if [ "${Distro}" == "ubuntu" ]; then
+	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
+	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-alternate-powerpc.iso ${Ver}-alternate-powerpc.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-desktop-powerpc.iso ${Ver}-desktop-powerpc.iso
+else
+	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
+	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-alternate-powerpc.iso ${Ver}-alternate-powerpc.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-desktop-powerpc.iso ${Ver}-desktop-powerpc.iso
+fi
