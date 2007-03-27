@@ -1,0 +1,62 @@
+#!/usr/bin/python
+
+import subprocess
+import sys
+
+packages={}
+
+def find_main(pack, version):
+	global packages
+	mad = subprocess.Popen(['apt-cache madison '+pack], shell=True, stdout=subprocess.PIPE)
+	out = mad.stdout.read()
+	if out.find("/main")!=-1 or out.find("http")==-1:
+		packages[(pack)]="In main"
+		return	
+	else:
+		if not packages.has_key(pack):
+			packages[(pack)]="Not in main"
+		test = subprocess.Popen(['apt-cache show '+pack], shell=True, stdout=subprocess.PIPE)	
+		deps = []
+		for j in test.stdout.readlines():
+			if j.startswith("Depend"):
+				deps = j.strip("\n").strip("Depends: ").split(",")
+		depse = []
+		for p in deps:
+			a = p.split("|")	
+			for k in a:
+				depse.append(k)
+		for i in depse:
+			info=i.strip(") ").split("(")
+			if len(info) == 2:	
+				version = info[1].strip(" ")
+			name = info[0].strip(" ")
+			if not packages.has_key(name):
+				find_main(name, version)
+
+		test = subprocess.Popen(['apt-cache showsrc '+pack], shell=True, stdout=subprocess.PIPE)	
+		deps = []
+		for j in test.stdout.readlines():
+			if j.startswith("Build-Depend"):
+				deps = j.strip("\n").strip("Build-Depends: ").split(",")
+		depse = []
+		for p in deps:
+			a = p.split("|")	
+			for k in a:
+				depse.append(k)
+		for i in depse:
+			info=i.strip(") ").split("(")
+			if len(info) == 2:	
+				version = info[1].strip(" ")
+			name = info[0].strip(" ")
+			if not packages.has_key(name):
+				find_main(name, version)
+
+pkg = sys.argv[1]
+
+find_main(pkg,0)
+
+for j in packages:
+	if packages[(j)] == "Not in main":
+		print j + ": "+packages[(j)]
+
+
