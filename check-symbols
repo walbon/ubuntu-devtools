@@ -1,0 +1,40 @@
+#!/bin/bash
+
+PACKAGES="`apt-cache showsrc $1 | grep ^Binary | sed 's/Binary\:\ //g;s/\,//g' | sort -u`"
+DEBLINE=""
+
+if [ -z $1 ]; then \
+	echo "Missing argument: source package name."; \
+	exit; \
+fi
+
+if [ -z $2 ]; then \
+	DEBDIR="/var/cache/pbuilder/result"; \
+elif \
+	DEBDIR=$2; \
+fi
+
+for pack in $PACKAGES; \
+do \
+	for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`; \
+	do \
+		LIBNAME=$(basename $lib); \
+		nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.1; \
+	done; \
+	DEBLINE+=" $DEBDIR/$pack*.deb "; 
+done
+
+sudo dpkg -i $DEBLINE;
+
+for pack in $PACKAGES; \
+do \
+	for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`; \
+	do \
+		LIBNAME=$(basename $lib); \
+		nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.2; \
+		echo "Checking: $lib"; \
+		diff -u /tmp/$LIBNAME.{1,2}; \
+		rm /tmp/$LIBNAME.{1,2}; \
+	done; \
+done   
+
