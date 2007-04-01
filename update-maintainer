@@ -1,0 +1,43 @@
+#!/bin/bash
+#update-maintainer
+#small - thus not perfect - script to update maintainer field in ubuntu packages
+#written and (c) 2007 by Albin Tonnerre <lut1n.tne@gmail.com> (Lutin)
+#this code is under the GNU GPL V2 licence
+
+( [ ! -f "$PWD/debian/changelog" ] || [ ! -f "$PWD/debian/control" ] ) && echo "Please run that script in the source folder" >&2 && exit 1
+
+IGNORE_MAINTAINER="lamont@debian.org q-funk@iki.fi cjwatson@debian.org"
+IGNORE_DOMAINS="ubuntu\.com|canonical\.com|ubuntu\.com\.au"
+
+[ -n "`head -n 1 debian/changelog | grep -E "\(*ubuntu.*\)"`" ] && 
+[ -z "`grep -E "^Maintainer: .*($IGNORE_DOMAINS)>" debian/control`" ] || \
+( echo "Not an ubuntu package or already maintained by the ubuntu team" >&2 && exit 1 )
+
+mail=$(grep -E "^Maintainer" debian/control | sed -r 's/.*<(.*)>/\1/')
+for maint in $IGNORE_MAINTAINER; do [ "$maint" = "$mail" ] && echo \
+    "Maintainer is in the ignore list" >&2 && exit 1; done
+
+case $mail in
+    "adconrad@0c3.net")     email="Adam Conrad <adconrad@ubuntu.com>"       ;;
+    "mpitt@debian.org")     email="Martin Pitt <martin.pitt@ubuntu.com>"    ;;
+esac
+
+if [ -z "$email" ]; then
+    DISTRO=$(head -n 1 debian/changelog|sed -r 's/.*\) (.*);.*/\1/' | cut -d'-' -f1)
+    pkgline=$(apt-cache madison `head -n 1 debian/changelog | cut -d' ' -f1` |\
+    grep -m 1 "$DISTRO.*Sources")
+    [ -z "$pkgline" ] && echo "You don't have $DISTRO in your source repos" >&2\
+    && exit 1
+    section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
+    case $section in
+        "main"|"restricted")        email="Ubuntu Core Developers <ubuntu-devel@lists.ubuntu.com>"  ;;
+        "universe"|"multiverse")    email="Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>"   ;;
+    esac
+fi
+
+sed -ri "s/(^Maintainer:) (.*)/\1 $email\nX-Original-\1 \2/" debian/control
+[ -f debian/control.in ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nX-Original-\1 \2/" debian/control.in
+
+dch Modified Maintainer value to match Debian-Maintainer-Field Spec
+echo "Maintainer changed to $email"
+exit 0 
