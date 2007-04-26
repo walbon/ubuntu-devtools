@@ -10,8 +10,8 @@ fi
 
 if [ -z $2 ]; then \
 	DEBDIR="/var/cache/pbuilder/result"; \
-elif \
-	DEBDIR=$2; \
+else \
+	DEBDIR="$2"; \
 fi
 
 for pack in $PACKAGES; \
