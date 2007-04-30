@@ -4,10 +4,20 @@
 #written and (c) 2007 by Albin Tonnerre <lut1n.tne@gmail.com> (Lutin)
 #this code is under the GNU GPL V2 licence
 
-[ -n "`echo $1 | sed -r 's/(--help|universe|multiverse|main|restricted)//'`" ]\
-    && echo "Bad parameter, please use --help" >&2 && exit 1
+if [ ${#@} -ge 1 ]; then
+    for argv in "$@"; do
+        param=`echo $argv | cut -d'=' -f1`
+        value=`echo $argv | cut -d'=' -f2`
+        case $param in
+            "--path")    path="$value"  ;;
+            "--section") section=$value ;;
+            "--help")    echo -e "Options: \n --path=PATH : specify the path of the source folder\n --section=SECTION : specify the section of the package (if the package is not yet in the archive or if you don't have the gutsy source repo in your sources.list)"; exit 0         ;;
+            *)           echo "Bad parameter, please use --help" >&2; exit 1 ;;
+        esac
+    done
+fi
 
-[ "$1" == --help ] && echo "Launch this script without any option or with the section as the only parameter (if the package is not yet in the archive or if you don't have the feisty source repo in your sources.list)" && exit 0
+cd ${path-.}
 
 # look for the debian directory
 if [ -f debian/control -a -f debian/changelog ]; then
@@ -20,7 +30,7 @@ fi
 
 IGNORE_DOMAINS="ubuntu\.com|ubuntu\.com\.au"
 
-[ -n "`head -n 1 $DEBIANDIR/changelog | grep -E "\(*ubuntu.*\)"`" ] && 
+[ -n "`head -n 1 $DEBIANDIR/changelog | grep -E "\(*ubuntu.*\)"`" ] &&
 [ -z "`grep -E "^Maintainer: .*($IGNORE_DOMAINS)>" $DEBIANDIR/control`" ] || \
 { echo "Not an ubuntu package or already maintained by the ubuntu team" >&2 && \
     exit 1; }
@@ -32,14 +42,14 @@ case $mail in
 esac
 
 if [ -z "$email" ]; then
-    if [ -z "$1" ]; then
+    if [ -z "$section" ]; then
       DISTRO=$(head -n 1 $DEBIANDIR/changelog|sed -r 's/.*\) (.*);.*/\1/' | cut -d'-' -f1)
-      pkgline=$(apt-cache madison `head -n 1 $DEBIANDIR/changelog | cut -d' ' -f1`|\
-        grep -m 1 "$DISTRO.*Sources")
+      pkgline=$(apt-cache madison `head -n 1 $DEBIANDIR/changelog | cut -d' ' \
+        -f1`| grep -m 1 "$DISTRO.*Sources")
       [ -z "$pkgline" ] && echo "You don't have $DISTRO in your source repos" \
-        >&2 && exit 1 
+        >&2 && exit 1
       section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
-    else section=$1; fi
+    fi
     case $section in
         "main"|"restricted")        email="Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"  ;;
         "universe"|"multiverse")    email="Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>"           ;;
@@ -49,6 +59,5 @@ fi
 sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control
 [ -f $DEBIANDIR/control.in ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control.in
 
-dch "Modified Maintainer value to match Debian-Maintainer-Field Spec"
+dch "Modify Maintainer value to match Debian-Maintainer-Field Spec"
 echo "Maintainer changed to $email"
-exit 0 
