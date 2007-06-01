@@ -1,6 +1,5 @@
 ubuntu-dev-tools (0.1) gutsy; urgency=low
 
-  * debian/control:
-    - change Maintainer field. 
+  * Initial Release.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 01 Jun 2007 11:26:41 +0200
