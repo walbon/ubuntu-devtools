@@ -1,0 +1,21 @@
+Source: ubuntu-dev-tools
+Section: devel
+Priority: optional
+Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
+XS-Vcs-Bzr: https://launchpad.net/ubuntu-dev-tools/
+XS-Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
+Build-Depends:  cdbs (>= 0.4.43), debhelper (>= 5), python-central (>= 0.5), python-all-dev (>= 2.4)
+XS-Python-Version: all
+Standards-Version: 3.7.2
+
+Package: ubuntu-dev-tools
+Architecture: all
+Section: devel
+Depends: ${python:Depends}, ${misc:Depends}, diff, binutils, devscripts
+XB-Python-Version: ${python:Versions}
+Description: useful tools for Ubuntu developers
+ This is a collection of useful tools that Ubuntu developers use to
+ make their packaging work a lot easier. Such tools can include bug
+ filing, packaging preparation, package analysis, etc.
+ .
+ Homepage: https://launchpad.net/ubuntu-dev-tools/
