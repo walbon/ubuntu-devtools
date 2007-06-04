@@ -13,7 +13,7 @@ case $OPERATION in
       PROCEED=true
       ;;
 esac
-if ( $PROCEED == true ) then
+if [ $PROCEED = true ]; then
    shift 
    if [ ! -d $BASE_DIR/${DISTRIBUTION}_result ]
    then mkdir -p $BASE_DIR/${DISTRIBUTION}_result/
