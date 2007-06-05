@@ -21,7 +21,7 @@ do \
 		LIBNAME=$(basename $lib); \
 		nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.1; \
 	done; \
-	DEBLINE+=" $DEBDIR/$pack*.deb "; 
+	DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "; 
 done
 
 sudo dpkg -i $DEBLINE;
