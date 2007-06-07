@@ -2,8 +2,8 @@
 
 # Get the latest CD snapshot release.
 Distro=$1
-Ver=feisty
-Code=herd
+Ver=gutsy	
+Code=tribe
 
 cd ~/distros/ubuntu/${Distro}/${Ver}
 mkdir -p ${Code}-$2
@@ -13,12 +13,14 @@ cp ../*.iso .
 
 if [ "${Distro}" == "ubuntu" ]; then
 	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
-	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-alternate-powerpc.iso ${Ver}-alternate-powerpc.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$1/${Ver}-desktop-powerpc.iso ${Ver}-desktop-powerpc.iso
+	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-server-i386.iso ${Ver}-server-i386.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-alternate-amd64.iso ${Ver}-alternate-amd64.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-desktop-amd64.iso ${Ver}-desktop-amd64.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-server-amd64.iso ${Ver}-server-amd64.iso
 else
 	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
-	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-alternate-powerpc.iso ${Ver}-alternate-powerpc.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$1/${Ver}-desktop-powerpc.iso ${Ver}-desktop-powerpc.iso
+	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-alternate-amd64.iso ${Ver}-alternate-amd64.iso
+	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-desktop-amd64.iso ${Ver}-desktop-amd64.iso
 fi

@@ -9,7 +9,7 @@ if [ -e /tmp/ubuntu-sync.01532-lock ]; then
 fi
 
 Ubuntu_Distro_Dir=$HOME/distros/ubuntu
-Dist=feisty
+Dist=gutsy
 
 # Only sync the oldest images, and only i386 images if low bandwidth.
 Low_Bandwidth=1
