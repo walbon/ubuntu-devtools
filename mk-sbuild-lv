@@ -1,0 +1,264 @@
+#!/bin/bash
+# Script to create LVM snapshot chroots via schroot and sbuild.
+# Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
+# and https://help.ubuntu.com/community/SbuildLVMHowto.
+#
+# This script assumes that sbuild has not be installed and configured before.
+#
+# If using schroot earlier than 1.1.4-1, it's a good idea to apply the
+# process-cleaning patch to /etc/schroot/setup.d/10mount.  Without this, any
+# processes left running from the build (like cron, dbus, etc) will stop
+# schroot from umounting and shutting down cleanly:
+#   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391319
+#
+# If using sbuild 0.50 or earlier, and you intend to use the "arch" argument
+# to do i386 builds on amd64, you will need to patch "sbuild" to correctly
+# detect the chroot architecture:
+#   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
+#
+# Version: 0.11
+#
+# Copyright 2006-2007, Canonical Ltd, Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+set -e
+
+# Make sure we've got a regular user
+if [ -w /etc/passwd ]; then
+    echo "Please run this script as a regular user, not root." >&2
+    exit 1
+fi
+
+# Perform once-only things to initially set up for using sbuild+schroot+lvm
+if [ ! -w /var/lib/sbuild ]; then
+    # Load all the packages you'll need to do work
+    sudo apt-get install sbuild schroot debootstrap lvm2
+    # Make sure LVM tools that operate on the snapshots have needed module
+    sudo modprobe dm_snapshot
+    sudo bash -c "grep ^dm_snapshot /etc/modules >/dev/null || echo dm_snapshot >> /etc/modules"
+    # Add self to the sbuild group
+    sudo adduser "$USER" sbuild
+
+    # Create some default build/log areas
+    mkdir -p ~/ubuntu/build ~/ubuntu/logs
+    # Prepare a usable default .sbuildrc
+    if [ ! -e ~/.sbuildrc ]; then
+        cat > ~/.sbuildrc <<EOM
+# *** VERIFY AND UPDATE \$mailto and \$maintainer_name BELOW ***
+
+# Mail address where logs are sent to (mandatory, no default!)
+\$mailto = '$USER';
+
+# Name to use as override in .changes files for the Maintainer: field
+# (mandatory, no default!).
+\$maintainer_name='$USER <$USER@localhost>';
+
+# Chroot behaviour; possible values are "split" (apt and dpkg are run
+# from the host system) and "schroot" (all package operations are done in
+# the chroot with schroot, but the chroot must allow networking)
+\$chroot_mode = "schroot";
+
+# Directory for chroot symlinks and sbuild logs.  Defaults to the
+# current directory if unspecified.
+#\$build_dir='$HOME/ubuntu/build';
+
+# Directory for writing build logs to
+\$log_dir="$HOME/ubuntu/logs";
+
+# don't remove this, Perl needs it:
+1;
+EOM
+        sensible-editor ~/.sbuildrc
+    else
+        echo "Your ~/.sbuildrc already exists -- leaving it as-is."
+    fi
+
+    echo '***********************************************'
+    echo '* Before continuing, you MUST restart your    *'
+    echo '* session to gain "sbuild" group permissions! *' 
+    echo '***********************************************'
+    exit 0
+fi
+
+if ! id | fgrep -q '(sbuild)'; then
+    echo "You must be a member of the 'sbuild' group." >&2
+    exit 1
+fi
+
+function usage()
+{
+    echo "Usage: $0 [OPTIONS] VG Release" >&2
+    echo "Options:"
+    echo "  --arch=ARCH    What architecture to select"
+    echo "  --name=NAME    Base name for the schroot (arch is appended)"
+    echo "  --debug        Turn on script debugging"
+    exit 1
+}
+
+
+if [ -z "$1" ]; then
+    usage
+fi
+OPTS=`getopt -o '' --long "help,debug,arch:,name::" -- "$@"`
+eval set -- "$OPTS"
+
+name=""
+while :; do
+    case "$1" in
+        --debug)
+            set -x
+            shift
+            ;;
+        --arch)
+            # By default, use the native architecture.
+            arch_opt="--arch $2"
+            arch_suffix="-$2"
+            shift 2
+            ;;
+        --name)
+            name="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        --help|*)
+            usage
+            ;;
+     esac
+done
+
+# To build the LV, we need to know which volume group to use, and which
+# release of Ubuntu to debootstrap
+VG="$1"
+RELEASE="$2"
+if [ -z "$VG" ] || [ -z "$RELEASE" ]; then
+    usage
+fi
+
+# By default, name the schroot the same as the release
+if [ -z "$name" ]; then
+    name="$RELEASE"
+fi
+
+# Set up some variables for use in the paths and names
+CHROOT_LV="${name}_chroot${arch_suffix}"
+CHROOT_PATH="/dev/$VG/$CHROOT_LV"
+CHROOT_NAME="${name}${arch_suffix}"
+
+# Does the specified VG exist?  (vgdisplay doesn't set error codes...)
+if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
+    exit 1 
+fi
+
+# Is the specified release known to debootstrap?
+if [ ! -f "/usr/lib/debootstrap/scripts/$RELEASE" ]; then
+    echo "Specified release not known to debootstrap" >&2
+    exit 1
+else
+    # Look for a buildd variant to work with
+    if [ -f "/usr/lib/debootstrap/scripts/${RELEASE}.buildd" ]; then
+        variant_opt="--variant=buildd"
+    fi
+fi
+
+# Allocate the "golden" chroot LV
+sudo lvcreate -n "$CHROOT_LV" -L 5G "$VG"
+sudo mkfs -t ext3 "$CHROOT_PATH"
+
+# Mount and debootstrap the chroot
+MNT=`mktemp -d -t schroot-XXXXXX`
+sudo mount "$CHROOT_PATH" "$MNT"
+sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+# Update the package sources
+TEMP_SOURCES=`mktemp -t sources-XXXXXX`
+TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+if [ -r "$TEMPLATE_SOURCES" ]; then
+    cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
+else
+    cat > "$TEMP_SOURCES" <<EOM
+deb http://archive.ubuntu.com/ubuntu RELEASE main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu RELEASE main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu RELEASE-updates main restricted universe multiverse
+deb-src http://archive.ubuntu.com/ubuntu RELEASE-updates main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
+deb-src http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
+EOM
+fi
+cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
+    sudo bash -c "cat > $MNT/etc/apt/sources.list"
+rm -f "$TEMP_SOURCES"
+# Copy the timezone (comment this out if you want to leave the chroot at UTC)
+sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
+# Create an LVM-snapshot-based schroot entry for this LV
+TEMP_SCHROOTCONF=`mktemp -t schrootconf-XXXXXX`
+TEMPLATE_SCHROOTCONF=~/.mk-sbuild-lv.schroot.conf
+if [ -r "$TEMPLATE_SCHROOTCONF" ]; then
+    cat "$TEMPLATE_SCHROOTCONF" > "$TEMP_SCHROOTCONF"
+else
+    cat > "$TEMPLATE_SCHROOTCONF" <<EOM
+
+[CHROOT_NAME]
+type=lvm-snapshot
+description=CHROOT_NAME
+priority=3
+groups=sbuild,root,admin
+root-groups=root,sbuild,admin
+source-groups=sbuild,root,admin
+source-root-groups=root,sbuild,admin
+device=CHROOT_PATH
+mount-options=-o noatime
+lvm-snapshot-options=--size 4G
+run-setup-scripts=true
+run-exec-scripts=true
+EOM
+fi
+cat "$TEMP_SCHROOTCONF" | sed \
+        -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
+        -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
+        | \
+        sudo bash -c "cat >> /etc/schroot/schroot.conf"
+rm -f "$TEMP_SCHROOTCONF"
+# Create image finalization script
+BUILD_PKGS="build-essential fakeroot devscripts"
+# Add edgy+ buildd tools
+if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
+    BUILD_PKGS="$BUILD_PKGS pkg-create-dbgsym pkgbinarymangler"
+fi
+sudo bash -c "cat >> $MNT/finish.sh" <<EOM
+#!/bin/bash
+#set -x
+set -e
+# Reload package lists
+apt-get update || true
+# Pull down signature requirements
+apt-get -y --force-yes install gnupg ubuntu-keyring
+# Reload package lists
+apt-get update || true
+# Disable debconf questions so that automated builds won't prompt
+echo set debconf/frontend Noninteractive | debconf-communicate
+echo set debconf/priority critical | debconf-communicate
+# Install basic build tool set, trying to match buildd
+apt-get -y install $BUILD_PKGS
+# Set up expected /dev entries
+ln -s /proc/self/fd/0 /dev/stdin
+ln -s /proc/self/fd/1 /dev/stdout
+ln -s /proc/self/fd/2 /dev/stderr
+# Clean up
+apt-get clean
+rm /finish.sh
+EOM
+sudo chmod +x "$MNT"/finish.sh
+sudo umount "$MNT"
+rmdir "$MNT"
+# Run finalization script on the "golden" copy via schroot.
+(cd / && schroot -c "$CHROOT_NAME"-source -u root /finish.sh)
+
+# Finished
+echo ""
+echo "Done building $CHROOT_NAME."
+echo ""
+echo " To UPDATE the golden image: schroot -c ${CHROOT_NAME}-source -u root"
+echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
+echo " To BUILD within a snapshot: sbuild -d ${CHROOT_NAME} PACKAGE*.dsc"
+echo ""

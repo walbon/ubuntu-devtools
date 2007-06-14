@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+# Copyright 2007, Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+# This script is used to repeat a change log into an older release.  It
+# expects that --build-tree is layed out with each Ubuntu release as a
+# separate directory ("feisty", "edgy", etc).
+#
+# For example, if gimp had a security update prepared for Feisty in
+# $TREE/feisty/gimp-2.2.13, running "dch-repeat" in
+# $TREE/edgy/gimp-2.2.13 would pull in the latest changelog from the Feisty
+# build.
+use strict;
+use warnings;
+use Getopt::Long;
+use Cwd;
+use File::Glob ':glob';
+
+sub Usage
+{
+    print <<EOM;
+Usage: $0 [OPTIONS]
+ --build-tree PATH             Base of build trees
+ -s, --source-release RELEASE  Which release to snag a changelog from
+ --target-release RELEASE      Which release to build into
+ --devel-release RELEASE       Which release is the devel release
+ --pocket POCKET               Which pocket to use
+EOM
+    exit(0);
+}
+
+my @releases = ('dapper', 'edgy', 'feisty', 'gutsy');
+
+#Getopt::Long::Configure("bundling", "no_ignore_case");
+our $opt_build_tree = "/scratch/ubuntu/build";
+our $opt_devel_release = $releases[$#releases];
+our $opt_pocket = undef;
+our $opt_package = undef;
+our $opt_source_release = undef;
+our $opt_target_release = undef;
+
+our $opt_help = undef;
+our $opt_verbose = undef;
+
+Usage() unless (GetOptions(
+    "build-tree=s",
+    "source-release|s=s",
+    "target-release=s",
+    "package|p=s",
+    "help|h",
+    "verbose|v",
+));
+Usage() if ($opt_help);
+
+sub get_changelog($)
+{
+    my ($path) = @_;
+
+    open(LOG,"<$path/debian/changelog") || die "Cannot find changelog for '$path'\n";
+    my $log="";
+    my $line="";
+    # Skip to package name
+    $line = <LOG>;
+    # Collect changelog
+    while ($line=<LOG>) {
+        last if ($line=~/^\S/); # Stop on next changelog entry
+        $log.=$line;
+    }
+    close(LOG);
+    return $log;
+}
+
+sub replace_changelog($)
+{
+    my ($log) = @_;
+    open(LOG,"<debian/changelog") || die "Cannot find changelog\n";
+    open(NEWLOG,">debian/changelog.new") || die "Cannot write changelog\n";
+    my $line;
+    while ($line=<LOG>) {
+        last if ($line =~ /^\s*$/);
+        print NEWLOG $line || die "Changelog write failed: $!\n";
+    }
+    print NEWLOG $log || die "Changelog write failed: $!\n";
+    # Skip log items
+    while ($line=<LOG>) {
+        last if ($line =~ /^\S/);
+    }
+    print NEWLOG $line || die "Changelog write failed: $!\n";
+    while ($line=<LOG>) {
+        print NEWLOG $line || die "Changelog write failed: $!\n";
+    }
+    close(LOG);
+    close(NEWLOG) || die "Changelog close failed: $!\n";
+    rename("debian/changelog.new","debian/changelog") || die "Changelog rename failed: $!\n";
+}
+
+# By default examine Cwd for target release
+if (!defined($opt_target_release)) {
+    my $dir = getcwd;
+    if ($dir =~ m#^$opt_build_tree/([^/]+)/[^/]+$#) {
+        $opt_target_release = $1;
+    }
+    else {
+        die "No --target-release used, or current directory '$dir' outside of --build-tree of '$opt_build_tree'\n";
+    }
+}
+warn "target-release: '$opt_target_release'\n" if ($opt_verbose);
+
+# By default, examine changelog for package
+if (!defined($opt_package)) {
+    chomp($opt_package=`dpkg-parsechangelog | grep ^"Source: " | cut -d" " -f2`);
+    if ($opt_package eq "") {
+        die "Cannot figure out package name from changelog\n";
+    }
+}
+warn "package: '$opt_package\n" if ($opt_verbose);
+
+# By default, take changelog from newer release
+if (!defined($opt_source_release)) {
+    if ($opt_target_release eq $opt_devel_release) {
+        die "No more recent release than '$opt_devel_release' to take changelog from\n";
+    } 
+    foreach my $i (0 .. $#releases) {
+        if ($releases[$i] eq $opt_target_release) {
+            $opt_source_release = $releases[$i+1];
+        }
+    }
+    if (!defined($opt_source_release)) {
+        die "Could not locate a newer release than '$releases[$#releases]'";
+    }
+}
+warn "source-release: '$opt_source_release\n" if ($opt_verbose);
+warn "devel-release: '$opt_devel_release\n" if ($opt_verbose);
+
+# By default, use "security" pocket for non-devel releases
+if (!defined($opt_pocket)) {
+    if ($opt_target_release eq $opt_devel_release) {
+        $opt_pocket = "";
+    }
+    else {
+        $opt_pocket = "security";
+    }
+}
+warn "pocket: '$opt_pocket'\n" if ($opt_verbose);
+
+# Source location
+my @dirs = grep((-d $_),bsd_glob("$opt_build_tree/$opt_source_release/$opt_package-*"));
+if (scalar(@dirs)==0) {
+    die "Cannot find '$opt_build_tree/$opt_source_release/$opt_package-*'\n";
+}
+elsif (scalar(@dirs)>1) {
+    warn "Multiple possible source dirs, using '$dirs[0]'\n";
+}
+warn "source dir: '$dirs[0]'\n" if ($opt_verbose);
+my $log = get_changelog($dirs[0]);
+my $args = "";
+if ($opt_pocket ne "") {
+    $args = "-s -D $opt_target_release-$opt_pocket";
+}
+else {
+    $args = "-i";
+}
+system("dch $args auto-changelog")==0 || die "dch failed: $!\n";
+replace_changelog($log);
+
+# Report!
+system("dpkg-parsechangelog");
+
+exit(0);

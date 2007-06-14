@@ -1,0 +1,13 @@
+#!/bin/bash
+# Copyright 2006,2007 (C) Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+for filename in $(echo "debian/rules"; grep ^include debian/rules | fgrep -v '$(' | awk '{print $2}')
+do
+    fgrep -q patchsys.mk "$filename" && { echo "cdbs"; exit; }
+    fgrep -q quilt "$filename" && { echo "quilt"; exit; }
+    fgrep -q dbs-build.mk "$filename" && { echo "dbs"; exit; }
+    fgrep -q dpatch "$filename" && { echo "dpatch"; exit; }
+    fgrep -q '*.diff' "$filename" && { echo "diff splash"; exit; }
+done
+[ -d debian/patches ] || { echo "patchless?"; exit; }
+echo "unknown patch system"

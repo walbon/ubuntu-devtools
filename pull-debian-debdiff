@@ -1,0 +1,143 @@
+#!/usr/bin/perl
+# Copyright 2007 Kees Cook <kees@ubuntu.com>
+# License GPLv2
+# This script attempts to find and download a specific version of a Debian
+# package and its immediate parent to generate a debdiff.
+# Requires: devscripts diffstat dpkg-dev
+# Cleanups needed:
+#  - general cleanup
+#  - parse diff.gz/orig.tar.gz from .dsc file instead of guessing version
+use strict;
+use warnings;
+
+sub geturls
+{
+    my ($urlbase,$pkg,$version)=@_;
+    my $file;
+
+    $file = "${pkg}_${version}.dsc";
+    warn "Trying $urlbase/$file ...\n";
+    if (! -r "$file") {
+
+        system("wget $urlbase/$file");
+        return 0 if ($? != 0);
+    }
+
+    warn "Pulling source of $urlbase/$file ...\n";
+
+    $file = "${pkg}_${version}.diff.gz";
+    if (! -r "$file") {
+        system("wget $urlbase/$file");
+        return 0 if ($? != 0);
+    }
+
+    my $orig_ver = $version;
+    $orig_ver =~ s/-.*//;
+
+    $file = "${pkg}_${orig_ver}.orig.tar.gz";
+    if (! -r "$file") {
+        system("wget $urlbase/$file");
+        return 0 if ($? != 0);
+    }
+
+    return 1;
+}
+
+sub generate_base
+{
+    my ($pkg)=@_;
+    
+    my @path;
+    push(@path,"main");
+    if ($pkg =~ /^(lib.)/) {
+        push(@path,$1);
+    }
+    else {
+        push(@path,substr($pkg,0,1));
+    }
+    push(@path,$pkg);
+    return join("/",@path);
+}
+
+sub download_source
+{
+    my ($pkg,$version)=@_;
+    my $urlbase;
+
+    my $base = generate_base($pkg);
+
+    # Attempt to pull from security updates first
+    $urlbase = "http://security.debian.org/pool/updates/$base";
+
+    if (!geturls($urlbase,$pkg,$version)) {
+        # Try regular pool
+
+        $urlbase = "http://ftp.debian.org/debian/pool/$base";
+        if (!geturls($urlbase,$pkg,$version)) {
+            # Try snapshot
+
+            $urlbase=`curl -sI 'http://snapshot.debian.net/package/$pkg/$version' | grep ^[lL]ocation | cut -d' ' -f2 | head -1`;
+            $urlbase =~ s/[\r\n]//g;
+            warn "Trying snapshot location '$urlbase' ...\n";
+
+            if ($urlbase ne "" && !geturls($urlbase,$pkg,$version)) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+
+my $pkg = $ARGV[0];
+my $version = $ARGV[1];
+my $skip = $ARGV[2] || 1;
+$skip+=0;
+
+if (!defined($pkg) || !defined($version)) {
+    die "Usage: $0 PKG VERSION\n";
+}
+
+
+# Extract latest source
+die "Cannot locate $pkg $version\n" unless download_source($pkg,$version);
+system("dpkg-source -x ${pkg}_${version}.dsc");
+die "Unpack of $pkg $version failed\n" unless ($? == 0);
+
+# Locate prior changelog entry
+my $prev_ver;
+my $srcdir;
+opendir(DIR,".");
+while ($srcdir = readdir(DIR)) {
+    last if ($srcdir =~ /^${pkg}-/ && -d $srcdir);
+}
+closedir(DIR);
+die "Cannot locate source tree\n" if (!defined($srcdir));
+open(LOG,"<$srcdir/debian/changelog");
+while (my $line=<LOG>) {
+    if ($line =~ /^$pkg \((?:\d+:)?([^\)]+)\)/) {
+        my $seen = $1;
+        if ($seen ne $version) {
+            $skip--;
+
+            if ($skip==0) {
+                $prev_ver=$seen;
+                last;
+            }
+        }
+    }
+}
+close(LOG);
+die "Cannot find earlier source version\n" if (!defined($prev_ver));
+
+die "Cannot locate $pkg $prev_ver\n" unless download_source($pkg,$prev_ver);
+system("dpkg-source -x ${pkg}_${prev_ver}.dsc");
+die "Unpack of $pkg $prev_ver failed\n" unless ($? == 0);
+
+system("debdiff ${pkg}_${prev_ver}.dsc ${pkg}_${version}.dsc > ${pkg}_${version}.debdiff");
+die "Cannot debdiff\n" unless ($? == 0);
+
+system("diffstat -p0 ${pkg}_${version}.debdiff");
+print "${pkg}_${version}.debdiff\n";
