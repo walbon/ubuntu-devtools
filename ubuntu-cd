@@ -1,26 +1,40 @@
 #!/bin/bash
+set -e
 
 # Get the latest CD snapshot release.
-Distro=$1
-Ver=gutsy	
+Distro="$1"
+if [ -z "$Distro" ]; then
+	echo "Which distro?" >&2
+	exit 1
+fi
+Release="$2"
+if [ -z "$Release" ]; then
+	echo "Which ISO release?" >&2
+	exit 1
+fi
+Ver=gutsy
 Code=tribe
 
-cd ~/distros/ubuntu/${Distro}/${Ver}
-mkdir -p ${Code}-$2
-cd ${Code}-$2
+cd ~/distros/ubuntu/"${Distro}"/"${Ver}"
+mkdir -p "${Code}"-"${Release}"
+cd "${Code}"-"${Release}"
 
-cp ../*.iso .
+cp ../*.iso . || true
 
 if [ "${Distro}" == "ubuntu" ]; then
-	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
-	rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-server-i386.iso ${Ver}-server-i386.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-alternate-amd64.iso ${Ver}-alternate-amd64.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-desktop-amd64.iso ${Ver}-desktop-amd64.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/releases/${Ver}/${Code}-$2/${Ver}-server-amd64.iso ${Ver}-server-amd64.iso
+	Origin="releases"
+	Flavors="alternate desktop server"
+	Archs="i386"
+	#Archs="i386 amd64 powerpc"
 else
-	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-alternate-i386.iso ${Ver}-alternate-i386.iso
-	rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-desktop-i386.iso ${Ver}-desktop-i386.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-alternate-amd64.iso ${Ver}-alternate-amd64.iso
-	#rsync rsync://cdimage.ubuntu.com/cdimage/${Distro}/releases/${Ver}/${Code}-$2/${Ver}-desktop-amd64.iso ${Ver}-desktop-amd64.iso
+	Origin="${Distro}/releases"
+	Flavors="alternate desktop"
+	Archs="i386"
+	#Archs="i386 amd64"
 fi
+
+for arch in $Archs; do
+	for flavor in $Flavors; do
+		rsync "rsync://cdimage.ubuntu.com/cdimage/${Origin}/${Ver}/${Code}-${Release}/${Ver}-${flavor}-${arch}.iso" "${Ver}-${flavor}-${arch}.iso"
+	done
+done
