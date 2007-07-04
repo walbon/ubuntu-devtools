@@ -15,7 +15,14 @@ if os.path.exists(changelog):
    
 setup(name='ubuntu-dev-tools',
       version=version,
-      scripts=['404main', 'check-symbols', 'pbuilder-dist', 
-      'update-maintainer'],
+      scripts=['404main', 
+	       'check-symbols', 
+	       'pbuilder-dist',
+               'update-maintainer', 
+	       'dch-repeat',
+	       'mk-sbuild-lv',
+	       'pull-debian-debdiff',
+	       'what-patch'
+	       ],
 )
 
