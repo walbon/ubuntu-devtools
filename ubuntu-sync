@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Copyright 2006,2007 (C) Luke Yelavich <themuso@ubuntu.com>
+# License: GPLv2
+
 # Syncronise new ubuntu CD images, depending on command-line flags given.
 # If none are given, sync all images.
 

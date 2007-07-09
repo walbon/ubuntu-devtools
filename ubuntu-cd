@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright 2006,2007 (C) Luke Yelavich <themuso@ubuntu.com>
+# License: GPLv2
+
 set -e
 
 # Get the latest CD snapshot release.
