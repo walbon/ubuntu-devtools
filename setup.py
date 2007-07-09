@@ -22,7 +22,8 @@ setup(name='ubuntu-dev-tools',
 	       'dch-repeat',
 	       'mk-sbuild-lv',
 	       'pull-debian-debdiff',
-	       'what-patch'
+	       'what-patch',
+               'suspicious-source',
 	       ],
 )
 

@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+# License: GPL v2 or later
+#
+# Output a list of files which are not common source files. This
+# should be run in the root of a source tree to find files which might
+# not be the 'prefered form of modification' that the GPL and other
+# licenses require.
+
+find -type f ! \( -name '*.h' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name Makefile -o -name configure -o -name '*.3' -o -name '*.html' -o -name '*.txt' -o -name '*.xml' -o -name Makefile.am -o -name Makefile.in -o -name '*.m4' -o -name config.sub -o -name config.guess -o -name ltmain.sh -o -name depcomp -o -name configure.ac -o -name *.py -o -name NEWS -o -name README -o -name INSTALL -o -name TODO -o -name ChangeLog -o -name '*.docbook' -o -name '*.png' -o -name '*.desktop' -o -name '*.ui' -o -name '*.po' -o -name '*.py' -o -name '*.svg' -o -name '*.bmp' -o -name '*.gif' -o -name '*.pot' -o -name '*.xpm' -o -name '*.glade' -o -name '*.gladep' \)
+
