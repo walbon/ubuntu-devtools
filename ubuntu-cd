@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# Copyright 2006,2007 (C) Luke Yelavich <themuso@ubuntu.com>
-# License: GPLv2
-
 set -e
 
 # Get the latest CD snapshot release.
@@ -30,6 +26,16 @@ if [ "${Distro}" == "ubuntu" ]; then
 	Flavors="alternate desktop server"
 	Archs="i386"
 	#Archs="i386 amd64 powerpc"
+elif [ "${Distro}" == "edubuntu" ]; then
+	Origin="${Distro}/releases"
+	Flavors="desktop server serveraddon"
+	Archs="i386"
+	#Archs="i386 amd64"
+elif [ "${Distro}" == "ubuntu-server" ]; then
+	Origin="releases"
+	Flavors="server"
+	Archs="i386"
+	#Archs="i386 amd64"
 else
 	Origin="${Distro}/releases"
 	Flavors="alternate desktop"

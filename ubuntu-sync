@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# Copyright 2006,2007 (C) Luke Yelavich <themuso@ubuntu.com>
-# License: GPLv2
-
 # Syncronise new ubuntu CD images, depending on command-line flags given.
 # If none are given, sync all images.
 
@@ -16,7 +13,7 @@ Ubuntu_Distro_Dir="$HOME/distros/ubuntu"
 Dist=gutsy
 
 # Only sync the oldest images, and only i386 images if low bandwidth.
-Low_Bandwidth=1
+Low_Bandwidth=0
 
 while [ -n "$1" ]; do
 	case "$1" in
@@ -68,9 +65,9 @@ do
 	
 	# Which flavors to download
 	if [ "${Current_Set}" == "edubuntu" ]; then
-		Flavors="install live"
+		Flavors="desktop server serveraddon"
 	elif [ "${Current_Set}" == "ubuntu-server" ]; then
-		Flavors="server live"
+		Flavors="server"
 	else
 		Flavors="alternate desktop"
 	fi
@@ -85,9 +82,17 @@ do
 
 	for arch in $Archs; do
 		for flavor in $Flavors; do
-			if rsync --partial-dir="${Ubuntu_Distro_Dir}/${Current_Set}/${Dist}/.partial" "rsync://cdimage.ubuntu.com/cdimage/${Origin}/daily/current/${Dist}-${flavor}-${arch}.iso" "${Dist}-${flavor}-${arch}.iso" ; then
+			if [ "${flavor}" == "desktop" ]; then
+				Is_Desktop=-live
+			fi
+			if [ "${arch}" == "powerpc" ]; then
+				Is_Ports=ports
+			fi
+			if rsync --partial-dir="${Ubuntu_Distro_Dir}/${Current_Set}/${Dist}/.partial" "rsync://cdimage.ubuntu.com/cdimage/${Origin}/${Is_Ports}/daily${Is_Desktop}/current/${Dist}-${flavor}-${arch}.iso" "${Dist}-${flavor}-${arch}.iso" ; then
 			        date > "${flavor}-${arch}-sync"
 			fi
+			unset Is_Desktop
+			unset Is_Ports
 		done
 	done
 done
