@@ -1,11 +1,21 @@
 ubuntu-dev-tools (0.2) UNRELEASED; urgency=low
 
+  [ Martin Pitt ]
   * Add suspicious-source: Output a list of files which are not common source
     files. This should be run in the root of a source tree to find files which
     might not be the 'prefered form of modification' that the GPL and other
     licenses require.
 
- -- Martin Pitt <martin.pitt@ubuntu.com>  Mon, 09 Jul 2007 16:01:04 +0100
+  [ Luke Yelavich ]
+  * ubuntu-cd: Ensure correct flavours are chosen for edubuntu, and
+    ubuntu-server
+  * ubuntu-sync:
+    - Ensure that powerpc isos are retrieved from the ports directory of
+      the appropriate origin.
+    - Ensure correct flavours are chosen for edubuntu, and 
+      ubuntu-server.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Tue, 10 Jul 2007 21:08:39 +1000
 
 ubuntu-dev-tools (0.1) gutsy; urgency=low
 
