@@ -36,6 +36,11 @@ elif [ "${Distro}" == "ubuntu-server" ]; then
 	Flavors="server"
 	Archs="i386"
 	#Archs="i386 amd64"
+elif [ "${Distro}" == "gobuntu" ]; then
+        Origin="${Distro}/releases"
+        Flavors="alternate"
+        Archs="i386"
+        #Archs="i386 amd64 powerpc"
 else
 	Origin="${Distro}/releases"
 	Flavors="alternate desktop"

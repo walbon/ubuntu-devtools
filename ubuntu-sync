@@ -32,6 +32,8 @@ while [ -n "$1" ]; do
 		-x)
 			Image_Sets="${Image_Sets} xubuntu"
 			break
+		-g)
+			Image_Sets="${Image_Sets} gobuntu"
 		;;
 		-s)
 			Image_Sets="${Image_Sets} ubuntu-server"
@@ -44,7 +46,7 @@ if [ "${Low_Bandwidth}" == 1 ] && [ "${Image_Sets}" == "" ]; then
 	cd "${Ubuntu_Distro_Dir}"
 	Image_Sets=`ls -td1 */"${Dist}" | tail -1 | cut -f 1 -d /`
 elif [ "${Low_Bandwidth}" == 0 ] && [ "${Image_Sets}" == "" ]; then
-	Image_Sets="ubuntu xubuntu ubuntu-server edubuntu kubuntu"
+	Image_Sets="ubuntu xubuntu ubuntu-server edubuntu kubuntu gobuntu"
 fi
 
 # Sync images.
@@ -68,6 +70,8 @@ do
 		Flavors="desktop server serveraddon"
 	elif [ "${Current_Set}" == "ubuntu-server" ]; then
 		Flavors="server"
+	elif [ "${Current_Set}" == "gobuntu" ]; then
+		Flavors="alternate"
 	else
 		Flavors="alternate desktop"
 	fi
