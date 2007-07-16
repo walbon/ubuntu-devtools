@@ -32,8 +32,10 @@ while [ -n "$1" ]; do
 		-x)
 			Image_Sets="${Image_Sets} xubuntu"
 			break
+		;;
 		-g)
 			Image_Sets="${Image_Sets} gobuntu"
+			break
 		;;
 		-s)
 			Image_Sets="${Image_Sets} ubuntu-server"
