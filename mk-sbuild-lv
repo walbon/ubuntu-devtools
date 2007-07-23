@@ -196,7 +196,7 @@ TEMPLATE_SCHROOTCONF=~/.mk-sbuild-lv.schroot.conf
 if [ -r "$TEMPLATE_SCHROOTCONF" ]; then
     cat "$TEMPLATE_SCHROOTCONF" > "$TEMP_SCHROOTCONF"
 else
-    cat > "$TEMPLATE_SCHROOTCONF" <<EOM
+    cat > "$TEMP_SCHROOTCONF" <<EOM
 
 [CHROOT_NAME]
 type=lvm-snapshot
