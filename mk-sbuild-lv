@@ -156,10 +156,7 @@ if [ ! -f "/usr/lib/debootstrap/scripts/$RELEASE" ]; then
     echo "Specified release not known to debootstrap" >&2
     exit 1
 else
-    # Look for a buildd variant to work with
-    if [ -f "/usr/lib/debootstrap/scripts/${RELEASE}.buildd" ]; then
-        variant_opt="--variant=buildd"
-    fi
+    variant_opt="--variant=buildd"
 fi
 
 # Allocate the "golden" chroot LV
