@@ -83,9 +83,11 @@ function usage()
 {
     echo "Usage: $0 [OPTIONS] VG Release" >&2
     echo "Options:"
-    echo "  --arch=ARCH    What architecture to select"
-    echo "  --name=NAME    Base name for the schroot (arch is appended)"
-    echo "  --debug        Turn on script debugging"
+    echo "  --arch=ARCH                What architecture to select"
+    echo "  --name=NAME                Base name for the schroot (arch is appended)"
+    echo "  --debug                    Turn on script debugging"
+    echo "  --source-template=FILE     Use FILE as the sources.list template"
+    echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
     exit 1
 }
 
@@ -93,7 +95,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,arch:,name::" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,arch:,name:,source-template:,debootstrap-mirror:" -- "$@"`
 eval set -- "$OPTS"
 
 name=""
@@ -113,6 +115,18 @@ while :; do
             name="$2"
             shift 2
             ;;
+	--source-template)
+	    TEMPLATE_SOURCES="$2"
+	    shift 2
+	    if [ ! -r $TEMPLATE_SOURCES ]; then
+		echo "W: Template file $TEMPLATE_SOURCES is not readable"
+		echo "W: Continuing with default sources!"
+	    fi
+	    ;;
+	--debootstrap-mirror)
+	    DEBOOTSTRAP_MIRROR="$2"
+	    shift 2
+	    ;;
         --)
             shift
             break
@@ -164,7 +178,9 @@ sudo mount "$CHROOT_PATH" "$MNT"
 sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
-TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+if [ -z "$TEMPLATE_SOURCES" ]; then
+    TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+fi
 if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
@@ -224,7 +240,7 @@ set -e
 # Reload package lists
 apt-get update || true
 # Pull down signature requirements
-apt-get -y --force-yes install gnupg ubuntu-keyring
+#apt-get -y --force-yes install gnupg ubuntu-keyring
 # Reload package lists
 apt-get update || true
 # Disable debconf questions so that automated builds won't prompt
