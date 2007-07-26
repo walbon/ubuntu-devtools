@@ -52,11 +52,6 @@ if [ ! -w /var/lib/sbuild ]; then
 # (mandatory, no default!).
 \$maintainer_name='$USER <$USER@localhost>';
 
-# Chroot behaviour; possible values are "split" (apt and dpkg are run
-# from the host system) and "schroot" (all package operations are done in
-# the chroot with schroot, but the chroot must allow networking)
-\$chroot_mode = "schroot";
-
 # Directory for chroot symlinks and sbuild logs.  Defaults to the
 # current directory if unspecified.
 #\$build_dir='$HOME/ubuntu/build';
