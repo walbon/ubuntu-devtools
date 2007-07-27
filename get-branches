@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+# (C) 2007, Canonical
+# Daniel Holbach
+# GPLv3
+
+import urllib2
+import sys
+import re
+import os
+
+def main():
+    usage = "Usage: get-branches <directory> <team> [checkout|branch]"
+    if len(sys.argv) < 3:
+        print >> sys.stderr, usage
+        sys.exit(1)
+    
+    directory = os.path.expanduser(sys.argv[1])
+    team = sys.argv[2]
+    operation_type = "branch"
+    if len(sys.argv) == 4:
+        operation_type = sys.argv[3]
+
+    pwd = os.getcwd()
+    try:
+        os.chdir(directory)
+    except:
+        print >> sys.stderr, "Directory '%s' not found." % directory
+        sys.exit(1)
+
+    try:
+        os.makedirs(team)
+    except:
+        pass
+    os.chdir(team)
+    
+    sock = urllib2.urlopen("http://code.launchpad.net/~%s" % team)
+    branch_list_page = sock.read()
+    sock.close()
+    branch_page_urls_regex = r'.*<a href="/(~%s/.*)".*' % team
+    branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
+    for url in branch_page_urls:
+        sock = urllib2.urlopen("http://code.launchpad.net/%s" % url)
+	branch_page = sock.read()
+	sock.close()
+        branch_url_regex = r'<th>Hosted on Launchpad:</th>.*\n.*<td>(.*)</td>'
+        branch_url = re.findall(branch_url_regex, branch_page)
+	print branch_url[0]
+        if branch_url[0]:
+            product = branch_url[0].split("/")[-2]
+            branch_nick = branch_url[0].split("/")[-1]
+	    if not os.path.exists(product):
+		os.makedirs(product)
+	    os.chdir(product)
+	    if not os.path.exists(branch_nick):
+		os.system("bzr %s %s" % (operation_type, branch_url[0]))
+	    else:
+		os.chdir(branch_nick)
+		os.system("bzr merge --pull --remember")
+        os.chdir(directory)
+            
+    os.chdir(pwd)
+    sys.exit(0)
+    
+
+if __name__ == "__main__":
+    main()
+
