@@ -15,7 +15,7 @@ def main():
         print >> sys.stderr, usage
         sys.exit(1)
     
-    directory = os.path.expanduser(sys.argv[1])
+    directory = os.path.abspath(os.path.expanduser(sys.argv[1]))
     team = sys.argv[2]
     operation_type = "branch"
     if len(sys.argv) == 4:
@@ -57,7 +57,7 @@ def main():
 	    else:
 		os.chdir(branch_nick)
 		os.system("bzr merge --pull --remember")
-        os.chdir(directory)
+        os.chdir(os.path.join(directory, team))
             
     os.chdir(pwd)
     sys.exit(0)
