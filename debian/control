@@ -11,7 +11,8 @@ Standards-Version: 3.7.2
 Package: ubuntu-dev-tools
 Architecture: all
 Section: devel
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, rsync, sudo
+Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo
+Recommends: bzr, pbuilder
 XB-Python-Version: ${python:Versions}
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to
