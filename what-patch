@@ -1,6 +1,18 @@
 #!/bin/bash
-# Copyright 2006,2007 (C) Kees Cook <kees@ubuntu.com>
+# Copyright 2006, 2007 (C) Kees Cook <kees@ubuntu.com>
+# Modified by Siegfried-A. Gevatter <rainct@ubuntuwire.com>
 # License: GPLv2
+
+if [[ -e debian ]]; then
+    cd . # pass
+elif [[ -e ../debian ]]; then
+    cd ..
+elif [[ -e ../patches ]]; then
+    cd ../.. 
+else
+    echo "Can't find debian/rules."; exit
+fi
+
 for filename in $(echo "debian/rules"; grep ^include debian/rules | fgrep -v '$(' | awk '{print $2}')
 do
     fgrep -q patchsys.mk "$filename" && { echo "cdbs"; exit; }
