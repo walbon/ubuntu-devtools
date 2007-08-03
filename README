@@ -1,6 +1,12 @@
-Ubuntu Development Tools
+=====================
+==  Ubuntu Development Tools  ==
+=====================
 
 check-symbols <package> [<directory>]
-... will compare and give you a diff of the exported symbols of all
-.so files in all binary packages of <package>. 
-<directory> is not mandatory and /var/cache/pbuilder/result by default.
+    ... will compare and give you a diff of the exported symbols of all .so 
+    files in all binary packages of <package>. 
+    <directory> is not mandatory and set to /var/cache/pbuilder/result by default.
+
+what-patch
+    ... will check what patching system is used by a package.
+    You need to be in it's source directory in order that it works.

@@ -1,13 +1,13 @@
 #!/bin/bash
-# Copyright 2006, 2007 (C) Kees Cook <kees@ubuntu.com>
+# Copyright 2006-2007 (C) Kees Cook <kees@ubuntu.com>
 # Modified by Siegfried-A. Gevatter <rainct@ubuntuwire.com>
 # License: GPLv2
 
-if [[ -e debian ]]; then
+if [[ -d debian ]]; then
     cd . # pass
-elif [[ -e ../debian ]]; then
+elif [[ -d ../debian ]]; then
     cd ..
-elif [[ -e ../patches ]]; then
+elif [[ -d ../patches ]]; then
     cd ../.. 
 else
     echo "Can't find debian/rules."; exit
