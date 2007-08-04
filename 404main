@@ -1,4 +1,9 @@
 #!/usr/bin/python
+# The author of this script is unknown
+# License: Public Domain
+#
+# This script is used to check in what components ("main", "restricted",
+# "universe" or "multiverse") the dependencies of a package are.
 
 import subprocess
 import sys

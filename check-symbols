@@ -1,7 +1,10 @@
 #!/bin/bash
 # Copyright 2006-2007 (C) Daniel Holbach <daniel.holbach@ubuntu.com>
-# Modified by Siegfried-A. Gevatter <rainct@ubuntuwire.com>
+# Modified by Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
 # License: GPLv2
+#
+# This script is used to get a diff of the exported symbols of all .so files in
+# every binary package of package $1.
 
 PACKAGES="`apt-cache showsrc $1 | grep ^Binary | sed 's/Binary\:\ //g;s/\,//g' | sort -u`"
 DEBLINE=""

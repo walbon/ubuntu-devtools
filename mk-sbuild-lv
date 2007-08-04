@@ -1,9 +1,13 @@
 #!/bin/bash
-# Script to create LVM snapshot chroots via schroot and sbuild.
+# Copyright 2006-2007 (C) Canonical Ltd.
+# Created by Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+#
+# This script creates LVM snapshot chroots via schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
-# This script assumes that sbuild has not be installed and configured before.
+# It assumes that sbuild has not be installed and configured before.
 #
 # If using schroot earlier than 1.1.4-1, it's a good idea to apply the
 # process-cleaning patch to /etc/schroot/setup.d/10mount.  Without this, any
@@ -17,9 +21,7 @@
 #   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
 #
 # Version: 0.11
-#
-# Copyright 2006-2007, Canonical Ltd, Kees Cook <kees@ubuntu.com>
-# License: GPLv2
+
 set -e
 
 # Make sure we've got a regular user

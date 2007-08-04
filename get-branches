@@ -1,8 +1,10 @@
 #!/usr/bin/python
-
-# (C) 2007, Canonical
-# Daniel Holbach
-# GPLv3
+# Copyright 2007 (C) Canonical Ltd.
+# Created by Daniel Holbach <daniel.holbach@ubuntu.com>
+# License: GPLv3
+#
+# This script is used to checkout or branch all the Bazaar branches
+# in a Launchpad team.
 
 import urllib2
 import sys
@@ -65,4 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
