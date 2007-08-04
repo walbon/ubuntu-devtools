@@ -1,8 +1,9 @@
 #!/bin/bash
-#update-maintainer
-#small - thus not perfect - script to update maintainer field in ubuntu packages
-#written and (c) 2007 by Albin Tonnerre <lut1n.tne@gmail.com> (Lutin)
-#this code is under the GNU GPL V2 licence
+# Copyright 2007 (C) Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
+# License: GPLv2
+#
+# This script is used to update the maintainer field of an Ubuntu package
+# to match the DebianMaintainerField specification.
 
 if [ ${#@} -ge 1 ]; then
     for argv in "$@"; do
@@ -25,14 +26,14 @@ if [ -f debian/control -a -f debian/changelog ]; then
 elif [ -f control -a -f changelog ]; then
     DEBIANDIR=.
 else
-    echo "Please run that script in the source folder" >&2 && exit 1
+    echo "Please run that script in the source folder." >&2 && exit 1
 fi
 
 IGNORE_DOMAINS="ubuntu\.com|ubuntu\.com\.au"
 
 [ -n "`head -n 1 $DEBIANDIR/changelog | grep -E "\(*ubuntu.*\)"`" ] &&
 [ -z "`grep -E "^Maintainer: .*($IGNORE_DOMAINS)>" $DEBIANDIR/control`" ] || \
-{ echo "Not an ubuntu package or already maintained by the ubuntu team" >&2 && \
+{ echo "Not an Ubuntu package or already maintained by the Ubuntu team." >&2 && \
     exit 1; }
 
 mail=$(grep -E "^Maintainer" $DEBIANDIR/control | sed -r 's/.*<(.*)>/\1/')
@@ -46,7 +47,7 @@ if [ -z "$email" ]; then
       DISTRO=$(head -n 1 $DEBIANDIR/changelog|sed -r 's/.*\) (.*);.*/\1/' | cut -d'-' -f1)
       pkgline=$(apt-cache madison `head -n 1 $DEBIANDIR/changelog | cut -d' ' \
         -f1`| grep -m 1 "$DISTRO.*Sources")
-      [ -z "$pkgline" ] && echo "You don't have $DISTRO in your source repos" \
+      [ -z "$pkgline" ] && echo "You don't have $DISTRO in your source repos." \
         >&2 && exit 1
       section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
     fi
@@ -59,5 +60,5 @@ fi
 sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control
 [ -f $DEBIANDIR/control.in ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control.in
 
-dch "Modify Maintainer value to match Debian-Maintainer-Field Spec"
-echo "Maintainer changed to $email"
+dch "Modify Maintainer value to match the DebianMaintainerField specification."
+echo "Maintainer changed to $email."

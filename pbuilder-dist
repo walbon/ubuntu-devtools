@@ -1,19 +1,30 @@
 #!/bin/sh
-# script from Jamin W. Collins  BTS: #255165
-# name this script 'pbuilder-dapper', 'pbuilder-edgy', 'pbuilder-feisty' etc.
+# Copyright (C) Jamin W. Collins <jcollins@asgardsrealm.net>
+# License: Public Domain
 #
-# The only variable you really might need to change is BASE_DIR if you don't want pbuilder stuff in ~/
+# This script is a wrapper to use pbuilder with many different
+# distributions / versions.
+#
+# Name this script 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', etc.
+#
+# The only variable you really might need to change is BASE_DIR, if you
+# don't want pbuilder stuff in your home directory.
+#
+# BTS: #255165
+
+BASE_DIR="$HOME/pbuilder"
 
 OPERATION=$1
 DISTRIBUTION=`basename $0 | cut -f2 -d '-'`
 PROCEED=false
-BASE_DIR="$HOME/pbuilder"
+
 case $OPERATION in
    create|update|build|clean|login|execute )
       PROCEED=true
       ;;
 esac
-if [ $PROCEED = true ]; then
+
+if [[ $PROCEED = true ]]; then
    shift 
    if [ ! -d $BASE_DIR/${DISTRIBUTION}_result ]
    then mkdir -p $BASE_DIR/${DISTRIBUTION}_result/
