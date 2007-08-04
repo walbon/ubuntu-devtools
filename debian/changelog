@@ -7,17 +7,10 @@ ubuntu-dev-tools (0.2) UNRELEASED; urgency=low
     licenses require.
 
   [ Luke Yelavich ]
-  * ubuntu-cd:
-    - Ensure correct flavours are chosen for edubuntu, and ubuntu-server
-    - Add support for gobuntu.
-  * ubuntu-sync:
-    - Ensure that powerpc isos are retrieved from the ports directory of
-      the appropriate origin.
-    - Ensure correct flavours are chosen for edubuntu, and
-      ubuntu-server.
-    - Add support for gobuntu.
+  * Removed ubuntu-cd and ubuntu-sync. They are currently undergoing
+    major reworking, and will be re-included when ready.
 
- -- Luke Yelavich <themuso@ubuntu.com>  Thu, 12 Jul 2007 16:38:54 +1000
+ -- Luke Yelavich <themuso@ubuntu.com>  Sat,  4 Aug 2007 08:30:01 +1000
 
 ubuntu-dev-tools (0.1) gutsy; urgency=low
 
