@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.2) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.2) gutsy; urgency=low
 
   [ Martin Pitt ]
   * Add suspicious-source: Output a list of files which are not common source

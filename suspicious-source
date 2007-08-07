@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 2007 (C) Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
 # Based upon a script by Martin Pitt <martin.pitt@ubuntu.com>
-# License: GPL v3 or later
+# License: GPLv3 or later
 #
 # This script outputs a list of files which are not common source files. This
 # should be run in the root of a source tree to find files which might not be 

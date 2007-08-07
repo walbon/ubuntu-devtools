@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright 2006-2007 (C) Kees Cook <kees@ubuntu.com>
-# Modified by Siegfried-A. Gevatter <rainct@ubuntuwire.com>
+# Modified by Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
 # License: GPLv2
 
 if [[ -d debian ]]; then
