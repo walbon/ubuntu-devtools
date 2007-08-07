@@ -26,7 +26,7 @@ if [ -f debian/control -a -f debian/changelog ]; then
 elif [ -f control -a -f changelog ]; then
     DEBIANDIR=.
 else
-    echo "Please run that script in the source folder." >&2 && exit 1
+    echo "Please execute «$0» in the source folder." >&2 && exit 1
 fi
 
 IGNORE_DOMAINS="ubuntu\.com|ubuntu\.com\.au"
