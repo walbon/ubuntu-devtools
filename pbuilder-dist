@@ -5,7 +5,8 @@
 # License: GPLv2 or later
 #
 # This script is a wrapper to use pbuilder with many different
-# distributions / versions.
+# distributions / versions. (It was originally created because of
+# bug #255165 in Debian.)
 #
 # If you want to use this copy of the script only for a single distribution
 # / version, rename it to 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', 
@@ -14,20 +15,29 @@
 #
 # The only variable you really might need to change is BASE_DIR, if you
 # don't want pbuilder stuff in your home directory.
-#
-# BTS: #255165
 
+# Base directory where pbuilder will put all the files it creates
 BASE_DIR="$HOME/pbuilder"
 
+# Enable additional repositories by default? (universe and multiverse in Ubuntu,
+# contrib and non-free in Debian.)
+EXTRACOMP=1
+
+
 ARCH=`dpkg-architecture | grep "DEB_HOST_ARCH=" | cut -f2 -d '='`
+
+help()
+{
+        echo "Insufficient number of arguments."
+        echo "Usage: $0 "$( [ "$1" != 'show-dist-flag' ] || echo "<distribution> " )$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )"[mainonly|allcomp] <operation>"
+        exit 1
+}
 
 if [ ! -z `echo \`basename $0\` | grep -- '-'`  ] && [ `basename $0` != 'pbuilder-dist' ]
 then
     if [ $# -lt 1 ]
     then
-        echo "Insufficient number of arguments."
-        echo "Usage: $0 "$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )"<operation>"
-        exit 1
+        help
     fi
     
     BINARCH=`basename $0 | cut -f3 -d '-'`
@@ -35,14 +45,13 @@ then
 else
     if [ $# -lt 2 ]
     then
-        echo "Insufficient number of arguments."
-        echo "Usage: $0 <distribution> ""$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )""<operation>"
-        exit 1
+        help show-dist-flag
     fi
     
     DISTRIBUTION=$1
     shift 1
 fi
+
 
 if [ $1 = "i386" ]  || [ $1 = "amd64" ]
 then
@@ -56,18 +65,41 @@ then
     shift 1
 fi
 
-OPERATION=$1
+
+if [ $1 = "mainonly" ]
+then
+    EXTRACOMP=0
+    shift 1
+elif [ $1 = "allcomp" ]
+then
+    EXTRACOMP=1
+    shift 1
+fi
+
+
+distdata()
+{
+    if [ "$1" = "debian" ]
+    then
+        # Set Debian specific data
+        ARCHIVE="http://ftp.debian.org"
+        COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
+    else
+        # Set Ubuntu specific data
+        ARCHIVE="http://archive.ubuntu.com/ubuntu"
+        COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
+    fi
+}
+
 
 case $DISTRIBUTION in
     #warty|hoary|breezy)
     dapper|edgy|feisty|gutsy)
-        ARCHIVE="http://archive.ubuntu.com/ubuntu"
-        COMPONENTS="universe multiverse"
+        distdata ubuntu
         ;;
     
     oldstable|sarge|stable|etch|testing|lenny|unstable|sid|experimental)
-        ARCHIVE="http://ftp.debian.org"
-        COMPONENTS="main contrib non-free"
+        distdata debian
         ;;
     
     *)
@@ -77,15 +109,16 @@ case $DISTRIBUTION in
         
         if [ "$continue" != 'y' ] && [ "$continue" != 'Y' ]
         then
-            echo " Aborting..."
+            echo "Aborting..."
             exit 1
         fi
         
-        ARCHIVE="http://archive.ubuntu.com/ubuntu"
-        COMPONENTS="universe multiverse"
+        distdata
         ;;
 esac
 
+
+OPERATION=$1
 
 case $OPERATION in
     create|update|build|clean|login|execute)
@@ -113,5 +146,5 @@ sudo pbuilder $OPERATION \
     --basetgz $BASE_DIR/$DISTRIBUTION-base.tgz \
     --distribution $DISTRIBUTION \
     $( [ -z $BINARCH ] || echo "--binary-arch $BINARCH" ) \
-    --buildresult $BASE_DIR/$DISTRIBUTION_result \
+    --buildresult $BASE_DIR/${DISTRIBUTION}_result \
     --othermirror "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" $@
