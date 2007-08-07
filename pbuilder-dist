@@ -9,7 +9,8 @@
 #
 # If you want to use this copy of the script only for a single distribution
 # / version, rename it to 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', 
-# or whatever it is.
+# or whatever it is. If you have an amd64, you can also use names like
+# 'pbuilder-feisty-i386', etc.
 #
 # The only variable you really might need to change is BASE_DIR, if you
 # don't want pbuilder stuff in your home directory.
@@ -20,7 +21,7 @@ BASE_DIR="$HOME/pbuilder"
 
 ARCH=`dpkg-architecture | grep "DEB_HOST_ARCH=" | cut -f2 -d '='`
 
-if [ ! -z `echo \`basename $0\` | grep '-'`  ]
+if [ ! -z `echo \`basename $0\` | grep -- '-'`  ] && [ `basename $0` != 'pbuilder-dist' ]
 then
     if [ $# -lt 1 ]
     then
@@ -28,7 +29,8 @@ then
         echo "Usage: $0 "$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )"<operation>"
         exit 1
     fi
-
+    
+    BINARCH=`basename $0 | cut -f3 -d '-'`
     DISTRIBUTION=`basename $0 | cut -f2 -d '-'`
 else
     if [ $# -lt 2 ]
