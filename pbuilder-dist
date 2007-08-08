@@ -24,7 +24,7 @@ BASE_DIR="$HOME/pbuilder"
 EXTRACOMP=1
 
 
-ARCH=`dpkg-architecture | grep "DEB_HOST_ARCH=" | cut -f2 -d '='`
+ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 
 help()
 {
