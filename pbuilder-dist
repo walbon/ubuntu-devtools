@@ -143,7 +143,7 @@ then
 fi
 
 sudo pbuilder $OPERATION \
-    --basetgz $BASE_DIR/$DISTRIBUTION-base.tgz \
+    --basetgz $BASE_DIR/$DISTRIBUTION-$( ([ "$BINARCH" != "" ] && echo $BINARCH) || echo $ARCH )-base.tgz \
     --distribution $DISTRIBUTION \
     $( [ -z $BINARCH ] || echo "--binary-arch $BINARCH" ) \
     --buildresult $BASE_DIR/${DISTRIBUTION}_result \
