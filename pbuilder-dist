@@ -12,9 +12,6 @@
 # / version, rename it to 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', 
 # or whatever it is. If you have an amd64, you can also use names like
 # 'pbuilder-feisty-i386', etc.
-#
-# The only variable you really might need to change is BASE_DIR, if you
-# don't want pbuilder stuff in your home directory.
 
 # Base directory where pbuilder will put all the files it creates
 BASE_DIR="$HOME/pbuilder"
@@ -84,10 +81,10 @@ fi
 
 
 if [ $1 = "withlog" ]; then
-    SAVELOG=0
+    SAVELOG=1
     shift 1
 elif [ $1 = "nolog" ]; then
-    SAVELOG=1
+    SAVELOG=0
     shift 1
 fi
 
@@ -137,6 +134,7 @@ OPERATION=$1
 
 case $OPERATION in
     create|update|build|clean|login|execute)
+        shift 1
         ;;
     
     *)
@@ -169,5 +167,6 @@ sudo pbuilder $OPERATION \
     $( [ -z $BINARCH ] || echo "--binary-arch $BINARCH" ) \
     $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
-    --buildresult $BASE_DIR/$FOLDERBASE_result \
-    --othermirror "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" $@
+    --buildresult $BASE_DIR/${FOLDERBASE}_result \
+    --othermirror "\"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\"" \
+    $@
