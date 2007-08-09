@@ -84,10 +84,10 @@ fi
 
 
 if [ $1 = "withlog" ]; then
-    SAVELOG=0
+    SAVELOG=1
     shift 1
 elif [ $1 = "nolog" ]; then
-    SAVELOG=1
+    SAVELOG=0
     shift 1
 fi
 
@@ -137,6 +137,7 @@ OPERATION=$1
 
 case $OPERATION in
     create|update|build|clean|login|execute)
+        shift 1
         ;;
     
     *)
@@ -165,9 +166,10 @@ fi
 
 sudo pbuilder $OPERATION \
     --basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
+    $@ \
     --distribution $DISTRIBUTION \
     $( [ -z $BINARCH ] || echo "--binary-arch $BINARCH" ) \
     $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/$FOLDERBASE_result \
-    --othermirror "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" $@
+    --othermirror "\"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
