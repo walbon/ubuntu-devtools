@@ -5,18 +5,16 @@
 # This script is used to update the maintainer field of an Ubuntu package
 # to match the DebianMaintainerField specification.
 
-if [ ${#@} -ge 1 ]; then
-    for argv in "$@"; do
-        param=`echo $argv | cut -d'=' -f1`
-        value=`echo $argv | cut -d'=' -f2`
-        case $param in
-            "--path")    path="$value"  ;;
-            "--section") section=$value ;;
-            "--help")    echo -e "Options: \n --path=PATH : specify the path of the source folder\n --section=SECTION : specify the section of the package (if the package is not yet in the archive or if you don't have the gutsy source repo in your sources.list)"; exit 0         ;;
-            *)           echo "Bad parameter, please use --help" >&2; exit 1 ;;
-        esac
-    done
-fi
+for argv in "$@"; do
+    param=${argv%=*}
+    value=${argv#*=}
+    case $param in
+        "--path")    path="$value"  ;;
+        "--section") section=$value ;;
+        "--help")    echo -e "Options: \n --path=PATH : specify the path of the source folder\n --section=SECTION : specify the section of the package (if the package is not yet in the archive or if you don't have the gutsy source repo in your sources.list)"; exit 0         ;;
+        *)           echo "Bad parameter, please use --help" >&2; exit 1 ;;
+    esac
+done
 
 cd ${path-.}
 
@@ -29,36 +27,30 @@ else
     echo "Please execute «$0» in the source folder." >&2 && exit 1
 fi
 
-IGNORE_DOMAINS="ubuntu\.com|ubuntu\.com\.au"
+[ -n "$(head -1 $DEBIANDIR/changelog | grep -E '\(*ubuntu.*\)')" ] &&
+! grep -E "^Maintainer: .*@.*ubuntu.*>" $DEBIANDIR/control >/dev/null || \
+{ echo "Not an Ubuntu package or already maintained by the Ubuntu team." >&2; \
+exit 1; }
 
-[ -n "`head -n 1 $DEBIANDIR/changelog | grep -E "\(*ubuntu.*\)"`" ] &&
-[ -z "`grep -E "^Maintainer: .*($IGNORE_DOMAINS)>" $DEBIANDIR/control`" ] || \
-{ echo "Not an Ubuntu package or already maintained by the Ubuntu team." >&2 && \
-    exit 1; }
-
-mail=$(grep -E "^Maintainer" $DEBIANDIR/control | sed -r 's/.*<(.*)>/\1/')
-case $mail in
-    "adconrad@0c3.net")     email="Adam Conrad <adconrad@ubuntu.com>"       ;;
-    "mpitt@debian.org")     email="Martin Pitt <martin.pitt@ubuntu.com>"    ;;
+if [ -z "$section" ]; then
+    DISTRO=$(sed -r '1!d;s/.*\) (.*);.*/\1/' $DEBIANDIR/changelog|cut -d'-' -f1)
+    pkgline=$(apt-cache madison $(head -1 $DEBIANDIR/changelog| cut -d' ' -f1)|\
+        grep -m 1 "$DISTRO.*Sources")
+    if [ -z "$pkgline" ]; then
+        echo "You don't have $DISTRO in your source repos." >&2
+        exit 1
+    fi
+    section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
+fi
+case $section in
+    "main"|"restricted")        email="Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"  ;;
+    "universe"|"multiverse")    email="Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>"           ;;
+    *)      echo "No section found for this package; aborting" >&2; exit 1 ;;
 esac
 
-if [ -z "$email" ]; then
-    if [ -z "$section" ]; then
-      DISTRO=$(head -n 1 $DEBIANDIR/changelog|sed -r 's/.*\) (.*);.*/\1/' | cut -d'-' -f1)
-      pkgline=$(apt-cache madison `head -n 1 $DEBIANDIR/changelog | cut -d' ' \
-        -f1`| grep -m 1 "$DISTRO.*Sources")
-      [ -z "$pkgline" ] && echo "You don't have $DISTRO in your source repos." \
-        >&2 && exit 1
-      section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
-    fi
-    case $section in
-        "main"|"restricted")        email="Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"  ;;
-        "universe"|"multiverse")    email="Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>"           ;;
-    esac
-fi
-
-sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control
-[ -f $DEBIANDIR/control.in ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/control.in
+for file in control{,.in,.real}; do
+    [ -f $DEBIANDIR/$file ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
+done
 
 dch "Modify Maintainer value to match the DebianMaintainerField specification."
 echo "Maintainer changed to $email."
