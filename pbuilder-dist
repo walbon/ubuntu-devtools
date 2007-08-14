@@ -164,7 +164,7 @@ fi
 sudo pbuilder $OPERATION \
     --basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
     --distribution $DISTRIBUTION \
-    $( [ -z $BINARCH ] || echo "--binary-arch $BINARCH" ) \
+    $( [ -z $BINARCH ] || echo "--debootstrapopts \"--arch\" --debootstrapopts \"$BINARCH\"" ) \
     $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/${FOLDERBASE}_result \
