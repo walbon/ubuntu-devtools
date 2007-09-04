@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.3) gutsy; urgency=low
+
+  * debian/copyright: added Canonical copyright.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 04 Sep 2007 09:51:04 +0200
+
 ubuntu-dev-tools (0.2) gutsy; urgency=low
 
   [ Martin Pitt ]
