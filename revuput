@@ -1,0 +1,104 @@
+#!/usr/bin/python
+#
+# Copyright 2007, Canonical
+#
+# GPL 3
+#
+#
+
+import re
+import os
+import sys
+import string
+import subprocess
+
+USAGE = 'Usage: revuput <location> <debuild options>'
+
+def find_fixed_launchpad_bug(changesfile):
+    changes = open(changesfile).readlines()
+    for line in changes:
+	if line.startswith("Launchpad-Bugs-Fixed"):
+	    return line.split(":")[1].split()
+    return []
+
+
+def call_dput(location, changes):
+    return os.system("dput %s %s" % (location, changes)) == 0
+
+
+def lookup_dput_host(host):
+    (dummy, output, dummy) = os.popen3("dput -H | grep ^%s" % host)
+    text = output.read()
+    if text:
+	return text.split()[2]
+    return ""
+
+
+def call_debuild(options):
+    return os.system("debuild -S -k%s %s" % \
+	(os.getenv("DEBEMAIL"), \
+	 string.join(options, " "))) == 0
+
+def get_name_and_version():
+    changelogfile = "debian/changelog"
+    if not os.path.exists(changelogfile):
+	print >> sys.stderr, "%s not found." % changelogfile
+	sys.exit(1)
+    
+    head = open(changelogfile).readline()
+    return re.findall(r'^(.*)\ \((.*)\).*', head)
+
+
+def assemble_bug_comment_text(host, sourcepackage, version):
+    return """A new version of %s was uploaded to fix this bug.
+
+To review the current version, please run
+
+  dget -x http://%s/%s_%s.dsc
+""" % (sourcepackage, host, sourcepackage, version)
+
+
+def file_bug_report(package, text):
+    to = "new@bugs.launchpad.net"
+    mailtext = """ affects distros/ubuntu/%s
+ status confirmed
+ subscribe %s"""
+	      
+    mail_process = subprocess.Popen(["mail", "-s", subject, to], 
+				    stdin=subprocess.PIPE,
+				    stdout=subprocess.PIPE)
+    mail_process.communicate(report)
+
+
+def main():
+    location = ""
+    options = []
+
+    if len(sys.argv)<2:
+	print >> sys.stderr, USAGE
+	sys.exit(1)
+
+    location = sys.argv[1]
+    if len(sys.argv) > 2:
+	options = sys.argv[2:]
+
+    if not call_debuild(options):
+	sys.exit(1)
+    
+    (sourcepackage, version) = get_name_and_version()[0]
+    changesfile = "../%s_%s_source.changes" % (sourcepackage, version)
+    if not os.path.exists(os.path.expanduser(changesfile)):
+	print >>  sys.stderr, "%s does not exist." % \
+	    os.path.expanduser(changesfile)
+	sys.exit(1)
+
+    fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
+    host = lookup_dput_host(location) 
+
+    print assemble_bug_comment_text(host, sourcepackage, version)
+    if not call_dput(location, changesfile):
+	sys.exit(1)
+
+    
+if __name__ == '__main__':
+	main()
