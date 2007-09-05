@@ -5,14 +5,36 @@
 # GPL 3
 #
 #
+# Notes: needs dput, python-launchpad-bugs (>= 0.2.4)
+#
 
 import re
 import os
 import sys
 import string
-import subprocess
 
-USAGE = 'Usage: revuput <location> <debuild options>'
+try:
+    import launchpadbugs.connector as Connector
+except:
+    print >> sys.stderr, \
+	"You need  python-launchpad-bugs (>= 0.2.4)  installed to use revuput."
+    sys.exit(1)
+
+#try:
+#    import apt
+#except:
+#    print >> sys.stderr, "You need  python-apt  installed to use revuput."
+#    sys.exit(1)
+
+
+USAGE = 'Usage: revuput <location> [<debuild options>]'
+
+
+def dput_check():
+    if not os.path.exists("/usr/bin/dput"):
+	print >> sys.stderr, "You need to install the  dput  package."
+	sys.exit(1)
+
 
 def find_fixed_launchpad_bug(changesfile):
     changes = open(changesfile).readlines()
@@ -23,10 +45,12 @@ def find_fixed_launchpad_bug(changesfile):
 
 
 def call_dput(location, changes):
+    dput_check()
     return os.system("dput %s %s" % (location, changes)) == 0
 
 
 def lookup_dput_host(host):
+    dput_check()
     (dummy, output, dummy) = os.popen3("dput -H | grep ^%s" % host)
     text = output.read()
     if text:
@@ -58,16 +82,38 @@ To review the current version, please run
 """ % (sourcepackage, host, sourcepackage, version)
 
 
-def file_bug_report(package, text):
-    to = "new@bugs.launchpad.net"
-    mailtext = """ affects distros/ubuntu/%s
- status confirmed
- subscribe %s"""
-	      
-    mail_process = subprocess.Popen(["mail", "-s", subject, to], 
-				    stdin=subprocess.PIPE,
-				    stdout=subprocess.PIPE)
-    mail_process.communicate(report)
+def deal_with_bugreport(bugnumbers, host, sourcepackage, version):
+    if not os.path.exists(os.path.expanduser("~/.lpcookie")):
+	print >> sys.stderr, \
+	    "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
+	sys.exit(1)
+
+    #print apt.Cache()[sourcepackage].section.split("/")[0].count("verse")
+    (dummy, output, dummy) = os.popen3(
+"apt-cache showsrc %s | grep Directory | cut -d' ' -f2 | cut -d'/' -f2" % \
+	sourcepackage)
+    component = output.read()
+    
+    Bug = Connector.ConnectBug()
+    Bug.authentication = os.path.expanduser("~/.lpcookie")
+    
+    for bugnumber in bugnumbers:
+	bug = Bug(int(bugnumber))
+# FIXME: should really be subscribers
+#	if component in ["main", "restricted"] and \
+#	   bug.assignee != 'ubuntu-main-sponsors':
+#	    bug.assignee = 'ubuntu-main-sponsors'
+#	if component in ["universe", "multiverse"] and \
+#	   bug.assignee != 'ubuntu-universe-sponsors':
+#	    bug.assignee = 'ubuntu-universe-sponsors'
+
+# FIXME: does not work yet
+#	comment = Bug.NewComment(text=assemble_bug_comment_text(host,
+#					    sourcepackage, version))
+#	bug.comments.add(comment)
+	bug.status = "Fix Committed"
+	bug.commit()
+
 
 
 def main():
@@ -95,9 +141,11 @@ def main():
     fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     host = lookup_dput_host(location) 
 
-    print assemble_bug_comment_text(host, sourcepackage, version)
-    if not call_dput(location, changesfile):
-	sys.exit(1)
+
+    if(fixed_lp_bugs):
+	deal_with_bugreport(fixed_lp_bugs, host, sourcepackage, version)
+    #if not call_dput(location, changesfile):
+    #	sys.exit(1)
 
     
 if __name__ == '__main__':
