@@ -5,7 +5,9 @@
 # GPL 3
 #
 #
-# Notes: needs dput, python-launchpad-bugs (>= 0.2.4)
+# Notes: 
+#  - needs dput, python-launchpad-bugs (>= 0.2.4)
+#  - needs http://launchpad.net/bugs/137767 to get fixed
 #
 
 import re
