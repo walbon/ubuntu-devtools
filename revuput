@@ -46,7 +46,20 @@ def find_fixed_launchpad_bug(changesfile):
 
 def call_dput(location, changes):
     dput_check()
-    return os.system("dput %s %s" % (location, changes)) == 0
+
+    incoming = ""
+    res = False
+
+    (dummy, output, dummy) = os.popen3("dput --debug %s %s" % (location, changes))
+    text = output.readlines()
+    for line in text:
+	if line.startswith("D: Incoming: "):
+	    incoming = line.split("D: Incoming: ")[1].strip()
+	    if incoming[-1] == "/":
+		incoming = incoming[:-1]
+	if line.startswith("Successfully uploaded packages."):
+	    res = True
+    return (res, incoming)
 
 
 def lookup_dput_host(host):
@@ -59,9 +72,16 @@ def lookup_dput_host(host):
 
 
 def call_debuild(options):
+# FIXME: this requires magic, that figures out when to use --native --working,
+#        etc.
+#    if os.path.exists(".bzr") and os.path.exists("/usr/bin/bzr-buildpackage"):
+#	return os.system("bzr bd -S --builder='-k%s %s'" % \
+#		(os.getenv("DEBEMAIL"), \
+#	         string.join(options, " "))) == 0
+#    else:
     return os.system("debuild -S -k%s %s" % \
 	(os.getenv("DEBEMAIL"), \
-	 string.join(options, " "))) == 0
+	string.join(options, " "))) == 0
 
 def get_name_and_version():
     changelogfile = "debian/changelog"
@@ -73,16 +93,25 @@ def get_name_and_version():
     return re.findall(r'^(.*)\ \((.*)\).*', head)
 
 
-def assemble_bug_comment_text(host, sourcepackage, version):
+def assemble_bug_comment_text(host, incoming, sourcepackage, version):
+    if host == "ppa.launchpad.net":
+	dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
+	    (host, incoming[1:], sourcepackage[0], sourcepackage, \
+	     sourcepackage, version)
+    else:
+# FIXME: this needs to be much much cleverer at some stage
+	dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
+	    (host, incoming, sourcepackage[0], sourcepackage, version)
+    "http://ppa.launchpad.net/dholbach/ubuntu/pool/main/h/hello/hello_2.2-2~ppa1.dsc"
     return """A new version of %s was uploaded to fix this bug.
 
 To review the current version, please run
 
-  dget -x http://%s/%s_%s.dsc
-""" % (sourcepackage, host, sourcepackage, version)
+  dget -x %s
+""" % (sourcepackage, dsc_file_location)
 
 
-def deal_with_bugreport(bugnumbers, host, sourcepackage, version):
+def deal_with_bugreport(bugnumbers, host, incoming, sourcepackage, version):
     if not os.path.exists(os.path.expanduser("~/.lpcookie")):
 	print >> sys.stderr, \
 	    "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
@@ -92,26 +121,28 @@ def deal_with_bugreport(bugnumbers, host, sourcepackage, version):
     (dummy, output, dummy) = os.popen3(
 "apt-cache showsrc %s | grep Directory | cut -d' ' -f2 | cut -d'/' -f2" % \
 	sourcepackage)
-    component = output.read()
+    component = output.read().strip()
     
     Bug = Connector.ConnectBug()
     Bug.authentication = os.path.expanduser("~/.lpcookie")
     
     for bugnumber in bugnumbers:
 	bug = Bug(int(bugnumber))
-# FIXME: should really be subscribers
-#	if component in ["main", "restricted"] and \
-#	   bug.assignee != 'ubuntu-main-sponsors':
-#	    bug.assignee = 'ubuntu-main-sponsors'
-#	if component in ["universe", "multiverse"] and \
-#	   bug.assignee != 'ubuntu-universe-sponsors':
-#	    bug.assignee = 'ubuntu-universe-sponsors'
+	if component in ["main", "restricted"] and \
+	   'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers]:
+	    bug.subscribers.add('ubuntu-main-sponsors')
+	if component in ["universe", "multiverse"] and \
+	   'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]:
+	    bug.subscribers.add('ubuntu-universe-sponsors')
 
-# FIXME: does not work yet
-#	comment = Bug.NewComment(text=assemble_bug_comment_text(host,
-#					    sourcepackage, version))
-#	bug.comments.add(comment)
-	bug.status = "Fix Committed"
+	comment = Bug.NewComment(text=assemble_bug_comment_text(host, incoming,
+					    sourcepackage, version),
+				 subject="Fix in %s (%s)" % \
+					(sourcepackage, version))
+	bug.comments.add(comment)
+
+	if bug.status != "Fix Committed":
+	    bug.status = "Fix Committed"
 	bug.commit()
 
 
@@ -138,14 +169,15 @@ def main():
 	    os.path.expanduser(changesfile)
 	sys.exit(1)
 
-    fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     host = lookup_dput_host(location) 
+    (dput_res, incoming) = call_dput(location, changesfile)
+    if not dput_res:
+    	sys.exit(1)
 
-
+    fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     if(fixed_lp_bugs):
-	deal_with_bugreport(fixed_lp_bugs, host, sourcepackage, version)
-    #if not call_dput(location, changesfile):
-    #	sys.exit(1)
+	deal_with_bugreport(fixed_lp_bugs, host, incoming, sourcepackage,
+			    version)
 
     
 if __name__ == '__main__':
