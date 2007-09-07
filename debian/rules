@@ -6,3 +6,9 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
 DEB_INSTALL_MANPAGES_ubuntu-dev-tools = doc/*.1
+
+build/ubuntu-dev-tools::
+	docbook2x-man doc/revuput.1.docbook; mv revuput.1 doc
+
+clean::
+	rm -f doc/revuput.1

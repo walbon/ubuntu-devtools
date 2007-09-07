@@ -1,3 +1,13 @@
+ubuntu-dev-tools (0.4) UNRELEASED; urgency=low
+
+  * revuput: added a tool to upload packages to PPA and file sponsoring bugs
+    automatically.
+  * doc/revuput.1.docbook, debian/control, debian/rules: build manpage for it
+    from DocBook.
+  * setup.py: install it.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 07 Sep 2007 14:14:57 +0200
+
 ubuntu-dev-tools (0.3) gutsy; urgency=low
 
   * debian/copyright: added Canonical copyright.

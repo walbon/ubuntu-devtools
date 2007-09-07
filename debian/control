@@ -5,6 +5,7 @@ Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
 XS-Vcs-Bzr: https://launchpad.net/ubuntu-dev-tools/
 XS-Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
 Build-Depends:  cdbs (>= 0.4.43), debhelper (>= 5), python-central (>= 0.5), python-all-dev (>= 2.4)
+Build-Depends-Indep: docbook2x
 XS-Python-Version: all
 Standards-Version: 3.7.2
 
