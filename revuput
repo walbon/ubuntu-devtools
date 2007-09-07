@@ -167,7 +167,7 @@ def check_arguments(args):
     location = 'default'
     debuild_args = list()
 
-    if sys.argv[1] in ["--help", "-H"]:
+    if len(sys.argv) == 2 and sys.argv[1] in ["--help", "-H"]:
 	print USAGE
 	sys.exit(0)
 
