@@ -29,7 +29,13 @@ except:
 #    sys.exit(1)
 
 
-USAGE = 'Usage: revuput [-n] [<location>] [<debuild options>]'
+USAGE = \
+"""Usage: revuput [-n] [<location>] [<debuild options>]
+
+-n		    to file a new bug
+<location>	    dput alias
+<debuild options>   options that are passed to debuild(1)
+"""
 
 
 def dput_check():
@@ -152,6 +158,10 @@ def check_arguments(args):
     new_bug = False
     location = 'default'
     debuild_args = list()
+
+    if sys.argv[1] in ["--help", "-H"]:
+	print USAGE
+	sys.exit(0)
 
     if len(sys.argv) == 1:
 	return (new_bug, location, debuild_args)
