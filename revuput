@@ -31,6 +31,12 @@ except:
 	"You need  python-launchpad-bugs (>= 0.2.9)  installed to use revuput."
     sys.exit(1)
 
+#try:
+#    import apt
+#except:
+#    print >> sys.stderr, "You need  python-apt  installed to use revuput."
+#    sys.exit(1)
+
 
 USAGE = \
 """Usage: revuput [-n] [<location>] [<debuild options>]
@@ -197,6 +203,10 @@ def file_bug(sourcepackage, version):
 		  summary="Please sponsor %s %s" % (sourcepackage, version),
 		  description=\
 		    "The new package will be uploaded to PPA shortly.")
+
+    print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
+	(bug.bugnumber, bug.bugnumber)
+
     return bug.bugnumber
         
 
