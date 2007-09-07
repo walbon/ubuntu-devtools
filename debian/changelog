@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.4) UNRELEASED; urgency=low
   * doc/revuput.1.docbook, debian/control, debian/rules: build manpage for it
     from DocBook.
   * setup.py: install it.
+  * debian/control: add python-launchpad-bugs Depends.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 07 Sep 2007 14:14:57 +0200
 
