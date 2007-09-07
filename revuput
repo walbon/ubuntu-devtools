@@ -119,7 +119,6 @@ def assemble_bug_comment_text(host, incoming, sourcepackage, version):
 # FIXME: this needs to be much much cleverer at some stage
 	dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
 	    (host, incoming, sourcepackage[0], sourcepackage, version)
-    "http://ppa.launchpad.net/dholbach/ubuntu/pool/main/h/hello/hello_2.2-2~ppa1.dsc"
     return """A new version of %s was uploaded to fix this bug.
 
 To review the current version, please run
