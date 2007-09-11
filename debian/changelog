@@ -1,6 +1,6 @@
 ubuntu-dev-tools (0.5) gutsy; urgency=low
 
-  * Add requestsync and its manual page from devscripts.
+  * Add requestsync and its manual page from devscripts. (LP: #138885)
   * Add Conflicts/Replaces against devscripts 2.10.7ubuntu3.
 
  -- Steve Kowalik <stevenk@ubuntu.com>  Wed, 12 Sep 2007 01:14:04 +1000
