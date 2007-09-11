@@ -1,0 +1,180 @@
+#!/usr/bin/python
+
+# (C) 2007 Canonical Ltd, Steve Kowalik
+# Authors:
+# Martin Pitt <martin.pitt@ubuntu.com>
+# Steve Kowalik <stevenk@ubuntu.com>
+# GPLv2, see /usr/share/common-licenses/GPL
+
+import os, os.path, sys, urllib, subprocess, smtplib, getopt
+
+changelog = 1
+
+def cur_version_component(sourcepkg, release):
+    madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
+                                '-s', release, sourcepkg], \
+                               stdout=subprocess.PIPE)
+    out = madison.communicate()[0]
+    assert (madison.returncode == 0)
+        
+    for l in out.splitlines():
+       (pkg, version, rel, builds) = l.split('|')
+       component = 'main'
+       if rel.find('/') != -1:
+           component = rel.split('/')[1]
+       return (version.strip(), component.strip())
+           
+    print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
+    sys.exit(1)
+
+def debian_changelog(sourcepkg, component, version):
+    '''Return the Debian changelog from the latest up to the given version
+    (exclusive).'''
+
+    ch = ''
+    subdir = sourcepkg[0]
+    if sourcepkg.startswith('lib'):
+        subdir = 'lib%s' % sourcepkg[3]
+    for l in urllib.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg)):
+        if l.startswith(sourcepkg) and l.find(version + ')') > 0:
+            break
+        ch += l
+
+    return ch
+
+def debian_component(sourcepkg):
+    '''Return the Debian component for the source package.'''
+    madison = subprocess.Popen(['rmadison', '-a', 'source', '-s', 'unstable', \
+                                sourcepkg], stdout=subprocess.PIPE)
+    out = madison.communicate()[0]
+    assert (madison.returncode == 0)
+
+    try:
+        assert out
+    except AssertionError:
+        print "%s doesn't appear to exist in Debian." % sourcepkg
+        sys.exit(1)
+    raw_comp = out.split(' | ')[2].split('/')
+    component = 'main'
+    if len(raw_comp) == 2:
+        component = raw_comp[1]
+    return component
+
+def usage():
+    print """Usage: requestsync [-n|-s|-k <keyid>] <source package> <target release> [basever]
+
+In some cases, the base version (fork point from Debian) cannot be determined
+automatically, and you'll get a complete Debian changelog. Specify the correct
+base version in that case."""
+    sys.exit(1)
+
+#
+# entry point
+#
+
+newsource = False
+sponsorship = False
+keyid = None
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'nsk:')
+except getopt.GetoptError:
+    usage()
+for o, a in opts:
+    if o == "-n":
+        newsource = True
+    if o == "-s":
+        sponsorship = True
+    if o == "-k":
+        keyid = a
+
+if len(args) not in (2, 3):
+    usage()
+
+(srcpkg, release) = args[:2]
+force_base_ver = None
+if len(args) == 3:
+    force_base_ver = args[2]
+(cur_ver, component) = ('0', 'universe') # Let's assume universe
+if not newsource:
+    (cur_ver, component) = cur_version_component(srcpkg, release)
+
+debiancomponent = debian_component(srcpkg)
+
+# generate bug report
+status = "confirmed"
+subscribe = "ubuntu-archive"
+if sponsorship:
+    status = "new"
+    if component in ['main', 'restricted']:
+        subscribe = "ubuntu-main-sponsors"
+    else:
+        subscribe = "ubuntu-universe-sponsors"
+
+affects = '/%s' % srcpkg
+if newsource:
+    affects = ''
+
+report = ''' affects ubuntu%s
+ status %s
+ subscribe %s
+
+Please sync %s (%s) from Debian unstable (%s).
+''' % (affects, status, subscribe, srcpkg, component, debiancomponent)
+
+base_ver = cur_ver
+uidx = base_ver.find('ubuntu')
+if uidx > 0:
+    base_ver = base_ver[:uidx]
+
+    print 'Explanation of the Ubuntu delta and why it can be dropped:'
+    explanation = '\nExplanation of the Ubuntu delta and why it can be dropped:\n'
+    while (explanation[-2:] != '\n\n'):
+        explanation += sys.stdin.readline()
+    report += explanation
+
+if changelog:
+    uidx = base_ver.find('build')
+    if uidx > 0:
+        base_ver = base_ver[:uidx]
+
+    if force_base_ver:
+        base_ver = force_base_ver
+
+    report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
+    report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
+
+# sign it
+sign_command = 'gpg'
+for cmd in ('gpg2', 'gnome-gpg'):
+    if os.access('/usr/bin/%s' % cmd, os.X_OK):
+        sign_command = cmd
+
+gpg_command = [sign_command, '--clearsign']
+if keyid:
+    gpg_command.extend(('-u', keyid))
+
+gpg = subprocess.Popen(gpg_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+signed_report = gpg.communicate(report)[0]
+assert gpg.returncode == 0
+
+# generate email
+myemailaddr = os.getenv('DEBEMAIL')
+if not myemailaddr:
+    print "The environment variable DEBEMAIL needs to be set to make use of this script."
+    sys.exit(1)
+to = 'new@bugs.launchpad.net'
+
+mail = '''From: %s
+To: %s
+Subject: Please sync %s (%s) from Debian unstable (%s)
+
+%s''' % (myemailaddr, to, srcpkg, component, debiancomponent, signed_report)
+
+print mail
+
+print 'Press enter to file this bug, Control-C to abort'
+sys.stdin.readline()
+
+s = smtplib.SMTP('fiordland.ubuntu.com')
+s.sendmail(myemailaddr, to, mail)
+s.quit()
