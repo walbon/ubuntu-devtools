@@ -25,7 +25,8 @@ setup(name='ubuntu-dev-tools',
                'pull-debian-debdiff',
                'what-patch',
                'suspicious-source',
-               'revuput'
+               'revuput',
+               'requestsync'
   	       ],
 )
 
