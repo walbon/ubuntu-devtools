@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.5ubuntu1) gutsy; urgency=low
+
+  * Because I'm a bozo, fix up the version of the devscripts
+    Conflicts/Replaces.
+
+ -- Steve Kowalik <stevenk@ubuntu.com>  Wed, 12 Sep 2007 10:46:21 +1000
+
 ubuntu-dev-tools (0.5) gutsy; urgency=low
 
   * Add requestsync and its manual page from devscripts. (LP: #138885)
