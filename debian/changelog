@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.5ubuntu1) gutsy; urgency=low
+ubuntu-dev-tools (0.6) gutsy; urgency=low
 
   * Because I'm a bozo, fix up the version of the devscripts
     Conflicts/Replaces.
