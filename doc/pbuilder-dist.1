@@ -3,88 +3,99 @@
 .\" Contact details: siggi.gevatter@gmail.com
 .\"	August 16, 2007
 .\"
-.TH PBUILDER-DIST 1 "August 16, 2007"
+.TH PBUILDER\-DIST 1 "August 16, 2007"
 .\"
 .SH NAME
-pbuilder-dist \- multi-distribution pbuilder wrapper
+pbuilder\-dist \- multi-distribution pbuilder wrapper
 .\"
 .SH SYNOPSIS
-\fBpbuilder-dist\fP \fIdistribution\fR [\fBi386\fP|\fBamd64\fP] [\fBmainonly\fP|\fBallcomp\fP]
+\fBpbuilder\-dist\fP \fIdistribution\fR [\fBi386\fP|\fBamd64\fP] [\fBmainonly\fP|\fBallcomp\fP]
 [\fBwithlog\fP|\fBnolog\fP] \fIoperation\fR [\fI...\fR]
 .\"
 .SH DESCRIPTION
-\fBpbuilder-dist\fP is a wrapper that makes it easy to use pbuilder with many different 
-versions of Ubuntu and / or Debian. 
+\fBpbuilder\-dist\fP is a wrapper that makes it easy to use pbuilder with many different 
+versions of Ubuntu and/or Debian. 
 .PP
 It is common to symlink this script in order to give it many names in the form of
-\fBpbuilder-\fIdistribution\fP\fR (\fBpbuilder-\fIdistribution\fR-\fIarchitecture\fP\fR on amd64
-systems), like for example \fBpbuilder-feisty\fP, \fBpbuilder-sid\fP, \fBpbuilder-gutsy-i386\fP, etc.
+\fBpbuilder\-\fIdistribution\fP\fR (\fBpbuilder\-\fIdistribution\fR\-\fIarchitecture\fP\fR on amd64
+systems), like for example \fBpbuilder\-feisty\fP, \fBpbuilder\-sid\fP, \fBpbuilder\-gutsy\-i386\fP, etc.
 .\"
 .SH USAGE
-There are many arguments listed on the synopsis. Each of them, if used, has to be used
-exactly in the same order as it appears there. In case you renamed the script to
-\fBpbuilder-\fIdistribution\fP\fR, do not use the \fBdistribution\fP parameter; same with
-\fBi386\fP / \fBamd64\fP if the name also contains -\fIarchitecture\fR.
+There are many arguments listed on the synopsis.
+Each of them, if used, has to be used exactly in the same order as it
+appears there.
+In case you renamed the script to \fBpbuilder\-\fIdistribution\fP\fR, do not
+use the \fBdistribution\fP parameter; same with \fBi386\fP / \fBamd64\fP if
+the name also contains \-\fIarchitecture\fR.
 .TP
 \fBdistribution\fP
 Replace this with the codename of the version of Ubuntu or Debian you want to use.
 .TP
 \fBi386\fP / \fBamd64\fP
-Only available on amd64 systems. This is optional; default is \fBamd64\fP. If \fBi386\fP is
-specified, an i386 environment will be used.
+Only available on amd64 systems.
+This is optional; default is \fBamd64\fP.
+If \fBi386\fP is specified, an i386 environment will be used.
 .TP
 \fBmainonly\fP / \fBallcomp\fP
-This is optional; default is \fBallcomp\fP. If you specify \fBmainonly\fP, only packages from
-the main (in Debian) or main and restricted (in Ubuntu) components will be used. With the
-later one, all official components will be enabled. This only has effect when creating a new
-environment.
+This is optional; default is \fBallcomp\fP.
+If you specify \fBmainonly\fP, only packages from the main (in Debian) or
+main and restricted (in Ubuntu) components will be used.
+With the latter one, all official components will be enabled.
+This only has effect when creating a new environment.
 .TP
 \fBwithlog\fP / \fBnolog\fP
-This is optional; default is \fBnolog\fP. When \fBwithlog\fP is used, \fBpbuilder\fP will save the
-output produced by the current action in a dot-file called \fB.lastlog\fP in it's base directory
-(see the FILES section). If this file already exists, it will be overwritten.
+This is optional; default is \fBnolog\fP.
+When \fBwithlog\fP is used, \fBpbuilder\fP will save the output produced by
+the current action in a dot-file called \fB.lastlog\fP in its base directory
+(see the FILES section).
+If this file already exists, it will be overwritten.
 .TP
 \fBoperation\fP
 Replace this with the action you want \fBpbuilder\fP to do (create, update, build, clean, login
-or execute). Check it's manpage for more details.
+or execute).
+Check its manpage for more details.
 .TP
 \fB[...]\fP
 .br
-Replace this with other parameters, if needed. For example, if \fBbuild\fP is the option,
-you will need to also specify a .dsc file.
+Replace this with other parameters, if needed.
+For example, if \fBbuild\fP is the option, you will need to also specify
+a .dsc file.
 .PP
 The default value of all optional parameters (except the architecture) can be changed by
 editing the first lines of the script.
 .\"
 .SH EXAMPLES
 .TP
-pbuilder-dist gutsy create
+pbuilder\-dist gutsy create
 Creates a \fBpbuilder\fP environment for Ubuntu Gutsy, with all components enabled.
 .TP
-pbuilder-sid mainonly create
+pbuilder\-sid mainonly create
 Creates a \fBpbuilder\fP environment for Debian Sid, with only the main component.
 .TP
-pbuilder-feisty build ./sample_1.0-0ubuntu1.dsc
+pbuilder\-feisty build ./sample_1.0\-0ubuntu1.dsc
 Builds the specified package on an already existing Ubuntu Feisty environment.
 .TP
-pbuilder-dist feisty withlog build ./sample_1.0-0ubuntu1.dsc
+pbuilder\-dist feisty withlog build ./sample_1.0\-0ubuntu1.dsc
 Same as above, but stores \fBpbuilder\fP's output on a file.
 .TP
-pbuilder-etch i386 update
+pbuilder\-etch i386 update
 Updates an existing i386-architecture Debian Etch environment on an amd64 system.
 .\"
 .SH FILES
-By default, \fBpbuilder-dist\fP will store all the files it generates in \fB~/pbuilder/\fP. This can
-be changed modifying the BASE_DIR value on the top of the script to any other directory you
-want. If it doesn't exist, it will be created on the run.
+By default, \fBpbuilder\-dist\fP will store all the files it generates in \fB~/pbuilder/\fP.
+This can be changed by modifying the BASE_DIR value on the top of the script
+to any other directory you want.
+If it doesn't exist, it will be created on the run.
 .\"
 .SH BUGS
-There are no known bugs at the moment. If you experience any problem with this script
-contact me on siggi.gevatter@gmail.com. Please ensure first that the problem is really this
-script and not an issue with \fBpbuilder\fP.
+There are no known bugs at the moment.
+If you experience any problem with this script contact me on
+siggi.gevatter@gmail.com.
+Please ensure first that the problem is really this script and not an issue
+with \fBpbuilder\fP.
 .\"
 .SH AUTHORS
-\fBpbuilder-dist\fP was originally written by Jamin W. Collins <jcollins@asgardsrealm.net> and
+\fBpbuilder\-dist\fP was originally written by Jamin W. Collins <jcollins@asgardsrealm.net> and
 Jordan Mantha <mantha@ubuntu.com>.
 .PP 
 On August 2007 it was mostly rewritten, and extended, by Siegfried-Angel Gevatter Pujals
@@ -101,4 +112,4 @@ under the terms of the GNU General Public License,
 Version 2 or any later version published by the Free Software Foundation.
 .PP
 On Debian based systems, the complete text of the GNU General Public
-License can be found in \fB/usr/share/common-licenses/GPL\fP.
+License can be found in \fB/usr/share/common\-licenses/GPL\fP.

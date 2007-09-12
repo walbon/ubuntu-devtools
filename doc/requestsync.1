@@ -3,7 +3,7 @@
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
 .B requestsync
-.RI [\fI -n | -s \fR] " " <\fIsource\fR " " \fIpackage\fR> " " <\fItarget\fR " " \fIrelease\fR> " "[\fIbase\fR " " \fIversion\fR]
+.RI [\fI \-n | \-s \fR] " " <\fIsource\fR " " \fIpackage\fR> " " <\fItarget\fR " " \fIrelease\fR> " "[\fIbase\fR " " \fIversion\fR]
 .SH DESCRIPTION
 .PP 
 \fBrequestsync\fR looks at the versions of <source package> in Debian and Ubuntu, prompts for an explanation of why the Ubuntu changes (if there are any) should be dropped, downloads the changelog entry from packages.debian.org, and then prompts for your GPG passphrase so it can sign the mail and send it off, which files a sync request in the form of a bug report in Launchpad.
@@ -15,16 +15,19 @@ Listed below are the command line options for requestsync:
 Specifies that the package is a new package, and requestsync should not attempt to look it up in Ubuntu since it will not exist.
 .TP
 \fB\-s\fR
-Specifies that you require sponsorship. You need this option if you are not a member of ubuntu-dev for universe or multiverse, or ubuntu-core-dev for main or restricted.
+Specifies that you require sponsorship.
+You need this option if you are not a member of ubuntu-dev for universe or multiverse, or ubuntu-core-dev for main or restricted.
 .TP
 \fB<source package>\fR
 This is the source package that you would like to be synced from Debian.
 .TP
 \fB<target release>\fR
-This is the release that you would like the source package to be synced into. This should always be the latest development release of Ubuntu, ie: gutsy.
+This is the release that you would like the source package to be synced into.
+This should always be the latest development release of Ubuntu, ie: gutsy.
 .TP
 \fB[base version]\fR
-In some cases, the base version (where the Ubuntu package started differing from the Debian package) can not be automatically determined. Specify this option in this case.
+In some cases, the base version (where the Ubuntu package started differing from the Debian package) can not be automatically determined.
+Specify this option in this case.
 .SH AUTHOR
 .PP
 This manual page was pieced together by Steve Kowalik.
