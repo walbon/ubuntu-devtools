@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.7) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.7) gutsy; urgency=low
 
   [Colin Watson]
   * Fix *roff use (hyphens vs. dashes, start each sentence on a new line).
@@ -7,6 +7,7 @@ ubuntu-dev-tools (0.7) UNRELEASED; urgency=low
   * revuput: deal with the case of NEW packages.
   * hugdaylist: added a tool to write Wiki lists of bugs in <buglist url> as
     in https://wiki.ubuntu.com/UbuntuBugDay/20070912
+  * debian/control: bumped python-launchpad-bugs version.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 12 Sep 2007 09:28:54 +0100
 
