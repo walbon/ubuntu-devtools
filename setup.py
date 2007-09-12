@@ -26,7 +26,8 @@ setup(name='ubuntu-dev-tools',
                'what-patch',
                'suspicious-source',
                'revuput',
-               'requestsync'
+               'requestsync',
+	       'hugdaylist'
   	       ],
 )
 
