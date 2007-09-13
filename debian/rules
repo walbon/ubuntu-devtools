@@ -8,7 +8,7 @@ include /usr/share/cdbs/1/class/python-distutils.mk
 DEB_INSTALL_MANPAGES_ubuntu-dev-tools = doc/*.1
 
 build/ubuntu-dev-tools::
-	docbook2x-man doc/revuput.1.docbook; mv revuput.1 doc
+	docbook2x-man doc/ppaput.1.docbook; mv ppaput.1 doc
 
 clean::
-	rm -f doc/revuput.1
+	rm -f doc/ppaput.1

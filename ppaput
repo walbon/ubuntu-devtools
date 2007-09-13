@@ -28,18 +28,18 @@ try:
     import launchpadbugs.connector as Connector
 except:
     print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.14)  installed to use revuput."
+	"You need  python-launchpad-bugs (>= 0.2.14)  installed to use ppaput."
     sys.exit(1)
 
 #try:
 #    import apt
 #except:
-#    print >> sys.stderr, "You need  python-apt  installed to use revuput."
+#    print >> sys.stderr, "You need  python-apt  installed to use ppaput."
 #    sys.exit(1)
 
 
 USAGE = \
-"""Usage: revuput [-n] [<location>] [<debuild options>]
+"""Usage: ppaput [-n] [<location>] [<debuild options>]
 
 -n		    to file a new bug
 <location>	    dput alias

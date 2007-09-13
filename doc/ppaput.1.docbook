@@ -19,16 +19,16 @@
     <!--  ^^^^^^^^^^ -->
   </refentryinfo>
   <refmeta>
-    <refentrytitle>revuput</refentrytitle>
+    <refentrytitle>ppaput</refentrytitle>
     <manvolnum>1</manvolnum>
   </refmeta>
   <refnamediv>
-    <refname>revuput</refname>
+    <refname>ppaput</refname>
     <refpurpose>A tool for uploading packages for sponsorship</refpurpose>
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
-      <command>revuput</command>
+      <command>ppaput</command>
       <arg choice="opt">
         <option>-n</option>
       </arg>
@@ -104,7 +104,7 @@
     </para>
     <para>
       <variablelist>
-        <title>revuput options:</title>
+        <title>ppaput options:</title>
         <varlistentry>
           <term><option>-n</option></term>    
           <listitem><para>files a new bug report and adds it's number to
