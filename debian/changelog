@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.9) gutsy; urgency=low
+
+  * Added submittodebian.1
+
+ -- Soren Hansen <soren@ubuntu.com>  Thu, 13 Sep 2007 14:38:49 +0200
+
 ubuntu-dev-tools (0.8) gutsy; urgency=low
 
   * Renamed revuput to ppaput.

@@ -1,0 +1,25 @@
+.TH SUBMITTODEBIAN 1 "Sep 2007"
+.SH NAME
+submittodebian \- submit changes in Debian source tree to Debian
+.SH DESCRIPTION
+This manual page documents briefly the
+.B submittodebian
+command.
+.PP
+.B submittodebian
+was created to help bridge a gap between Debian and Ubuntu, namely by making it trivially easy to submit your changes to a Debian package to the Debian bts.
+.PP
+It expects to find the .dsc and diff.gz of the current version (which you likely just created) and the previous one in the parent directory. By examining debian/changelog it will extract the information it needs to:
+.PP
+1. Extract the debdiff containing your changes.
+.PP
+2. Open the debdiff in your $EDITOR so that you can remove any Ubuntu specific changes.
+.PP
+3. Extract your changelog entry so that you can create a bug report from it.
+.PP
+4. Start reportbug with the debdiff attached and with the text of the changelog entry.
+.SH SEE ALSO
+.BR reportbug (1).
+.br
+.SH AUTHOR
+submittodebian and this man page was written by Soren Hansen <soren@ubuntu.com>.
