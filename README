@@ -10,10 +10,6 @@ check-symbols <package> [<directory>]
     files in all binary packages of <package>. 
     <directory> is not mandatory and set to /var/cache/pbuilder/result by default.
 
-compare-packages <source package> [<directory>]
-    ... will compare the contents of the binary packages of <source
-    package> in the current directory with those in <directory>
-
 dch-repeat [--help]
     ... will repeat a change log into an older release.
 

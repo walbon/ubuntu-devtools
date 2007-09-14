@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.11) UNRELEASED; urgency=low
+
+  * compare-packages, README: dropped compare-packages, debdiff has the same
+    functionality, when used with --from --to or on *.changes files.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 14 Sep 2007 13:44:07 +0200
+
 ubuntu-dev-tools (0.10) gutsy; urgency=low
 
   * compare-packages: added script to compare the contents of 'old' and 'new'
