@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.10) gutsy; urgency=low
+
+  * compare-packages: added script to compare the contents of 'old' and 'new'
+    binary packages of the same source package. Useful to spot moved files,
+    dropped files, etc.
+  * README: briefly document added scripts.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 14 Sep 2007 11:23:36 +0200
+
 ubuntu-dev-tools (0.9) gutsy; urgency=low
 
   * Added submittodebian.1

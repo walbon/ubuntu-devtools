@@ -27,7 +27,8 @@ setup(name='ubuntu-dev-tools',
                'suspicious-source',
                'ppaput',
                'requestsync',
-	       'hugdaylist'
+	       'hugdaylist',
+	       'compare-packages'
   	       ],
 )
 
