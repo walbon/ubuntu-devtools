@@ -105,8 +105,7 @@ distdata()
 
 
 case $DISTRIBUTION in
-    #warty|hoary|breezy)
-    dapper|edgy|feisty|gutsy)
+    dapper|edgy|feisty|gutsy)	# warty|hoary|breezy
         distdata ubuntu
         ;;
     
@@ -168,5 +167,6 @@ sudo pbuilder $OPERATION \
     $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/${FOLDERBASE}_result \
+    --mirror "$ARCHIVE" \
     --othermirror "\"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\"" \
     $@
