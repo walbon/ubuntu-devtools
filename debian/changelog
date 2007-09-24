@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.12) gutsy; urgency=low
+
+  * hugdaylist: apply quick fix to not crash.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 24 Sep 2007 09:43:30 +0200
+
 ubuntu-dev-tools (0.11) gutsy; urgency=low
 
   [ Daniel Holbach ]
