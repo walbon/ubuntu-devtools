@@ -42,12 +42,20 @@ def check_args():
         
     return (howmany, url)
 
-def main(): 
+def filter_unsolved(bugs):
+    result = set()
+    for b in bugs:
+	if b.status != 'Fix Committed' and \
+	    'ubuntu-main-sponsors' not in [str(s) for s in b.subscribers] and \
+	    'ubuntu-universe-sponsors' not in [str(s) for s in b.subscribers]:
+	    result.add(b)
+    return result
 
+def main(): 
     (howmany, url) = check_args()
     
     BugList = Connector.ConnectBugList()
-    l = BugList(url)
+    l = BugList(url).filter(func=[filter_unsolved])
     
     if not l.bugs:
         print "BugList of %s is empty." % url

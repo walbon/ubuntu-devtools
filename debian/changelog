@@ -1,14 +1,16 @@
-ubuntu-dev-tools (0.11) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.11) gutsy; urgency=low
 
   [ Daniel Holbach ]
   * compare-packages, README: dropped compare-packages, debdiff has the same
     functionality, when used with --from --to or on *.changes files.
+  * hugdaylist: prepare the list more carefully (filter out 'fixed committed'
+    bugs and bugs that have ubuntu-*-sponsors subscribed.
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * Added a manpage for suspicious-source.
   * Fixed a bug in pbuilder-dist (it needed ftp.debian.org in sources.list to work with Debian).
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <siggi.gevatter@gmail.com>  Sat, 15 Sep 2007 00:14:51 +0200
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 24 Sep 2007 09:39:24 +0200
 
 ubuntu-dev-tools (0.10) gutsy; urgency=low
 
