@@ -67,22 +67,26 @@ def file_bug(config):
     Bug = Connector.ConnectBug()
     Bug.authentication = os.path.expanduser("~/.lpcookie")
 
-#    try:
-    bug = Bug.New(product={"name": config["sourcepackage"], "target": "ubuntu"},
-                  summary=config["subject"],
-                  description=config["text"])
-    print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
-        (bug.bugnumber, bug.bugnumber)
-    for sub in config["subscribers"].split(","):
-        if sub.strip("\n").strip():
-            bug.subscribers.add(sub.strip("\n").strip())
-    for tag in config["tags"].split(","):
-        if tag.strip("\n").strip():
-            bug.tags.append(tag.strip("\n").strip())
-    bug.assignee = config["assignee"]
-    bug.commit()
-#    except:
-#        "Bug for '%s' was not filed." % config["sourcepackage"]
+    try:
+        summary = config["subject"].replace("$pack", pack)
+        description = config["text"].replace("$pack", pack)
+        
+        bug = Bug.New(product={"name": config["sourcepackage"], 
+                               "target": "ubuntu"},
+                      summary=summary,
+                      description=description)
+        print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
+            (bug.bugnumber, bug.bugnumber)
+        for sub in config["subscribers"].split(","):
+            if sub.strip("\n").strip():
+                bug.subscribers.add(sub.strip("\n").strip())
+        for tag in config["tags"].split(","):
+            if tag.strip("\n").strip():
+                bug.tags.append(tag.strip("\n").strip())
+        bug.assignee = config["assignee"]
+        bug.commit()
+    except:
+        "Bug for '%s' was not filed." % config["sourcepackage"]
 
 def read_buglist(url):
     BugList = Connector.ConnectBugList()
@@ -111,10 +115,7 @@ def main():
 	
     for pack in pack_list:
         if pack not in buglist:
-            config["text"] = config["text"].replace("$pack", pack)
-            config["subject"] = config["subject"].replace("$pack", pack)
             config["sourcepackage"] = pack
-
             file_bug(config)
 
 	
