@@ -43,9 +43,9 @@ def check_configfiles():
 
     bin_path = os.path.dirname(os.path.abspath(__file__))
     if bin_path == "/usr/bin":
-	example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
+        example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
     else:
-	example_dir = "%s/examples" % bin_path
+        example_dir = "%s/examples" % bin_path
 
     if not os.path.exists("instructions"):
         os.system("cp %s/massfile.instructions instructions" % example_dir)
@@ -87,10 +87,11 @@ def file_bug(config):
 def read_buglist(url):
     BugList = Connector.ConnectBugList()
     packages = set()
-    
-    buglist = BugList(url)
-    for bug in buglist.bugs:
-        packages.add(bug.sourcepackage)
+
+    if url:
+        buglist = BugList(url)
+        for bug in buglist.bugs:
+            packages.add(bug.sourcepackage)
         
     return packages
     
