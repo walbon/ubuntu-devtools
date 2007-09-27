@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.14) UNRELEASED; urgency=low
     - fixed bug, where description and summary were not updated with the
       current source package.
   * examples/massfile.instructions: added example buglist-url.
+  .
+  Thanks Andrew Mitchell, for helping out by fixing and clever advise.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 27 Sep 2007 11:43:55 +0200
 
