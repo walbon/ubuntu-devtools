@@ -10,8 +10,6 @@ import subprocess
 import launchpadbugs.connector as Connector
 
 
-example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
-
 def read_config():
     instructions_file = open("instructions")
     instructions = email.message_from_file(instructions_file)
@@ -42,6 +40,12 @@ def file_bug():
 
 def check_configfiles():
     result = True
+
+    bin_path = os.path.dirname(os.path.abspath(__file__))
+    if bin_path == "/usr/bin":
+	example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
+    else:
+	example_dir = "%s/examples" % bin_path
 
     if not os.path.exists("instructions"):
         os.system("cp %s/massfile.instructions instructions" % example_dir)
