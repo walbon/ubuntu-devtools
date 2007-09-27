@@ -2,6 +2,7 @@ subject: [UNMETDEPS] $pack has unmet dependencies
 assignee: 
 subscribers: motu
 tags: unmetdeps
+buglist-url: http://bugs.launchpad.net/ubuntu/+bugs?field.tag=unmetdeps
 text:
  A run of 
  .

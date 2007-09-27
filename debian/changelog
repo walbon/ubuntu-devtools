@@ -3,6 +3,7 @@ ubuntu-dev-tools (0.14) UNRELEASED; urgency=low
   * massfile: 
     - fixed bug where to find example files,
     - made url get checked beforehand.
+  * examples/massfile.instructions: added example buglist-url.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 27 Sep 2007 11:43:55 +0200
 
