@@ -1,81 +1,118 @@
-# Used Martin Pitt's excellent  requestsync  script, to get this started.
+#!/usr/bin/python
+#
+# (C) Canonical, 2007, GPL v3
 
-#!/usr/bin/env python
+import os
+import sys
+import email
+import subprocess
 
-import os, os.path, sys, subprocess 
+import launchpadbugs.connector as Connector
 
-subject = ""
-assignee = ""
-report = ""
-pack_list = set()
 
-instructions_file_name = "instructions"
-list_file_name = "list"
+example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
 
 def read_config():
-	global subject, assignee, report
-	for line in open(os.getcwd()+"/"+instructions_file_name).readlines():
-		if line.startswith("subject:"):
-			subject = line.split("subject: ")[1]
-		else:
-			if line.startswith("assignee:"):
-				assignee = line.split("assignee: ")[1]
-			else:
-				report += line
+    instructions_file = open("instructions")
+    instructions = email.message_from_file(instructions_file)
+    instructions_file.close()
+    instr = dict()
+    
+    for field in "subject", "assignee", "subscribers", "tags", "text", \
+                 "buglist-url":
+        instr[field] = instructions.get(field)
+    
+    return instr
 
 def read_list():
-	global pack_list
-	for line in open(os.getcwd()+"/"+list_file_name).readlines():
-		if line.strip()!="":
-			pack_list.add(line.strip("\n"))
+    pack_list = set()
 
-#
-# entry point
-#
+    listfile = open("list")
+    for line in listfile.readlines():
+        if line.strip()!="":
+            pack_list.add(line.strip("\n"))
 
-if os.path.exists(os.getcwd()+"/"+instructions_file_name):
-	read_config()
-else:
-	print "%s does not exists." % (os.getcwd()+"/"+instructions_file_name)
-	sys.exit(1)
+    listfile.close()
+    return pack_list
+
+def file_bug():
+    Bug = Connector.ConnectBug()
+    Bug.authentication = os.path.expanduser("~/.lpcookie")
+
+
+def check_configfiles():
+    result = True
+
+    if not os.path.exists("instructions"):
+        os.system("cp %s/massfile.instructions instructions" % example_dir)
+        print >> sys.stderr, \
+            "No 'instructions' file found. Copied template from %s." % \
+            example_dir
+        result = False
+
+    if not os.path.exists("list"):
+        os.system("cp %s/massfile.list list" % example_dir)
+        print >> sys.stderr, \
+            "No 'list' file found. Copied template from %s." % example_dir
+        result = False
+
+    return result
+
+
+def file_bug(config):
+    Bug = Connector.ConnectBug()
+    Bug.authentication = os.path.expanduser("~/.lpcookie")
+
+#    try:
+    bug = Bug.New(product={"name": config["sourcepackage"], "target": "ubuntu"},
+                  summary=config["subject"],
+                  description=config["text"])
+    print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
+        (bug.bugnumber, bug.bugnumber)
+    for sub in config["subscribers"].split(","):
+        if sub.strip("\n").strip():
+            bug.subscribers.add(sub.strip("\n").strip())
+    for tag in config["tags"].split(","):
+        if tag.strip("\n").strip():
+            bug.tags.append(tag.strip("\n").strip())
+    bug.assignee = config["assignee"]
+    bug.commit()
+#    except:
+#        "Bug for '%s' was not filed." % config["sourcepackage"]
+
+def read_buglist(url):
+    BugList = Connector.ConnectBugList()
+    packages = set()
+    
+    buglist = BugList(url)
+    for bug in buglist.bugs:
+        packages.add(bug.sourcepackage)
+        
+    return packages
+    
+    
+def main():
+    if not check_configfiles():
+        sys.exit(1)
+
+    if not os.path.exists(os.path.expanduser("~/.lpcookie")):
+        print >> sys.stderr, \
+            "Launchpad cookie not found in ~/.lpcookie."
+        sys.exit(1)
+    
+    config = read_config()
+    pack_list = read_list()
+    buglist = read_buglist(config["buglist-url"])
 	
-if os.path.exists(os.getcwd()+"/"+list_file_name):
-	read_list()
-else:
-	print "%s does not exists." % (os.getcwd()+"/"+list_file_name)
-	sys.exit(1)
+    for pack in pack_list:
+        if pack not in buglist:
+            config["text"] = config["text"].replace("$pack", pack)
+            config["subject"] = config["subject"].replace("$pack", pack)
+            config["sourcepackage"] = pack
 
-for pack in pack_list:
-	# generate bug report
-	mailtext = """ affects distros/ubuntu/%s
- status confirmed
- subscribe %s
+            file_bug(config)
 
-%s
-	""" % (pack, assignee, report)
-	mailtext = mailtext.replace("$pack", pack)
-	subject = subject.replace("$pack", pack)
-
-	# sign it
-	sign_command = "gpg"
-	if os.access("/usr/bin/gnome-gpg", os.X_OK):
-	    sign_command = "gnome-gpg"
-
-	gpg = subprocess.Popen([sign_command, "--clearsign"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	signed_report = gpg.communicate(mailtext)[0]
-	assert gpg.returncode == 0
-
-	# generate email
-	to = "new@bugs.launchpad.net"
 	
-	print """To: %s
-Subject: %s
-%s""" % (to, subject, signed_report)
-	print "Press enter to file this bug, Control-C to abort"
-	sys.stdin.readline()
+if __name__ == '__main__':
+    main()
 
-	mail_process = subprocess.Popen(["mail", "-s", subject, to], 
-			stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-	mail_process.communicate(signed_report)
-
-	subject = subject.replace(pack, "$pack")
