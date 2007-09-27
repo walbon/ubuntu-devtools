@@ -68,8 +68,8 @@ def file_bug(config):
     Bug.authentication = os.path.expanduser("~/.lpcookie")
 
     try:
-        summary = config["subject"].replace("$pack", pack)
-        description = config["text"].replace("$pack", pack)
+        summary = config["subject"].replace("$pack", config["sourcepackage"])
+        description = config["text"].replace("$pack", config["sourcepackage"])
         
         bug = Bug.New(product={"name": config["sourcepackage"], 
                                "target": "ubuntu"},
