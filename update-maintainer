@@ -52,5 +52,5 @@ for file in control{,.in,.real}; do
     [ -f $DEBIANDIR/$file ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
 done
 
-dch "Modify Maintainer value to match the DebianMaintainerField specification."
+dch --changelog $DEBIANDIR/changelog "Modify Maintainer value to match the DebianMaintainerField specification."
 echo "Maintainer changed to $email."
