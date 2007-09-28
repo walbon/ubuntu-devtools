@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.15) gutsy; urgency=low
+
+  * pbuilder-dist: Fix error on chroot creation (LP: #146475)
+
+ -- Laurent Bigonville <bigon@bigon.be>  Fri, 28 Sep 2007 23:43:54 +0200
+
 ubuntu-dev-tools (0.14) gutsy; urgency=low
 
   * massfile: 
