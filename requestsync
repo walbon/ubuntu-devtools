@@ -173,8 +173,16 @@ Subject: Please sync %s (%s) from Debian unstable (%s)
 print mail
 
 print 'Press enter to file this bug, Control-C to abort'
+
 sys.stdin.readline()
 
-s = smtplib.SMTP('fiordland.ubuntu.com')
+# get server address
+mailserver = os.getenv('DEBSMTP')
+if mailserver:
+	print 'Using custom SMTP server:', mailserver
+else :
+	mailserver = 'fiordland.ubuntu.com'
+
+s = smtplib.SMTP(mailserver)
 s.sendmail(myemailaddr, to, mail)
 s.quit()

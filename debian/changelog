@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.16) UNRELEASED; urgency=low
+
+  * requestsync: allow to customize the SMTP server (LP: #144244)
+  * Add a short description for requestsync to the README file.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <siggi.gevatter@gmail.com>  Mon,  1 Oct 2007 18:04:14 +0200
+
 ubuntu-dev-tools (0.15) gutsy; urgency=low
 
   [ Laurent Bigonville ]

@@ -23,7 +23,7 @@ mk-sbuild-lv
     ... will create LVM snapshot chroots via schroot and sbuild. It assumes that 
     sbuild has not be installed and configured before.
 
-pbuilder-dist [create|update|build|clean|login|execute]
+pbuilder-dist [withlog] [create|update|build|clean|login|execute]
    ... is a wrapper to use pbuilder with many different distributions / versions.
    It has to be renamed to something like pbuilder-feisty, pbuilder-gutsy, etc.
 
@@ -36,6 +36,10 @@ ppaput [-n] <dput location> [<debuild options>]
 pull-debian-debdiff <package> <version>
     ... will attempt to find and download a specific version of a Debian package 
     and its immediate parent to generate a debdiff.
+
+requestsync [-n|-s] <source package> <target release> [base version]
+	... will fill a sync for a package from Debian by sending a bug report to
+	Launchpad.
 
 suspicious-source
    ... will output a list of files which are not common source files. This should be
