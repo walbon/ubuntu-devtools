@@ -100,25 +100,37 @@ def call_debuild(options):
 	(os.getenv("DEBEMAIL"), \
 	string.join(options, " "))) == 0
 
-def get_name_and_version():
+def get_name_version_and_section():
     changelogfile = "debian/changelog"
     if not os.path.exists(changelogfile):
         print >> sys.stderr, "%s not found." % changelogfile
         sys.exit(1)
+    controlfile = "debian/control"
+    if not os.path.exists(controlfile):
+        print >> sys.stderr, "%s not found." % controlfile
+        sys.exit(1)
     
     head = open(changelogfile).readline()
-    return re.findall(r'^(.*)\ \((.*)\).*', head)
+    (name, version) = re.findall(r'^(.*)\ \((.*)\).*', head)[0]
+    section = "main"
+    
+    for line in open(controlfile).readlines():
+        if line.startswith("Section"):
+            if line.split("Section: ")[1].count("/")>0:
+                section = line.split("Section: ")[1].split("/")[0].strip()
+                return (name, version, section)
+    
+    return (name, version, section)
 
-
-def assemble_bug_comment_text(host, incoming, sourcepackage, version):
+def assemble_bug_comment_text(host, incoming, section, sourcepackage, version):
     if host == "ppa.launchpad.net":
-	    dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
-	        (host, incoming[1:], sourcepackage[0], sourcepackage, \
+	    dsc_file_location = "http://%s/%s/pool/%s/%s/%s/%s_%s.dsc" % \
+	        (host, incoming[1:], section, sourcepackage[0], sourcepackage, \
 	        sourcepackage, version)
     else:
 # FIXME: this needs to be much much cleverer at some stage
-	    dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
-	        (host, incoming, sourcepackage[0], sourcepackage, version)
+	    dsc_file_location = "http://%s/%s/pool/%s/%s/%s/%s_%s.dsc" % \
+	        (host, incoming, section, sourcepackage[0], sourcepackage, version)
     return """A new version of %s was uploaded to fix this bug.
 
 To review the current version, please run
@@ -127,7 +139,8 @@ To review the current version, please run
 """ % (sourcepackage, dsc_file_location)
 
 
-def deal_with_bugreport(bugnumbers, host, incoming, sourcepackage, version):
+def deal_with_bugreport(bugnumbers, host, section, incoming, sourcepackage, 
+                        version):
     if not os.path.exists(os.path.expanduser("~/.lpcookie")):
         print >> sys.stderr, \
 	        "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
@@ -154,9 +167,11 @@ def deal_with_bugreport(bugnumbers, host, incoming, sourcepackage, version):
 	        bug.tags.append("needs-packaging")
 
         comment = Bug.NewComment(text=assemble_bug_comment_text(host, incoming,
-					    sourcepackage, version),
-				 subject="Fix in %s (%s)" % \
-					(sourcepackage, version))
+					                                            section, 
+					                                            sourcepackage, 
+					                                            version),
+				                 subject="Fix in %s (%s)" % \
+					                        (sourcepackage, version))
         bug.comments.add(comment)
 
         if bug.status != "Fix Committed":
@@ -221,8 +236,8 @@ def file_bug(sourcepackage, version):
 
 def main():
     (new_bug, location, debuild_args) = check_arguments(sys.argv)
-    (sourcepackage, version) = get_name_and_version()[0]
-    
+    (sourcepackage, version, section) = get_name_version_and_section()
+
     if new_bug:
 	    bugnumber = file_bug(sourcepackage, version)
 	    os.system("dch -a 'Fixes (LP: #%s)'" % bugnumber)
@@ -238,13 +253,13 @@ def main():
     host = lookup_dput_host(location)
     (dput_res, incoming) = call_dput(location, changesfile)
     if not dput_res:
-	    print >> sys.stderr, "%s was not uploaded." % changesfile
-    sys.exit(1)
+        print >> sys.stderr, "%s was not uploaded." % changesfile
+        sys.exit(1)
 
     fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     if(fixed_lp_bugs):
-	    deal_with_bugreport(fixed_lp_bugs, host, incoming, sourcepackage,
-			    version)
+	    deal_with_bugreport(fixed_lp_bugs, host, section, incoming, 
+	                        sourcepackage, version)
 
     
 if __name__ == '__main__':

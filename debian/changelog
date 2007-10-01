@@ -4,7 +4,9 @@ ubuntu-dev-tools (0.15) UNRELEASED; urgency=low
   * update-maintainer: correctly pass path to dch (LP: #141015)
 
   [ Daniel Holbach ]
-  * ppaput: fix indentation issues.
+  * ppaput:
+    - fix indentation issues.
+    - now respects the PPA section the package goes to (LP: #146161)
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 01 Oct 2007 15:56:18 +0200
 
