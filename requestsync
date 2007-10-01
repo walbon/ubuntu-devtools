@@ -183,6 +183,19 @@ if mailserver:
 else :
 	mailserver = 'fiordland.ubuntu.com'
 
+# connect to the server
 s = smtplib.SMTP(mailserver)
+
+# authenticate to the server
+mailserver_user = os.getenv('DEBSMTP_USER')
+mailserver_pass = os.getenv('DEBSMTP_PASS')
+if mailserver_user and mailserver_pass:
+	try:
+		s.login(mailserver_user, mailserver_pass)
+	except smtplib.SMTPAuthenticationError:
+		print 'Error authenticating to the server: invalid username and password.'
+		s.quit(); sys.exit(1)
+		
+
 s.sendmail(myemailaddr, to, mail)
 s.quit()
