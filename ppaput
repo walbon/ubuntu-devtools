@@ -5,11 +5,6 @@
 # GPL 3
 #
 #
-# Notes:
-#  - needs dput, python-launchpad-bugs (>= 0.2.14)
-#  - needs http://launchpad.net/bugs/137767 to get fixed
-#
-#
 # 11:57:27 < dholbach> but what it does is: build a source package of
 #                      the current source tree you're in, upload it to PPA
 #                      and follow up on a bug report, subscribe the right
@@ -100,7 +95,7 @@ def call_debuild(options):
 	(os.getenv("DEBEMAIL"), \
 	string.join(options, " "))) == 0
 
-def get_name_version_and_section():
+def get_name_version_section_and_release():
     changelogfile = "debian/changelog"
     if not os.path.exists(changelogfile):
         print >> sys.stderr, "%s not found." % changelogfile
@@ -111,7 +106,9 @@ def get_name_version_and_section():
         sys.exit(1)
     
     head = open(changelogfile).readline()
-    (name, version) = re.findall(r'^(.*)\ \((.*)\).*', head)[0]
+    (name, \
+     version, \
+     release) = re.findall(r'^(.*)\ \((.*)\)\ (.*?)\;\ .*', head)[0]
     section = "main"
     
     for line in open(controlfile).readlines():
@@ -119,10 +116,11 @@ def get_name_version_and_section():
             if line.split("Section: ")[1].count("/")>0:
                 section = line.split("Section: ")[1].split("/")[0].strip()
                 return (name, version, section)
-    
-    return (name, version, section)
 
-def assemble_bug_comment_text(host, incoming, section, sourcepackage, version):
+    return (name, version, section, release)
+
+def assemble_bug_comment_text(host, incoming, section, sourcepackage, version, 
+                              release):
     if host == "ppa.launchpad.net":
 	    dsc_file_location = "http://%s/%s/pool/%s/%s/%s/%s_%s.dsc" % \
 	        (host, incoming[1:], section, sourcepackage[0], sourcepackage, \
@@ -133,14 +131,24 @@ def assemble_bug_comment_text(host, incoming, section, sourcepackage, version):
 	        (host, incoming, section, sourcepackage[0], sourcepackage, version)
     return """A new version of %s was uploaded to fix this bug.
 
-To review the current version, please run
+To review the source the current version, please run
 
   dget -x %s
-""" % (sourcepackage, dsc_file_location)
+
+
+The package will get built by Launchpad in a while. If you want to test it, 
+please run the following commands:
+
+  sudo -s
+  echo >> /etc/apt/sources.list
+  echo "deb http://%s/%s %s main universe multiverse restricted" >> /etc/apt/sources.list
+  apt-get update
+  apt-get install <package>
+""" % (sourcepackage, dsc_file_location, host, incoming[1:], release)
 
 
 def deal_with_bugreport(bugnumbers, host, section, incoming, sourcepackage, 
-                        version):
+                        version, release):
     if not os.path.exists(os.path.expanduser("~/.lpcookie")):
         print >> sys.stderr, \
 	        "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
@@ -169,7 +177,8 @@ def deal_with_bugreport(bugnumbers, host, section, incoming, sourcepackage,
         comment = Bug.NewComment(text=assemble_bug_comment_text(host, incoming,
 					                                            section, 
 					                                            sourcepackage, 
-					                                            version),
+					                                            version, 
+					                                            release),
 				                 subject="Fix in %s (%s)" % \
 					                        (sourcepackage, version))
         bug.comments.add(comment)
@@ -236,7 +245,8 @@ def file_bug(sourcepackage, version):
 
 def main():
     (new_bug, location, debuild_args) = check_arguments(sys.argv)
-    (sourcepackage, version, section) = get_name_version_and_section()
+    (sourcepackage, version, \
+     section, release) = get_name_version_section_and_release()
 
     if new_bug:
 	    bugnumber = file_bug(sourcepackage, version)
@@ -259,7 +269,7 @@ def main():
     fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     if(fixed_lp_bugs):
 	    deal_with_bugreport(fixed_lp_bugs, host, section, incoming, 
-	                        sourcepackage, version)
+	                        sourcepackage, version, release)
 
     
 if __name__ == '__main__':
