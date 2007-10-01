@@ -3,6 +3,9 @@ ubuntu-dev-tools (0.15) UNRELEASED; urgency=low
   [ Laurent Bigonville ]
   * update-maintainer: correctly pass path to dch (LP: #141015)
 
+  [ Daniel Holbach ]
+  * ppaput: fix indentation issues.
+
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 01 Oct 2007 15:56:18 +0200
 
 ubuntu-dev-tools (0.14) gutsy; urgency=low

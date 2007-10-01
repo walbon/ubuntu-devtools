@@ -49,15 +49,15 @@ USAGE = \
 
 def dput_check():
     if not os.path.exists("/usr/bin/dput"):
-	print >> sys.stderr, "You need to install the  dput  package."
-	sys.exit(1)
+        print >> sys.stderr, "You need to install the  dput  package."
+        sys.exit(1)
 
 
 def find_fixed_launchpad_bug(changesfile):
     changes = open(changesfile).readlines()
     for line in changes:
-	if line.startswith("Launchpad-Bugs-Fixed"):
-	    return line.split(":")[1].split()
+        if line.startswith("Launchpad-Bugs-Fixed"):
+            return line.split(":")[1].split()
     return []
 
 
@@ -70,12 +70,12 @@ def call_dput(location, changes):
     (dummy, output, dummy) = os.popen3("dput --debug %s %s" % (location, changes))
     text = output.readlines()
     for line in text:
-	if line.startswith("D: Incoming: "):
-	    incoming = line.split("D: Incoming: ")[1].strip()
-	    if incoming[-1] == "/":
-		incoming = incoming[:-1]
-	if line.startswith("Successfully uploaded packages."):
-	    res = True
+        if line.startswith("D: Incoming: "):
+            incoming = line.split("D: Incoming: ")[1].strip()
+            if incoming[-1] == "/":
+                incoming = incoming[:-1]
+        if line.startswith("Successfully uploaded packages."):
+            res = True
     return (res, incoming)
 
 
@@ -84,7 +84,7 @@ def lookup_dput_host(host):
     (dummy, output, dummy) = os.popen3("dput -H | grep ^%s" % host)
     text = output.read()
     if text:
-	return text.split()[2]
+        return text.split()[2]
     return ""
 
 
@@ -103,8 +103,8 @@ def call_debuild(options):
 def get_name_and_version():
     changelogfile = "debian/changelog"
     if not os.path.exists(changelogfile):
-	print >> sys.stderr, "%s not found." % changelogfile
-	sys.exit(1)
+        print >> sys.stderr, "%s not found." % changelogfile
+        sys.exit(1)
     
     head = open(changelogfile).readline()
     return re.findall(r'^(.*)\ \((.*)\).*', head)
@@ -112,13 +112,13 @@ def get_name_and_version():
 
 def assemble_bug_comment_text(host, incoming, sourcepackage, version):
     if host == "ppa.launchpad.net":
-	dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
-	    (host, incoming[1:], sourcepackage[0], sourcepackage, \
-	     sourcepackage, version)
+	    dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
+	        (host, incoming[1:], sourcepackage[0], sourcepackage, \
+	        sourcepackage, version)
     else:
 # FIXME: this needs to be much much cleverer at some stage
-	dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
-	    (host, incoming, sourcepackage[0], sourcepackage, version)
+	    dsc_file_location = "http://%s/%s/pool/main/%s/%s/%s_%s.dsc" % \
+	        (host, incoming, sourcepackage[0], sourcepackage, version)
     return """A new version of %s was uploaded to fix this bug.
 
 To review the current version, please run
@@ -129,9 +129,9 @@ To review the current version, please run
 
 def deal_with_bugreport(bugnumbers, host, incoming, sourcepackage, version):
     if not os.path.exists(os.path.expanduser("~/.lpcookie")):
-	print >> sys.stderr, \
-	    "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
-	sys.exit(1)
+        print >> sys.stderr, \
+	        "You need your Launchpad Cookie to be stored in  ~/.lpcookie"
+        sys.exit(1)
 
     #print apt.Cache()[sourcepackage].section.split("/")[0].count("verse")
     (dummy, output, dummy) = os.popen3(
@@ -143,25 +143,25 @@ def deal_with_bugreport(bugnumbers, host, incoming, sourcepackage, version):
     Bug.authentication = os.path.expanduser("~/.lpcookie")
     
     for bugnumber in bugnumbers:
-	bug = Bug(int(bugnumber))
-	if component in ["main", "restricted"] and \
-	   'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers]:
-	    bug.subscribers.add('ubuntu-main-sponsors')
-	if component in ["universe", "multiverse"] and \
-	   'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]:
-	    bug.subscribers.add('ubuntu-universe-sponsors')
-	if not component:
-	    bug.tags.append("needs-packaging")
+        bug = Bug(int(bugnumber))
+        if component in ["main", "restricted"] and \
+	       'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers]:
+	        bug.subscribers.add('ubuntu-main-sponsors')
+        if component in ["universe", "multiverse"] and \
+	       'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]:
+	        bug.subscribers.add('ubuntu-universe-sponsors')
+        if not component:
+	        bug.tags.append("needs-packaging")
 
-	comment = Bug.NewComment(text=assemble_bug_comment_text(host, incoming,
+        comment = Bug.NewComment(text=assemble_bug_comment_text(host, incoming,
 					    sourcepackage, version),
 				 subject="Fix in %s (%s)" % \
 					(sourcepackage, version))
-	bug.comments.add(comment)
+        bug.comments.add(comment)
 
-	if bug.status != "Fix Committed":
-	    bug.status = "Fix Committed"
-	bug.commit()
+        if bug.status != "Fix Committed":
+            bug.status = "Fix Committed"
+        bug.commit()
 
 
 def check_arguments(args):
@@ -170,28 +170,28 @@ def check_arguments(args):
     debuild_args = list()
 
     if len(sys.argv) == 2 and sys.argv[1] in ["--help", "-H"]:
-	print USAGE
-	sys.exit(0)
+        print USAGE
+        sys.exit(0)
 
     if len(sys.argv) == 1:
-	return (new_bug, location, debuild_args)
+        return (new_bug, location, debuild_args)
 
     if sys.argv[1] == "-n":
-	new_bug = True
-	if len(sys.argv)>2:
-	    if sys.argv[2].startswith("-"):
-		debuild_args = sys.argv[2:]
-	    else:
-		location = sys.argv[2]
-		if len(sys.argv)>3:
-		    debuild_args = sys.argv[3:]
+        new_bug = True
+        if len(sys.argv)>2:
+            if sys.argv[2].startswith("-"):
+                debuild_args = sys.argv[2:]
+            else:
+                location = sys.argv[2]
+            if len(sys.argv)>3:
+                debuild_args = sys.argv[3:]
     else:
         if sys.argv[1].startswith("-"):
-	    debuild_args.append(sys.argv[1:])
-	else:
-	    location = sys.argv[1]
-	    if len(sys.argv)>2:
-		debuild_args = sys.argv[2:]
+            debuild_args.append(sys.argv[1:])
+        else:
+            location = sys.argv[1]
+            if len(sys.argv)>2:
+                debuild_args = sys.argv[2:]
     
     return (new_bug, location, debuild_args)
 
@@ -201,13 +201,13 @@ def file_bug(sourcepackage, version):
     Bug.authentication = os.path.expanduser("~/.lpcookie")
 
     try:
-	bug = Bug.New(product={"name": sourcepackage, "target": "ubuntu"},
+	    bug = Bug.New(product={"name": sourcepackage, "target": "ubuntu"},
 		      summary="Please sponsor %s %s" % \
 				    (sourcepackage, version),
 		      description=\
 		      "The new package will be uploaded to PPA shortly.")
     except:
-	bug = Bug.New(product={"name": "ubuntu"},
+	    bug = Bug.New(product={"name": "ubuntu"},
 		      summary="Please sponsor %s %s" % \
 				    (sourcepackage, version),
 		      description=\
@@ -224,26 +224,26 @@ def main():
     (sourcepackage, version) = get_name_and_version()[0]
     
     if new_bug:
-	bugnumber = file_bug(sourcepackage, version)
-	os.system("dch -a 'Fixes (LP: #%s)'" % bugnumber)
+	    bugnumber = file_bug(sourcepackage, version)
+	    os.system("dch -a 'Fixes (LP: #%s)'" % bugnumber)
     if not call_debuild(debuild_args):
-	sys.exit(1)
+	    sys.exit(1)
     
     changesfile = "../%s_%s_source.changes" % (sourcepackage, version)
     if not os.path.exists(os.path.expanduser(changesfile)):
-	print >>  sys.stderr, "%s does not exist." % \
-	    os.path.expanduser(changesfile)
-	sys.exit(1)
+        print >>  sys.stderr, "%s does not exist." % \
+	        os.path.expanduser(changesfile)
+        sys.exit(1)
 
     host = lookup_dput_host(location)
     (dput_res, incoming) = call_dput(location, changesfile)
     if not dput_res:
-	print >> sys.stderr, "%s was not uploaded." % changesfile
-    	sys.exit(1)
+	    print >> sys.stderr, "%s was not uploaded." % changesfile
+    sys.exit(1)
 
     fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
     if(fixed_lp_bugs):
-	deal_with_bugreport(fixed_lp_bugs, host, incoming, sourcepackage,
+	    deal_with_bugreport(fixed_lp_bugs, host, incoming, sourcepackage,
 			    version)
 
     
