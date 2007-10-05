@@ -28,7 +28,8 @@ setup(name='ubuntu-dev-tools',
                'ppaput',
                'requestsync',
 	       'hugdaylist',
-	       'massfile'
+	       'massfile',
+	       'submittodebian'
   	       ],
 )
 
