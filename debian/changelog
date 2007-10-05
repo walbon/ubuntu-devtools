@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.18) gutsy; urgency=low
+
+  * requestsync: add an option to "Add latest debian version to the title of
+    the bug" (LP: #132221)
+
+ -- Marco Rodrigues <gothicx@sapo.pt>  Fri, 05 Oct 2007 14:16:34 +0200
+
 ubuntu-dev-tools (0.17) gutsy; urgency=low
 
   * submittodebian: backed out changes from last upload. This needs Debian Bug
