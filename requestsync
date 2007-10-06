@@ -27,6 +27,24 @@ def cur_version_component(sourcepkg, release):
     print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
     sys.exit(1)
 
+def cur_deb_version(sourcepkg):
+    ''' Return the current debian version of a package in unstable '''
+    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', \
+                                '-s', 'unstable', sourcepkg], \
+                               stdout=subprocess.PIPE)
+    out = madison.communicate()[0]
+    assert (madison.returncode == 0)
+
+    try:
+        assert out
+    except AssertionError:
+        print "%s doesn't appear to exist in Debian." % sourcepkg
+        sys.exit(1)
+   
+    return out.split('|')[1].rstrip('[]''').lstrip()
+
+    sys.exit(1)
+
 def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
     (exclusive).'''
@@ -54,7 +72,7 @@ def debian_component(sourcepkg):
     except AssertionError:
         print "%s doesn't appear to exist in Debian." % sourcepkg
         sys.exit(1)
-    raw_comp = out.split(' | ')[2].split('/')
+    raw_comp = out.split('|')[2].split('/')
     component = 'main'
     if len(raw_comp) == 2:
         component = raw_comp[1]
@@ -65,7 +83,7 @@ def usage():
 
 In some cases, the base version (fork point from Debian) cannot be determined
 automatically, and you'll get a complete Debian changelog. Specify the correct
-base version in that case."""
+base version of the package in Ubuntu."""
     sys.exit(1)
 
 #
@@ -103,6 +121,7 @@ debiancomponent = debian_component(srcpkg)
 # generate bug report
 status = "confirmed"
 subscribe = "ubuntu-archive"
+deb_version = cur_deb_version(srcpkg)
 if sponsorship:
     status = "new"
     if component in ['main', 'restricted']:
@@ -118,8 +137,8 @@ report = ''' affects ubuntu%s
  status %s
  subscribe %s
 
-Please sync %s (%s) from Debian unstable (%s).
-''' % (affects, status, subscribe, srcpkg, component, debiancomponent)
+Please sync %s %s (%s) from Debian unstable (%s).
+''' % (affects, status, subscribe, srcpkg, deb_version, component, debiancomponent)
 
 base_ver = cur_ver
 uidx = base_ver.find('ubuntu')
@@ -166,9 +185,9 @@ to = 'new@bugs.launchpad.net'
 
 mail = '''From: %s
 To: %s
-Subject: Please sync %s (%s) from Debian unstable (%s)
+Subject: Please sync %s %s (%s) from Debian unstable (%s)
 
-%s''' % (myemailaddr, to, srcpkg, component, debiancomponent, signed_report)
+%s''' % (myemailaddr, to, srcpkg, deb_version, component, debiancomponent, signed_report)
 
 print mail
 

@@ -1,9 +1,35 @@
-ubuntu-dev-tools (0.16) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.19) UNRELEASED; urgency=low
 
   * requestsync: allow to customize the SMTP server (LP: #144244)
   * Add a short description for requestsync to the README file.
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <siggi.gevatter@gmail.com>  Mon,  1 Oct 2007 18:04:14 +0200
+
+ubuntu-dev-tools (0.18) gutsy; urgency=low
+
+  * requestsync: add an option to "Add latest debian version to the title of
+    the bug" (LP: #132221)
+
+ -- Marco Rodrigues <gothicx@sapo.pt>  Fri, 05 Oct 2007 14:16:34 +0200
+
+ubuntu-dev-tools (0.17) gutsy; urgency=low
+
+  * submittodebian: backed out changes from last upload. This needs Debian Bug
+    445144 fixed.
+  * debian/control: don't Depends on a version of reportbug Ubuntu does not
+    have yet.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 05 Oct 2007 11:44:51 +0200
+
+ubuntu-dev-tools (0.16) gutsy; urgency=low
+
+  [ Lucas Nussbaum ]
+  * Added support for Bugs/Debian/Usertagging in submittodebian.
+
+  [ Daniel Holbach ]
+  * setup.py: actually install submittodebian.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 05 Oct 2007 11:05:29 +0200
 
 ubuntu-dev-tools (0.15) gutsy; urgency=low
 
