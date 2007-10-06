@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.19) UNRELEASED; urgency=low
+
+  [ Laurent Bigonville ]
+  * pbuilder-dist: Fix error on chroot creation (LP: #146475)
+
+ -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 07 Oct 2007 00:03:57 +0200
+
 ubuntu-dev-tools (0.18) gutsy; urgency=low
 
   * requestsync: add an option to "Add latest debian version to the title of
