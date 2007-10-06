@@ -1,6 +1,6 @@
-=====================
+================================
 ==  Ubuntu Development Tools  ==
-=====================
+================================
 
 404main <package>
     ... will check in what components the dependencies of <package> are.
@@ -24,31 +24,31 @@ mk-sbuild-lv
     sbuild has not be installed and configured before.
 
 pbuilder-dist [withlog] [create|update|build|clean|login|execute]
-   ... is a wrapper to use pbuilder with many different distributions / versions.
-   It has to be renamed to something like pbuilder-feisty, pbuilder-gutsy, etc.
+    ... is a wrapper to use pbuilder with many different distributions / versions.
+    It has to be renamed to something like pbuilder-feisty, pbuilder-gutsy, etc.
 
 ppaput [-n] <dput location> [<debuild options>]
-   ... will build a source package using <debuild options>, upload it
-   to <dput location> and follow up on specified bugs, make sure the
-   sponsoring process is followed. Also it will file a new bug, if
-   '-n' is used.
+    ... will build a source package using <debuild options>, upload it
+    to <dput location> and follow up on specified bugs, make sure the
+    sponsoring process is followed. Also it will file a new bug, if
+    '-n' is used.
 
 pull-debian-debdiff <package> <version>
     ... will attempt to find and download a specific version of a Debian package 
     and its immediate parent to generate a debdiff.
 
 requestsync [-n|-s] <source package> <target release> [base version]
-	... will fill a sync for a package from Debian by sending a bug report to
-	Launchpad.
+    ... will file a sync request for a package from Debian by sending a bug report to
+    Launchpad.
 
 suspicious-source
-   ... will output a list of files which are not common source files. This should be
-   run in the root of a source tree to find files which might not be the "prefered 
-   form of modification" that the GPL and other licenses require.
+    ... will output a list of files which are not common source files. This should be
+    run in the root of a source tree to find files which might not be the "prefered 
+    form of modification" that the GPL and other licenses require.
 
 update-maintainer
-   ... will update the maintainer field of an Ubuntu package to match the 
-   DebianMaintainerField specification.
+    ... will update the maintainer field of an Ubuntu package to match the 
+    DebianMaintainerField specification.
 
 what-patch
     ... will check what patching system is used by a package.
