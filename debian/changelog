@@ -1,7 +1,11 @@
 ubuntu-dev-tools (0.19) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * requestsync: allow to customize the SMTP server (LP: #144244)
   * Add a short description for requestsync to the README file.
+  
+  [ Laurent Bigonville ]
+  * requestsync: allow to customize the SMTP port
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <siggi.gevatter@gmail.com>  Mon,  1 Oct 2007 18:04:14 +0200
 
