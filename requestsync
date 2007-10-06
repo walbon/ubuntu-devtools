@@ -192,8 +192,39 @@ Subject: Please sync %s %s (%s) from Debian unstable (%s)
 print mail
 
 print 'Press enter to file this bug, Control-C to abort'
+
 sys.stdin.readline()
 
-s = smtplib.SMTP('fiordland.ubuntu.com')
+# get server address
+mailserver = os.getenv('DEBSMTP')
+if mailserver:
+	print 'Using custom SMTP server:', mailserver
+else :
+	mailserver = 'fiordland.ubuntu.com'
+
+# get server port
+mailserver_port = os.getenv('DEBSMTP_PORT')
+if mailserver_port:
+    print 'Using custom SMTP port:', mailserver_port
+else:
+    mailserver_port = 25
+
+# connect to the server
+s = smtplib.SMTP(mailserver, mailserver_port)
+
+# authenticate to the server
+mailserver_user = os.getenv('DEBSMTP_USER')
+mailserver_pass = os.getenv('DEBSMTP_PASS')
+if mailserver_user and mailserver_pass:
+	try:
+		s.login(mailserver_user, mailserver_pass)
+	except smtplib.SMTPAuthenticationError:
+		print 'Error authenticating to the server: invalid username and password.'
+		s.quit(); sys.exit(1)
+        except:
+                print 'Unknown SMTP error.'
+                s.quit(); sys.exit(1)
+		
+
 s.sendmail(myemailaddr, to, mail)
 s.quit()

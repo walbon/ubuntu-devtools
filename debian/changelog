@@ -1,7 +1,12 @@
 ubuntu-dev-tools (0.19) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * requestsync: allow to customize the SMTP server (LP: #144244)
+  * Add a short description for requestsync to the README file.
+
   [ Laurent Bigonville ]
   * pbuilder-dist: Fix error on chroot creation (LP: #146475)
+  * requestsync: allow to customize the SMTP port
 
  -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 07 Oct 2007 00:03:57 +0200
 
