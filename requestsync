@@ -183,8 +183,15 @@ if mailserver:
 else :
 	mailserver = 'fiordland.ubuntu.com'
 
+# get server port
+mailserver_port = os.getenv('DEBSMTP_PORT')
+if mailserver_port:
+    print 'Using custom SMTP port:', mailserver_port
+else:
+    mailserver_port = 25
+
 # connect to the server
-s = smtplib.SMTP(mailserver)
+s = smtplib.SMTP(mailserver, mailserver_port)
 
 # authenticate to the server
 mailserver_user = os.getenv('DEBSMTP_USER')
@@ -195,6 +202,9 @@ if mailserver_user and mailserver_pass:
 	except smtplib.SMTPAuthenticationError:
 		print 'Error authenticating to the server: invalid username and password.'
 		s.quit(); sys.exit(1)
+        except:
+                print 'Unknown SMTP error.'
+                s.quit(); sys.exit(1)
 		
 
 s.sendmail(myemailaddr, to, mail)
