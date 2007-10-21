@@ -10,7 +10,7 @@
 FILES="*.h *.c *.cc *.cpp *.py *.sh *.txt *.text *.3 *.m4 *.xml *.html *.php \
        *.php3 *.php4 *.class *.form *.module  *.cfg *.conf *.config *.odt \
        *.odp *.tex *.sla *.scd Makefile Makefile.am Makefile.in configure \
-       configure.ac  *.diff *.debdiff *.patch *.dpatch config.sub config.guess
+       configure.ac  *.diff *.debdiff *.patch *.dpatch config.sub config.guess \
        depcomp *.docbook  *.desktop *.menu AUTHORS INSTALL NEWS README TODO \
        COPYING LICENSE ChangeLog *.ui *.glade *.gladep *.po *.pot *.ts *.pro \
        *.svg *.png *.bmp *.gif *.xpm *.hh"
