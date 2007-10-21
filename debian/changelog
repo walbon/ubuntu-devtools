@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.20) UNRELEASED; urgency=low
+
+  * suspicious-source: add *.hh to list of excluded files
+  * suspicious-source: format excluded file list to fit 80 chars limit
+  * suspicious-source: corrected typos in script and manual page
+
+ -- Cesare Tirabassi <norsetto@ubuntu.com>  Sun, 21 Oct 2007 10:49:26 +0200
+
 ubuntu-dev-tools (0.19) gutsy; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
