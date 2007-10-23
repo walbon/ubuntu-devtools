@@ -1,40 +1,62 @@
 #!/bin/bash
+# Copyright 2006-2007 (C) Daniel Holbach <daniel.holbach@ubuntu.com>
+# Modified by Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# License: GPLv2
+#
+# This script is used to get a diff of the exported symbols of all .so files in
+# every binary package of package $1.
 
 PACKAGES="`apt-cache showsrc $1 | grep ^Binary | sed 's/Binary\:\ //g;s/\,//g' | sort -u`"
 DEBLINE=""
+DEBUG=False
 
-if [ -z $1 ]; then \
-	echo "Missing argument: source package name."; \
-	exit; \
+if [[ -z $1 ]]; then
+    echo "Missing argument: source package name.";
+    exit;
 fi
 
-if [ -z $2 ]; then \
-	DEBDIR="/var/cache/pbuilder/result"; \
-else \
-	DEBDIR="$2"; \
+if [[ -z $2 ]]; then
+    DEBDIR="/var/cache/pbuilder/result";
+else
+    DEBDIR="$2";
 fi
 
-for pack in $PACKAGES; \
-do \
-	for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`; \
-	do \
-		LIBNAME=$(basename $lib); \
-		nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.1; \
-	done; \
-	DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "; 
+for pack in $PACKAGES;
+do
+    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
+    do
+        LIBNAME=$(basename $lib);
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.1;
+    done;
+    DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "; 
 done
+
+if [[ -z $DEBLINE ]]; then
+    echo "Package doesn't exist: $1."; exit
+fi
+
+NOFILE=True
+for filename in $DEBLINE; do
+    if [[ ${filename: -5} != "*.deb" ]]; then
+        NOFILE=False
+        [[ $DEBUG != True ]] || echo "Found binary file: $filename"
+    fi
+done
+
+if [[ $NOFILE == True ]]; then
+    echo "No matching binary files found in «$DEBDIR»."; exit
+fi
 
 sudo dpkg -i $DEBLINE;
 
-for pack in $PACKAGES; \
-do \
-	for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`; \
-	do \
-		LIBNAME=$(basename $lib); \
-		nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.2; \
-		echo "Checking: $lib"; \
-		diff -u /tmp/$LIBNAME.{1,2}; \
-		rm /tmp/$LIBNAME.{1,2}; \
-	done; \
+for pack in $PACKAGES;
+do
+    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
+    do
+        LIBNAME=$(basename $lib);
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.2;
+        echo "Checking: $lib";
+        diff -u /tmp/$LIBNAME.{1,2};
+        rm /tmp/$LIBNAME.{1,2};
+    done;
 done   
-

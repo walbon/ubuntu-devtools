@@ -1,0 +1,80 @@
+#!/usr/bin/python
+#
+# Copyright 2007, Canonical, Daniel Holbach
+#
+# GPL 3
+#
+# hugdaylist <url>
+# - produces lists like https://wiki.ubuntu.com/UbuntuBugDay/20070912?action=raw
+#
+# hugdaylist -n <howmany> <url>
+# - will only list <howmany> URLs
+#
+
+import re
+import os
+import sys
+import string
+
+try:
+    import launchpadbugs.connector as Connector
+    BugList = Connector.ConnectBugList()
+    Bug = Connector.ConnectBug()
+except:
+    print >> sys.stderr, \
+	"You need  python-launchpad-bugs (>= 0.2.9)  installed to use hugdaylist."
+    sys.exit(1)
+
+
+USAGE = "hugdaylist [-n <howmany>] <URL>"
+
+def check_args():
+    howmany = -1
+    url = ""
+    
+    if len(sys.argv) < 2:
+        print >> sys.stderr, USAGE
+        sys.exit(1)
+
+    if sys.argv[1] == "-n":
+        howmany = int(sys.argv[2])
+        url = sys.argv[3]
+    else:
+        url = sys.argv[1]
+        
+    return (howmany, url)
+
+def filter_unsolved(bugs):
+    result = set()
+
+    for b in bugs:
+	bug = Bug(int(b))
+	if bug.status != 'Fix Committed' and \
+	    'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
+	    'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers] and \
+	    (bug.assignee in ['motu','desktop-bugs'] or not bug.assignee):
+	    result.add(b)
+    return result
+
+def main(): 
+    (howmany, url) = check_args()
+    
+    l = BugList(url).filter(func=[filter_unsolved])
+    
+    if not l.bugs:
+        print "BugList of %s is empty." % url
+        sys.exit(0)
+
+    if howmany == -1:
+        howmany = len(l.bugs)
+        
+    print "|| Bug || Subject || Triager ||"
+
+    for i in list(l.bugs)[:howmany]:
+        print '||<rowstyle="background-color: ;"> [%s %s] || %s || ||' % \
+            (i.url, i.bugnumber, i.summary)
+
+
+if __name__ == '__main__':
+	main()
+

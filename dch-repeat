@@ -1,6 +1,7 @@
 #!/usr/bin/perl
-# Copyright 2007, Kees Cook <kees@ubuntu.com>
+# Copyright 2007 (C) Kees Cook <kees@ubuntu.com>
 # License: GPLv2
+#
 # This script is used to repeat a change log into an older release.  It
 # expects that --build-tree is layed out with each Ubuntu release as a
 # separate directory ("feisty", "edgy", etc).
@@ -9,6 +10,7 @@
 # $TREE/feisty/gimp-2.2.13, running "dch-repeat" in
 # $TREE/edgy/gimp-2.2.13 would pull in the latest changelog from the Feisty
 # build.
+
 use strict;
 use warnings;
 use Getopt::Long;

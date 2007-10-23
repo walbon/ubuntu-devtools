@@ -1,3 +1,200 @@
+ubuntu-dev-tools (0.20) hardy; urgency=low
+
+  [ Cesare Tirabassi ]
+  * suspicious-source: add *.hh to list of excluded files
+  * suspicious-source: format excluded file list to fit 80 chars limit
+  * suspicious-source: corrected typos in script and manual page
+
+  [ Dainel Holbach ]
+  * hugdaylist: only mention 'unassigned bugs'.
+
+  [ Soren Hansen ]
+  * Added missing python-debian dependency (needed by submittodebian)
+
+  [ Laurent Bigonville ]
+  * debian/control: add a space before the Homepage pseudo-field
+  * pbuilder-dist: add hardy to the distribution list
+
+ -- Laurent Bigonville <bigon@ubuntu.com>  Tue, 23 Oct 2007 18:54:32 +0200
+
+ubuntu-dev-tools (0.19) gutsy; urgency=low
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * requestsync: allow to customize the SMTP server (LP: #144224)
+  * Add a short description for requestsync to the README file.
+
+  [ Laurent Bigonville ]
+  * pbuilder-dist: Fix error on chroot creation (LP: #146475)
+  * requestsync: allow to customize the SMTP port
+
+  [ Adrien Cunin ]
+  * README: minor and cosmetic changes
+
+ -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 07 Oct 2007 00:24:46 +0200
+
+ubuntu-dev-tools (0.18) gutsy; urgency=low
+
+  * requestsync: add an option to "Add latest debian version to the title of
+    the bug" (LP: #132221)
+
+ -- Marco Rodrigues <gothicx@sapo.pt>  Fri, 05 Oct 2007 14:16:34 +0200
+
+ubuntu-dev-tools (0.17) gutsy; urgency=low
+
+  * submittodebian: backed out changes from last upload. This needs Debian Bug
+    445144 fixed.
+  * debian/control: don't Depends on a version of reportbug Ubuntu does not
+    have yet.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 05 Oct 2007 11:44:51 +0200
+
+ubuntu-dev-tools (0.16) gutsy; urgency=low
+
+  [ Lucas Nussbaum ]
+  * Added support for Bugs/Debian/Usertagging in submittodebian.
+
+  [ Daniel Holbach ]
+  * setup.py: actually install submittodebian.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 05 Oct 2007 11:05:29 +0200
+
+ubuntu-dev-tools (0.15) gutsy; urgency=low
+
+  [ Laurent Bigonville ]
+  * update-maintainer: correctly pass path to dch (LP: #141015)
+
+  [ Daniel Holbach ]
+  * ppaput:
+    - fix indentation issues.
+    - now respects the PPA section the package goes to (LP: #146161)
+    - add comment to bug about how to test the resulting .deb (LP: #145895)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 01 Oct 2007 15:56:18 +0200
+
+ubuntu-dev-tools (0.14) gutsy; urgency=low
+
+  * massfile: 
+    - fixed bug where to find example files,
+    - made url get checked beforehand.
+    - fixed bug, where description and summary were not updated with the
+      current source package.
+  * examples/massfile.instructions: added example buglist-url.
+  .
+  Thanks Andrew Mitchell, for helping out by fixing and clever advise.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 27 Sep 2007 11:43:55 +0200
+
+ubuntu-dev-tools (0.13) gutsy; urgency=low
+
+  * massfile: added script to file mass-bugs.
+  * debian/examples, examples/massfile.{instructions,list}: added example
+    files.
+  * setup.py: install massfile.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 27 Sep 2007 11:04:52 +0200
+
+ubuntu-dev-tools (0.12) gutsy; urgency=low
+
+  * hugdaylist: apply quick fix to not crash.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 24 Sep 2007 09:43:30 +0200
+
+ubuntu-dev-tools (0.11) gutsy; urgency=low
+
+  [ Daniel Holbach ]
+  * compare-packages, README: dropped compare-packages, debdiff has the same
+    functionality, when used with --from --to or on *.changes files.
+  * hugdaylist: prepare the list more carefully (filter out 'fixed committed'
+    bugs and bugs that have ubuntu-*-sponsors subscribed.
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Added a manpage for suspicious-source.
+  * Fixed a bug in pbuilder-dist (it needed ftp.debian.org in sources.list to work with Debian).
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 24 Sep 2007 09:39:24 +0200
+
+ubuntu-dev-tools (0.10) gutsy; urgency=low
+
+  * compare-packages: added script to compare the contents of 'old' and 'new'
+    binary packages of the same source package. Useful to spot moved files,
+    dropped files, etc.
+  * README: briefly document added scripts.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 14 Sep 2007 11:23:36 +0200
+
+ubuntu-dev-tools (0.9) gutsy; urgency=low
+
+  * Added submittodebian.1
+
+ -- Soren Hansen <soren@ubuntu.com>  Thu, 13 Sep 2007 14:38:49 +0200
+
+ubuntu-dev-tools (0.8) gutsy; urgency=low
+
+  * Renamed revuput to ppaput.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Thu, 13 Sep 2007 14:35:18 +0200
+
+ubuntu-dev-tools (0.7) gutsy; urgency=low
+
+  [Colin Watson]
+  * Fix *roff use (hyphens vs. dashes, start each sentence on a new line).
+
+  [Daniel Holbach]
+  * revuput: deal with the case of NEW packages.
+  * hugdaylist: added a tool to write Wiki lists of bugs in <buglist url> as
+    in https://wiki.ubuntu.com/UbuntuBugDay/20070912
+  * debian/control: bumped python-launchpad-bugs version.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 12 Sep 2007 09:28:54 +0100
+
+ubuntu-dev-tools (0.6) gutsy; urgency=low
+
+  * Because I'm a bozo, fix up the version of the devscripts
+    Conflicts/Replaces.
+
+ -- Steve Kowalik <stevenk@ubuntu.com>  Wed, 12 Sep 2007 10:46:21 +1000
+
+ubuntu-dev-tools (0.5) gutsy; urgency=low
+
+  * Add requestsync and its manual page from devscripts. (LP: #138885)
+  * Add Conflicts/Replaces against devscripts 2.10.7ubuntu3.
+
+ -- Steve Kowalik <stevenk@ubuntu.com>  Wed, 12 Sep 2007 01:14:04 +1000
+
+ubuntu-dev-tools (0.4) gutsy; urgency=low
+
+  * revuput: added a tool to upload packages to PPA and file sponsoring bugs
+    automatically.
+  * doc/revuput.1.docbook, debian/control, debian/rules: build manpage for it
+    from DocBook.
+  * setup.py: install it.
+  * debian/control: add python-launchpad-bugs Depends.
+
+  [Soren Hansen]
+  * added submittodebian tool.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 07 Sep 2007 14:14:57 +0200
+
+ubuntu-dev-tools (0.3) gutsy; urgency=low
+
+  * debian/copyright: added Canonical copyright.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 04 Sep 2007 09:51:04 +0200
+
+ubuntu-dev-tools (0.2) gutsy; urgency=low
+
+  [ Martin Pitt ]
+  * Add suspicious-source: Output a list of files which are not common source
+    files. This should be run in the root of a source tree to find files which
+    might not be the 'prefered form of modification' that the GPL and other
+    licenses require.
+
+  [ Luke Yelavich ]
+  * Removed ubuntu-cd and ubuntu-sync. They are currently undergoing
+    major reworking, and will be re-included when ready.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Sat,  4 Aug 2007 08:30:01 +1000
+
 ubuntu-dev-tools (0.1) gutsy; urgency=low
 
   * Initial Release.

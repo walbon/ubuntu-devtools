@@ -1,0 +1,48 @@
+#!/bin/bash
+# Copyright 2007 (C) Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# Based upon a script by Martin Pitt <martin.pitt@ubuntu.com>
+# License: GPLv3 or later
+#
+# This script outputs a list of files which are not common source files. This
+# should be run in the root of a source tree to find files which might not be
+# the "preferred form of modification" that the GPL and other licenses require.
+
+FILES="*.h *.c *.cc *.cpp *.py *.sh *.txt *.text *.3 *.m4 *.xml *.html *.php \
+       *.php3 *.php4 *.class *.form *.module  *.cfg *.conf *.config *.odt \
+       *.odp *.tex *.sla *.scd Makefile Makefile.am Makefile.in configure \
+       configure.ac  *.diff *.debdiff *.patch *.dpatch config.sub config.guess \
+       depcomp *.docbook  *.desktop *.menu AUTHORS INSTALL NEWS README TODO \
+       COPYING LICENSE ChangeLog *.ui *.glade *.gladep *.po *.pot *.ts *.pro \
+       *.svg *.png *.bmp *.gif *.xpm *.hh"
+
+IGNORE=".bzr CVS .svn debian"
+
+
+COMMAND=(find ! \( )
+
+firstDone=False
+for pattern in $FILES
+do
+    if [[ $firstDone != True ]]; then
+        COMMAND+=( -name $pattern); firstDone=True
+    else
+        COMMAND+=( -o -name $pattern)
+    fi
+done
+
+COMMAND+=( \) \( )
+
+firstDone=False
+for pattern in $IGNORE
+do
+    if [[ $firstDone != True ]]; then
+        COMMAND+=( -name $pattern -prune); firstDone=True
+    else
+        COMMAND+=( -o -name $pattern -prune)
+    fi
+done
+
+COMMAND+=( -o -type f -print \))
+COMMAND="${COMMAND[@]}"
+
+$COMMAND    # Execute the command

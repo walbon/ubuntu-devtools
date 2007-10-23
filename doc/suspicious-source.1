@@ -1,0 +1,29 @@
+.\"	Title: suspicious-source
+.\"	Author: Siegfried-Angel Gevatter Pujals
+.\" Contact details: siggi.gevatter@gmail.com
+.\"
+.TH SUSPICIOUS\-SOURCE 1 "September 14, 2007"
+.\"
+.SH NAME
+suspicious\-source \- search for files that are not the GPL's "preferred form of modification"
+.\"
+.SH SYNOPSIS
+\fBsuspicious\-source\fP
+.\"
+.SH DESCRIPTION
+\fBsuspicious\-source\fP is a script that outputs a list of files which are not common source files.
+This should be run in the root of a source tree to find files which might not be the "preferred form of modification"
+that the GPL and other licenses require.
+.PP
+Neither the files inside version control system directories (like ".bzr/" or "CVS/"), nor those inside "debian/" are
+considered.
+.\"
+.SH AUTHORS
+\fBsuspicious\-source\fP has been written by Siegfried-Angel Gevatter Pujals <siggi.gevatter@gmail.com>, based upon 
+a script with the same name, by Martin Pitt <martin.pitt@ubuntu.com>.
+.\"
+.SH SEE ALSO
+\fBfind(1)\fR
+.\"
+.SH COPYRIGHT
+This manual page was written by Siegfried-Angel Gevatter Pujals (RainCT). It is released under the GNU General Public License, version 2 or later.

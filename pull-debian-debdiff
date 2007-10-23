@@ -1,12 +1,16 @@
 #!/usr/bin/perl
-# Copyright 2007 Kees Cook <kees@ubuntu.com>
-# License GPLv2
+# Copyright 2007 (C) Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+#
 # This script attempts to find and download a specific version of a Debian
 # package and its immediate parent to generate a debdiff.
-# Requires: devscripts diffstat dpkg-dev
+#
+# Requirements: devscripts diffstat dpkg-dev
+#
 # Cleanups needed:
 #  - general cleanup
 #  - parse diff.gz/orig.tar.gz from .dsc file instead of guessing version
+
 use strict;
 use warnings;
 
@@ -88,7 +92,6 @@ sub download_source
 
     return 1;
 }
-
 
 
 my $pkg = $ARGV[0];

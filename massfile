@@ -1,0 +1,124 @@
+#!/usr/bin/python
+#
+# (C) Canonical, 2007, GPL v3
+
+import os
+import sys
+import email
+import subprocess
+
+import launchpadbugs.connector as Connector
+
+
+def read_config():
+    instructions_file = open("instructions")
+    instructions = email.message_from_file(instructions_file)
+    instructions_file.close()
+    instr = dict()
+    
+    for field in "subject", "assignee", "subscribers", "tags", "text", \
+                 "buglist-url":
+        instr[field] = instructions.get(field)
+    
+    return instr
+
+def read_list():
+    pack_list = set()
+
+    listfile = open("list")
+    for line in listfile.readlines():
+        if line.strip()!="":
+            pack_list.add(line.strip("\n"))
+
+    listfile.close()
+    return pack_list
+
+def file_bug():
+    Bug = Connector.ConnectBug()
+    Bug.authentication = os.path.expanduser("~/.lpcookie")
+
+
+def check_configfiles():
+    result = True
+
+    bin_path = os.path.dirname(os.path.abspath(__file__))
+    if bin_path == "/usr/bin":
+        example_dir = "/usr/share/doc/ubuntu-dev-tools/examples"
+    else:
+        example_dir = "%s/examples" % bin_path
+
+    if not os.path.exists("instructions"):
+        os.system("cp %s/massfile.instructions instructions" % example_dir)
+        print >> sys.stderr, \
+            "No 'instructions' file found. Copied template from %s." % \
+            example_dir
+        result = False
+
+    if not os.path.exists("list"):
+        os.system("cp %s/massfile.list list" % example_dir)
+        print >> sys.stderr, \
+            "No 'list' file found. Copied template from %s." % example_dir
+        result = False
+
+    return result
+
+
+def file_bug(config):
+    Bug = Connector.ConnectBug()
+    Bug.authentication = os.path.expanduser("~/.lpcookie")
+
+    try:
+        summary = config["subject"].replace("$pack", config["sourcepackage"])
+        description = config["text"].replace("$pack", config["sourcepackage"])
+        
+        bug = Bug.New(product={"name": config["sourcepackage"], 
+                               "target": "ubuntu"},
+                      summary=summary,
+                      description=description)
+        print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
+            (bug.bugnumber, bug.bugnumber)
+        for sub in config["subscribers"].split(","):
+            if sub.strip("\n").strip():
+                bug.subscribers.add(sub.strip("\n").strip())
+        for tag in config["tags"].split(","):
+            if tag.strip("\n").strip():
+                bug.tags.append(tag.strip("\n").strip())
+        bug.assignee = config["assignee"]
+        bug.commit()
+    except:
+        "Bug for '%s' was not filed." % config["sourcepackage"]
+
+def read_buglist(url):
+    BugList = Connector.ConnectBugList()
+    packages = set()
+
+    if url:
+        buglist = BugList(url)
+        for bug in buglist.bugs:
+            packages.add(bug.sourcepackage)
+        
+    return packages
+    
+    
+def main():
+    if not check_configfiles():
+        sys.exit(1)
+
+    if not os.path.exists(os.path.expanduser("~/.lpcookie")):
+        print >> sys.stderr, \
+            "Launchpad cookie not found in ~/.lpcookie."
+        sys.exit(1)
+    
+    config = read_config()
+    pack_list = read_list()
+    buglist = read_buglist(config["buglist-url"])
+	
+    for pack in pack_list:
+        if pack not in buglist:
+            config["sourcepackage"] = pack
+            file_bug(config)
+
+	
+if __name__ == '__main__':
+    main()
+

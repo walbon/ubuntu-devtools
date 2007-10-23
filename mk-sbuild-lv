@@ -1,9 +1,13 @@
 #!/bin/bash
-# Script to create LVM snapshot chroots via schroot and sbuild.
+# Copyright 2006-2007 (C) Canonical Ltd.
+# Created by Kees Cook <kees@ubuntu.com>
+# License: GPLv2
+#
+# This script creates LVM snapshot chroots via schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
-# This script assumes that sbuild has not be installed and configured before.
+# It assumes that sbuild has not be installed and configured before.
 #
 # If using schroot earlier than 1.1.4-1, it's a good idea to apply the
 # process-cleaning patch to /etc/schroot/setup.d/10mount.  Without this, any
@@ -17,9 +21,7 @@
 #   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
 #
 # Version: 0.11
-#
-# Copyright 2006-2007, Canonical Ltd, Kees Cook <kees@ubuntu.com>
-# License: GPLv2
+
 set -e
 
 # Make sure we've got a regular user
@@ -52,11 +54,6 @@ if [ ! -w /var/lib/sbuild ]; then
 # (mandatory, no default!).
 \$maintainer_name='$USER <$USER@localhost>';
 
-# Chroot behaviour; possible values are "split" (apt and dpkg are run
-# from the host system) and "schroot" (all package operations are done in
-# the chroot with schroot, but the chroot must allow networking)
-\$chroot_mode = "schroot";
-
 # Directory for chroot symlinks and sbuild logs.  Defaults to the
 # current directory if unspecified.
 #\$build_dir='$HOME/ubuntu/build';
@@ -88,9 +85,11 @@ function usage()
 {
     echo "Usage: $0 [OPTIONS] VG Release" >&2
     echo "Options:"
-    echo "  --arch=ARCH    What architecture to select"
-    echo "  --name=NAME    Base name for the schroot (arch is appended)"
-    echo "  --debug        Turn on script debugging"
+    echo "  --arch=ARCH                What architecture to select"
+    echo "  --name=NAME                Base name for the schroot (arch is appended)"
+    echo "  --debug                    Turn on script debugging"
+    echo "  --source-template=FILE     Use FILE as the sources.list template"
+    echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
     exit 1
 }
 
@@ -98,7 +97,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,arch:,name::" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,arch:,name:,source-template:,debootstrap-mirror:" -- "$@"`
 eval set -- "$OPTS"
 
 name=""
@@ -118,6 +117,18 @@ while :; do
             name="$2"
             shift 2
             ;;
+	--source-template)
+	    TEMPLATE_SOURCES="$2"
+	    shift 2
+	    if [ ! -r $TEMPLATE_SOURCES ]; then
+		echo "W: Template file $TEMPLATE_SOURCES is not readable"
+		echo "W: Continuing with default sources!"
+	    fi
+	    ;;
+	--debootstrap-mirror)
+	    DEBOOTSTRAP_MIRROR="$2"
+	    shift 2
+	    ;;
         --)
             shift
             break
@@ -156,10 +167,7 @@ if [ ! -f "/usr/lib/debootstrap/scripts/$RELEASE" ]; then
     echo "Specified release not known to debootstrap" >&2
     exit 1
 else
-    # Look for a buildd variant to work with
-    if [ -f "/usr/lib/debootstrap/scripts/${RELEASE}.buildd" ]; then
-        variant_opt="--variant=buildd"
-    fi
+    variant_opt="--variant=buildd"
 fi
 
 # Allocate the "golden" chroot LV
@@ -172,7 +180,9 @@ sudo mount "$CHROOT_PATH" "$MNT"
 sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
-TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+if [ -z "$TEMPLATE_SOURCES" ]; then
+    TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+fi
 if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
@@ -196,7 +206,7 @@ TEMPLATE_SCHROOTCONF=~/.mk-sbuild-lv.schroot.conf
 if [ -r "$TEMPLATE_SCHROOTCONF" ]; then
     cat "$TEMPLATE_SCHROOTCONF" > "$TEMP_SCHROOTCONF"
 else
-    cat > "$TEMPLATE_SCHROOTCONF" <<EOM
+    cat > "$TEMP_SCHROOTCONF" <<EOM
 
 [CHROOT_NAME]
 type=lvm-snapshot
