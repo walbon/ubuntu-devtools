@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.20) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.20) hardy; urgency=low
 
   [ Cesare Tirabassi ]
   * suspicious-source: add *.hh to list of excluded files
@@ -11,7 +11,7 @@ ubuntu-dev-tools (0.20) UNRELEASED; urgency=low
   [ Soren Hansen ]
   * Added missing python-debian dependency (needed by submittodebian)
 
- -- Soren Hansen <soren@ubuntu.com>  Tue, 23 Oct 2007 15:36:25 +0200
+ -- Soren Hansen <soren@ubuntu.com>  Tue, 23 Oct 2007 16:45:44 +0200
 
 ubuntu-dev-tools (0.19) gutsy; urgency=low
 
