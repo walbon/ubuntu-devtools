@@ -51,7 +51,8 @@ def filter_unsolved(bugs):
 	bug = Bug(int(b))
 	if bug.status != 'Fix Committed' and \
 	    'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
-	    'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]:
+	    'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers] and \
+	    (bug.assignee in ['motu','desktop-bugs'] or not bug.assignee):
 	    result.add(b)
     return result
 

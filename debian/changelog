@@ -1,10 +1,14 @@
 ubuntu-dev-tools (0.20) UNRELEASED; urgency=low
 
+  [ Cesare Tirabassi ]
   * suspicious-source: add *.hh to list of excluded files
   * suspicious-source: format excluded file list to fit 80 chars limit
   * suspicious-source: corrected typos in script and manual page
 
- -- Cesare Tirabassi <norsetto@ubuntu.com>  Sun, 21 Oct 2007 10:49:26 +0200
+  [ Dainel Holbach ]
+  * hugdaylist: only mention 'unassigned bugs'.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 23 Oct 2007 12:17:53 +0200
 
 ubuntu-dev-tools (0.19) gutsy; urgency=low
 
