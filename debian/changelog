@@ -8,7 +8,10 @@ ubuntu-dev-tools (0.20) UNRELEASED; urgency=low
   [ Dainel Holbach ]
   * hugdaylist: only mention 'unassigned bugs'.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 23 Oct 2007 12:17:53 +0200
+  [ Soren Hansen ]
+  * Added missing python-debian dependency (needed by submittodebian)
+
+ -- Soren Hansen <soren@ubuntu.com>  Tue, 23 Oct 2007 15:36:25 +0200
 
 ubuntu-dev-tools (0.19) gutsy; urgency=low
 
