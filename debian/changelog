@@ -6,8 +6,6 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
 
   [ Kees Cook ]
   * mk-sbuild-lv: fix gnupg install, adjust symlink creation
-  * debian/changelog: move Laurent's changes into 0.21 (since 0.20 already
-    published).
 
  -- Kees Cook <kees@ubuntu.com>  Tue, 23 Oct 2007 10:22:44 -0700
 
