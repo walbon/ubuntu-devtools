@@ -105,7 +105,7 @@ distdata()
 
 
 case $DISTRIBUTION in
-    dapper|edgy|feisty|gutsy)	# warty|hoary|breezy
+    dapper|edgy|feisty|gutsy|hardy)	# warty|hoary|breezy
         distdata ubuntu
         ;;
     

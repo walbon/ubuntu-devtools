@@ -11,7 +11,11 @@ ubuntu-dev-tools (0.20) hardy; urgency=low
   [ Soren Hansen ]
   * Added missing python-debian dependency (needed by submittodebian)
 
- -- Soren Hansen <soren@ubuntu.com>  Tue, 23 Oct 2007 16:45:44 +0200
+  [ Laurent Bigonville ]
+  * debian/control: add a space before the Homepage pseudo-field
+  * pbuilder-dist: add hardy to the distribution list
+
+ -- Laurent Bigonville <bigon@ubuntu.com>  Tue, 23 Oct 2007 18:54:32 +0200
 
 ubuntu-dev-tools (0.19) gutsy; urgency=low
 
