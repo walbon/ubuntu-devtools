@@ -33,32 +33,17 @@ to use this script."
 		exit 1
 	fi
 	
-	if [ ! -x /usr/lib/pbuilder/pbuilder-satisfydepends ]; then
-		# The package «pbuilder» isn't installed, but it's required
-		# to install the build dependencies of a source package.
-		# Ask the user if he wants to install it automatically.
-		echo -n "\
-This script requires a component that's included in the «pbuilder» \
-package, which isn't currently installed, in order to install the \
-dependencies required to build the source package in the current \
-directory.
-
-Would you like to install pbuilder now? [y/N] "
-		read install_now
-		
-		if [ ! $install_now ] || ([ $install_now != 'y' ] && [ $install_now != 'Y' ])
-		then
-			# Don't install it. Abort.
-			exit 1
-		fi
-		
-		echo 'Installing package «pbuilder»...'
-		sudo aptitude install pbuilder
-		echo; echo
+	filepath="`pwd`/debian/control"
+	missing_dependencies=$(dpkg-checkbuilddeps 2>&1)
+	
+	if [ -z "$missing_dependencies" ]; then
+		echo "The build dependencies described in «$filepath» are already satisfied."
+		exit 0
 	fi
 	
-	echo "Installing the build dependencies described in «`pwd`/debian/control»..."
-	sudo /usr/lib/pbuilder/pbuilder-satisfydepends
+	echo "Installing the build dependencies described in «$filepath»..."
+	sudo aptitude install $(echo $missing_dependencies | awk -F: '{ print $3 }' | sed 's/([^)]*)//g' | sed 's/|\s[^\s]*//g')
+		#' <--- Fix to avoid Geanys markup breaking
 	exit 0
 elif [ $# -eq 1 ]
 then
