@@ -3,9 +3,9 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
   * debian/control: add a space before the Homepage pseudo-field
   * pbuilder-dist: add hardy to the distribution list
   * pbuilder-dist: Use new --components options (LP: #140964)
-  * pbuilder-dist: Add an empty --othermirror
+  * pbuilder-dist: Add an empty --othermirror to override config in pbuilderrc
 
- -- Laurent Bigonville <bigon@ubuntu.com>  Thu, 25 Oct 2007 14:28:07 +0200
+ -- Laurent Bigonville <bigon@ubuntu.com>  Sun, 28 Oct 2007 12:41:56 +0100
 
 ubuntu-dev-tools (0.20) hardy; urgency=low
 
