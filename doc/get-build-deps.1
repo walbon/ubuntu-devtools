@@ -1,0 +1,55 @@
+.\"	Title: get-build-deps
+.\"	Author: Siegfried-Angel Gevatter Pujals
+.\" Contact details: siggi.gevatter@gmail.com
+.\"
+.TH GET\-BUILD\-DEPS 1 "October 27, 2007"
+.\"
+.SH NAME
+get\-build\-deps \- install build dependencies for one or more packages
+.\"
+.SH SYNOPSIS
+\fBget\-build\-deps\fP [\fIPACKAGE(S)\fR]
+.\"
+.SH DESCRIPTION
+\fBget\-build\-deps\fP is a script to install the build dependencies for either a
+local source package or one or more packages from the repositories.
+.PP
+In order to obtain all missing build dependencies for a package on which source
+you are currently working, just run this script without any argument, and it'll
+read it's debian/control file to determine the missing build dependencies.
+.PP
+Alternatively, you can call it with a list of space-separated package names, or the
+name of a single file which contains the package names each on a line. Then it will
+install the missing dependencies for those packages using "apt-get build-dep".
+.\"
+.SH EXAMPLES
+.TP
+get\-build\-deps
+Looks for a the debian/control file in the current working directory and installs the
+dependencies listed there.
+.TP
+get\-build\-deps geany
+Installs the build dependencies for version of «geany» that's in the repositories.
+.TP
+get\-build\-deps geany epiphany-browser rhythmbox
+Same as the previous example but also with the dependencies for «epiphany-browser»
+and «rhythmbox».
+.TP
+get\-build\-deps ./package_list.txt
+Reads the file «package_list.txt» (relatively to the current working directory),
+where each line contains the name of a package, and installs the dependencies
+for the versions of all those that's in the repositories.
+.\"
+.SH KNOWN BUGS AND LIMITATIONS
+When it's being used to install the missing dependencies for a local source package
+(ie, no arguments are passed to it) it doesn't check for the dependencies to match
+the indicated versions, but just installs the newest one available in the repositories.
+.\"
+.SH SEE ALSO
+\fBdpkg-checkbuilddeps(1)\fR,
+\fBapt-get(8)\fR
+.SH AUTHORS
+.\"
+\fBget\-build\-deps\fP and this manual page have been written by Siegfried-Angel
+Gevatter Pujals <siggi.gevatter@gmail.com>. They are released under the GNU General
+Public License, version 3 or later.

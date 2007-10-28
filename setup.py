@@ -12,7 +12,7 @@ if os.path.exists(changelog):
     match = re.compile(".*\((.*)\).*").match(head)
     if match:
         version = match.group(1)
-   
+
 setup(name='ubuntu-dev-tools',
       version=version,
       scripts=['404main', 
@@ -27,9 +27,9 @@ setup(name='ubuntu-dev-tools',
                'suspicious-source',
                'ppaput',
                'requestsync',
-	       'hugdaylist',
-	       'massfile',
-	       'submittodebian'
-  	       ],
+               'hugdaylist',
+               'massfile',
+               'submittodebian',
+               'get-build-deps'
+            ],
 )
-

@@ -7,7 +7,10 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
   [ Kees Cook ]
   * mk-sbuild-lv: fix gnupg install, adjust symlink creation
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 23 Oct 2007 10:22:44 -0700
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Add get-build-deps and it's documentation.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Sat, 27 Oct 2007 23:03:42 +0200
 
 ubuntu-dev-tools (0.20) hardy; urgency=low
 
