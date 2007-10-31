@@ -168,5 +168,6 @@ sudo pbuilder $OPERATION \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/${FOLDERBASE}_result \
     --mirror "$ARCHIVE" \
-    --othermirror "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" \
+    --othermirror "" \
+    --components "$COMPONENTS" \
     $@
