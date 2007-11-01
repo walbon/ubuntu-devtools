@@ -4,7 +4,7 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
   * debian/control: add a space before the Homepage pseudo-field
   * pbuilder-dist: add hardy to the distribution list
   * pbuilder-dist: Use new --components options (LP: #140964)
-  * pbuilder-dist: Add an empty --othermirror to override config in pbuilderrc (LP: #156183)
+  * pbuilder-dist: Add an empty --othermirror to override config in pbuilderrc
 
   [ Kees Cook ]
   * mk-sbuild-lv: fix gnupg install, adjust symlink creation
@@ -12,7 +12,7 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * Add get-build-deps and it's documentation.
 
- -- Laurent Bigonville <bigon@bigon.be>  Wed, 31 Oct 2007 17:49:09 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Sat, 27 Oct 2007 23:03:42 +0200
 
 ubuntu-dev-tools (0.20) hardy; urgency=low
 
