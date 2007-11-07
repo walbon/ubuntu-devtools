@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # The author of this script is unknown
 # License: Public Domain
 #
@@ -63,5 +64,3 @@ find_main(pkg,0)
 for j in packages:
 	if packages[(j)] == "Not in main":
 		print j + ": "+packages[(j)]
-
-

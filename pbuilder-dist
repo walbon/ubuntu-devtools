@@ -14,9 +14,10 @@
 # 'pbuilder-feisty-i386', etc.
 
 # Base directory where pbuilder will put all the files it creates
+# This is overriden by the global variable $PBUILDFOLDER
 BASE_DIR="$HOME/pbuilder"
 
-# Enable additional repositories by default? (universe and multiverse in Ubuntu,
+# Enable additional components by default? (universe and multiverse in Ubuntu,
 # contrib and non-free in Debian.)
 EXTRACOMP=1
 
@@ -31,6 +32,11 @@ SYSCACHE=1
 
 ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 SYSDIST=`lsb_release -cs`
+
+if [ $PBUILDFOLDER ] && [ $PBUILDFOLDER != "" ]
+then
+	BASE_DIR=$PBUILDFOLDER
+fi
 
 help()
 {
@@ -94,10 +100,12 @@ distdata()
     if [ "$1" = "debian" ]
     then
         # Set Debian specific data
+        ISDEBIAN=True
         ARCHIVE="http://ftp.debian.org"
         COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
     else
         # Set Ubuntu specific data
+        ISDEBIAN=False
         ARCHIVE="http://archive.ubuntu.com/ubuntu"
         COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
     fi
@@ -114,16 +122,17 @@ case $DISTRIBUTION in
         ;;
     
     *)
-        echo "Warning: Unknown distribution «$DISTRIBUTION»."
-        echo -n "Continue [y/N]? "
-        read continue
-        
-        if [ "$continue" != 'y' ] && [ "$continue" != 'Y' ]
+        if [ ! -d $BASE_DIR/${DISTRIBUTION}-* ]
         then
-            echo "Aborting..."
-            exit 1
+            echo -n "Warning: Unknown distribution «$DISTRIBUTION». Do you want to continue [y/N]? "
+            read continue
+            
+            if [ "$continue" != 'y' ] && [ "$continue" != 'Y' ]
+            then
+                echo "Aborting..."
+                exit 1
+            fi
         fi
-        
         distdata
         ;;
 esac
@@ -160,6 +169,20 @@ then
 	DEBCACHE='/var/cache/apt/archives/'
 fi
 
+# Check what version of pbuilder is installed, and if
+# it's supported, use the --components option
+if dpkg --compare-versions $(dpkg-query -W -f='${Version}' pbuilder) ge 0.174
+then
+	if [ $ISDEBIAN = True ]; then
+		echo "Warning: If this operation fails it might be because you changed the value of $COMPONENTS in the pbuilderrc file."
+		echo "See https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/140964 for more information."
+	fi
+	COMPONENTS_LINE="--othermirror \"\" --components \"$COMPONENTS\""
+else
+	# else, do it the old way
+	COMPONENTS_LINE="--othermirror \"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
+fi
+
 sudo pbuilder $OPERATION \
     --basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
     --distribution $DISTRIBUTION \
@@ -168,6 +191,5 @@ sudo pbuilder $OPERATION \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/${FOLDERBASE}_result \
     --mirror "$ARCHIVE" \
-    --othermirror "" \
-    --components "$COMPONENTS" \
+    $COMPONENTS_LINE \
     $@
