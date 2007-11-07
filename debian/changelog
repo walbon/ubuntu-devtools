@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.21) hardy; urgency=low
 
   [ Laurent Bigonville ]
   * debian/control: add a space before the Homepage pseudo-field
@@ -24,7 +24,7 @@ ubuntu-dev-tools (0.21) UNRELEASED; urgency=low
   * debian/control:
     - Move homepage to its own field in source package section.
 
- -- Luke Yelavich <themuso@ubuntu.com>  Thu, 08 Nov 2007 09:38:46 +1100
+ -- Luke Yelavich <themuso@ubuntu.com>  Thu, 08 Nov 2007 09:57:31 +1100
 
 ubuntu-dev-tools (0.20) hardy; urgency=low
 
