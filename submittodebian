@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 #    submittodebian - tool to submit patches to Debian's bts
 #    Copyright (C) 2007 Canonical Ltd.
@@ -18,10 +19,14 @@
 #    with this program; if not, write to the Free Software Foundation, Inc.,
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-from debian_bundle.changelog import Changelog
 import re, os, sys
 from tempfile import mkstemp
+
+try:
+	from debian_bundle.changelog import Changelog
+except ImportError:
+	print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
+	sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
 	for v in changelog.get_versions():
@@ -54,11 +59,14 @@ def gen_debdiff(changelog):
 
 	return debdiff
 
-def check_file(fname):
-	if not os.path.exists(fname):
-		print "Couldn't find %s\n" % fname
+def check_file(fname, critical = True):
+	if os.path.exists(fname):
+		return fname
+	else:
+		if not critical: return False
+		print "Couldn't find «%s».\n" % fname
 		sys.exit(1)
-	
+
 def edit_debdiff(debdiff):
 	cmd = 'sensible-editor %s' % (debdiff)
 	run_cmd(cmd)
@@ -72,9 +80,8 @@ def run_cmd(cmd):
 		print "%s\n" % cmd
 	os.system(cmd)
 
-check_file('debian/changelog')
-
-changelog = Changelog(file('debian/changelog').read())
+changelog_file = check_file('debian/changelog', critical = no) or check_file('../debian/changelog')
+changelog = Changelog(file(changelog_file).read())
 
 deb_version = get_most_recent_debian_version(changelog)
 bug_body = get_bug_body(changelog)

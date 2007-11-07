@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 # Copyright 2007, Canonical, Daniel Holbach
 #
@@ -18,6 +19,7 @@ import string
 
 try:
     import launchpadbugs.connector as Connector
+    import launchpadbugs.bughelper_error as ConnectorErrors
     BugList = Connector.ConnectBugList()
     Bug = Connector.ConnectBug()
 except:
@@ -35,13 +37,16 @@ def check_args():
     if len(sys.argv) < 2:
         print >> sys.stderr, USAGE
         sys.exit(1)
-
+    
     if sys.argv[1] == "-n":
         howmany = int(sys.argv[2])
+        if len(sys.argv) < 4:
+        	print USAGE
+        	sys.exit(1)
         url = sys.argv[3]
     else:
         url = sys.argv[1]
-        
+    
     return (howmany, url)
 
 def filter_unsolved(bugs):
@@ -59,7 +64,13 @@ def filter_unsolved(bugs):
 def main(): 
     (howmany, url) = check_args()
     
-    l = BugList(url).filter(func=[filter_unsolved])
+    try:
+    	l = BugList(url).filter(func=[filter_unsolved])
+    except ConnectorErrors.LPUrlError:
+    	print "Couldn't load «%s»." % url
+    	sys.exit(1)
+    except KeyboardInterrupt:
+    	sys.exit(1)	# User aborted, no need to print a backtrace
     
     if not l.bugs:
         print "BugList of %s is empty." % url
