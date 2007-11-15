@@ -63,7 +63,7 @@ def debian_changelog(sourcepkg, component, version):
 
 def debian_component(sourcepkg):
     '''Return the Debian component for the source package.'''
-    madison = subprocess.Popen(['rmadison', '-a', 'source', '-s', 'unstable', \
+    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', '-s', 'unstable', \
                                 sourcepkg], stdout=subprocess.PIPE)
     out = madison.communicate()[0]
     assert (madison.returncode == 0)
