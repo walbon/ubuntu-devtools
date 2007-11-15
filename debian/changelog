@@ -9,9 +9,10 @@ ubuntu-dev-tools (0.22) UNRELEASED; urgency=low
     - Some code cleanup.
 
   [ Laurent Bigonville ]
-  * Always pass -u option to rmadison now that it defaults to ubuntu
+  * requestsync:
+    -Always pass -u option to rmadison now that it defaults to ubuntu
 
- -- Laurent Bigonville <bigon@ubuntu.com>  Thu, 15 Nov 2007 21:09:38 +0100
+ -- Laurent Bigonville <bigon@ubuntu.com>  Thu, 15 Nov 2007 22:33:49 +0100
 
 ubuntu-dev-tools (0.21) hardy; urgency=low
 
