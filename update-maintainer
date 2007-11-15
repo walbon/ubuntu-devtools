@@ -5,14 +5,41 @@
 # This script is used to update the maintainer field of an Ubuntu package
 # to match the DebianMaintainerField specification.
 
+usage() {
+cat <<EOF
+Usage: $0 [--path=PATH] [--section=SECTION] [--nochangelog]
+--path=PATH 		specify the path of the source folder
+--section=SECTION 	specify the section of the package (if the package is
+			not yet in the archive.
+--nochangelog		Do not add to the changelog, only alter debian/control.
+EOF
+}
+
 for argv in "$@"; do
     param=${argv%=*}
     value=${argv#*=}
     case $param in
-        "--path")    path="$value"  ;;
-        "--section") section=$value ;;
-        "--help")    echo -e "Options: \n --path=PATH : specify the path of the source folder\n --section=SECTION : specify the section of the package (if the package is not yet in the archive or if you don't have the gutsy source repo in your sources.list)"; exit 0         ;;
-        *)           echo "Bad parameter, please use --help" >&2; exit 1 ;;
+        "--path")
+            path="$value"
+        ;;
+        "--section")
+            [ "$value" != "main" ] &&
+            [ "$value" != "restricted" ] &&
+            [ "$value" != "universe" ] &&
+            [ "$value" != "multiverse" ] && echo "Invalid section. Valid sections: main restricted universe multiverse" >&2 && exit 1
+            section=$value
+        ;;
+        "--nochangelog")
+            nochangelog=1
+        ;;
+        "--help")
+            usage
+        ;;
+        *)
+            echo "Bad parameter."
+            usage
+            exit 1
+        ;;
     esac
 done
 
@@ -33,11 +60,11 @@ fi
 exit 1; }
 
 if [ -z "$section" ]; then
-    DISTRO=$(sed -r '1!d;s/.*\) (.*);.*/\1/' $DEBIANDIR/changelog|cut -d'-' -f1)
-    pkgline=$(apt-cache madison $(head -1 $DEBIANDIR/changelog| cut -d' ' -f1)|\
-        grep -m 1 "$DISTRO.*Sources")
+    DISTRO=$(sed -r '1!d;s/.*\) (.*);.*/\1/' $DEBIANDIR/changelog | cut -d'-' -f1)
+    pkgline=$(rmadison -u ubuntu -a source -s $DISTRO $(head -1 $DEBIANDIR/changelog | cut -d' ' -f1))
     if [ -z "$pkgline" ]; then
-        echo "You don't have $DISTRO in your source repos." >&2
+        echo "The package doesn't exist in the $DISTRO archive. You may have to use the" >&2
+        echo "--section argument. Run $0 --help for more information." >&2
         exit 1
     fi
     section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted")
@@ -52,5 +79,5 @@ for file in control{,.in,.real}; do
     [ -f $DEBIANDIR/$file ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
 done
 
-dch --changelog $DEBIANDIR/changelog "Modify Maintainer value to match the DebianMaintainerField specification."
+[ -z "$nochangelog" ] && dch --changelog $DEBIANDIR/changelog "Modify Maintainer value to match the DebianMaintainerField specification."
 echo "Maintainer changed to $email."

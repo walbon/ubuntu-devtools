@@ -1,3 +1,14 @@
+ubuntu-dev-tools (0.22) UNRELEASED; urgency=low
+
+  * update-maintainer-field:
+    - Use rmadison instead of apt-cache madison.
+    - Added --nochangelog command-line argument.
+    - Check --section value.
+    - Reformatted usage information.
+    - Some code cleanup.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Thu, 15 Nov 2007 22:31:42 +1100
+
 ubuntu-dev-tools (0.21) hardy; urgency=low
 
   [ Laurent Bigonville ]
