@@ -12,6 +12,7 @@ Upstream Author:
 	Kees Cook <kees@ubuntu.com>
 	Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
 	Soren Hansen <soren@ubuntu.com>
+	Terence Simpson <stdin@stdin.me.uk>
 
 
 Copyright:
@@ -23,11 +24,12 @@ Copyright:
 	Michael Bienia <geser@ubuntu.com> 2006-2007
 	Kees Cook <kees@ubuntu.com> 2006-2007
 	Siegfried-A. Gevatter <siggi.gevatter@gmail.com> 2007
+	Terence Simpson <stdin@stdin.me.uk> 2007
 
 Licenses:
 
 check-symbols, dch-repeat, mk-sbuild-lv, pbuilder-dist, pull-debian-debdiff, 
-submittodebian, update-maintainer, and what-patch are licensed under GPLv2:
+submittodebian, update-maintainer, dgetlp and what-patch are licensed under GPLv2:
 
     This package is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -62,5 +64,6 @@ get-branches, suspicious-source and get-build-deps are licensed under GPLv3:
 On Debian systems, the complete text of the GNU General Public License v3
 can be found in `/usr/share/common-licenses/GPL-3'.
 
-The following of the scripts can be used, at your option, regarding any later version
-of the previously specified license: pbuilder-dist, suspicious-source and get-build-deps.
+The following of the scripts can be used, at your option, regarding any
+later version of the previously specified license: pbuilder-dist, dgetlp,
+suspicious-source, get-build-deps.

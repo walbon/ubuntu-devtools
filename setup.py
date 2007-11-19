@@ -30,6 +30,7 @@ setup(name='ubuntu-dev-tools',
                'hugdaylist',
                'massfile',
                'submittodebian',
-               'get-build-deps'
+               'get-build-deps',
+               'dgetlp'
             ],
 )
