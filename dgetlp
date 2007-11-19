@@ -1,0 +1,105 @@
+#!/bin/bash
+# Copyright 2007 (C) Terence Simpson <stdin@stdin.me.uk>
+# Modified by Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# License: GPLv2 or later
+#
+# This script simulates «dget»'s behaviour for files hosted at
+# launchpadlibrarian.net.
+#
+# Detailed description:
+# This script attempts to download the source package in the same
+# way as dget does, but from launchpadlibrarian.net, which doesn't
+# store all the files in the same directory. It (the script) assumes
+# that the files are stored in sequential directories on Launchpad
+# Librarian and attemps to download and then unpack them.
+
+GET="wget"
+UNPACK="dpkg-source -x {dsc-file}"
+
+usage()
+{
+cat << EOF
+Usage: $0 [-d] <Launchpad URL>
+
+This scripts simulates «dget»'s behaviour for files hostead at
+launchpadlibrarian.net.
+
+If you specify the -d option then it won't do anything, but just
+print the commands it would run otherwise.
+
+Example:
+	$0 http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
+EOF
+}
+
+if [ "$1" = "-d" ]
+then
+	# Debug Mode
+	GET="echo "${GET}
+	UNPACK="echo "${UNPACK}
+	shift
+fi
+
+if [ $# -ne 1 ]
+then
+	usage
+	exit 1
+fi
+
+# Store download URL into a local variable to be able to modify it
+URL=$1
+
+if [ ${URL:0:4} == 'www.' ]
+then
+	URL="http://"${URL:4}
+fi
+
+if [ ${URL:0:7} != 'http://' ]
+then
+	URL="http://"$URL
+fi
+
+if [ ${URL:0:30} != 'http://launchpadlibrarian.net/' ]
+then
+	echo "Error: This utility only works for files on launchpadlibrarian.net."
+	exit 1
+fi
+
+if [ ${URL##*.} !=  'dsc' ]
+then
+	echo "You have to provide the URL for the .dsc file."
+	exit 1
+fi
+
+BASE="http://launchpadlibrarian.net" #BASE="http://$(echo $URL|cut -d '/' -f 3)"
+NUMBER="$(echo $URL|cut -d '/' -f 4)"
+FILE="$(echo $URL|cut -d '/' -f 5)"
+
+UNPACK=$(echo $UNPACK | sed s/{dsc-file}/${FILE}/g)
+
+echo "Getting ${BASE}/${NUMBER}/${FILE}"
+if ! $GET ${BASE}/${NUMBER}/${FILE}
+then
+	echo "Failed to fetch «.dsc» file, aborting."
+	exit 1
+fi
+
+echo "Getting ${BASE}/$(($NUMBER-1))/$(echo $FILE|sed 's,\.dsc$,.diff.gz,')"
+if ! $GET ${BASE}/$(($NUMBER-1))/$(echo $FILE | sed 's,\.dsc$,.diff.gz,')
+then
+	echo "Failed to fetch «.diff.gz» file, aborting."
+	exit 1
+fi
+
+echo "Getting ${BASE}/$(($NUMBER-2))/$(echo $FILE|sed 's,\-[0-9]*.*$,.orig.tar.gz,')"
+if ! $GET ${BASE}/$(($NUMBER-2))/$(echo $FILE|sed 's,\-[0-9]*.*$,.orig.tar.gz,')
+then
+	echo "Failed to fetch «orig.tar.gz» file, aborting."
+	exit 1
+fi
+
+if ! $UNPACK
+then
+	echo "Failed to unpack source, aborting."
+	exit 1
+fi

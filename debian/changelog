@@ -12,7 +12,10 @@ ubuntu-dev-tools (0.22) UNRELEASED; urgency=low
   * requestsync:
     -Always pass -u option to rmadison now that it defaults to ubuntu
 
- -- Laurent Bigonville <bigon@ubuntu.com>  Thu, 15 Nov 2007 22:33:49 +0100
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Add dgetlp script (for «dgetting» from Launchpad) 
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Tue, 20 Nov 2007 00:16:55 +0100
 
 ubuntu-dev-tools (0.21) hardy; urgency=low
 
