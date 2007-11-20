@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.22) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.22) hardy; urgency=low
 
   [ Luke Yelavich ]
   * update-maintainer-field:
