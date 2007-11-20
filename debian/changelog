@@ -15,7 +15,14 @@ ubuntu-dev-tools (0.22) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * Add dgetlp script (for «dgetting» from Launchpad) 
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Tue, 20 Nov 2007 00:16:55 +0100
+  [ Lucas Nussbaum ]
+  * Enabled support for Bugs/Debian/Usertagging in submittodebian
+
+  [ Michael Vogt ]
+  * debian/control:
+    - depend on reportbug (>= 3.39ubuntu1) to have working usertag support
+  
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 20 Nov 2007 12:15:20 +0100
 
 ubuntu-dev-tools (0.21) hardy; urgency=low
 
