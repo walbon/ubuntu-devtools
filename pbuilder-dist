@@ -173,13 +173,13 @@ fi
 # it's supported, use the --components option
 if dpkg --compare-versions $(dpkg-query -W -f='${Version}' pbuilder) ge 0.174
 then
+	COMPONENTS_LINE="--othermirror \"\" --components \"$COMPONENTS\""
+else
+	# else, do it the old way
 	if [ $ISDEBIAN = True ]; then
 		echo "Warning: If this operation fails it might be because you changed the value of $COMPONENTS in the pbuilderrc file."
 		echo "See https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/140964 for more information."
 	fi
-	COMPONENTS_LINE="--othermirror \"\" --components \"$COMPONENTS\""
-else
-	# else, do it the old way
 	COMPONENTS_LINE="--othermirror \"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
 fi
 
@@ -191,5 +191,5 @@ sudo pbuilder $OPERATION \
     $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
     --buildresult $BASE_DIR/${FOLDERBASE}_result \
     --mirror "$ARCHIVE" \
-    $COMPONENTS_LINE \
-    $@
+    $@	\
+    $COMPONENTS_LINE 
