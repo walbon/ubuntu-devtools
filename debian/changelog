@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
+
+  [ Ryan Kavanagh ]
+  * Updated requestsync(1) to reflect the addition of the -k <keyid> and
+    removed a runon in DESCRIPTION. 
+
+ -- Ryan Kavanagh <ryanakca@kubuntu.org>  Thu, 22 Nov 2007 11:50:36 -0500
+
 ubuntu-dev-tools (0.22) hardy; urgency=low
 
   [ Luke Yelavich ]

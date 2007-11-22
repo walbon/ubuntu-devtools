@@ -1,36 +1,42 @@
-.TH REQUESTSYNC "1" "6 August 2007" "devscripts"
+.TH REQUESTSYNC "1" "22 November 2007" "devscripts"
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync
-.RI [\fI \-n | \-s \fR] " " <\fIsource\fR " " \fIpackage\fR> " " <\fItarget\fR " " \fIrelease\fR> " "[\fIbase\fR " " \fIversion\fR]
+.B requestsync\fR [\fB\-ns\fR] [\fB-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 .SH DESCRIPTION
 .PP 
-\fBrequestsync\fR looks at the versions of <source package> in Debian and Ubuntu, prompts for an explanation of why the Ubuntu changes (if there are any) should be dropped, downloads the changelog entry from packages.debian.org, and then prompts for your GPG passphrase so it can sign the mail and send it off, which files a sync request in the form of a bug report in Launchpad.
+\fBrequestsync\fR looks at the versions of <source package> in Debian and Ubuntu and prompts for an explanation of why the Ubuntu changes (if there are any) should be dropped. The changelog entry is then downloaded from packages.debian.org, followed by prompt for your GPG passphrase so that it can sign the mail and send it off, to file a sync request in the form of a bug report in Launchpad.
 .SH OPTIONS
 .PP
 Listed below are the command line options for requestsync:
 .TP
-\fB\-n\fR
+.B \-n
 Specifies that the package is a new package, and requestsync should not attempt to look it up in Ubuntu since it will not exist.
 .TP
-\fB\-s\fR
+.B \-s
 Specifies that you require sponsorship.
 You need this option if you are not a member of ubuntu-dev for universe or multiverse, or ubuntu-core-dev for main or restricted.
 .TP
-\fB<source package>\fR
+.B \-k \fI<keyid>\fR
+Specifies your GPC key.
+Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in
+.IR $HOME/.bashrc \fR.
+.TP
+.B <source package>
 This is the source package that you would like to be synced from Debian.
 .TP
-\fB<target release>\fR
+.B <target release>
 This is the release that you would like the source package to be synced into.
 This should always be the latest development release of Ubuntu, ie: gutsy.
 .TP
-\fB[base version]\fR
+.B [base version]
 In some cases, the base version (where the Ubuntu package started differing from the Debian package) can not be automatically determined.
 Specify this option in this case.
 .SH AUTHOR
 .PP
 This manual page was pieced together by Steve Kowalik.
+
+It was then updated by Ryan Kavanagh to reflect additional features.
 .SH SEE ALSO 
 .PP 
 \fBrmadison\fP\fB(1)\fP
