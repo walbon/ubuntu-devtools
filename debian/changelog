@@ -7,7 +7,10 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
   [ Mathias Gug ]
   * Add patch tag in submittodebian.
 
- -- Mathias Gug <mathiaz@ubuntu.com>  Fri, 23 Nov 2007 10:48:25 -0500
+  [ Luke Yelavich ]
+  * update-maintainer: Exit after displaying usage for --help.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Sat, 24 Nov 2007 07:49:32 +1100
 
 ubuntu-dev-tools (0.22) hardy; urgency=low
 
