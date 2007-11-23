@@ -34,6 +34,7 @@ for argv in "$@"; do
         ;;
         "--help")
             usage
+            exit 0
         ;;
         *)
             echo "Bad parameter."
