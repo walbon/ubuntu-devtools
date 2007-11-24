@@ -1,66 +1,87 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# The author of this script is unknown
-# License: Public Domain
 #
-# This script is used to check in what components ("main", "restricted",
-# "universe" or "multiverse") the dependencies of a package are.
+# Copyright 2007 (C) Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# Based upon a script by an unknown author
+# License: GPLv2 or later
+#
+# This script is used to check if a certain package in main has all its
+# dependencies and build dependencies there too, or not.
 
 import subprocess
 import sys
 
-packages={}
 
-def find_main(pack, version):
+def process_deps(deps):
+	"""Takes a list of (build) dependencies and processes it."""
+	
+	for package in [ package.split('|')[0] for package in deps ]:
+		
+		# Cut package name (from something like "name ( >= version)")
+		name = package.split(' ')[0]
+		
+		if not packages.has_key(name):
+			# Check the (build) dependencies recursively
+			find_main(name)
+
+
+def find_main(pack):
+	"""Searches the dependencies and build dependencies of a package recursively
+	to determine if they are all in the 'main' component or not."""
+	
 	global packages
-	mad = subprocess.Popen(['apt-cache madison '+pack], shell=True, stdout=subprocess.PIPE)
-	out = mad.stdout.read()
-	if out.find("/main")!=-1 or out.find("http")==-1:
-		packages[(pack)]="In main"
-		return	
+	
+	# Retrieve information about the package
+	out = subprocess.Popen('apt-cache madison ' + pack, shell=True, stdout=subprocess.PIPE).stdout.read()
+	
+	if out.find("/main") != -1 or out.find("http") == -1:
+		packages[pack] = True
+		return 1
 	else:
 		if not packages.has_key(pack):
-			packages[(pack)]="Not in main"
-		test = subprocess.Popen(['apt-cache show '+pack], shell=True, stdout=subprocess.PIPE)	
+			packages[pack] = False
+		
+		# Retrive package dependencies
+		deps = subprocess.Popen("dpkg-query -W -f='${Depends}' " + pack, shell=True, stdout=subprocess.PIPE).stdout.read().split(', ')
+		
+		process_deps(deps)
+		
+		# Retrieve package build dependencies
+		deps1 = subprocess.Popen('apt-cache showsrc ' + pack, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 		deps = []
-		for j in test.stdout.readlines():
-			if j.startswith("Depend"):
-				deps = j.strip("\n").strip("Depends: ").split(",")
-		depse = []
-		for p in deps:
-			a = p.split("|")	
-			for k in a:
-				depse.append(k)
-		for i in depse:
-			info=i.strip(") ").split("(")
-			if len(info) == 2:	
-				version = info[1].strip(" ")
-			name = info[0].strip(" ")
-			if not packages.has_key(name):
-				find_main(name, version)
+		
+		for builddep in deps1:
+			if builddep.startswith('Build-Depends'):
+				deps += builddep.strip('\n').strip('Build-Depends: ').strip('Build-Depends-Indep: ').split(', ')
+		
+		process_deps(deps)
 
-		test = subprocess.Popen(['apt-cache showsrc '+pack], shell=True, stdout=subprocess.PIPE)	
-		deps = []
-		for j in test.stdout.readlines():
-			if j.startswith("Build-Depend"):
-				deps = j.strip("\n").strip("Build-Depends: ").split(",")
-		depse = []
-		for p in deps:
-			a = p.split("|")	
-			for k in a:
-				depse.append(k)
-		for i in depse:
-			info=i.strip(") ").split("(")
-			if len(info) == 2:	
-				version = info[1].strip(" ")
-			name = info[0].strip(" ")
-			if not packages.has_key(name):
-				find_main(name, version)
 
-pkg = sys.argv[1]
+if __name__ == '__main__':
+	
+	# Check if the amount of arguments is correct
+	if len(sys.argv) != 2 or sys.argv[1] in ('help', '-h', '--help'):
+		print "Usage: %s <package name>" % sys.argv[0]
+		sys.exit(1)
 
-find_main(pkg,0)
-
-for j in packages:
-	if packages[(j)] == "Not in main":
-		print j + ": "+packages[(j)]
+	# Global variable to hold the status of all packages
+	packages = {}
+	
+	if subprocess.Popen("dpkg-query -W -f='${Package}' " + sys.argv[1] + " 2>/dev/null", shell=True, stdout=subprocess.PIPE).stdout.read() == '':
+		print "Package «%s» doesn't exist." % sys.argv[1]
+		sys.exit(1)
+	
+	find_main(sys.argv[1])
+	
+	# True if everything checked until the point is in main
+	all_in_main = True
+	
+	for package in packages:
+		if not packages[package]:
+			if all_in_main:
+				print "Following packages aren't in main:"
+				all_in_main = False
+			print '  ', package
+	
+	if all_in_main:
+		print package, "and all its dependencies are in main."

@@ -3,7 +3,8 @@
 ================================
 
 404main <package>
-    ... will check in what components the dependencies of <package> are.
+    ... will check if the dependencies and build dependencies of
+    <package> are in 'main' or in another component.
 
 check-symbols <package> [<directory>]
     ... will compare and give you a diff of the exported symbols of all .so 

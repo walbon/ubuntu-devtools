@@ -32,12 +32,18 @@ Example:
 EOF
 }
 
-if [ "$1" = "-d" ]
+if [ $1 ] && [ $1 = "-d" ] || [ $1 = "--debug" ]
 then
 	# Debug Mode
 	GET="echo "${GET}
 	UNPACK="echo "${UNPACK}
 	shift
+fi
+
+if [ $1 ] && [ $1 = "-h" ] || [ $1 = "--help" ]
+then
+	usage
+	exit 0
 fi
 
 if [ $# -ne 1 ]
