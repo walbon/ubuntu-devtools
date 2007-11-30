@@ -1,16 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
+# Copyright 2006-2007 (C) Pete Savage <petesavage@ubuntu.com>
 # Copyright 2007 (C) Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
-# Based upon a script by an unknown author
 # License: GPLv2 or later
 #
-# This script is used to check if a certain package in main has all its
-# dependencies and build dependencies there too, or not.
+# This script is used to check if a package and all its build
+# dependencies are in main or not.
 
 import subprocess
 import sys
-
 
 def process_deps(deps):
 	"""Takes a list of (build) dependencies and processes it."""
