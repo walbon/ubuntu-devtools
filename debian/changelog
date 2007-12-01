@@ -12,14 +12,23 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * pbuilder-dist:
-     - move warning about changing $COMPONENTS's value to
+     - Move warning about changing $COMPONENTS's value to
        the right place (it should be displayed if the installed version
        of pbuilder is too old, not otherwise).
+     - Asume action is "build" if no recognized action is passed but
+       the next argument ends with .dsc.
   * dgetlp:
-     - add "-h", "--help" and "--debug" (-d was already there)
+     - Add "-h", "--help" and "--debug" (-d was already there)
   * 404main:
-     - rewrite most of it; cleanup and improvements
-     - change license to GPLv2+
+     - Rewrite most of it; cleanup and improvements
+     - Identify Pete Savage as it's original author
+     - Change the license to GPLv2+
+  * AUTHORS, debian/copyright:
+     - Add Pete Savage, as he wrote 404main
+  * what-patch:
+     - Ignore commented lines; patch by Daniel Hahler (LP: #163454)
+  * doc/pbuilder-dist.1:
+     - Update manpage to match recent changes (including those from 0.21).
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Fri, 23 Nov 2007 22:07:58 +0100
 

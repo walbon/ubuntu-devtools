@@ -146,14 +146,19 @@ case $OPERATION in
         ;;
     
     *)
-        echo "Unrecognized argument. Please use one of those:"
-        echo "    create"
-        echo "    update"
-        echo "    build"
-        echo "    clean"
-        echo "    login"
-        echo "    execute"
-        exit 1
+    	if [ ${1##*.} =  'dsc' ]
+    	then
+    		OPERATION=build
+    	else
+        	echo "Unrecognized argument. Please use one of those:"
+        	echo "    create"
+        	echo "    update"
+        	echo "    build"
+        	echo "    clean"
+        	echo "    login"
+        	echo "    execute"
+        	exit 1
+        fi
         ;;
 esac
 

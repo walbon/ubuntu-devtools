@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (C) 2007 Canonical Ltd, Steve Kowalik
+# (C) 2007 Canonical Ltd., Steve Kowalik
 # Authors:
 # Martin Pitt <martin.pitt@ubuntu.com>
 # Steve Kowalik <stevenk@ubuntu.com>
-# GPLv2, see /usr/share/common-licenses/GPL
+# License: GPLv2, see /usr/share/common-licenses/GPL
 
 import os, os.path, sys, urllib, subprocess, smtplib, getopt
 

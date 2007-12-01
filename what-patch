@@ -1,25 +1,26 @@
 #!/bin/bash
 # Copyright 2006-2007 (C) Kees Cook <kees@ubuntu.com>
 # Modified by Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# Modified by Daniel Hahler <ubuntu@thequod.de>
 # License: GPLv2
 
 if [[ -d debian ]]; then
-    cd . # pass
+	cd . # pass
 elif [[ -d ../debian ]]; then
-    cd ..
+	cd ..
 elif [[ -d ../patches ]]; then
-    cd ../.. 
+	cd ../.. 
 else
-    echo "Can't find debian/rules."; exit
+	echo "Can't find debian/rules."; exit
 fi
 
 for filename in $(echo "debian/rules"; grep ^include debian/rules | fgrep -v '$(' | awk '{print $2}')
 do
-    fgrep -q patchsys.mk "$filename" && { echo "cdbs"; exit; }
-    fgrep -q quilt "$filename" && { echo "quilt"; exit; }
-    fgrep -q dbs-build.mk "$filename" && { echo "dbs"; exit; }
-    fgrep -q dpatch "$filename" && { echo "dpatch"; exit; }
-    fgrep -q '*.diff' "$filename" && { echo "diff splash"; exit; }
+	fgrep patchsys.mk "$filename" | grep -q -v "^#" && { echo "cdbs"; exit; }
+	fgrep quilt "$filename" | grep -q -v "^#" && { echo "quilt"; exit; }
+	fgrep dbs-build.mk "$filename" | grep -q -v "^#" && { echo "dbs"; exit; }
+	fgrep dpatch "$filename" | grep -q -v "^#" && { echo "dpatch"; exit; }
+	fgrep '*.diff' "$filename" | grep -q -v "^#" && { echo "diff splash"; exit; }
 done
 [ -d debian/patches ] || { echo "patchless?"; exit; }
 echo "unknown patch system"

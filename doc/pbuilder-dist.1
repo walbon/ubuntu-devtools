@@ -20,9 +20,8 @@ It is common to symlink this script in order to give it many names in the form o
 systems), like for example \fBpbuilder\-feisty\fP, \fBpbuilder\-sid\fP, \fBpbuilder\-gutsy\-i386\fP, etc.
 .\"
 .SH USAGE
-There are many arguments listed on the synopsis.
-Each of them, if used, has to be used exactly in the same order as it
-appears there.
+There are many arguments listed on the synopsis; each of them, if used, has to be used exactly in
+the same order as it appears there.
 In case you renamed the script to \fBpbuilder\-\fIdistribution\fP\fR, do not
 use the \fBdistribution\fP parameter; same with \fBi386\fP / \fBamd64\fP if
 the name also contains \-\fIarchitecture\fR.
@@ -51,7 +50,8 @@ If this file already exists, it will be overwritten.
 .TP
 \fBoperation\fP
 Replace this with the action you want \fBpbuilder\fP to do (create, update, build, clean, login
-or execute).
+or execute). If you don't specify any action, but the next argument is a .dsc file, it will
+assume that it should build.
 Check its manpage for more details.
 .TP
 \fB[...]\fP
@@ -61,7 +61,9 @@ For example, if \fBbuild\fP is the option, you will need to also specify
 a .dsc file.
 .PP
 The default value of all optional parameters (except the architecture) can be changed by
-editing the first lines of the script.
+editing the first lines of the script. You can also change the base directory using the
+global variable $PBUILDFOLDER.
+.PP
 .\"
 .SH EXAMPLES
 .TP
@@ -83,7 +85,7 @@ Updates an existing i386-architecture Debian Etch environment on an amd64 system
 .SH FILES
 By default, \fBpbuilder\-dist\fP will store all the files it generates in \fB~/pbuilder/\fP.
 This can be changed by modifying the BASE_DIR value on the top of the script
-to any other directory you want.
+to any other directory you want, or by using the $PBUILDFOLDER global variable.
 If it doesn't exist, it will be created on the run.
 .\"
 .SH BUGS
