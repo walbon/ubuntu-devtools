@@ -19,7 +19,7 @@ def process_deps(deps):
 		# Cut package name (from something like "name ( >= version)")
 		name = package.split(' ')[0]
 		
-		if not packages.has_key(name):
+		if not packages.has_key(name) and name != '':
 			# Check the (build) dependencies recursively
 			find_main(name)
 
@@ -33,7 +33,7 @@ def find_main(pack):
 	# Retrieve information about the package
 	out = subprocess.Popen('apt-cache madison ' + pack, shell=True, stdout=subprocess.PIPE).stdout.read()
 	
-	if out.find("/main") != -1 or out.find("http") == -1:
+	if out.find("/main") != -1:
 		packages[pack] = True
 		return 1
 	else:
@@ -41,17 +41,17 @@ def find_main(pack):
 			packages[pack] = False
 		
 		# Retrive package dependencies
-		deps = subprocess.Popen("dpkg-query -W -f='${Depends}' " + pack, shell=True, stdout=subprocess.PIPE).stdout.read().split(', ')
+		deps = subprocess.Popen("apt-cache show " + pack + " | grep Depends", shell=True, stdout=subprocess.PIPE).stdout.read().split('\n')[0].replace('Depends: ', '').split(', ')
 		
 		process_deps(deps)
 		
 		# Retrieve package build dependencies
-		deps1 = subprocess.Popen('apt-cache showsrc ' + pack, shell=True, stdout=subprocess.PIPE).stdout.readlines()
+		deps1 = subprocess.Popen("apt-cache showsrc " + pack + " | grep Build-Depends", shell=True, stdout=subprocess.PIPE).stdout.readlines()
 		deps = []
 		
 		for builddep in deps1:
 			if builddep.startswith('Build-Depends'):
-				deps += builddep.strip('\n').strip('Build-Depends: ').strip('Build-Depends-Indep: ').split(', ')
+				deps += builddep.strip('\n').replace('Build-Depends: ', '').replace('Build-Depends-Indep: ',  '').split(', ')
 		
 		process_deps(deps)
 
@@ -66,11 +66,15 @@ if __name__ == '__main__':
 	# Global variable to hold the status of all packages
 	packages = {}
 	
-	if subprocess.Popen("dpkg-query -W -f='${Package}' " + sys.argv[1] + " 2>/dev/null", shell=True, stdout=subprocess.PIPE).stdout.read() == '':
+	if subprocess.Popen("apt-cache show " + sys.argv[1] + " 2>/dev/null", shell=True, stdout=subprocess.PIPE).stdout.read() == '':
 		print "Package «%s» doesn't exist." % sys.argv[1]
 		sys.exit(1)
 	
-	find_main(sys.argv[1])
+	try:
+		find_main(sys.argv[1])
+	except KeyboardInterrupt:
+		print 'Aborted.'
+		sys.exit(1)
 	
 	# True if everything checked until the point is in main
 	all_in_main = True
