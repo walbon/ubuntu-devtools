@@ -16,11 +16,11 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
        the right place (it should be displayed if the installed version
        of pbuilder is too old, not otherwise).
      - Asume action is "build" if no recognized action is passed but
-       the next argument ends with .dsc.
+       the next argument ends with .dsc (LP: #172940).
   * dgetlp:
      - Add "-h", "--help" and "--debug" (-d was already there)
   * 404main:
-     - Rewrite most of it; cleanup and improvements
+     - Cleanup and improvements
      - Identify Pete Savage as it's original author
      - Change the license to GPLv2+
   * AUTHORS, debian/copyright:
