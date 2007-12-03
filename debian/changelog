@@ -10,6 +10,10 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
   [ Luke Yelavich ]
   * update-maintainer: Exit after displaying usage for --help.
 
+  [ Colin Watson ]
+  * Add a SYNOPSIS section to submittodebian(1) to clarify that it takes no
+    arguments.
+
  -- Luke Yelavich <themuso@ubuntu.com>  Sat, 24 Nov 2007 07:49:32 +1100
 
 ubuntu-dev-tools (0.22) hardy; urgency=low
