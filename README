@@ -19,7 +19,7 @@ get-branches <directory> <team> [checkout|branch]
 
 get-build-deps [<packages list or file containing a list of packages>]
 	... will install the build dependencies for a package, if you are inside 
-	it's source file. Alternatively, you can pass it the name of a file
+	its source file. Alternatively, you can pass it the name of a file
 	containing a list of packages, one on each line, or just pass them all
 	as parameters, and it will get their build dependencies.
 
@@ -59,4 +59,4 @@ update-maintainer
 
 what-patch
     ... will check what patching system is used by a package.
-    You need to be in it's source directory in order that it works.
+    You need to be in its source directory in order that it works.

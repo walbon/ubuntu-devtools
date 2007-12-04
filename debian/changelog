@@ -30,6 +30,11 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
   * doc/pbuilder-dist.1:
      - Update manpage to match recent changes (including those from 0.21).
 
+  [ Colin Watson ]
+  * Add a SYNOPSIS section to submittodebian(1) to clarify that it takes no
+    arguments.
+  * More *roff fixes.
+
  -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Fri, 23 Nov 2007 22:07:58 +0100
 
 ubuntu-dev-tools (0.22) hardy; urgency=low

@@ -107,7 +107,7 @@
         <title>ppaput options:</title>
         <varlistentry>
           <term><option>-n</option></term>    
-          <listitem><para>files a new bug report and adds it's number to
+          <listitem><para>files a new bug report and adds its number to
 	  <filename>debian/changelog</filename>
           </para></listitem> 
         </varlistentry>
