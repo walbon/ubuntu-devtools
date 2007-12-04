@@ -3,7 +3,7 @@
 # License: GPLv2
 #
 # This script is used to repeat a change log into an older release.  It
-# expects that --build-tree is layed out with each Ubuntu release as a
+# expects that --build-tree is laid out with each Ubuntu release as a
 # separate directory ("feisty", "edgy", etc).
 #
 # For example, if gimp had a security update prepared for Feisty in
