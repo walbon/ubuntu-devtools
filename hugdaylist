@@ -19,12 +19,11 @@ import string
 
 try:
     import launchpadbugs.connector as Connector
-    import launchpadbugs.bughelper_error as ConnectorErrors
     BugList = Connector.ConnectBugList()
-    Bug = Connector.ConnectBug()
+    Bug = Connector.ConnectBug(method="Text")
 except:
     print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.9)  installed to use hugdaylist."
+	"You need  python-launchpad-bugs (>= 0.2.25)  installed to use hugdaylist."
     sys.exit(1)
 
 
@@ -49,40 +48,38 @@ def check_args():
     
     return (howmany, url)
 
-def filter_unsolved(bugs):
-    result = set()
-
-    for b in bugs:
-	bug = Bug(int(b))
-	if bug.status != 'Fix Committed' and \
-	    'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
-	    'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers] and \
-	    (bug.assignee in ['motu','desktop-bugs'] or not bug.assignee):
-	    result.add(b)
-    return result
+def filter_unsolved(b):
+    bug = Bug(int(b))
+    return filter(lambda a: (a.affects.lower().count('ubuntu')) and \
+                         a.status != 'Fix Committed' and \
+			 (a.assignee in ['motu','desktop-bugs'] or \
+			  not a.assignee), bug.infotable) and \
+	'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
+	'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]
 
 def main(): 
     (howmany, url) = check_args()
     
-    try:
-    	l = BugList(url).filter(func=[filter_unsolved])
-    except ConnectorErrors.LPUrlError:
-    	print "Couldn't load «%s»." % url
-    	sys.exit(1)
-    except KeyboardInterrupt:
-    	sys.exit(1)	# User aborted, no need to print a backtrace
+    bl = BugList(url)
+    l = filter(filter_unsolved, bl)
     
-    if not l.bugs:
+    if not l:
         print "BugList of %s is empty." % url
         sys.exit(0)
 
     if howmany == -1:
-        howmany = len(l.bugs)
-        
-    print "|| Bug || Subject || Triager ||"
+        howmany = len(l)
 
-    for i in list(l.bugs)[:howmany]:
-        print '||<rowstyle="background-color: ;"> [%s %s] || %s || ||' % \
+    print """
+## ||<rowbgcolor="#CCFFCC"> This task is done || somebody || ||
+## ||<rowbgcolor="#FFFFCC"> This task is assigned || somebody || <status> ||
+## ||<rowbgcolor="#FFEBBB"> This task isn't || ... || ||
+## ||<rowbgcolor="#FFCCCC"> This task is blocked on something || somebody || <explanation> ||
+        
+|| Bug || Subject || Triager ||"""
+
+    for i in list(l)[:howmany]:
+        print '||<rowbgcolor="#FFEBBB"> [%s %s] || %s || ||' % \
             (i.url, i.bugnumber, i.summary)
 
 
