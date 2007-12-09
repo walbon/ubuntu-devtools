@@ -1,4 +1,12 @@
-ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.23) hardy; urgency=low
+
+  [ Daniel Holbach ]
+  * debian/control: bumped python-launchpad-bugs requirement to newest version
+    and made it a Recommends. All scripts in ubuntu-dev-tools using it fail
+    gracefully if it's not installed.
+  * hugdaylist: 
+    - make use of text connector.
+    - commentary in wiki output.
 
   [ Ryan Kavanagh ]
   * Updated requestsync(1) to reflect the addition of the -k <keyid> and
@@ -35,7 +43,7 @@ ubuntu-dev-tools (0.23) UNRELEASED; urgency=low
     arguments.
   * More *roff fixes.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Fri, 23 Nov 2007 22:07:58 +0100
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 05 Dec 2007 09:57:41 +0100
 
 ubuntu-dev-tools (0.22) hardy; urgency=low
 
