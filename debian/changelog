@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.23ubuntu1) UNRELEASED; urgency=low
+
+  * what-patch:
+     - Print a list of files that have been modified outside debian/
+     - Add -h and -q options
+     - Add proper exit values
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Sun, 09 Dec 2007 18:03:27 +0100
+
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
   [ Daniel Holbach ]

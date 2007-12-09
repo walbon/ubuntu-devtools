@@ -4,6 +4,16 @@
 # Modified by Daniel Hahler <ubuntu@thequod.de>
 # License: GPLv2
 
+if [ "$1" ] && ( [ $1 = '-h' ] || [ $1 = '--help' ] )
+then
+	echo "Usage: $0 [-q]"
+	echo
+	echo "Run this inside the source directory of a Debian package and it will detect the patch system that it uses."
+	echo
+	echo "Additionally, it will try to print a list of all those files outside the debian/ directory that have been modified (if any); if you don't want this, use the -q option."
+	exit 0
+fi
+
 if [[ -d debian ]]; then
 	cd . # pass
 elif [[ -d ../debian ]]; then
@@ -11,16 +21,30 @@ elif [[ -d ../debian ]]; then
 elif [[ -d ../patches ]]; then
 	cd ../.. 
 else
-	echo "Can't find debian/rules."; exit
+	echo "Can't find debian/rules."
+	exit 1
+fi
+
+if [ "$1" != "-q" ]
+then
+	files=`lsdiff -z ../$(dpkg-parsechangelog | grep ^Source: | sed -e "s/^Source: //")_$(dpkg-parsechangelog | grep ^Version: | sed -e "s/^Version: //").diff.gz 2>/dev/null | grep -v 'debian/'`
+	if [ -n "$files" ]
+	then
+		echo "Following files were modified outside of the debian/ directory:"
+		echo "$files"
+		echo "--------------------"
+		echo
+		echo -n "Patch System: "
+	fi
 fi
 
 for filename in $(echo "debian/rules"; grep ^include debian/rules | fgrep -v '$(' | awk '{print $2}')
 do
-	fgrep patchsys.mk "$filename" | grep -q -v "^#" && { echo "cdbs"; exit; }
-	fgrep quilt "$filename" | grep -q -v "^#" && { echo "quilt"; exit; }
-	fgrep dbs-build.mk "$filename" | grep -q -v "^#" && { echo "dbs"; exit; }
-	fgrep dpatch "$filename" | grep -q -v "^#" && { echo "dpatch"; exit; }
-	fgrep '*.diff' "$filename" | grep -q -v "^#" && { echo "diff splash"; exit; }
+	fgrep patchsys.mk "$filename" | grep -q -v "^#" && { echo "cdbs"; exit 0; }
+	fgrep quilt "$filename" | grep -q -v "^#" && { echo "quilt"; exit 0; }
+	fgrep dbs-build.mk "$filename" | grep -q -v "^#" && { echo "dbs"; exit 0; }
+	fgrep dpatch "$filename" | grep -q -v "^#" && { echo "dpatch"; exit 0; }
+	fgrep '*.diff' "$filename" | grep -q -v "^#" && { echo "diff splash"; exit 0; }
 done
-[ -d debian/patches ] || { echo "patchless?"; exit; }
+[ -d debian/patches ] || { echo "patchless?"; exit 0; }
 echo "unknown patch system"
