@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
+
+  * Handle epochs properly in submittodebian.
+
+ -- Soren Hansen <soren@ubuntu.com>  Fri, 14 Dec 2007 17:30:04 +0100
+
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
   [ Daniel Holbach ]
