@@ -1,8 +1,12 @@
 ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
 
+  [ Soren Hansen ]
   * Handle epochs properly in submittodebian.
 
- -- Soren Hansen <soren@ubuntu.com>  Fri, 14 Dec 2007 17:30:04 +0100
+  [ Luke Yelavich ]
+  * update-maintainer: Default to main if rmadison gives no section output.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Sat, 15 Dec 2007 15:48:33 +1100
 
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
