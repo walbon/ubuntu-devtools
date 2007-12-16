@@ -6,7 +6,10 @@ ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
   [ Luke Yelavich ]
   * update-maintainer: Default to main if rmadison gives no section output.
 
- -- Luke Yelavich <themuso@ubuntu.com>  Sat, 15 Dec 2007 15:48:33 +1100
+  [ Cesare Tirabassi ]
+  * Add man page for check-symbols (Thanks to Albert Damen - LP: #174123).
+
+ -- Cesare Tirabassi <norsetto@ubuntu.com>  Mon, 17 Dec 2007 00:18:09 +0100
 
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
