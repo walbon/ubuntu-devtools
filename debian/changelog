@@ -4,6 +4,11 @@ ubuntu-dev-tools (0.23ubuntu1) UNRELEASED; urgency=low
      - Print a list of files that have been modified outside debian/
      - Add -h and -q options
      - Add proper exit values
+  * debian/control:
+     - Bump standards version to 3.7.3
+     - Move python-central to Build-Depends-Indep
+     - Rename XS-Vcs-* fields to Vcs-*
+     - Bump minimum cdbs version to 0.4.49
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <sgevatter@ubuntu.cat>  Sun, 09 Dec 2007 18:03:27 +0100
 

@@ -2,6 +2,7 @@ This package was re-debianized by Daniel Holbach <daniel.holbach@ubuntu.com> on
 Fri, 01 Jun 2007 11:30:08 +0200.
 
 Upstream Author:
+	Albert Damen <albrt@gmx.net>
 	Albin Tonnerre <lut1n.tne@gmail.com>
 	Daniel Holbach <daniel.holbach@ubuntu.com>
 	Jamin W. Collins <jcollins@asgardsrealm.net>
@@ -19,6 +20,7 @@ Upstream Author:
 
 Copyright:
 	Copyright 2006-2007 (C) Canonical Ltd.
+	Albert Damen <albrt@gmx.net> 2007
 	Albin Tonnerre <lut1n.tne@gmail.com> 2006-2007
 	Daniel Holbach <daniel.holbach@ubuntu.com> 2006-2007
 	Luke Yelavich <themuso@ubuntu.com> 2006-2007

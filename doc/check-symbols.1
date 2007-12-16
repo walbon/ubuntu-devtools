@@ -1,0 +1,62 @@
+.\" Title: check-symbols
+.\" Author: Albert Damen
+.\" Contact details: albrt@gmx.net
+.\" 
+.\" Copyright (C), 2007, Albert Damen
+.\"
+.\" Permission is granted to copy, distribute and/or modify this document under 
+.\" the terms of the GNU General Public License version 2.
+.\" 
+.TH "CHECK\-SYMBOLS" "1" "December 9, 2007" "ubuntu-dev-tools"
+.SH "NAME"
+check\-symbols \- verify symbols exported by a new library version
+.\"
+.SH "SYNOPSIS"
+\fBcheck\-symbols\fP <\fIsource\-package\fR\> [\fIDEBDIR\fR]
+.\"
+.SH "DESCRIPTION"
+To verify the symbols exported by a new library version, run 
+\fBcheck-symbols\fP with the name of the source package as argument. 
+\fBcheck-symbols\fP will first determine the symbols exported by the existing 
+and installed libary version, then install the new library and compare the 
+symbols exported by the new library version with the symbols exported 
+by the old version. For each of the symbols found, \fBcheck-symbols\fP 
+will list if the symbol is new, unchanged or has been removed in the 
+new library version.
+.PP
+In case the source package contains multiple binary library packages, 
+all library files in each of the binary packages will be verified.
+.PP
+\fBcheck\-symbols\fP uses \fBnm\fP -D to determine 
+the exported symbols of the libraries.
+.PP 
+If no value is given for DEBDIR, the script will assume the new library 
+deb files are stored in /var/cache/pbuilder/result.
+.\"
+.SH "EXAMPLES"
+.TP 
+\fBcheck\-symbols\fP telepathy-glib .
+.TP
+This will:
+.RS 2
+.TP 2
+\(bu Use \fBnm\fP -D to determine the exported symbols of the old, 
+installed versions of the libraries provided by telepathy\-glib.
+.TP 2
+\(bu Install the binary libaries provided by the new version of 
+telepathy\-glib.
+.TP 2
+\(bu Compare the output of \fBnm\fP -D of the new libraries with the 
+output of the old version.
+.TP 2
+\(bu List the result in diff format.
+.RE
+.\"
+.SH "BUGS"
+.nf
+Please report bugs on: 
+https://bugs.launchpad.net/ubuntu/+source/ubuntu\-dev\-tools/
+.fi
+.\"
+.SH "SEE ALSO"
+.BR nm (1)
