@@ -45,6 +45,11 @@ def gen_debdiff(changelog):
 	oldver = changelog._blocks[1].version
 	newver = changelog._blocks[0].version
 
+	if oldver.epoch is not None:
+		oldver = str(oldver)[str(oldver).index(":")+1:]
+	if newver.epoch is not None:
+		newver = str(newver)[str(newver).index(":")+1:]
+
 	olddsc = '../%s_%s.dsc' % (pkg, oldver)
 	newdsc = '../%s_%s.dsc' % (pkg, newver)
 
