@@ -42,7 +42,7 @@ def cur_deb_version(sourcepkg):
         print "%s doesn't appear to exist in Debian." % sourcepkg
         sys.exit(1)
    
-    return out.split('|')[1].rstrip('[]''').lstrip()
+    return out.split('|')[1].rstrip('[]''').strip()
 
     sys.exit(1)
 
@@ -76,7 +76,7 @@ def debian_component(sourcepkg):
     raw_comp = out.split('|')[2].split('/')
     component = 'main'
     if len(raw_comp) == 2:
-        component = raw_comp[1]
+        component = raw_comp[1].strip()
     return component
 
 def usage():
@@ -136,6 +136,7 @@ if newsource:
 
 report = ''' affects ubuntu%s
  status %s
+ importance wishlist
  subscribe %s
 
 Please sync %s %s (%s) from Debian unstable (%s).

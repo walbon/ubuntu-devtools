@@ -9,7 +9,12 @@ ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
   [ Cesare Tirabassi ]
   * Add man page for check-symbols (Thanks to Albert Damen - LP: #174123).
 
- -- Cesare Tirabassi <norsetto@ubuntu.com>  Mon, 17 Dec 2007 00:18:09 +0100
+  [ Michael Bienia ]
+  * requestsync:
+    + Set importance to wishlist.
+    + Strip some more whitespace.
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 30 Dec 2007 17:05:23 +0100
 
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
