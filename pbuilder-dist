@@ -1,7 +1,8 @@
 #!/bin/sh
-# Copyright (C) Jamin W. Collins <jcollins@asgardsrealm.net>
-#                and Jordan Mantha <mantha@ubuntu.com>
-# Copyright 2007 (C) Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# Copyright by:
+#   Jamin W. Collins <jcollins@asgardsrealm.net>
+#   Jordan Mantha <mantha@ubuntu.com>
+#   Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
 # License: GPLv2 or later
 #
 # This script is a wrapper to use pbuilder with many different
