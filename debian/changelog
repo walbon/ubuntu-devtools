@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
 
   [ Luke Yelavich ]
   * update-maintainer: Default to main if rmadison gives no section output.
+    (LP: #179533)
 
   [ Cesare Tirabassi ]
   * Add man page for check-symbols (Thanks to Albert Damen - LP: #174123).
