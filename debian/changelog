@@ -1,20 +1,5 @@
-ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
 
-  [ Soren Hansen ]
-  * Handle epochs properly in submittodebian.
-
-  [ Luke Yelavich ]
-  * update-maintainer: Default to main if rmadison gives no section output.
-
-  [ Cesare Tirabassi ]
-  * Add man page for check-symbols (Thanks to Albert Damen - LP: #174123).
-
-  [ Michael Bienia ]
-  * requestsync:
-     - Set importance to wishlist.
-     - Strip some more whitespace.
-
-  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * what-patch:
      - Print a list of files that have been modified outside debian/
      - Add -h and -q options
@@ -26,7 +11,26 @@ ubuntu-dev-tools (0.24) UNRELEASED; urgency=low
      - Bump minimum cdbs version to 0.4.49
   * Add Albert Damen to the Authors and Copyright Holders
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Mon, 17 Dec 2007 16:32:16 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 06 Jan 2008 12:02:54 +0100
+
+ubuntu-dev-tools (0.24) hardy; urgency=low
+
+  [ Soren Hansen ]
+  * Handle epochs properly in submittodebian.
+
+  [ Luke Yelavich ]
+  * update-maintainer: Default to main if rmadison gives no section output.
+    (LP: #179533)
+
+  [ Cesare Tirabassi ]
+  * Add man page for check-symbols (Thanks to Albert Damen - LP: #174123).
+
+  [ Michael Bienia ]
+  * requestsync:
+    + Set importance to wishlist.
+    + Strip some more whitespace.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Sun, 06 Jan 2008 21:52:26 +1100
 
 ubuntu-dev-tools (0.23) hardy; urgency=low
 
