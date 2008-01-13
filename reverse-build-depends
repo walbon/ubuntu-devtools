@@ -1,0 +1,40 @@
+#!/bin/bash
+# Copyright (C) 2007 Siegfried-A. Gevatter <siggi.gevatter@gmail.com>
+# Based upon a short script by an unknown author
+# License: GPLv2+
+#
+# This script is used to find the reverse build dependencies
+# that a package has.
+
+usage() {
+	echo "Usage: $0 [-c] <package name>"
+}
+
+if [ "$1" = '-c' ]
+then
+	count=1
+	shift
+fi
+
+if [ $# -ne 1 ];
+then
+	usage
+	exit 1
+fi
+
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]
+then
+	usage
+	exit 0
+fi
+
+result=$(
+	grep-dctrl -sPackage -F Build-Depends,Build-Depends-Indep $1 \
+	/var/lib/apt/lists/*Sources | cut -d ' ' -f 2)
+
+if [ -z $count ]
+then
+	echo $result
+else
+	echo $result | wc -w
+fi
