@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
     debian/copyright.
   * Update README (add information for many missing scripts).
   * Add the text "ubuntu-dev-tools" to the footer of all manpages.
+  * Remove duplicated ubuntu-dev-tools recommends (it's already a
+    dependency).
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Thu, 17 Jan 2008 19:17:43 +0100
 
