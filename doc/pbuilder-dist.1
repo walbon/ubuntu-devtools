@@ -1,16 +1,16 @@
 .\"	Title: pbuilder-dist
 .\"	Author: Siegfried-Angel Gevatter Pujals
 .\" Contact details: rainct@ubuntu.com
-.\"
-.TH PBUILDER\-DIST 1 "August 16, 2007"
-.\"
+
+.TH PBUILDER\-DIST 1 "August 16, 2007" "ubuntu-dev-tools"
+
 .SH NAME
 pbuilder\-dist \- multi-distribution pbuilder wrapper
-.\"
+
 .SH SYNOPSIS
 \fBpbuilder\-dist\fP \fIdistribution\fR [\fBi386\fP|\fBamd64\fP] [\fBmainonly\fP|\fBallcomp\fP]
 [\fBwithlog\fP|\fBnolog\fP] \fIoperation\fR [\fI...\fR]
-.\"
+
 .SH DESCRIPTION
 \fBpbuilder\-dist\fP is a wrapper that makes it easy to use pbuilder with many different 
 versions of Ubuntu and/or Debian. 
@@ -18,7 +18,7 @@ versions of Ubuntu and/or Debian.
 It is common to symlink this script in order to give it many names in the form of
 \fBpbuilder\-\fIdistribution\fP\fR (\fBpbuilder\-\fIdistribution\fR\-\fIarchitecture\fP\fR on amd64
 systems), like for example \fBpbuilder\-feisty\fP, \fBpbuilder\-sid\fP, \fBpbuilder\-gutsy\-i386\fP, etc.
-.\"
+
 .SH USAGE
 There are many arguments listed on the synopsis; each of them, if used, has to be used exactly in
 the same order as it appears there.
@@ -64,7 +64,7 @@ The default value of all optional parameters (except the architecture) can be ch
 editing the first lines of the script. You can also change the base directory using the
 global variable $PBUILDFOLDER.
 .PP
-.\"
+
 .SH EXAMPLES
 .TP
 pbuilder\-dist gutsy create
@@ -81,30 +81,30 @@ Same as above, but stores \fBpbuilder\fP's output on a file.
 .TP
 pbuilder\-etch i386 update
 Updates an existing i386-architecture Debian Etch environment on an amd64 system.
-.\"
+
 .SH FILES
 By default, \fBpbuilder\-dist\fP will store all the files it generates in \fB~/pbuilder/\fP.
 This can be changed by modifying the BASE_DIR value on the top of the script
 to any other directory you want, or by using the $PBUILDFOLDER global variable.
 If it doesn't exist, it will be created on the run.
-.\"
+
 .SH BUGS
 There are no known bugs at the moment.
 If you experience any problem with this script contact me on
 rainct@ubuntu.com.
 Please ensure first that the problem is really this script and not an issue
 with \fBpbuilder\fP.
-.\"
+
 .SH AUTHORS
 \fBpbuilder\-dist\fP was originally written by Jamin W. Collins <jcollins@asgardsrealm.net> and
 Jordan Mantha <mantha@ubuntu.com>.
 .PP 
 On August 2007 it was mostly rewritten, and extended, by Siegfried-Angel Gevatter Pujals
 <rainct@ubuntu.com>.
-.\"
+
 .SH SEE ALSO
 \fBpbuilder\fR, \fBpbuilderrc\fR
-.\"
+
 .SH COPYRIGHT
 This manual page was written by Siegfried-Angel Gevatter Pujals (RainCT)
 <rainct@ubuntu.com> for YOU.

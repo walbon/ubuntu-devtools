@@ -16,7 +16,11 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
      - Bump minimum cdbs version to 0.4.49.
   * Add Albert Damen to the Authors and Copyright Holders.
   * Change my email address (to @ubuntu.com) everywhere.
-  * Add reverse-build-depends script.
+  * Add reverse-build-depends script and a manpage for it.
+  * Add requestsync and reverse-build-depends and massfile to
+    debian/copyright.
+  * Update README (add information for many missing scripts).
+  * Add the text "ubuntu-dev-tools" to the footer of all manpages.
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Thu, 17 Jan 2008 19:17:43 +0100
 
