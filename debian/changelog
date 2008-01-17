@@ -1,5 +1,10 @@
 ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
 
+  [ Michael Bienia ]
+  * Add work-around for a bug in Debian's madison.php not returning only the
+    'source' line (LP: #183346).
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * what-patch:
      - Print a list of files that have been modified outside debian/.
      - Add -h and -q options.
@@ -12,7 +17,7 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
   * Add Albert Damen to the Authors and Copyright Holders.
   * Add reverse-build-depends script.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 06 Jan 2008 12:02:54 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Thu, 17 Jan 2008 19:17:43 +0100
 
 ubuntu-dev-tools (0.24) hardy; urgency=low
 
