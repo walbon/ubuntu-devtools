@@ -1,8 +1,13 @@
 ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
-  * Add work-around for a bug in Debian's madison.php not returning only the
-    'source' line (LP: #183346).
+  * requestsync:
+    + Add work-around for a bug in Debian's madison.php not returning only the
+      'source' line (LP: #183346).
+    + Add support to file sync requests with python-launchpad-bugs (--lp)
+      (LP: #147994).
+  * doc/requestsync.1:
+    + Document new requestsync options.
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * what-patch:
@@ -24,7 +29,7 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
   * Remove duplicated ubuntu-dev-tools recommends (it's already a
     dependency).
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Thu, 17 Jan 2008 19:17:43 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 19 Jan 2008 15:27:14 +0100
 
 ubuntu-dev-tools (0.24) hardy; urgency=low
 

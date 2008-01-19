@@ -5,16 +5,16 @@
 # Authors:
 # Martin Pitt <martin.pitt@ubuntu.com>
 # Steve Kowalik <stevenk@ubuntu.com>
+# Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
+#
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
-import os, os.path, sys, urllib, subprocess, smtplib, getopt
-
-changelog = 1
+import os, sys, urllib, subprocess, getopt
 
 def cur_version_component(sourcepkg, release):
+    '''Determine current package version in ubuntu.'''
     madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
-                                '-s', release, sourcepkg], \
-                               stdout=subprocess.PIPE)
+                                '-s', release, sourcepkg], stdout=subprocess.PIPE)
     out = madison.communicate()[0]
     assert (madison.returncode == 0)
         
@@ -29,7 +29,7 @@ def cur_version_component(sourcepkg, release):
     sys.exit(1)
 
 def cur_deb_version(sourcepkg):
-    ''' Return the current debian version of a package in unstable '''
+    '''Return the current debian version of a package in unstable.'''
     madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', \
                                 '-s', 'unstable', sourcepkg], \
                                stdout=subprocess.PIPE)
@@ -49,8 +49,6 @@ def cur_deb_version(sourcepkg):
             out = line
    
     return out.split('|')[1].rstrip('[]''').strip()
-
-    sys.exit(1)
 
 def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
@@ -86,80 +84,214 @@ def debian_component(sourcepkg):
     return component
 
 def usage():
-    print """Usage: requestsync [-n|-s|-k <keyid>] <source package> <target release> [basever]
+    print '''Usage: requestsync [-h|-n|-s|-k <keyid>|--lp] <source package> <target release> [basever]
 
 In some cases, the base version (fork point from Debian) cannot be determined
 automatically, and you'll get a complete Debian changelog. Specify the correct
-base version of the package in Ubuntu."""
+base version of the package in Ubuntu.
+
+Options:
+	-h		print this help
+	-n		new source package (doesn't exist yet in Ubuntu)
+	-s		request sponsoring (through ubuntu-{main,universe}-sponsors)
+	-k <keyid>	sign email with <keyid> (only used when submitting per email)
+	--lp		use python-launchpad-bugs instead of email for bug submitting
+'''
     sys.exit(1)
+
+def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
+    '''Submit the sync request per email.
+    Return True if email successfully send, otherwise False.'''
+    
+    import smtplib
+
+    to = 'new@bugs.launchpad.net'
+
+    myemailaddr = os.getenv('DEBEMAIL')
+    if not myemailaddr:
+        print >> sys.stderr, 'The environment variable DEBEMAIL needs to be set to make use of this script.'
+        return False
+
+    mailbody = ''
+    if source_package:
+        mailbody += ' affects ubuntu/%s\n' % source_package
+    else:
+        mailbody += ' affects ubuntu\n'
+    mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n\n%s' % (status, subscribe, bugtext)
+
+    # sign it
+    sign_command = 'gpg'
+    for cmd in ('gpg2', 'gnome-gpg'):
+        if os.access('/usr/bin/%s' % cmd, os.X_OK):
+            sign_command = cmd
+
+    gpg_command = [sign_command, '--clearsign']
+    if keyid:
+        gpg_command.extend(('-u', keyid))
+
+    gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    signed_report = gpg.communicate(mailbody)[0]
+    assert gpg.returncode == 0
+
+    # generate email
+    mail = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (myemailaddr, to, bugtitle, signed_report)
+
+    print mail
+
+    print 'Press enter to file this bug, Control-C to abort.'
+    try:
+        sys.stdin.readline()
+    except KeyboardInterrupt:
+        print 'Abort requested. No sync request filed.'
+	sys.exit(1)
+
+    # get server address
+    mailserver = os.getenv('DEBSMTP')
+    if mailserver:
+        print 'Using custom SMTP server:', mailserver
+    else:
+        mailserver = 'fiordland.ubuntu.com'
+
+    # get server port
+    mailserver_port = os.getenv('DEBSMTP_PORT')
+    if mailserver_port:
+        print 'Using custom SMTP port:', mailserver_port
+    else:
+        mailserver_port = 25
+
+    # connect to the server
+    s = smtplib.SMTP(mailserver, mailserver_port)
+
+    # authenticate to the server
+    mailserver_user = os.getenv('DEBSMTP_USER')
+    mailserver_pass = os.getenv('DEBSMTP_PASS')
+    if mailserver_user and mailserver_pass:
+        try:
+             s.login(mailserver_user, mailserver_pass)
+        except smtplib.SMTPAuthenticationError:
+            print 'Error authenticating to the server: invalid username and password.'
+            s.quit()
+            return False
+        except:
+            print 'Unknown SMTP error.'
+            s.quit()
+            return False
+
+    s.sendmail(myemailaddr, to, mail)
+    s.quit()
+    print 'Sync request mailed.'
+
+    return True
+
+def post_bug(source_package, subscibe, status, bugtitle, bugtext):
+    '''Use python-launchpad-bugs to submit the sync request.
+    Return True if email successfully send, otherwise False.'''
+
+    import glob, os.path
+
+    try:
+        import launchpadbugs.connector
+    except ImportError:
+        print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
+        print >> sys.stderr, 'Falling back to submitting per email.'
+        return False
+
+    # Search cookiefile (for authentication to lp)
+    try:
+        cookiefile = glob.glob(os.path.expanduser('~/.mozilla/*/*/cookies.txt'))[0]
+    except IndexError:
+        print >> sys.stderr, 'Could not find Firefox cookie file'
+        return False
+
+    if source_package:
+        product = {'name': source_package, 'target': 'ubuntu'}
+    else:
+        # new source package
+	product = {'name': 'ubuntu'}
+
+    print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
+
+    print 'Press enter to file this bug, Control-C to abort.'
+    try:
+        sys.stdin.readline()
+    except KeyboardInterrupt:
+        print 'Abort requested. No sync request filed.'
+	sys.exit(1)
+
+    # Create bug
+    Bug = launchpadbugs.connector.ConnectBug()
+    Bug.authentication = cookiefile
+
+    bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
+    bug.importance = 'Wishlist'
+    bug.status = status
+    bug.subscriptions.add(subscribe)
+    bug.commit()
+
+    print 'Sync request filed as bug #%i: https://launchpad.net/bugs/%i' % (bug.bugnumber, bug.bugnumber)
+
+    return True
 
 #
 # entry point
 #
 
-newsource = False
-sponsorship = False
-keyid = None
-try:
-    opts, args = getopt.getopt(sys.argv[1:], 'nsk:')
-except getopt.GetoptError:
-    usage()
-for o, a in opts:
-    if o == "-n":
-        newsource = True
-    if o == "-s":
-        sponsorship = True
-    if o == "-k":
-        keyid = a
+if __name__ == '__main__':
+    newsource = False
+    sponsorship = False
+    keyid = None
+    use_lp_bugs = False
 
-if len(args) not in (2, 3):
-    usage()
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsk:', ('lp'))
+    except getopt.GetoptError:
+        usage()
+    for o, a in opts:
+        if o == '-h':   usage()
+        if o == '-n':   newsource = True
+        if o == '-s':   sponsorship = True
+        if o == '-k':   keyid = a
+        if o == '--lp': use_lp_bugs = True
 
-(srcpkg, release) = args[:2]
-force_base_ver = None
-if len(args) == 3:
-    force_base_ver = args[2]
-(cur_ver, component) = ('0', 'universe') # Let's assume universe
-if not newsource:
-    (cur_ver, component) = cur_version_component(srcpkg, release)
+    if len(args) not in (2, 3):
+        usage()
 
-debiancomponent = debian_component(srcpkg)
+    (srcpkg, release) = args[:2]
+    force_base_ver = None
+    if len(args) == 3:
+        force_base_ver = args[2]
+    (cur_ver, component) = ('0', 'universe') # Let's assume universe
+    if not newsource:
+        (cur_ver, component) = cur_version_component(srcpkg, release)
 
-# generate bug report
-status = "confirmed"
-subscribe = "ubuntu-archive"
-deb_version = cur_deb_version(srcpkg)
-if sponsorship:
-    status = "new"
-    if component in ['main', 'restricted']:
-        subscribe = "ubuntu-main-sponsors"
-    else:
-        subscribe = "ubuntu-universe-sponsors"
+    debiancomponent = debian_component(srcpkg)
+    deb_version = cur_deb_version(srcpkg)
 
-affects = '/%s' % srcpkg
-if newsource:
-    affects = ''
+    # generate bug report
+    subscribe = 'ubuntu-archive'
+    status = 'confirmed'
+    if sponsorship:
+        status = 'new'
+        if component in ['main', 'restricted']:
+            subscribe = 'ubuntu-main-sponsors'
+        else:
+            subscribe = 'ubuntu-universe-sponsors'
 
-report = ''' affects ubuntu%s
- status %s
- importance wishlist
- subscribe %s
+    report = '''Please sync %s %s (%s) from Debian unstable (%s).
+''' % (srcpkg, deb_version, component, debiancomponent)
+    title = report[:-2]
+    
+    base_ver = cur_ver
+    uidx = base_ver.find('ubuntu')
+    if uidx > 0:
+        base_ver = base_ver[:uidx]
 
-Please sync %s %s (%s) from Debian unstable (%s).
-''' % (affects, status, subscribe, srcpkg, deb_version, component, debiancomponent)
+        print 'Explanation of the Ubuntu delta and why it can be dropped:'
+        explanation = '\nExplanation of the Ubuntu delta and why it can be dropped:\n'
+        while (explanation[-2:] != '\n\n'):
+           explanation += sys.stdin.readline()
+        report += explanation
 
-base_ver = cur_ver
-uidx = base_ver.find('ubuntu')
-if uidx > 0:
-    base_ver = base_ver[:uidx]
-
-    print 'Explanation of the Ubuntu delta and why it can be dropped:'
-    explanation = '\nExplanation of the Ubuntu delta and why it can be dropped:\n'
-    while (explanation[-2:] != '\n\n'):
-        explanation += sys.stdin.readline()
-    report += explanation
-
-if changelog:
     uidx = base_ver.find('build')
     if uidx > 0:
         base_ver = base_ver[:uidx]
@@ -170,69 +302,16 @@ if changelog:
     report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
-# sign it
-sign_command = 'gpg'
-for cmd in ('gpg2', 'gnome-gpg'):
-    if os.access('/usr/bin/%s' % cmd, os.X_OK):
-        sign_command = cmd
+    # mail or post the sync request
+    srcpkg = not newsource and srcpkg or None
+    if use_lp_bugs:
+        # Map status to the values expected by lp-bugs
+	mapping = {'new': 'New', 'confirmed': 'Confirmed'}
+        if post_bug(srcpkg, subscribe, mapping[status], title, report):
+            sys.exit(0)
 
-gpg_command = [sign_command, '--clearsign']
-if keyid:
-    gpg_command.extend(('-u', keyid))
+    if mail_bug(srcpkg, subscribe, status, title, report, keyid):
+	sys.exit(0)
 
-gpg = subprocess.Popen(gpg_command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-signed_report = gpg.communicate(report)[0]
-assert gpg.returncode == 0
-
-# generate email
-myemailaddr = os.getenv('DEBEMAIL')
-if not myemailaddr:
-    print "The environment variable DEBEMAIL needs to be set to make use of this script."
+    print 'Something went wrong. No sync request filed.'
     sys.exit(1)
-to = 'new@bugs.launchpad.net'
-
-mail = '''From: %s
-To: %s
-Subject: Please sync %s %s (%s) from Debian unstable (%s)
-
-%s''' % (myemailaddr, to, srcpkg, deb_version, component, debiancomponent, signed_report)
-
-print mail
-
-print 'Press enter to file this bug, Control-C to abort'
-
-sys.stdin.readline()
-
-# get server address
-mailserver = os.getenv('DEBSMTP')
-if mailserver:
-	print 'Using custom SMTP server:', mailserver
-else :
-	mailserver = 'fiordland.ubuntu.com'
-
-# get server port
-mailserver_port = os.getenv('DEBSMTP_PORT')
-if mailserver_port:
-    print 'Using custom SMTP port:', mailserver_port
-else:
-    mailserver_port = 25
-
-# connect to the server
-s = smtplib.SMTP(mailserver, mailserver_port)
-
-# authenticate to the server
-mailserver_user = os.getenv('DEBSMTP_USER')
-mailserver_pass = os.getenv('DEBSMTP_PASS')
-if mailserver_user and mailserver_pass:
-	try:
-		s.login(mailserver_user, mailserver_pass)
-	except smtplib.SMTPAuthenticationError:
-		print 'Error authenticating to the server: invalid username and password.'
-		s.quit(); sys.exit(1)
-        except:
-                print 'Unknown SMTP error.'
-                s.quit(); sys.exit(1)
-		
-
-s.sendmail(myemailaddr, to, mail)
-s.quit()

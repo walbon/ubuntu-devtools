@@ -1,19 +1,29 @@
-.TH REQUESTSYNC "1" "22 November 2007" "ubuntu-dev-tools"
+.TH REQUESTSYNC "1" "19 January 2008" "ubuntu-dev-tools"
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync\fR [\fB\-ns\fR] [\fB-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+.B requestsync\fR [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+
+.B requestsync \-\-lp\fR [\fB\-ns\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+
+.B requestsync \-h
 .SH DESCRIPTION
 .PP 
 \fBrequestsync\fR looks at the versions of <source package> in Debian and
 Ubuntu and prompts for an explanation of why the Ubuntu changes (if there
 are any) should be dropped.
-The changelog entry is then downloaded from packages.debian.org, followed by
-a prompt for your GPG passphrase so that it can sign the mail and send it
-off, to file a sync request in the form of a bug report in Launchpad.
+The changelog entry is then downloaded from packages.debian.org. If the sync
+request is being filed per email (default), a prompt for your GPG passphrase
+follows so that it can sign the mail and send it off to Launchpad.
+Alternatively a sync request can be filed directly using the launchpadbugs
+python module (option \fB\-\-lp\fR). \fBrequestsync\fR falls back to mail
+the sync request if submitting using the launchpadbugs module fails.
 .SH OPTIONS
 .PP
 Listed below are the command line options for requestsync:
+.TP
+.B \-h
+Display a help message and exit.
 .TP
 .B \-n
 Specifies that the package is a new package, and requestsync should not
@@ -25,9 +35,14 @@ You need this option if you are not a member of ubuntu-dev for universe or
 multiverse, or ubuntu-core-dev for main or restricted.
 .TP
 .B \-k \fI<keyid>\fR
-Specifies your GPC key.
+Specifies your GPG key.
 Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in
 .IR $HOME/.bashrc .
+This is only used if the sync request is mailed to Launchpad.
+.TP
+.B \-\-lp
+Use the launchpadbugs python module (packaged as python-launchpad-bugs) to
+file the sync request in Launchpad.
 .TP
 .B <source package>
 This is the source package that you would like to be synced from Debian.
@@ -45,7 +60,8 @@ Specify this option in this case.
 .PP
 This manual page was pieced together by Steve Kowalik.
 
-It was then updated by Ryan Kavanagh to reflect additional features.
+It was then updated by Ryan Kavanagh and Michael Bienia to reflect
+additional features.
 .SH SEE ALSO 
 .PP 
 .BR rmadison (1)
