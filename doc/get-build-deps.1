@@ -1,15 +1,15 @@
 .\"	Title: get-build-deps
 .\"	Author: Siegfried-Angel Gevatter Pujals
-.\" Contact details: siggi.gevatter@gmail.com
-.\"
-.TH GET\-BUILD\-DEPS 1 "October 27, 2007"
-.\"
+.\" Contact details: rainct@ubuntu.com
+
+.TH GET\-BUILD\-DEPS 1 "October 27, 2007" "ubuntu-dev-tools"
+
 .SH NAME
 get\-build\-deps \- install build dependencies for one or more packages
-.\"
+
 .SH SYNOPSIS
-\fBget\-build\-deps\fP [\fIPACKAGE\fR...]
-.\"
+\fBget\-build\-deps\fP [\fIpackage name\fR]
+
 .SH DESCRIPTION
 \fBget\-build\-deps\fP is a script to install the build dependencies for either a
 local source package or one or more packages from the repositories.
@@ -22,7 +22,7 @@ Alternatively, you can call it with a list of space-separated package names, or 
 name of a single file which contains the package names each on a line.
 Then it will install the missing dependencies for those packages using
 "apt-get build-dep".
-.\"
+
 .SH EXAMPLES
 .TP
 get\-build\-deps
@@ -46,17 +46,17 @@ Reads the file
 (relative to the current working directory),
 where each line contains the name of a package, and installs the dependencies
 for the versions of all those that are in the repositories.
-.\"
+
 .SH KNOWN BUGS AND LIMITATIONS
 When it's being used to install the missing dependencies for a local source package
 (i.e., no arguments are passed to it) it doesn't check for the dependencies to match
 the indicated versions, but just installs the newest one available in the repositories.
-.\"
+
 .SH SEE ALSO
 .BR dpkg-checkbuilddeps (1),
 .BR apt-get (8)
 .SH AUTHORS
-.\"
+
 \fBget\-build\-deps\fP and this manual page have been written by Siegfried-Angel
-Gevatter Pujals <siggi.gevatter@gmail.com>.
+Gevatter Pujals <rainct@ubuntu.com>.
 They are released under the GNU General Public License, version 3 or later.
