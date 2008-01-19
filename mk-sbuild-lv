@@ -163,7 +163,7 @@ if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
 fi
 
 # Is the specified release known to debootstrap?
-if [ ! -f "/usr/lib/debootstrap/scripts/$RELEASE" ]; then
+if [ ! -f "/usr/share/debootstrap/scripts/$RELEASE" ]; then
     echo "Specified release not known to debootstrap" >&2
     exit 1
 else

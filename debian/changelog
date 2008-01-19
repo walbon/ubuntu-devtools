@@ -30,7 +30,11 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
   * Remove duplicated ubuntu-dev-tools recommends (it's already a
     dependency).
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 19 Jan 2008 16:18:45 +0100
+  [ Stephan Hermann ]
+  * mk-sbuild-lv: check for debootstrap release names in
+    /usr/share/debootstreap/releases and not in /usr/lib/debootstrap/releases
+
+ -- Stephan Hermann <sh@sourcecode.de>  Sun, 20 Jan 2008 00:39:48 +0100
 
 ubuntu-dev-tools (0.24) hardy; urgency=low
 
