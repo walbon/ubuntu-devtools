@@ -9,7 +9,7 @@
 #
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
-import os, sys, urllib, subprocess, getopt
+import os, sys, urllib, subprocess, getopt, readline
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -140,7 +140,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
     print 'Press enter to file this bug, Control-C to abort.'
     try:
-        sys.stdin.readline()
+        raw_input()
     except KeyboardInterrupt:
         print 'Abort requested. No sync request filed.'
 	sys.exit(1)
@@ -213,7 +213,7 @@ def post_bug(source_package, subscibe, status, bugtitle, bugtext):
 
     print 'Press enter to file this bug, Control-C to abort.'
     try:
-        sys.stdin.readline()
+        raw_input()
     except KeyboardInterrupt:
         print 'Abort requested. No sync request filed.'
 	sys.exit(1)
@@ -289,8 +289,12 @@ if __name__ == '__main__':
         print 'Explanation of the Ubuntu delta and why it can be dropped:'
         explanation = '\nExplanation of the Ubuntu delta and why it can be dropped:\n'
         while (explanation[-2:] != '\n\n'):
-           explanation += sys.stdin.readline()
-        report += explanation
+            try:
+                explanation += raw_input() + '\n'
+            except KeyboardInterrupt:
+                print 'Abort requested. No sync request filed.'
+                sys.exit(1)
+	report += explanation
 
     uidx = base_ver.find('build')
     if uidx > 0:
