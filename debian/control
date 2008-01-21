@@ -13,7 +13,7 @@ Standards-Version: 3.7.3
 Package: ubuntu-dev-tools
 Architecture: all
 Section: devel
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian
+Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian, dctrl-tools, lsb-release
 Recommends: bzr, pbuilder
 Conflicts: devscripts (<< 2.10.7ubuntu5)
 Replaces: devscripts (<< 2.10.7ubuntu5)

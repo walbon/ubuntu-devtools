@@ -6,7 +6,9 @@
 # This script is used to get a diff of the exported symbols of all .so files in
 # every binary package of package $1.
 
-PACKAGES="`apt-cache showsrc $1 | grep ^Binary | sed 's/Binary\:\ //g;s/\,//g' | sort -u`"
+DISTRO=$(lsb_release -c -s)
+VERSION=$(apt-cache madison "$1" | grep -- "$DISTRO"'/.*Sources$' | awk '{print $3}')
+PACKAGES=$(apt-cache showsrc "$1" | grep-dctrl -s Binary -F Version "$VERSION" | sed 's/Binary\:\ //g;s/\,//g' | sort -u)
 DEBLINE=""
 DEBUG=False
 
@@ -20,6 +22,8 @@ if [[ -z $2 ]]; then
 else
     DEBDIR="$2";
 fi
+
+sudo apt-get install $PACKAGES
 
 for pack in $PACKAGES;
 do

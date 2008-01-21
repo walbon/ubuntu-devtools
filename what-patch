@@ -4,28 +4,32 @@
 # Modified by Daniel Hahler <ubuntu@thequod.de>
 # License: GPLv2
 
-if [ "$1" ] && ( [ $1 = '-h' ] || [ $1 = '--help' ] )
+# Default operation reports only the patch system.  Verbose mode can be
+# enabled with -v
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]
 then
-	echo "Usage: $0 [-q]"
-	echo
-	echo "Run this inside the source directory of a Debian package and it will detect the patch system that it uses."
-	echo
-	echo "Additionally, it will try to print a list of all those files outside the debian/ directory that have been modified (if any); if you don't want this, use the -q option."
+	cat <<EOM
+Usage: $0 [-v]
+
+Run this inside the source directory of a Debian package and it will detect
+the patch system that it uses.
+
+ -v: Print a list of all those files outside the debian/ directory that have
+     been modified (if any).
+EOM
 	exit 0
 fi
 
-if [[ -d debian ]]; then
-	cd . # pass
-elif [[ -d ../debian ]]; then
+while [ ! -r debian/rules ];
+do
+	if [ "$PWD" = "/" ]; then
+		echo "Can't find debian/rules."
+		exit 1
+	fi
 	cd ..
-elif [[ -d ../patches ]]; then
-	cd ../.. 
-else
-	echo "Can't find debian/rules."
-	exit 1
-fi
+done
 
-if [ "$1" != "-q" ]
+if [ "$1" = "-v" ]
 then
 	files=`lsdiff -z ../$(dpkg-parsechangelog | grep ^Source: | sed -e "s/^Source: //")_$(dpkg-parsechangelog | grep ^Version: | sed -e "s/^Version: //").diff.gz 2>/dev/null | grep -v 'debian/'`
 	if [ -n "$files" ]
