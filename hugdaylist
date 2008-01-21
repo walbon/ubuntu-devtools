@@ -50,8 +50,7 @@ def check_args():
 
 def filter_unsolved(b):
     bug = Bug(int(b))
-    return filter(lambda a: (a.affects.lower().count('ubuntu')) and \
-                         a.status != 'Fix Committed' and \
+    return filter(lambda a: a.status != 'Fix Committed' and \
 			 (a.assignee in ['motu','desktop-bugs'] or \
 			  not a.assignee), bug.infotable) and \
 	'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
@@ -66,7 +65,6 @@ def main():
     if not l:
         print "BugList of %s is empty." % url
         sys.exit(0)
-
     if howmany == -1:
         howmany = len(l)
 
