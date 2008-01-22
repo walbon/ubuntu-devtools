@@ -216,17 +216,20 @@ then
 	then
 		mkdir -p $BASE_DIR/etc/$DISTRIBUTION/apt.conf
 	fi
-	echo "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" > $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list
-	case $DISTRIBUTION in 
-		dapper|edgy|feisty|gutsy )
-			cat >>  $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list <<EOF
+	if [ ! -e $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list ]
+	then
+		echo "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" > $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list
+		case $DISTRIBUTION in 
+			dapper|edgy|feisty|gutsy )
+				cat >>  $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list <<EOF
 deb $ARCHIVE $DISTRIBUTION-security $COMPONENTS
 deb $ARCHIVE $DISTRIBUTION-updates $COMPONENTS
 EOF
-			;;
-		* )
-			;;
-	esac
+				;;
+			* )
+				;;
+		esac
+	fi
 fi
 
 if [ -n $DESKTOP_SESSION  ]
