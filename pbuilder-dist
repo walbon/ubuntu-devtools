@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 # Copyright by:
 #   Jamin W. Collins <jcollins@asgardsrealm.net>
 #   Jordan Mantha <mantha@ubuntu.com>
