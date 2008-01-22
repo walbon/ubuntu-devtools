@@ -232,21 +232,26 @@ EOF
 	fi
 fi
 
-if [ -n $DESKTOP_SESSION  ]
+if [ -z $PBUILDAUTH ]
 then
-	case $DESKTOP_SESSION in 
-		gnome )
-			SUDOREPLACE="gksudo -D \"Pbuilder\" "
-			;;
-		kde|kde4 )
-			SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
-			;;
-		* )
-			SUDOREPLACE="sudo"
-			;;
-	esac
+	if [ -n $DESKTOP_SESSION  ]
+	then
+		case $DESKTOP_SESSION in 
+			gnome )
+				SUDOREPLACE="gksudo -D \"Pbuilder\" "
+				;;
+			kde|kde4 )
+				SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
+				;;
+			* )
+				SUDOREPLACE="sudo"
+				;;
+		esac
+	else
+		SUDOREPLACE="sudo"
+	fi
 else
-	SUDOREPLACE="sudo"
+	SUDOREPLACE=$PBUILDAUTH
 fi
 
 

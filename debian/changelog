@@ -47,7 +47,8 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
       directory and install a sane sources.list, depending on the releases of Ubuntu
       and add --aptconfdir to pbuilder call (LP: #175183)
     - add support for gksudo|kdesudo|sudo depending on $DESKTOP_SESSION.
-      (LP: #172943)
+      or if $PBUILDAUTH is set to something else, it will be used instead of
+      sudo|gksudo|kdesudo (LP: #172943)
   * pbuilder-dist.bash_completion: (LP: #175728)
     - added bash_completion instructions
   * debian/rules:
