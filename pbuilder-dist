@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 # Copyright by:
 #   Jamin W. Collins <jcollins@asgardsrealm.net>
 #   Jordan Mantha <mantha@ubuntu.com>
@@ -26,7 +27,10 @@ EXTRACOMP=1
 SAVELOG=0
 
 # Allow this script to use /var/cache/apt/archives/ when possible
-SYSCACHE=1
+if [ -z $SYSCACHE ]
+then
+	SYSCACHE=1
+fi
 
 
 ################################
@@ -102,12 +106,18 @@ distdata()
     then
         # Set Debian specific data
         ISDEBIAN=True
-        ARCHIVE="http://ftp.debian.org"
+	if [ -z $ARCHIVE ]
+	then
+        	ARCHIVE="http://ftp.debian.org"
+	fi
         COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
     else
         # Set Ubuntu specific data
         ISDEBIAN=False
-        ARCHIVE="http://archive.ubuntu.com/ubuntu"
+	if [ -z $ARCHIVE ]
+	then
+        	ARCHIVE="http://archive.ubuntu.com/ubuntu"
+	fi
         COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
     fi
 }
@@ -172,8 +182,9 @@ fi
 
 if [ $SYSCACHE != 0 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$ARCH" = "$BINARCH" -o -z $BINARCH ]
 then
-	DEBCACHE='/var/cache/apt/archives/'
+		DEBCACHE='/var/cache/apt/archives/'
 fi
+
 
 # Check what version of pbuilder is installed, and if
 # it's supported, use the --components option
@@ -189,13 +200,62 @@ else
 	COMPONENTS_LINE="--othermirror \"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
 fi
 
-sudo pbuilder $OPERATION \
-    --basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
-    --distribution $DISTRIBUTION \
-    $( [ -z $BINARCH ] || echo "--debootstrapopts \"--arch\" --debootstrapopts \"$BINARCH\"" ) \
-    $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
-    $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
-    --buildresult $BASE_DIR/${FOLDERBASE}_result \
-    --mirror "$ARCHIVE" \
-    $COMPONENTS_LINE \
-    $@
+if [ -n $http_proxy ] || [ -n $HTTP_PROXY ]
+then
+	if [ -n $http_proxy ]
+	then
+		PROXY=$http_proxy
+	else
+		PROXY=$HTTP_PROXY
+	fi
+fi
+
+
+if [ $ISDEBIAN = "False" ]
+then
+	if [ ! -d $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ ]
+	then
+		mkdir -p $BASE_DIR/etc/$DISTRIBUTION/apt.conf
+	fi
+	echo "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" > $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list
+	case $DISTRIBUTION in 
+		dapper|edgy|feisty|gutsy )
+			cat >>  $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list <<EOF
+deb $ARCHIVE $DISTRIBUTION-security $COMPONENTS
+deb $ARCHIVE $DISTRIBUTION-updates $COMPONENTS
+EOF
+			;;
+		* )
+			;;
+	esac
+fi
+
+if [ -n $DESKTOP_SESSION  ]
+then
+	case $DESKTOP_SESSION in 
+		gnome )
+			SUDOREPLACE="gksudo -D \"Pbuilder\" "
+			;;
+		kde|kde4 )
+			SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
+			;;
+		* )
+			SUDOREPLACE="sudo"
+			;;
+	esac
+else
+	SUDOREPLACE="sudo"
+fi
+
+
+$SUDOREPLACE "pbuilder $OPERATION \
+--basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
+--distribution $DISTRIBUTION \
+--debootstrapopts --arch --debootstrapopts $BINARCH \
+$( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
+$( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
+$( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
+--buildresult $BASE_DIR/$FOLDERBASE_result \
+--mirror "$ARCHIVE" \
+--aptconfdir $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ \
+$@"

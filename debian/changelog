@@ -33,6 +33,25 @@ ubuntu-dev-tools (0.25) UNRELEASED; urgency=low
   [ Stephan Hermann ]
   * mk-sbuild-lv: check for debootstrap release names in
     /usr/share/debootstreap/releases and not in /usr/lib/debootstrap/releases
+  * pbuilder-dist:
+    - check if $SYSCACHE is not set and stay with the default, if 
+      SYSCACHE = 0 use the default from pbuilderrc or honor $DEBCACHE
+      (LP: #156183)
+    - removed $BINARCH check in pbuilder call, and set --debootstrapopts
+      directly, it doesn't matter when it's always set.  The Subshell call
+      didn't work  (LP: #175183)
+    - added support for --http-proxy, honours now $http_proxy or $HTTP_PROXY
+    - removed $COMPONENTS_LINE from pbuilder call, data is crippled in the
+      pbuilder chroot.
+      Instead of this behaviour add $BASE_DIR/etc/$DISTRIBUTION/apt.conf/
+      directory and install a sane sources.list, depending on the releases of Ubuntu
+      and add --aptconfdir to pbuilder call (LP: #175183)
+    - add support for gksudo|kdesudo|sudo depending on $DESKTOP_SESSION.
+      (LP: #172943)
+  * pbuilder-dist.bash_completion: (LP: #175728)
+    - added bash_completion instructions
+  * debian/rules:
+    - install pbuilder-dist.bash_completion to /etc/bash_completion.d/
 
   [ Daniel Holbach ]
   * hugdaylist: drop one Ubuntu filter statement.
