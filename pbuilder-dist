@@ -31,6 +31,8 @@ then
 	SYSCACHE=1
 fi
 
+CALLDIR=`pwd`
+
 
 ################################
 
@@ -248,21 +250,22 @@ then
 				;;
 		esac
 	else
-		SUDOREPLACE="sudo"
+		SUDOREPLACE=sudo
 	fi
 else
 	SUDOREPLACE=$PBUILDAUTH
 fi
 
+echo $@
 
-$SUDOREPLACE "pbuilder $OPERATION \
+$SUDOREPLACE -- pbuilder $OPERATION \
 --basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
 --distribution $DISTRIBUTION \
---debootstrapopts --arch --debootstrapopts $BINARCH \
+--debootstrapopts --arch \
+--debootstrapopts $BINARCH \
 $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
 $( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
 $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
 --buildresult $BASE_DIR/$FOLDERBASE_result \
---mirror "$ARCHIVE" \
---aptconfdir $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ \
-$@"
+--mirror $ARCHIVE \
+--aptconfdir $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ $@
