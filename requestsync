@@ -267,6 +267,10 @@ if __name__ == '__main__':
     debiancomponent = debian_component(srcpkg)
     deb_version = cur_deb_version(srcpkg)
 
+    if deb_version == cur_ver:
+        print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
+        sys.exit(1)
+
     # generate bug report
     subscribe = 'ubuntu-archive'
     status = 'confirmed'
