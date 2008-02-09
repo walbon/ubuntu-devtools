@@ -9,7 +9,7 @@
 #
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
-import os, sys, urllib, subprocess, getopt, readline
+import os, sys, urllib, subprocess, getopt
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
