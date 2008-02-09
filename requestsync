@@ -187,7 +187,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
     return True
 
-def post_bug(source_package, subscibe, status, bugtitle, bugtext):
+def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     '''Use python-launchpad-bugs to submit the sync request.
     Return True if email successfully send, otherwise False.'''
 
