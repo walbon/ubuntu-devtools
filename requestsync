@@ -328,14 +328,14 @@ if __name__ == '__main__':
         # Launch editor
         try:
             editor = subprocess.check_call( ['sensible-editor', report_file.name] )
-        except CalledProcessError, e:
-            print >>sys.stderr, 'sensible-editor returned with %s: %s\nAborting.' % (editor.returncode, e)
+        except subprocess.CalledProcessError, e:
+            print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
             sys.exit(1)
 
         # Check if the tempfile has been changed
         report_file_info = os.stat( report_file.name )
         if mtime_before == os.stat( report_file.name ).st_mtime:
-            print >>sys.stderr, 'The temporary file %s has not been changed. Aborting. [Press ENTER]' % (report_file.name,)
+            print >> sys.stderr, 'The temporary file %s has not been changed. Aborting. [Press ENTER]' % (report_file.name,)
             raw_input()
             sys.exit(1)
         report_file.file.seek(0)
