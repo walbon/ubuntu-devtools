@@ -10,6 +10,7 @@
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
 import os, sys, urllib, subprocess, getopt
+from debian_bundle.changelog import Version
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -54,13 +55,17 @@ def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
     (exclusive).'''
 
+    base_version = Version(version)
+
     ch = ''
     subdir = sourcepkg[0]
     if sourcepkg.startswith('lib'):
         subdir = 'lib%s' % sourcepkg[3]
     for l in urllib.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg)):
-        if l.startswith(sourcepkg) and l.find(version + ')') > 0:
-            break
+        if l.startswith(sourcepkg):
+            ch_version = l[ l.find("(")+1 : l.find(")") ]
+            if Version(ch_version) <= base_version:
+                break
         ch += l
 
     return ch

@@ -11,8 +11,10 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       When interaction is not required, ask the user if she wants to edit.
       (LP: #190351)
     * Exit, if versions in Ubuntu and Debian are the same already.
+    * Use debian_bundle.changelog.Version for version comparison in
+      debian_changelog.
 
- -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 02:23:44 +0100
+ -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 18:27:06 +0100
 
 ubuntu-dev-tools (0.25) hardy; urgency=low
 
