@@ -1,9 +1,18 @@
 ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
 
+  [ Stephan Hermann ]
   * pbuild-dist: fixed a bug with the *sudo call.
     changed from $SUDOREPLACE "pbuilder" to $SUDOREPLACE -- pbuilder ...
 
- -- Stephan Hermann <sh@sourcecode.de>  Wed, 23 Jan 2008 20:21:42 +0100
+  [ Daniel Hahler ]
+  * requestsync:
+    * If interaction is required (for an explanation to drop the Ubuntu
+      changes), edit the report in the sensible-editor.
+      When interaction is not required, ask the user if she wants to edit.
+      (LP: #190351)
+    * Exit, if versions in Ubuntu and Debian are the same already.
+
+ -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 02:23:44 +0100
 
 ubuntu-dev-tools (0.25) hardy; urgency=low
 

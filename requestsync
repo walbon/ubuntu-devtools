@@ -9,7 +9,7 @@
 #
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
-import os, sys, urllib, subprocess, getopt, readline
+import os, sys, urllib, subprocess, getopt
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -19,11 +19,11 @@ def cur_version_component(sourcepkg, release):
     assert (madison.returncode == 0)
         
     for l in out.splitlines():
-       (pkg, version, rel, builds) = l.split('|')
-       component = 'main'
-       if rel.find('/') != -1:
-           component = rel.split('/')[1]
-       return (version.strip(), component.strip())
+        (pkg, version, rel, builds) = l.split('|')
+        component = 'main'
+        if rel.find('/') != -1:
+            component = rel.split('/')[1]
+        return (version.strip(), component.strip())
            
     print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
     sys.exit(1)
@@ -83,6 +83,14 @@ def debian_component(sourcepkg):
         component = raw_comp[1].strip()
     return component
 
+def wait_for_enter_or_exit():
+    """Helper function to wait for ENTER and catch Control-C for abortion."""
+    try:
+        raw_input()
+    except KeyboardInterrupt:
+        print 'Abort requested. No sync request filed.'
+        sys.exit(1)
+
 def usage():
     print '''Usage: requestsync [-h|-n|-s|-k <keyid>|--lp] <source package> <target release> [basever]
 
@@ -138,12 +146,8 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
     print mail
 
-    print 'Press enter to file this bug, Control-C to abort.'
-    try:
-        raw_input()
-    except KeyboardInterrupt:
-        print 'Abort requested. No sync request filed.'
-	sys.exit(1)
+    print 'Press ENTER to file this bug, Control-C to abort.'
+    wait_for_enter_or_exit()
 
     # get server address
     mailserver = os.getenv('DEBSMTP')
@@ -167,7 +171,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     mailserver_pass = os.getenv('DEBSMTP_PASS')
     if mailserver_user and mailserver_pass:
         try:
-             s.login(mailserver_user, mailserver_pass)
+            s.login(mailserver_user, mailserver_pass)
         except smtplib.SMTPAuthenticationError:
             print 'Error authenticating to the server: invalid username and password.'
             s.quit()
@@ -183,7 +187,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
     return True
 
-def post_bug(source_package, subscibe, status, bugtitle, bugtext):
+def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     '''Use python-launchpad-bugs to submit the sync request.
     Return True if email successfully send, otherwise False.'''
 
@@ -207,16 +211,12 @@ def post_bug(source_package, subscibe, status, bugtitle, bugtext):
         product = {'name': source_package, 'target': 'ubuntu'}
     else:
         # new source package
-	product = {'name': 'ubuntu'}
+        product = {'name': 'ubuntu'}
 
     print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
 
-    print 'Press enter to file this bug, Control-C to abort.'
-    try:
-        raw_input()
-    except KeyboardInterrupt:
-        print 'Abort requested. No sync request filed.'
-	sys.exit(1)
+    print 'Press ENTER to file this bug, Control-C to abort.'
+    wait_for_enter_or_exit()
 
     # Create bug
     Bug = launchpadbugs.connector.ConnectBug()
@@ -241,6 +241,8 @@ if __name__ == '__main__':
     sponsorship = False
     keyid = None
     use_lp_bugs = False
+    need_interaction = False
+    edit_report = False
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsk:', ('lp'))
@@ -267,6 +269,10 @@ if __name__ == '__main__':
     debiancomponent = debian_component(srcpkg)
     deb_version = cur_deb_version(srcpkg)
 
+    if deb_version == cur_ver:
+        print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
+        sys.exit(1)
+
     # generate bug report
     subscribe = 'ubuntu-archive'
     status = 'confirmed'
@@ -277,24 +283,21 @@ if __name__ == '__main__':
         else:
             subscribe = 'ubuntu-universe-sponsors'
 
-    report = '''Please sync %s %s (%s) from Debian unstable (%s).
-''' % (srcpkg, deb_version, component, debiancomponent)
+    report = 'Please sync %s %s (%s) from Debian unstable (%s).\n\n' % (srcpkg, deb_version, component, debiancomponent)
     title = report[:-2]
     
     base_ver = cur_ver
     uidx = base_ver.find('ubuntu')
     if uidx > 0:
         base_ver = base_ver[:uidx]
+        need_interaction = True
 
-        print 'Explanation of the Ubuntu delta and why it can be dropped:'
-        explanation = '\nExplanation of the Ubuntu delta and why it can be dropped:\n'
-        while (explanation[-2:] != '\n\n'):
-            try:
-                explanation += raw_input() + '\n'
-            except KeyboardInterrupt:
-                print 'Abort requested. No sync request filed.'
-                sys.exit(1)
-	report += explanation
+        print 'There have been changes made in Ubuntu.'
+        print 'Please edit the report and give an explanation.'
+        print 'Press ENTER to start your editor. Press Control-C to abort now. Not saving the report file will abort the request, too.'
+        wait_for_enter_or_exit()
+        report += '\nExplanation of the Ubuntu delta and why it can be dropped:\n\n' + \
+                  'ENTER_EXPLANATION_HERE\n\n'
 
     uidx = base_ver.find('build')
     if uidx > 0:
@@ -306,16 +309,49 @@ if __name__ == '__main__':
     report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
+    # Do we want to edit the report?
+    if need_interaction:
+        edit_report = True
+    else:
+        val = raw_input('Do you want to edit the report [y/N]? ')
+        if val.lower() in ('y', 'yes'):
+            edit_report = True
+
+    if edit_report:
+        # Create tempfile and remember mtime
+        import tempfile
+        report_file = tempfile.NamedTemporaryFile( prefix='requestsync_' )
+        report_file.file.write(report)
+        report_file.file.flush()
+        mtime_before = os.stat( report_file.name ).st_mtime
+
+        # Launch editor
+        try:
+            editor = subprocess.check_call( ['sensible-editor', report_file.name] )
+        except subprocess.CalledProcessError, e:
+            print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
+            sys.exit(1)
+
+        # Check if the tempfile has been changed
+        report_file_info = os.stat( report_file.name )
+        if mtime_before == os.stat( report_file.name ).st_mtime:
+            print >> sys.stderr, 'The temporary file %s has not been changed. Aborting. [Press ENTER]' % (report_file.name,)
+            raw_input()
+            sys.exit(1)
+        report_file.file.seek(0)
+        report = report_file.file.read()
+        report_file.file.close()
+
     # mail or post the sync request
     srcpkg = not newsource and srcpkg or None
     if use_lp_bugs:
         # Map status to the values expected by lp-bugs
-	mapping = {'new': 'New', 'confirmed': 'Confirmed'}
+        mapping = {'new': 'New', 'confirmed': 'Confirmed'}
         if post_bug(srcpkg, subscribe, mapping[status], title, report):
             sys.exit(0)
 
     if mail_bug(srcpkg, subscribe, status, title, report, keyid):
-	sys.exit(0)
+        sys.exit(0)
 
     print 'Something went wrong. No sync request filed.'
     sys.exit(1)
