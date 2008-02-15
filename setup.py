@@ -33,4 +33,5 @@ setup(name='ubuntu-dev-tools',
                'get-build-deps',
                'dgetlp'
             ],
+    py_modules=['ppaput'],
 )
