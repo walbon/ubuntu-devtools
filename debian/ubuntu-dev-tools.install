@@ -15,3 +15,4 @@ debian/tmp/usr/bin/submittodebian
 debian/tmp/usr/bin/suspicious-source
 debian/tmp/usr/bin/update-maintainer
 debian/tmp/usr/bin/what-patch	
+bash_completion/* etc/bash_completion.d/pbuilder-dist

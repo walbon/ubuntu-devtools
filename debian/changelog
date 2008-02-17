@@ -21,10 +21,14 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       robust and less code duplication.
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
-  * Add a manpage for update-maintainer.
+  * Add manpages for update-maintainer and 404main.
+  * Move pbuilder-dist.bash_completion into new bash_completion/
+    directory and tell dh_install to take care of the stuff there.
   * Let update-maintainer also accept --no-changelog (in addition to
     the current --nochangelog), improve its error messages and change
     the default section to universe.
+  * Add AUTHORS section to doc/check-symbols.1, and little changes to
+    doc/suspicious-source.1.
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 17:36:11 +0100
 

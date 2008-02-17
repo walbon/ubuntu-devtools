@@ -63,4 +63,4 @@ do
         diff -u /tmp/$LIBNAME.{1,2};
         rm /tmp/$LIBNAME.{1,2};
     done;
-done   
+done  

@@ -8,7 +8,6 @@
 # Based upon cobwuilder's autocompletion, Copyright 2007 Cyril
 # Brulebois <cyril.brulebois@enst-bretagne.fr>
 
-
 have pbuilder-dist &&
 _pbuilder-dist()
 {
