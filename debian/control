@@ -13,7 +13,7 @@ Standards-Version: 3.7.3
 Package: ubuntu-dev-tools
 Architecture: all
 Section: devel
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian, dctrl-tools, lsb-release
+Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian, dctrl-tools, lsb-release, python-ppaput
 Recommends: bzr, pbuilder
 Conflicts: devscripts (<< 2.10.7ubuntu5)
 Replaces: devscripts (<< 2.10.7ubuntu5)
@@ -22,3 +22,12 @@ Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to
  make their packaging work a lot easier. Such tools can include bug
  filing, packaging preparation, package analysis, etc.
+
+Package: python-ppaput
+Architecture: all
+Section: python
+Depends: ${python:Depends}
+XB-Python-Version: ${python:Versions}
+Description: python module for uploading to PPAs.
+ python-ppaput is a python module that abstracts the process of creating and
+ uploading Debian source packages to Personal Package Archives.

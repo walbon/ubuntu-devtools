@@ -12,7 +12,21 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       (LP: #190351)
     * Exit, if versions in Ubuntu and Debian are the same already.
 
- -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 02:23:44 +0100
+  [ Andrew Hunter ]
+  * Use install files as we have multiple binaries now.
+  * ppaput:
+    * Separated ppaput script from backend python modules (shipped in
+      python-ppaput). (LP: #192184)
+    * Switched from homegrown option parseing to Optparse, much more
+      robust and less code duplication.
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Add a manpage for update-maintainer.
+  * Let update-maintainer also accept --no-changelog (in addition to
+    the current --nochangelog), improve its error messages and change
+    the default section to universe.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 17:36:11 +0100
 
 ubuntu-dev-tools (0.25) hardy; urgency=low
 
