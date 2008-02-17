@@ -1,19 +1,8 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2007, Canonical, Daniel Holbach
-#
-# GPL 3
-#
-#
-# 11:57:27 < dholbach> but what it does is: build a source package of
-#                      the current source tree you're in, upload it to PPA
-#                      and follow up on a bug report, subscribe the right
-#                      sponsors, set the right status - if you pass "-n"
-#                      it will file a bug report, add a (LP: #....)  to
-#                      the changelog also
-# 11:57:37 < dholbach> I thought it'd help with our sponsoring process
-#
+# Modified by Andrew Hunter
+# License: GPLv3
 
 import re
 import os
@@ -23,14 +12,13 @@ import string
 try:
     import launchpadbugs.connector as Connector
 except:
-    print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.14)  installed to use ppaput."
+    raise ImportError, "You need python-launchpad-bugs (>= 0.2.14) installed to use ppaput."
     sys.exit(1)
 
 #try:
 #    import apt
 #except:
-#    print >> sys.stderr, "You need  python-apt  installed to use ppaput."
+#    raise ImportError, "You need python-apt installed to use ppaput."
 #    sys.exit(1)
 
 def dput_check():

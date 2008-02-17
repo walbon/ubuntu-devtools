@@ -1,9 +1,23 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright 2007, Canonical, Daniel Holbach
+# License: GPLv3
+#
+# Builds a source package from the source tree you're currently in,
+# uploads it to PPA and follow up on a bug report, subscribe the right
+# sponsors and sets the right status - if you pass "-n" it will file a
+# bug report and add "(LP: #....)" and to the changelog.
 
 import os
 import sys
-import ppaput
 from optparse import OptionParser
+
+try:
+	import ppaput
+except ImportError:
+	print 'You need python-ubuntu-utils installed to use ppaput.'
+	sys.exit(1)
 
 USAGE = \
 """Usage: ppaput [-n] [<location>] [<debuild options>]

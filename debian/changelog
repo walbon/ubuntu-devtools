@@ -1,4 +1,26 @@
-ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
+
+  [ Andrew Hunter ]
+  * Use install files as we have multiple binaries now.
+  * ppaput:
+    * Separated ppaput script from backend python modules (shipped in
+      python-ppaput). (LP: #192184)
+    * Switched from homegrown option parseing to Optparse, much more
+      robust and less code duplication.
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Remove wrong element from doc/ppaput.1.docbook.
+  * Move ppaput.py into new python_modules/directory and remove
+    it's shabang.
+  * Write a description for the new python-ubuntu-utils binary
+    package in debian/control. Add a "Suggests: ubuntu-dev-tools".
+  * Check for reportbug being installed in submittodebian. Replace
+    reportbug dependency with a Recommends.
+  * Remove debian/pycompat.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 22:05:00 +0100
+
+ubuntu-dev-tools (0.26) hardy; urgency=low
 
   [ Stephan Hermann ]
   * pbuild-dist: fixed a bug with the *sudo call.
@@ -12,14 +34,6 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       (LP: #190351)
     * Exit, if versions in Ubuntu and Debian are the same already.
 
-  [ Andrew Hunter ]
-  * Use install files as we have multiple binaries now.
-  * ppaput:
-    * Separated ppaput script from backend python modules (shipped in
-      python-ppaput). (LP: #192184)
-    * Switched from homegrown option parseing to Optparse, much more
-      robust and less code duplication.
-
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * Add manpages for update-maintainer and 404main.
   * Move pbuilder-dist.bash_completion into new bash_completion/
@@ -31,7 +45,7 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
     doc/suspicious-source.1.
   * Fix some issues with the new pbuilder-dist code.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 17:36:11 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 19:35:46 +0100
 
 ubuntu-dev-tools (0.25) hardy; urgency=low
 

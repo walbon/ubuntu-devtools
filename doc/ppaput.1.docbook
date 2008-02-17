@@ -73,7 +73,7 @@
       the bug report.
     </para>
     <para>
-      If you use the <arg choice="opt"><option>-n</option></arg> option, it
+      If you use the <option>-n</option> option, it
       will also 1) file a bug and add 2) a (LP: #.....) header to the source
       package.
     </para>

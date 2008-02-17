@@ -13,8 +13,8 @@ Standards-Version: 3.7.3
 Package: ubuntu-dev-tools
 Architecture: all
 Section: devel
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian, dctrl-tools, lsb-release, python-ppaput
-Recommends: bzr, pbuilder
+Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), python-debian, dctrl-tools, lsb-release
+Recommends: bzr, pbuilder, python-ubuntu-utils, reportbug (>= 3.39ubuntu1)
 Conflicts: devscripts (<< 2.10.7ubuntu5)
 Replaces: devscripts (<< 2.10.7ubuntu5)
 XB-Python-Version: ${python:Versions}
@@ -23,11 +23,16 @@ Description: useful tools for Ubuntu developers
  make their packaging work a lot easier. Such tools can include bug
  filing, packaging preparation, package analysis, etc.
 
-Package: python-ppaput
+Package: python-ubuntu-utils
 Architecture: all
 Section: python
 Depends: ${python:Depends}
+Suggests: ubuntu-dev-tools
 XB-Python-Version: ${python:Versions}
-Description: python module for uploading to PPAs.
- python-ppaput is a python module that abstracts the process of creating and
- uploading Debian source packages to Personal Package Archives.
+Description: useful Python modules for Ubuntu developers
+ This is a collection of useful Python modules that people interested
+ in Ubuntu development might find interesting. Those include:
+ .
+  * ppaput: a Python module that abstracts the process of creating and
+    uploading Debian source packages to Launchpad's Personal Package
+    Archives.

@@ -28,6 +28,10 @@ except ImportError:
 	print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
 	sys.exit(1)
 
+if not os.path.exists('/usr/bin/reportbug'):
+	print 'This utility requires the «reportbug» package, which isn\'t currently installed.'
+	sys.exit(1)
+
 def get_most_recent_debian_version(changelog):
 	for v in changelog.get_versions():
 		if not re.search('(ubuntu|build)', v.full_version):
