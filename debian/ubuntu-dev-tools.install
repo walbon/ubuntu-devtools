@@ -1,18 +1,2 @@
-debian/tmp/usr/bin/404main	
-debian/tmp/usr/bin/check-symbols
-debian/tmp/usr/bin/dch-repeat
-debian/tmp/usr/bin/dgetlp
-debian/tmp/usr/bin/get-branches
-debian/tmp/usr/bin/get-build-deps
-debian/tmp/usr/bin/hugdaylist
-debian/tmp/usr/bin/massfile	
-debian/tmp/usr/bin/mk-sbuild-lv
-debian/tmp/usr/bin/pbuilder-dist
-debian/tmp/usr/bin/ppaput
-debian/tmp/usr/bin/pull-debian-debdiff
-debian/tmp/usr/bin/requestsync
-debian/tmp/usr/bin/submittodebian
-debian/tmp/usr/bin/suspicious-source
-debian/tmp/usr/bin/update-maintainer
-debian/tmp/usr/bin/what-patch	
+debian/tmp/usr/bin/*
 bash_completion/* etc/bash_completion.d/pbuilder-dist
