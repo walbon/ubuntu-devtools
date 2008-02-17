@@ -29,6 +29,7 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
     the default section to universe.
   * Add AUTHORS section to doc/check-symbols.1, and little changes to
     doc/suspicious-source.1.
+  * Fix some issues with the new pbuilder-dist code.
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 17:36:11 +0100
 

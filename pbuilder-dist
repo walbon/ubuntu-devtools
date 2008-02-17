@@ -186,21 +186,6 @@ then
 		DEBCACHE='/var/cache/apt/archives/'
 fi
 
-
-# Check what version of pbuilder is installed, and if
-# it's supported, use the --components option
-if dpkg --compare-versions $(dpkg-query -W -f='${Version}' pbuilder) ge 0.174
-then
-	COMPONENTS_LINE="--othermirror \"\" --components \"$COMPONENTS\""
-else
-	# else, do it the old way
-	if [ $ISDEBIAN = True ]; then
-		echo "Warning: If this operation fails it might be because you changed the value of $COMPONENTS in the pbuilderrc file."
-		echo "See https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/140964 for more information."
-	fi
-	COMPONENTS_LINE="--othermirror \"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
-fi
-
 if [ -n $http_proxy ] || [ -n $HTTP_PROXY ]
 then
 	if [ -n $http_proxy ]
@@ -210,7 +195,6 @@ then
 		PROXY=$HTTP_PROXY
 	fi
 fi
-
 
 if [ $ISDEBIAN = "False" ]
 then
@@ -234,9 +218,9 @@ EOF
 	fi
 fi
 
-if [ -z $PBUILDAUTH ]
+if [ -z "$PBUILDAUTH" ]
 then
-	if [ -n $DESKTOP_SESSION  ]
+	if [ -n "$DESKTOP_SESSION"  ]
 	then
 		case $DESKTOP_SESSION in 
 			gnome )
@@ -256,16 +240,15 @@ else
 	SUDOREPLACE=$PBUILDAUTH
 fi
 
-echo $@
-
-$SUDOREPLACE -- pbuilder $OPERATION \
---basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
---distribution $DISTRIBUTION \
+sudo pbuilder $OPERATION \
+--basetgz "$BASE_DIR/$FOLDERBASE-base.tgz" \
+--distribution "$DISTRIBUTION" \
 --debootstrapopts --arch \
---debootstrapopts $BINARCH \
+--debootstrapopts "$BINARCH" \
 $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
 $( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
 $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
---buildresult $BASE_DIR/$FOLDERBASE_result \
---mirror $ARCHIVE \
---aptconfdir $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ $@
+--buildresult "$BASE_DIR/$FOLDERBASE_result" \
+--mirror "$ARCHIVE" \
+--aptconfdir "$BASE_DIR/etc/$DISTRIBUTION/apt.conf/" \
+$@
