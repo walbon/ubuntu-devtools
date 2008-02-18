@@ -14,7 +14,7 @@ import sys
 from optparse import OptionParser
 
 try:
-	import ppaput
+	import ubuntutools.ppaput
 except ImportError:
 	print 'You need python-ubuntu-utils installed to use ppaput.'
 	sys.exit(1)
