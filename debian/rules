@@ -10,5 +10,8 @@ DEB_INSTALL_MANPAGES_ubuntu-dev-tools = doc/*.1
 build/ubuntu-dev-tools::
 	docbook2x-man doc/ppaput.1.docbook; mv ppaput.1 doc
 
+binary-install/python-ubuntutools::
+	rm -rf debian/python-ubuntutools/usr/lib
+
 clean::
 	rm -f doc/ppaput.1
