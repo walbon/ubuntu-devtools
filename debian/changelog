@@ -19,7 +19,12 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
   * Add ppaput to debian/copyright.
   * Remove debian/pycompat.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 22:05:00 +0100
+  [ Daniel Holbach ]
+  * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
+    ppaput for now. It has shortcomings and is not actively used in the
+    sponsoring process.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 22 Feb 2008 18:55:21 +0100
 
 ubuntu-dev-tools (0.26) hardy; urgency=low
 

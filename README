@@ -46,12 +46,6 @@ pbuilder-dist [withlog] [create|update|build|clean|login|execute]
     Debian releases. It's recommended to symlink as pbuilder-feisty,
     pbuilder-gutsy, etc.
 
-ppaput [-n] <dput location> [<debuild options>]
-    ... will build a source package using <debuild options>, upload it
-    to <dput location> and follow up on specified bugs, make sure the
-    sponsoring process is followed. Also it will file a new bug, if
-    '-n' is used.
-
 pull-debian-debdiff <package> <version>
     ... will attempt to find and download a specific version of a
     Debian package and its immediate parent to generate a debdiff.
