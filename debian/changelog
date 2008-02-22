@@ -1,30 +1,38 @@
 ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
 
   [ Andrew Hunter ]
-  * Use install files as we have multiple binaries now.
   * ppaput:
-    * Separated ppaput script from backend python modules (shipped in
-      python-ppaput). (LP: #192184)
-    * Switched from homegrown option parseing to Optparse, much more
+    - Separated ppaput script from backend python modules (LP: #192184).
+    - Switched from homegrown option parseing to Optparse, much more
       robust and less code duplication.
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
-  * Remove wrong element from doc/ppaput.1.docbook.
-  * Move ppaput.py into new ubuntutools/ directory and remove
-    it's shabang.
-  * Write a description for the new python-ubuntutools binary
-    package in debian/control. Add a "Suggests: ubuntu-dev-tools".
-  * Check for reportbug being installed in submittodebian. Replace
-    reportbug dependency with a Recommends.
-  * Add ppaput to debian/copyright.
-  * Remove debian/pycompat.
+  * debian/control:
+     - Change the Vcs-Bzr address to the correct one.
+     - Move the reportbug dependency to Recommends.
+     - Drop docbook2x build dependency (see Daniel's changes).
+  * Move ppaput.py (the module) into new ubuntutools/ directory and
+    remove it's shabang.
+  * submittodebian:
+     - Check if reportbug is installed and if it isn't throw an error.
+  * debian/copyright.
+     - Add ppaput (the executable has been removed for now -see below-,
+       but there is still the module in the source package).
+  * debian/pycompat:
+     - Remove it, as it is not necessary for python-central.
+
+  [ Terence Simpson ]
+  * dgetlp:
+     - Fix bug where optaining the .orig.tar.gz would fail if the package
+       name contains hypens.
+     - Add support for native packages.
 
   [ Daniel Holbach ]
   * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
     ppaput for now. It has shortcomings and is not actively used in the
     sponsoring process.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Fri, 22 Feb 2008 18:55:21 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Fri, 22 Feb 2008 19:52:59 +0100
 
 ubuntu-dev-tools (0.26) hardy; urgency=low
 
@@ -67,7 +75,8 @@ ubuntu-dev-tools (0.25) hardy; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * what-patch:
-     - Print a list of files that have been modified outside debian/.
+     - Print a list of files that have been modified outside the
+       debian/ directory (LP: #174933).
      - Add -h and -q options.
      - Add proper exit values.
   * debian/control:

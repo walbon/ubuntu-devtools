@@ -1,7 +1,20 @@
 #!/bin/bash
-# Copyright 2007 (C) Terence Simpson <stdin@stdin.me.uk>
+# Copyright (C) 2008 Terence Simpson <tsimpson@ubuntu.com>
 # Modified by Siegfried-A. Gevatter <rainct@ubuntu.com>
-# License: GPLv2 or later
+# License: 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along
+#  with this program; if not, write to the Free Software Foundation, Inc.,
+#  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # This script simulates «dget»'s behaviour for files hosted at
 # launchpadlibrarian.net.
@@ -15,6 +28,7 @@
 
 GET="wget"
 UNPACK="dpkg-source -x {dsc-file}"
+DIRECT_TO_NULL="/dev/null"
 
 usage()
 {
@@ -24,33 +38,84 @@ Usage: $0 [-d] <Launchpad URL>
 This scripts simulates «dget»'s behaviour for files hostead at
 launchpadlibrarian.net.
 
-If you specify the -d option then it won't do anything, but just
-print the commands it would run otherwise.
+If you specify the -d option then it won't do anything, except download the
+.dsc file, but just print the commands it would run otherwise.
 
 Example:
-	$0 http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
+	$(basename $0) http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
 EOF
 }
 
-if [ $1 ] && [ $1 = "-d" ] || [ $1 = "--debug" ]
-then
-	# Debug Mode
-	GET="echo "${GET}
-	UNPACK="echo "${UNPACK}
-	shift
-fi
-
-if [ $1 ] && [ $1 = "-h" ] || [ $1 = "--help" ]
-then
-	usage
-	exit 0
-fi
+while [ $# -ne 1 ]; do
+case "$1" in
+	-d|--debug)
+	  # Debug Mode
+	  OUTPUT="/tmp/"
+	  GET="echo ${GET}"
+	  UNPACK="echo ${UNPACK}"
+	  shift
+	;;
+	-v|--verbose)
+	  DIRECT_TO_NULL="$(tty)"
+	  shift
+	;;
+	-h|--help)
+	  usage
+	  exit 0
+	;;
+	-*)
+	  echo "Unknown option: \`$1'"
+	  usage >&2
+	  exit 1
+	;;
+	*)
+	  break
+	;;
+esac
+done
 
 if [ $# -ne 1 ]
 then
 	usage
 	exit 1
 fi
+
+## internal functions
+getBase() {
+echo "Getting ${BASE}/${NUMBER}/${FILE}"
+if [ -f "$FILE" ]; then rm -f $FILE; fi # Remove .dsc incase the last run was with debug
+if ! wget ${BASE}/${NUMBER}/${FILE} -O ${OUTPUT}${FILE} 2>${DIRECT_TO_NULL}
+then
+	echo "Failed to fetch «.dsc» file, aborting."
+	exit 1
+fi
+}
+
+getUrl() {
+if [ -f "$2" ]
+then
+##Todo: Check the md5sum in the .dsc to see if we should redownload or not
+	echo "Skipping already downloaded ${2}"
+	return 0
+fi
+
+echo "Getting ${1}${2}"
+if ! $GET ${1}${2} 2>$DIRECT_TO_NULL
+then
+	echo "Failed to fetch «${3}»"
+	exit 1
+fi
+}
+
+unpack() {
+if ! $UNPACK
+then
+	echo "Failed to unpack source, aborting."
+	exit 1
+fi
+}
+
+## begin #!/bin/bash
 
 # Store download URL into a local variable to be able to modify it
 URL=$1
@@ -77,35 +142,28 @@ then
 	exit 1
 fi
 
-BASE="http://launchpadlibrarian.net" #BASE="http://$(echo $URL|cut -d '/' -f 3)"
+#BASE="http://$(echo $URL|cut -d '/' -f 3)" #Not needed as we know the base URL
+BASE="http://launchpadlibrarian.net"
 NUMBER="$(echo $URL|cut -d '/' -f 4)"
 FILE="$(echo $URL|cut -d '/' -f 5)"
 
 UNPACK=$(echo $UNPACK | sed s/{dsc-file}/${FILE}/g)
 
-echo "Getting ${BASE}/${NUMBER}/${FILE}"
-if ! $GET ${BASE}/${NUMBER}/${FILE}
+if [ -f "$FILE" ]; then rm -f $FILE; fi
+getBase;
+PkgVersion="$(grep -B100 "^Files:" ${OUTPUT}${FILE}|grep "^Version:"|cut -d' ' -f2)"
+PkgName="$(grep -B100 "^Files:" ${OUTPUT}${FILE}|grep "^Source:"|cut -d' ' -f2)"
+
+if $(echo ${PkgVersion} | grep '-' >/dev/null)
 then
-	echo "Failed to fetch «.dsc» file, aborting."
-	exit 1
+	getUrl ${BASE}/$((${NUMBER}-1))/ "$(echo $FILE|sed 's,\.dsc,.diff.gz,')" "diff.gz"
+	getUrl ${BASE}/$((${NUMBER}-2))/ "${PkgName}_$(echo ${PkgVersion}|sed 's,-[0-9]*[a-z]*[0-9]*,.orig.tar.gz,')" "orig.tar.gz"
+else
+	getUrl ${BASE}/$((${NUMBER}-1))/ "${PkgName}_${PkgVersion}.tar.gz" "tar.gz"
 fi
 
-echo "Getting ${BASE}/$(($NUMBER-1))/$(echo $FILE|sed 's,\.dsc$,.diff.gz,')"
-if ! $GET ${BASE}/$(($NUMBER-1))/$(echo $FILE | sed 's,\.dsc$,.diff.gz,')
-then
-	echo "Failed to fetch «.diff.gz» file, aborting."
-	exit 1
+if [ "x${OUTPUT}" != "x" ]
+then rm -f ${OUTPUT}${FILE}
 fi
 
-echo "Getting ${BASE}/$(($NUMBER-2))/$(echo $FILE|sed 's,\-[0-9]*.*$,.orig.tar.gz,')"
-if ! $GET ${BASE}/$(($NUMBER-2))/$(echo $FILE|sed 's,\-[0-9]*.*$,.orig.tar.gz,')
-then
-	echo "Failed to fetch «orig.tar.gz» file, aborting."
-	exit 1
-fi
-
-if ! $UNPACK
-then
-	echo "Failed to unpack source, aborting."
-	exit 1
-fi
+unpack;

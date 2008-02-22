@@ -1,2 +1,1 @@
-debian/tmp/usr/bin/*
 bash_completion/* etc/bash_completion.d/pbuilder-dist

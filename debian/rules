@@ -6,6 +6,3 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
 DEB_INSTALL_MANPAGES_ubuntu-dev-tools = doc/*.1
-
-binary-install/python-ubuntutools::
-	rm -rf debian/python-ubuntutools/usr/lib
