@@ -1,8 +1,9 @@
 #!/bin/sh
-# Copyright by:
-#   Jamin W. Collins <jcollins@asgardsrealm.net>
-#   Jordan Mantha <mantha@ubuntu.com>
-#   Siegfried-A. Gevatter <rainct@ubuntu.com>
+#
+# Copyright (C) Jamin W. Collins <jcollins@asgardsrealm.net>
+# Copyright (C) Jordan Mantha <mantha@ubuntu.com>
+# Copyright (C) 2007-2008 Siegfried-A. Gevatter <rainct@ubuntu.com>
+#
 # License: GPLv2 or later
 #
 # This script is a wrapper to be able to easily use pbuilder with
@@ -12,119 +13,158 @@
 # configurations. For example, a symlink called pbuilder-hardy will assume
 # that the target distribution is always Ubuntu Hardy.
 
+######################################################################
+
 # Base directory where pbuilder will put all the files it creates.
 # This is overriden by the global variable $PBUILDFOLDER
 BASE_DIR="$HOME/pbuilder"
 
 # Change this to 0 if you don't want additional components to be used.
 # That is, 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
-# and 'non-free' for Debian.
+# and 'non-free' for Debian. (This option can be overwriten at runtime).
 EXTRACOMP=1
 
 # Change this to 1 if you want the log for the last operation to be saved
 # in the base directory by default (it will be named '.lastlog').
 SAVELOG=0
 
-# Allow this script to use /var/cache/apt/archives/ when possible
+# Allow this script to use /var/cache/apt/archives/ when possible.
 if [ -z $SYSCACHE ]
 then
 	SYSCACHE=1
 fi
 
+######################################################################
 
-################################
+# Detect system architecture
+REALARCH=$(dpkg-architecture -qDEB_HOST_ARCH)
 
-ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
-SYSDIST=`lsb_release -cs`
+# Detect Ubuntu distribution (wheter it is gutsy, hardy, etc.)
+SYSDIST=$(lsb_release -cs 2>/dev/null)
 
+# Overwrite hardcoded base directory by that one in the global variable
 if [ $PBUILDFOLDER ] && [ $PBUILDFOLDER != "" ]
 then
 	BASE_DIR=$PBUILDFOLDER
 fi
 
-help()
-{
-        echo "Insufficient number of arguments."
-        echo "Usage: $0 "$( [ "$1" != 'show-dist-flag' ] || echo "<distribution> " )$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )"[mainonly|allcomp] [withlog|nolog] <operation>"
-        exit 1
-}
+######################################################################
 
-if [ ! -z `echo \`basename $0\` | grep -- '-'`  ] && [ `basename $0` != 'pbuilder-dist' ]
+# Abort if the name of the executable has hypens but it doesn't
+# start with "pbuilder-".
+if [ -n $(basename $0 | grep '-') ] && [ $(basename $0 | cut -d'-' -f1) != 'pbuilder' ]
 then
-    if [ $# -lt 1 ]
-    then
-        help
-    fi
-    
-    BINARCH=`basename $0 | cut -f3 -d '-'`
-    DISTRIBUTION=`basename $0 | cut -f2 -d '-'`
+	echo "Error: " $(basename $0) " is not a valid name for a pbuilder-dist executable."
+	exit 1
+fi
+
+# Detect if the script has it's original name or if a symlink is being used,
+# and if it's a symlink extract the information that it contains.
+if [ -n $(basename $0 | grep '-') ] && [ `basename $0` != 'pbuilder-dist' ]
+then
+	ORIGINAL_NAME=0
+	DISTRIBUTION=$(basename $0 | cut -d'-' -f2)
+	ARCHITECTURE=$(basename $0 | cut -d'-' -f3)
 else
-    if [ $# -lt 2 ]
-    then
-        help show-dist-flag
-    fi
-    
-    BINARCH=$ARCH ##
-    DISTRIBUTION=$1
-    shift 1
+	ORIGINAL_NAME=1
+	DISTRIBUTION=$1
+	ARCHITECTURE=$REALARCH
+	shift 1
 fi
 
-
-if [ $1 = "i386" ]  || [ $1 = "amd64" ]
+# Check if the choosen architecture is supported on the user's system.
+if [ "$1" = 'i386' ]  || [ "$1" = 'amd64' ]
 then
-    if [ $ARCH = "amd64" ]; then
-        BINARCH=$1
-    else
-        echo "Warning: Architecture switching is not supported on your system; ignoring argument."
-    fi
-    
-    shift 1
+	if [ $REALARCH = 'amd64' ]; then
+		ARCHITECTURE=$1
+	else
+		echo "Warning: Architecture switching is not supported on your system; ignoring argument '$1'."
+	fi
+
+	shift 1
 fi
 
-
-if [ $1 = "mainonly" ]; then
+# Check if there's a component modifier
+if [ "$1" = 'mainonly' ]; then
     EXTRACOMP=0
     shift 1
-elif [ $1 = "allcomp" ]; then
+elif [ "$1" = 'allcomp' ]; then
     EXTRACOMP=1
     shift 1
 fi
 
-
-if [ $1 = "withlog" ]; then
+# Check if the default logging preferences should be overwriten
+if [ "$1" = 'withlog' ]; then
     SAVELOG=1
     shift 1
-elif [ $1 = "nolog" ]; then
+elif [ "$1" = 'nolog' ]; then
     SAVELOG=0
     shift 1
 fi
 
+# Check if some proxy should be used.
+if [ -n "$http_proxy" ]
+then
+	PROXY=$http_proxy
+fi
+
+if [ -z "$PROXY" ] && [ -n "$HTTP_PROXY" ]
+then
+	PROXY=$HTTP_PROXY
+fi
+
+######################################################################
+
+usage()
+{
+	echo "Usage: $0 "$( [ $ORIGINAL_NAME = 0 ] || echo "<distribution> " )$( [ $ARCHITECTURE != "amd64" ] || echo "[i386|amd64] " )"[mainonly|allcomp] [withlog|nolog] <operation>"
+}
 
 distdata()
 {
-    if [ "$1" = "debian" ]
-    then
-        # Set Debian specific data
-        ISDEBIAN=True
-	if [ -z $ARCHIVE ]
+	# Populate variables with Debian / Ubuntu specific data
+	if [ "$1" = "debian" ]
 	then
-        	ARCHIVE="http://ftp.debian.org"
+		# Set Debian specific data
+		
+		ISDEBIAN=True
+		
+		if [ -z $ARCHIVE ]
+		then
+			ARCHIVE="http://ftp.debian.org"
+		fi
+		
+		COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
+	else
+		# Set Ubuntu specific data
+		
+		ISDEBIAN=False
+		
+		if [ -z $ARCHIVE ]
+		then
+			ARCHIVE="http://archive.ubuntu.com/ubuntu"
+		fi
+		
+		COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
 	fi
-        COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
-    else
-        # Set Ubuntu specific data
-        ISDEBIAN=False
-	if [ -z $ARCHIVE ]
-	then
-        	ARCHIVE="http://archive.ubuntu.com/ubuntu"
-	fi
-        COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
-    fi
 }
 
+######################################################################
 
+# Check if there is at least one argument remaining.
+if [ $# -lt 1 ]
+then
+	echo "You provided an insufficent number of arguments."
+	usage
+	exit 1
+fi
+
+######################################################################
+
+# Check if the distribution exists, and fill the variables that change
+# depending on wheter the target distribution is Ubuntu or Debian.
 case $DISTRIBUTION in
-    dapper|edgy|feisty|gutsy|hardy)	# warty|hoary|breezy
+    dapper|edgy|feisty|gutsy|hardy)
         distdata ubuntu
         ;;
     
@@ -144,20 +184,20 @@ case $DISTRIBUTION in
                 exit 1
             fi
         fi
-        distdata
+        
+        distdata ubuntu
         ;;
 esac
 
-
+# Check if the selected operation is correct
 OPERATION=$1
-
-case $OPERATION in
+case "$OPERATION" in
     create|update|build|clean|login|execute)
         shift 1
         ;;
     
     *)
-    	if [ ${1##*.} =  'dsc' ]
+    	if [ ${OPERATION##*.} =  'dsc' ]
     	then
     		OPERATION=build
     	else
@@ -173,26 +213,19 @@ case $OPERATION in
         ;;
 esac
 
-FOLDERBASE="${DISTRIBUTION}-$( ([ "$BINARCH" != "" ] && echo $BINARCH) || echo $ARCH )"
+FOLDERBASE="${DISTRIBUTION}-$ARCHITECTURE"
 
+# Create the folder where the resulting files will be placed (if the
+# option is build), if it doesn't exist yet.
 if [ ! -d $BASE_DIR/${FOLDERBASE}_result ]
 then
     mkdir -p $BASE_DIR/${FOLDERBASE}_result
 fi
 
-if [ $SYSCACHE != 0 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$ARCH" = "$BINARCH" -o -z $BINARCH ]
+# Determine wheter system cache should be used or not.
+if [ $SYSCACHE = 1 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$REALARCH" = "$ARCHITECTURE"]
 then
 		DEBCACHE='/var/cache/apt/archives/'
-fi
-
-if [ -n $http_proxy ] || [ -n $HTTP_PROXY ]
-then
-	if [ -n $http_proxy ]
-	then
-		PROXY=$http_proxy
-	else
-		PROXY=$HTTP_PROXY
-	fi
 fi
 
 if [ $ISDEBIAN = "False" ]
@@ -243,11 +276,11 @@ sudo pbuilder $OPERATION \
 --basetgz "$BASE_DIR/${FOLDERBASE}-base.tgz" \
 --distribution "$DISTRIBUTION" \
 --debootstrapopts --arch \
---debootstrapopts "$BINARCH" \
-$( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
-$( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
-$( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
---buildresult "$BASE_DIR/${FOLDERBASE}_result" \
---mirror "$ARCHIVE" \
---aptconfdir "$BASE_DIR/etc/$DISTRIBUTION/apt.conf/" \
+--debootstrapopts "$ARCHITECTURE" \
+$( [ "$SAVELOG" = 0 ] || echo "--logfile ${BASE_DIR}/.lastlog" ) \
+$( [ -z "$PROXY" ] || echo "--http-proxy ${PROXY}" ) \
+$( [ -z "$DEBCACHE" ] || echo "--aptcache ${DEBCACHE}" ) \
+--buildresult "${BASE_DIR}/${FOLDERBASE}_result" \
+--mirror "${ARCHIVE}" \
+--aptconfdir "${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/" \
 $@

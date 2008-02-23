@@ -18,6 +18,8 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
     remove it's shabang.
   * submittodebian:
      - Check if reportbug is installed and if it isn't throw an error.
+  * suspicious-sources:
+     - Ignore .in files.
   * 404main:
      - Filter out entries from Debian, thanks to Adrien Cunin! (LP: #194704)
   * debian/copyright.

@@ -75,7 +75,7 @@ if [ -z "$section" ]; then
         echo "--section argument. Run $0 --help for more information." >&2
         exit 1
     fi
-    section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted") || section=universe
+    section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted") || section=main
 fi
 
 case $section in

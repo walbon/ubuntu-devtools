@@ -13,7 +13,7 @@ FILES="*.h *.c *.cc *.cpp *.py *.sh *.txt *.text *.3 *.m4 *.xml *.html *.php \
        configure.ac  *.diff *.debdiff *.patch *.dpatch config.sub config.guess \
        depcomp *.docbook  *.desktop *.menu AUTHORS INSTALL NEWS README TODO \
        COPYING LICENSE ChangeLog *.ui *.glade *.gladep *.po *.pot *.ts *.pro \
-       *.svg *.png *.bmp *.gif *.xpm *.hh"
+       *.svg *.png *.bmp *.gif *.xpm *.hh *.in"
 
 IGNORE=".bzr CVS .svn debian"
 
