@@ -31,7 +31,7 @@ def find_main(pack):
 	global packages
 	
 	# Retrieve information about the package
-	out = subprocess.Popen('apt-cache madison ' + pack, shell=True, stdout=subprocess.PIPE).stdout.read()
+	out = subprocess.Popen('apt-cache madison ' + pack + '  | grep hardy | grep Packages | head -n 1', shell=True, stdout=subprocess.PIPE).stdout.read()
 	
 	if out.find("/main") != -1:
 		packages[pack] = True
@@ -41,12 +41,12 @@ def find_main(pack):
 			packages[pack] = False
 		
 		# Retrive package dependencies
-		deps = subprocess.Popen("apt-cache show " + pack + " | grep Depends", shell=True, stdout=subprocess.PIPE).stdout.read().split('\n')[0].replace('Depends: ', '').split(', ')
+		deps = subprocess.Popen("apt-cache show " + pack + " | grep ^Depends | head -n 1", shell=True, stdout=subprocess.PIPE).stdout.read().split('\n')[0].replace('Depends: ', '').split(', ')
 		
 		process_deps(deps)
 		
 		# Retrieve package build dependencies
-		deps1 = subprocess.Popen("apt-cache showsrc " + pack + " | grep Build-Depends", shell=True, stdout=subprocess.PIPE).stdout.readlines()
+		deps1 = subprocess.Popen("apt-cache showsrc " + pack + " | grep ^Build-Depends | head -n 1", shell=True, stdout=subprocess.PIPE).stdout.readlines()
 		deps = []
 		
 		for builddep in deps1:

@@ -5,24 +5,24 @@
 #   Siegfried-A. Gevatter <rainct@ubuntu.com>
 # License: GPLv2 or later
 #
-# This script is a wrapper to use pbuilder with many different
-# distributions / versions. (It was originally created because of
-# bug #255165 in Debian.)
+# This script is a wrapper to be able to easily use pbuilder with
+# differentd istributions (eg, Gutsy, Hardy, Debian unstable, etc).
 #
-# If you want to use this copy of the script only for a single distribution
-# / version, rename it to 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', 
-# or whatever it is. If you have an amd64, you can also use names like
-# 'pbuilder-feisty-i386', etc.
+# You can create symlinks to a pbuilder-dist executable to get different
+# configurations. For example, a symlink called pbuilder-hardy will assume
+# that the target distribution is always Ubuntu Hardy.
 
-# Base directory where pbuilder will put all the files it creates
+# Base directory where pbuilder will put all the files it creates.
 # This is overriden by the global variable $PBUILDFOLDER
 BASE_DIR="$HOME/pbuilder"
 
-# Enable additional components by default? (universe and multiverse in Ubuntu,
-# contrib and non-free in Debian.)
+# Change this to 0 if you don't want additional components to be used.
+# That is, 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
+# and 'non-free' for Debian.
 EXTRACOMP=1
 
-# Save the log of the last operation in a dot-file? ('.lastlog' in BASE_DIR)
+# Change this to 1 if you want the log for the last operation to be saved
+# in the base directory by default (it will be named '.lastlog').
 SAVELOG=0
 
 # Allow this script to use /var/cache/apt/archives/ when possible
@@ -30,8 +30,6 @@ if [ -z $SYSCACHE ]
 then
 	SYSCACHE=1
 fi
-
-CALLDIR=`pwd`
 
 
 ################################
@@ -66,6 +64,7 @@ else
         help show-dist-flag
     fi
     
+    BINARCH=$ARCH ##
     DISTRIBUTION=$1
     shift 1
 fi
@@ -241,14 +240,14 @@ else
 fi
 
 sudo pbuilder $OPERATION \
---basetgz "$BASE_DIR/$FOLDERBASE-base.tgz" \
+--basetgz "$BASE_DIR/${FOLDERBASE}-base.tgz" \
 --distribution "$DISTRIBUTION" \
 --debootstrapopts --arch \
 --debootstrapopts "$BINARCH" \
 $( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
 $( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
 $( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
---buildresult "$BASE_DIR/$FOLDERBASE_result" \
+--buildresult "$BASE_DIR/${FOLDERBASE}_result" \
 --mirror "$ARCHIVE" \
 --aptconfdir "$BASE_DIR/etc/$DISTRIBUTION/apt.conf/" \
 $@
