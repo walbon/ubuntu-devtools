@@ -7,6 +7,9 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
       robust and less code duplication.
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * This upload removes accidentaly uploaded files (LP: #194635, #194618,
+    #194621).
+  * Remove executable bit from AUTHORS file (LP: #194619).
   * debian/control:
      - Change the Vcs-Bzr address to the correct one.
      - Move the reportbug dependency to Recommends.
@@ -30,7 +33,7 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
   [ Daniel Holbach ]
   * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
     ppaput for now. It has shortcomings and is not actively used in the
-    sponsoring process.
+    sponsoring process (LP: #194634).
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Fri, 22 Feb 2008 19:52:59 +0100
 
