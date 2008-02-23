@@ -20,6 +20,11 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
      - Check if reportbug is installed and if it isn't throw an error.
   * suspicious-sources:
      - Ignore .in files.
+  * pbuilder-dist:
+     - Apply patch from James Westby to fix a problem where it always
+       wanted to get the architecture to use as an option (LP: #194633).
+     - Escape many variables to avoid possible problems there.
+     - Reorganize the code a bit and comment it.
   * 404main:
      - Filter out entries from Debian, thanks to Adrien Cunin! (LP: #194704)
   * debian/copyright.
