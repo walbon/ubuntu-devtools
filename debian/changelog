@@ -23,8 +23,12 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
   * pbuilder-dist:
      - Apply patch from James Westby to fix a problem where it always
        wanted to get the architecture to use as an option (LP: #194633).
+     - Fix a recently introduced problem where pbuilder-dist would always
+       want to know the architecture. Thanks to Adrien Cunin for finding
+       where the problem was!
      - Escape many variables to avoid possible problems there.
      - Reorganize the code a bit and comment it.
+     - Accept "upgrade" as an alias for "update".
   * 404main:
      - Filter out entries from Debian, thanks to Adrien Cunin! (LP: #194704)
   * debian/copyright.

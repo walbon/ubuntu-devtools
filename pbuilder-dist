@@ -6,8 +6,8 @@
 #
 # License: GPLv2 or later
 #
-# This script is a wrapper to be able to easily use pbuilder with
-# differentd istributions (eg, Gutsy, Hardy, Debian unstable, etc).
+# This script is a wrapper to be able to easily use pbuilder for
+# different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
 #
 # You can create symlinks to a pbuilder-dist executable to get different
 # configurations. For example, a symlink called pbuilder-hardy will assume
@@ -68,7 +68,6 @@ then
 else
 	ORIGINAL_NAME=1
 	DISTRIBUTION=$1
-	ARCHITECTURE=$REALARCH
 	shift 1
 fi
 
@@ -82,6 +81,12 @@ then
 	fi
 
 	shift 1
+fi
+
+# If architecture hasn't been set yet, use the system's one.
+if [ -z "$ARCHITECTURE" ]
+then
+	ARCHITECTURE=$REALARCH
 fi
 
 # Check if there's a component modifier
@@ -189,19 +194,34 @@ case $DISTRIBUTION in
         ;;
 esac
 
-# Check if the selected operation is correct
+# Save the selected operation in a variable.
 OPERATION=$1
+shift 1
+
+# Check if the selected operation is an alias for another one.
+case "$OPERATION" in
+	upgrade)
+		OPERATION=update
+		;;
+esac
+
+# Check if the selected operation is correct, or if it is an alias for
+# another one.
 case "$OPERATION" in
     create|update|build|clean|login|execute)
-        shift 1
+    	# Allright.
         ;;
+    
+    upgrade)
+    	OPERATION=update
+    	;;
     
     *)
     	if [ ${OPERATION##*.} =  'dsc' ]
     	then
     		OPERATION=build
     	else
-        	echo "Unrecognized argument. Please use one of those:"
+        	echo "Unrecognized argument '$OPERATION'. Please use one of those:"
         	echo "    create"
         	echo "    update"
         	echo "    build"
@@ -213,6 +233,8 @@ case "$OPERATION" in
         ;;
 esac
 
+# Determine the base name for the chroot tarball and the folder where the
+# resulting files will be stored.
 FOLDERBASE="${DISTRIBUTION}-$ARCHITECTURE"
 
 # Create the folder where the resulting files will be placed (if the
@@ -228,6 +250,8 @@ then
 		DEBCACHE='/var/cache/apt/archives/'
 fi
 
+# If it's an Ubuntu system, create an editable configuration file,
+# and if it's a stable release add the -security and -updates repositories.
 if [ $ISDEBIAN = "False" ]
 then
 	if [ ! -d $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ ]
@@ -250,27 +274,27 @@ EOF
 	fi
 fi
 
-if [ -z "$PBUILDAUTH" ]
-then
-	if [ -n "$DESKTOP_SESSION"  ]
-	then
-		case $DESKTOP_SESSION in 
-			gnome )
-				SUDOREPLACE="gksudo -D \"Pbuilder\" "
-				;;
-			kde|kde4 )
-				SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
-				;;
-			* )
-				SUDOREPLACE="sudo"
-				;;
-		esac
-	else
-		SUDOREPLACE=sudo
-	fi
-else
-	SUDOREPLACE=$PBUILDAUTH
-fi
+#if [ -z "$PBUILDAUTH" ]
+#then
+#	if [ -n "$DESKTOP_SESSION"  ]
+#	then
+#		case $DESKTOP_SESSION in 
+#			gnome )
+#				SUDOREPLACE="gksudo -D \"Pbuilder\""
+#				;;
+#			kde|kde4 )
+#				SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
+#				;;
+#			* )
+#				SUDOREPLACE="sudo"
+#				;;
+#		esac
+#	else
+#		SUDOREPLACE=sudo
+#	fi
+#else
+#	SUDOREPLACE=$PBUILDAUTH
+#fi
 
 sudo pbuilder $OPERATION \
 --basetgz "$BASE_DIR/${FOLDERBASE}-base.tgz" \
@@ -282,5 +306,5 @@ $( [ -z "$PROXY" ] || echo "--http-proxy ${PROXY}" ) \
 $( [ -z "$DEBCACHE" ] || echo "--aptcache ${DEBCACHE}" ) \
 --buildresult "${BASE_DIR}/${FOLDERBASE}_result" \
 --mirror "${ARCHIVE}" \
---aptconfdir "${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/" \
+$( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
 $@
