@@ -29,8 +29,12 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
      - Escape many variables to avoid possible problems there.
      - Reorganize the code a bit and comment it.
      - Accept "upgrade" as an alias for "update".
+     - Hide lsb_release's traceback if pbuilder-dist is manually aborted
+       while the distribution was being detected.
   * 404main:
      - Filter out entries from Debian, thanks to Adrien Cunin! (LP: #194704)
+     - Add limited support for multiple distributions (and update it's manpage).
+     - TODO: Use python-apt instead of lots of pipes.
   * debian/copyright.
      - Add ppaput (the executable has been removed for now -see below-,
        but there is still the module in the source package).
