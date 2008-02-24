@@ -1,10 +1,21 @@
-ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.28) UNRELEASED; urgency=low
+
+  * 
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:52:06 +0100
+
+ubuntu-dev-tools (0.27) hardy; urgency=low
 
   [ Andrew Hunter ]
   * ppaput:
     - Separated ppaput script from backend python modules (LP: #192184).
     - Switched from homegrown option parseing to Optparse, much more
       robust and less code duplication.
+
+  [ Daniel Holbach ]
+  * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
+    ppaput for now. It has shortcomings and is not actively used in the
+    sponsoring process (LP: #194634).
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * This upload removes accidentaly uploaded files (LP: #194635, #194618,
@@ -22,21 +33,24 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
      - Ignore .in files.
   * pbuilder-dist:
      - Apply patch from James Westby to fix a problem where it always
-       wanted to get the architecture to use as an option (LP: #194633).
+       wanted to get the architecture to use as an option if a symlink
+       was being used .
      - Fix a recently introduced problem where pbuilder-dist would always
-       want to know the architecture. Thanks to Adrien Cunin for finding
-       where the problem was!
+       want to know the architecture if a symlink was being used. Thanks to
+       Adrien Cunin and James Westby for their help on this (LP: #194633).
      - Escape many variables to avoid possible problems there.
      - Reorganize the code a bit and comment it.
      - Accept "upgrade" as an alias for "update".
      - Hide lsb_release's traceback if pbuilder-dist is manually aborted
        while the distribution was being detected.
   * 404main:
-     - Filter out entries from Debian, thanks to Adrien Cunin! (LP: #194704)
-     - Add limited support for multiple distributions (and update it's manpage).
+     - Try to filter out entries from Debian and PPAs, thanks to Adrien
+       Cunin! (LP: #194704)
+     - Add limited support for multiple distributions (and update they
+       manpage to reflect this).
      - TODO: Use python-apt instead of lots of pipes.
   * debian/copyright.
-     - Add ppaput (the executable has been removed for now -see below-,
+     - Add ppaput (the executable has been removed for now -see above-,
        but there is still the module in the source package).
   * debian/pycompat:
      - Remove it, as it is not necessary for python-central.
@@ -47,12 +61,7 @@ ubuntu-dev-tools (0.27) UNRELEASED; urgency=low
        name contains hypens.
      - Add support for native packages.
 
-  [ Daniel Holbach ]
-  * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
-    ppaput for now. It has shortcomings and is not actively used in the
-    sponsoring process (LP: #194634).
-
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Fri, 22 Feb 2008 19:52:59 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:11:06 +0100
 
 ubuntu-dev-tools (0.26) hardy; urgency=low
 
