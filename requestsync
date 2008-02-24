@@ -288,8 +288,8 @@ if __name__ == '__main__':
         else:
             subscribe = 'ubuntu-universe-sponsors'
 
-    report = 'Please sync %s %s (%s) from Debian unstable (%s).\n\n' % (srcpkg, deb_version, component, debiancomponent)
-    title = report[:-2]
+    report = 'Please sync %s %s (%s) from Debian unstable (%s).\n' % (srcpkg, deb_version, component, debiancomponent)
+    title = report[:-1]
     
     base_ver = cur_ver
     uidx = base_ver.find('ubuntu')
@@ -301,8 +301,8 @@ if __name__ == '__main__':
         print 'Please edit the report and give an explanation.'
         print 'Press ENTER to start your editor. Press Control-C to abort now. Not saving the report file will abort the request, too.'
         wait_for_enter_or_exit()
-        report += '\nExplanation of the Ubuntu delta and why it can be dropped:\n\n' + \
-                  'ENTER_EXPLANATION_HERE\n\n'
+        report += '\nExplanation of the Ubuntu delta and why it can be dropped:\n' + \
+                  '>>> ENTER_EXPLANATION_HERE <<<\n\n\n'
 
     uidx = base_ver.find('build')
     if uidx > 0:
