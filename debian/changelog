@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.28) UNRELEASED; urgency=low
 
-  * 
+  * pbuilder-dist-simple, doc/pbuilder-dist-simple.1, setup.py:
+     - Add the original pbuilder-dist script as pbuilder-dist-simple.
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:52:06 +0100
 
