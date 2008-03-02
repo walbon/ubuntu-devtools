@@ -245,7 +245,7 @@ then
 fi
 
 # Determine wheter system cache should be used or not.
-if [ $SYSCACHE = 1 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$REALARCH" = "$ARCHITECTURE"]
+if [ $SYSCACHE = 1 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$REALARCH" = "$ARCHITECTURE" ]
 then
 		DEBCACHE='/var/cache/apt/archives/'
 fi
@@ -306,5 +306,5 @@ $( [ -z "$PROXY" ] || echo "--http-proxy ${PROXY}" ) \
 $( [ -z "$DEBCACHE" ] || echo "--aptcache ${DEBCACHE}" ) \
 --buildresult "${BASE_DIR}/${FOLDERBASE}_result" \
 --mirror "${ARCHIVE}" \
-$( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
+$( [ $ISDEBIAN != "False" ] || echo "--aptconfdir ${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/" ) \
 $@
