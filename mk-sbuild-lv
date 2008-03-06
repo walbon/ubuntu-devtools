@@ -20,7 +20,7 @@
 # detect the chroot architecture:
 #   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
 #
-# Version: 0.11
+# Version: 0.12
 
 set -e
 
@@ -87,6 +87,7 @@ function usage()
     echo "Options:"
     echo "  --arch=ARCH                What architecture to select"
     echo "  --name=NAME                Base name for the schroot (arch is appended)"
+    echo "  --personality=PERSONALITY  What personality to use"
     echo "  --debug                    Turn on script debugging"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
@@ -97,7 +98,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,arch:,name:,source-template:,debootstrap-mirror:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,arch:,name:,source-template:,debootstrap-mirror:,personality:" -- "$@"`
 eval set -- "$OPTS"
 
 name=""
@@ -111,6 +112,10 @@ while :; do
             # By default, use the native architecture.
             arch_opt="--arch $2"
             arch_suffix="-$2"
+            shift 2
+            ;;
+        --personality)
+            personality="$2"
             shift 2
             ;;
         --name)
@@ -222,6 +227,9 @@ lvm-snapshot-options=--size 4G
 run-setup-scripts=true
 run-exec-scripts=true
 EOM
+fi
+if [ ! -z "$personality" ]; then
+    echo "personality=$personality" >> "$TEMP_SCHROOTCONF"
 fi
 cat "$TEMP_SCHROOTCONF" | sed \
         -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
