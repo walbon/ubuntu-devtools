@@ -6,7 +6,11 @@ ubuntu-dev-tools (0.28) UNRELEASED; urgency=low
      - Removed quotes around the path when using --aptconfdir, otherwise
        pbuilder create fails
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:52:06 +0100
+  [ Kees Cook ]
+  * mk-sbuild-lv: add --personality option from Jamie Strandboge (LP: #199181)
+  * check-symbols: rename temp files to avoid .so versioning confusion.
+
+ -- Kees Cook <kees@ubuntu.com>  Thu, 06 Mar 2008 11:05:02 -0800
 
 ubuntu-dev-tools (0.27) hardy; urgency=low
 
