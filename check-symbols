@@ -30,7 +30,7 @@ do
     for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
     do
         LIBNAME=$(basename $lib);
-        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.1;
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.old;
     done;
     DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "; 
 done
@@ -58,9 +58,9 @@ do
     for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
     do
         LIBNAME=$(basename $lib);
-        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.2;
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.new;
         echo "Checking: $lib";
-        diff -u /tmp/$LIBNAME.{1,2};
-        rm /tmp/$LIBNAME.{1,2};
+        diff -u /tmp/$LIBNAME.{old,new};
+        rm /tmp/$LIBNAME.{old,new};
     done;
 done   
