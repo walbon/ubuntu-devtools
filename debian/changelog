@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.28) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.28) hardy; urgency=low
 
   [ Adrien Cunin ]
   * pbuilder-dist:
