@@ -87,7 +87,7 @@ function usage()
     echo "Options:"
     echo "  --arch=ARCH                What architecture to select"
     echo "  --name=NAME                Base name for the schroot (arch is appended)"
-    echo "  --personality=PERSONALITY  What personality to use"
+    echo "  --personality=PERSONALITY  What personality to use (defaults match --arch)"
     echo "  --debug                    Turn on script debugging"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
@@ -112,6 +112,10 @@ while :; do
             # By default, use the native architecture.
             arch_opt="--arch $2"
             arch_suffix="-$2"
+			if [ -z "$personality" -a "$2" = "i386" ]
+			then
+				personality="linux32"
+			fi
             shift 2
             ;;
         --personality)
