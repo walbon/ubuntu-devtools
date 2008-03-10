@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.29) hardy; urgency=low
+
+  * grab-attachments, setup.py: added grab-attachments tool. You give it bug
+    numbers, it gets you their attachments. Useful for sponsoring. 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 10 Mar 2008 11:31:50 +0100
+
 ubuntu-dev-tools (0.28) hardy; urgency=low
 
   [ Adrien Cunin ]
