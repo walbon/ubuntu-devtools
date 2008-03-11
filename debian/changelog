@@ -1,9 +1,32 @@
-ubuntu-dev-tools (0.28) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.30) UNRELEASED; urgency=low
 
   * pbuilder-dist-simple, doc/pbuilder-dist-simple.1, setup.py:
      - Add the original pbuilder-dist script as pbuilder-dist-simple.
+  * pbuilder-dist:
+     - Rewrite the script in Python to make it more robust and faster.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:52:06 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Wed, 12 Mar 2008 00:42:55 +0100
+
+ubuntu-dev-tools (0.29) hardy; urgency=low
+
+  * grab-attachments, setup.py: added grab-attachments tool. You give it bug
+    numbers, it gets you their attachments. Useful for sponsoring. 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 10 Mar 2008 11:31:50 +0100
+
+ubuntu-dev-tools (0.28) hardy; urgency=low
+
+  [ Adrien Cunin ]
+  * pbuilder-dist:
+     - Fixed minor bash syntax error
+     - Removed quotes around the path when using --aptconfdir, otherwise
+       pbuilder create fails
+
+  [ Kees Cook ]
+  * mk-sbuild-lv: add --personality option from Jamie Strandboge (LP: #199181)
+  * check-symbols: rename temp files to avoid .so versioning confusion.
+
+ -- Kees Cook <kees@ubuntu.com>  Thu, 06 Mar 2008 11:05:02 -0800
 
 ubuntu-dev-tools (0.27) hardy; urgency=low
 

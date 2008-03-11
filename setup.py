@@ -31,7 +31,8 @@ setup(name='ubuntu-dev-tools',
                'massfile',
                'submittodebian',
                'get-build-deps',
-               'dgetlp'
+               'dgetlp',
+               'grab-attachments'
             ],
     packages=['ubuntutools'],
 )
