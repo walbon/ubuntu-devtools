@@ -156,11 +156,14 @@ class pbuilder_dist:
 		arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
 		
 		if operation not in arguments:
-			print 'Error: «%s» is not a recognized argument.' % operation
-			print 'Please use one of those: ' + ', '.join(arguments) + '.'
-			sys.exit(1)
-		
-		self.operation = operation
+			if item_ends_with(arguments, '.dsc'):
+					self.operation = 'build'
+			else:
+				print 'Error: «%s» is not a recognized argument.' % operation
+				print 'Please use one of those: ' + ', '.join(arguments) + '.'
+				sys.exit(1)
+		else:
+			self.operation = operation
 	
 	def get_command(self, remaining_arguments = None):
 		""" pbuilder_dist.get_command -> string
@@ -180,6 +183,7 @@ class pbuilder_dist:
 			'--buildresult "%(base)s/%(chroot_string)s_result/"' % self,
 			'--logfile "%(logfile)s"' % self,
 			'--aptcache "/var/cache/apt/archives/"',
+			### --mirror "${ARCHIVE}" \
 			]
 		
 		if self.build_architecture != self.system_architecture:
@@ -189,12 +193,13 @@ class pbuilder_dist:
 		if self.proxy:
 			arguments.append('--http-proxy "%(proxy)s"' % self)
 		
-		return self.auth + ' /usr/sbin/pbuilder ' + ' '.join(arguments)
+		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
 		
-		"""
-		--mirror "${ARCHIVE}" \
-		$( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
-		$@"""
+		# Append remaining arguments
+		if remaining_arguments:
+			arguments.extend(remaining_arguments)
+		
+		return self.auth + ' /usr/sbin/pbuilder ' + ' '.join(arguments)
 
 def host_architecture():
 	""" host_architecture -> string
@@ -205,6 +210,20 @@ def host_architecture():
 	"""
 	
 	return os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386').replace('i686', 'i386')
+
+def item_ends_with(list, string):
+	""" item_ends_with(list, string) -> bool
+	
+	Return True if one of the items in list ends with the given string,
+	or else return False.
+	
+	"""
+	
+	for item in list:
+		if item.endswith(string):
+			return True
+	
+	return False
 
 def ask(question):
 	""" ask(question) -> string
@@ -294,8 +313,10 @@ def main():
 		print 'Insufficient number of arguments.'
 		help(1)
 	
+	# Parse the operation
 	app.set_operation(args.pop(0))
 	
+	# Execute the pbuilder command
 	sys.exit(os.system(app.get_command(args)))
 
 if __name__ == '__main__':
