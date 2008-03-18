@@ -32,7 +32,8 @@ setup(name='ubuntu-dev-tools',
                'submittodebian',
                'get-build-deps',
                'dgetlp',
-               'grab-attachments'
+               'reverse-build-depends',
+               'grab-attachments',
             ],
     packages=['ubuntutools'],
 )
