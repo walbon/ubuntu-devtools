@@ -30,4 +30,6 @@ _pbuilder-dist()
 
     return 0
 }
-[ "$have" ] && complete -F _pbuilder-dist -o filenames pbuilder-dist
+[ "$have" ] && complete -F _pbuilder-dist -o filenames \
+pbuilder-{dist,dapper,edgy,feisty,gutsy,hardy,intrepid,sarge,etch,lenny,sid}
+# Make it pbuilder-* if you know how to do it
