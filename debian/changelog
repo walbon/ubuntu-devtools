@@ -1,12 +1,19 @@
-ubuntu-dev-tools (0.30) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
+
+  * pbuilder-dist:
+     - Rewrite the script in Python to make it more robust and faster.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Tue, 08 Apr 2008 16:48:35 +0200
+
+ubuntu-dev-tools (0.30) hardy; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * pbuilder-dist-simple, doc/pbuilder-dist-simple.1, setup.py:
      - Add the original pbuilder-dist script as pbuilder-dist-simple.
-  * pbuilder-dist:
-     - Rewrite the script in Python to make it more robust and faster.
   * setup.py:
      - Really install reverse-build-depends (LP: #203523).
+  * debian/source.lintian-overrides:
+     - Override lintian's useless warnings (about this being a NMU).
 
   [ Adrien Cunin ]
   * debian/ubuntu-dev-tools.install: install bash_completion/pbuilder-dist in
@@ -14,7 +21,7 @@ ubuntu-dev-tools (0.30) UNRELEASED; urgency=low
   * bash_completion/pbuilder-dist: apply the completion not only to
     pbuilder-dist but also to pbuilder-{hardy,sid,etc.}
 
- -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 23 Mar 2008 21:51:28 +0100
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Tue, 08 Apr 2008 16:33:52 +0200
 
 ubuntu-dev-tools (0.29) hardy; urgency=low
 
