@@ -31,10 +31,6 @@ class pbuilder_dist:
 		# and 'non-free' for Debian.
 		self.extra_components = True
 		
-		# Wheter the log for the last operation should be saved in the
-		# base directory by default. If False, it will be saved in /tmp.
-		self.save_log = False
-		
 		# File where the log of the last operation will be saved.
 		self.logfile = None
 		
@@ -119,8 +115,6 @@ class pbuilder_dist:
 			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
 		
 		if not self.logfile:
-			self.logfile = '/etc/pbuilder-%(chroot_string)s.log' % self
-		else:
 			self.logfile = '%(base)s/.%(chroot_string)s.log' % self
 	
 	def set_target_distro(self, distro):
@@ -304,10 +298,6 @@ def main():
 	if 'mainonly' in sys.argv:
 		app.extra_components = False
 		args.remove('mainonly')
-	
-	if 'withlog' in sys.argv:
-		app.save_log = True
-		args.remove('withlog')
 	
 	if len(args) < 1:
 		print 'Insufficient number of arguments.'
