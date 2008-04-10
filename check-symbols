@@ -13,30 +13,40 @@ DEBLINE=""
 DEBUG=False
 
 if [[ -z $1 ]]; then
-    echo "Missing argument: source package name.";
-    exit;
+    echo "Missing argument: source package name."
+    exit 1
 fi
 
 if [[ -z $2 ]]; then
-    DEBDIR="/var/cache/pbuilder/result";
+    DEBDIR="/var/cache/pbuilder/result"
 else
-    DEBDIR="$2";
+    DEBDIR="$2"
+fi
+
+if [ `id -u` != "0" ]
+then
+    echo
+    echo -n "You might now be asked for your password, as this script requires"
+    echo " sudo privilegies in order to install the packages you want to check."
+    echo
 fi
 
 sudo apt-get install $PACKAGES
+echo
 
 for pack in $PACKAGES;
 do
-    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
+    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`
     do
-        LIBNAME=$(basename $lib);
-        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.old;
+        LIBNAME=$(basename $lib)
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.old
     done;
-    DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "; 
+    DEBLINE="$DEBLINE $DEBDIR/$pack*.deb "
 done
 
 if [[ -z $DEBLINE ]]; then
-    echo "Package doesn't exist: $1."; exit
+    echo "Package doesn't exist: $1."
+    exit 1
 fi
 
 NOFILE=True
@@ -48,19 +58,21 @@ for filename in $DEBLINE; do
 done
 
 if [[ $NOFILE == True ]]; then
-    echo "No matching binary files found in «$DEBDIR»."; exit
+    echo "No matching binary files found in «$DEBDIR»."
+    exit 1
 fi
 
 sudo dpkg -i $DEBLINE;
+echo
 
 for pack in $PACKAGES;
 do
-    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`;
+    for lib in `dpkg -L $pack | grep -E "\.so$" | sort -u`
     do
-        LIBNAME=$(basename $lib);
-        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.new;
-        echo "Checking: $lib";
-        diff -u /tmp/$LIBNAME.{old,new};
-        rm /tmp/$LIBNAME.{old,new};
+        LIBNAME=$(basename $lib)
+        nm -D $lib | cut -d' ' -f3 | sort -u > /tmp/$LIBNAME.new
+        echo "Checking: $lib"
+        diff -u /tmp/$LIBNAME.{old,new}
+        rm /tmp/$LIBNAME.{old,new}
     done;
 done  
