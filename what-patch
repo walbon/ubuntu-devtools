@@ -44,7 +44,7 @@ fi
 
 for filename in $(echo "debian/rules"; grep ^include debian/rules | fgrep -v '$(' | awk '{print $2}')
 do
-	fgrep patchsys.mk "$filename" | grep -q -v "^#" && { echo "cdbs"; exit 0; }
+	fgrep patchsys.mk "$filename" | grep -q -v "^#" && { echo "cdbs (patchsys.mk)"; exit 0; }
 	fgrep quilt "$filename" | grep -q -v "^#" && { echo "quilt"; exit 0; }
 	fgrep dbs-build.mk "$filename" | grep -q -v "^#" && { echo "dbs"; exit 0; }
 	fgrep dpatch "$filename" | grep -q -v "^#" && { echo "dpatch"; exit 0; }

@@ -2,6 +2,10 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
 
   * pbuilder-dist:
      - Rewrite the script in Python to make it more robust and faster.
+     - ^^^ NOT FINISHED YET, DO NOT UPLOAD THIS! ^^^
+  * what-patch:
+     - If cdbs-edit-patch is used, output "cdbs (patchsys.mk)" instead of
+       just "cdbs" (LP: #195795).
 
  -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Tue, 08 Apr 2008 16:48:35 +0200
 
