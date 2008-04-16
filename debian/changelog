@@ -3,9 +3,11 @@ ubuntu-dev-tools (0.31) hardy; urgency=low
   * requestsync:
     - Use debian_bundle.changelog.Version for version comparison in
       debian_changelog.
-    - Fix --lp for Firefox 3: it now tries ~/.lpcookie.txt,
-      ~/.mozilla/*/*/cookies.sqlite and ~/.mozilla/*/*/cookies.txt to find
-      a Launchpad cookie file
+    - Fix --lp for Firefox 3 (LP: 208808):
+      It now tries ~/.lpcookie.txt, ~/.mozilla/*/*/cookies.sqlite and
+      ~/.mozilla/*/*/cookies.txt to find a Launchpad cookie file.
+      Also added a hint that you can create a valid file, by logging into
+      Launchpad with Firefox.
     - Added confirm loops, which displays the message to be send/posted and
       either allows to edit (or forces to, in case of Ubuntu changes).
       (LP: #194613, #194615)

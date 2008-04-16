@@ -249,6 +249,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
 
         if launchpad_cookiefile == None:
             print >> sys.stderr, 'Could not find cookie file for Launchpad (looked in %s)' % ", ".join(try_globs)
+            print >> sys.stderr, 'You should be able to create a valid file by logging into Launchpad with Firefox'
             return False
 
     if source_package:
