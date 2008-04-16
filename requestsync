@@ -6,6 +6,7 @@
 # Martin Pitt <martin.pitt@ubuntu.com>
 # Steve Kowalik <stevenk@ubuntu.com>
 # Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
+# Daniel Hahler (http://daniel.hahler.de/)
 #
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
@@ -272,7 +273,10 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     Bug.authentication = launchpad_cookiefile
 
     bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
-    bug.importance = 'Wishlist'
+    try:
+        bug.importance = 'Wishlist'
+    except IOError, s:
+        print "Warning: setting importance failed: %s" % s
     bug.status = status
     bug.subscriptions.add(subscribe)
     bug.commit()
