@@ -14,6 +14,7 @@ ubuntu-dev-tools (0.31) hardy; urgency=low
     - Do not fallback to submitting by email, if posting to Launchpad failed.
       This hasn't been requested and therefore should not get done.
     - post_bug: Catch IOError when setting bug importance (LP: #190061)
+    - mail_bug: Catch socket.error (LP: #190739)
 
  -- Daniel Hahler <ubuntu@thequod.de>  Wed, 16 Apr 2008 01:57:41 +0200
 

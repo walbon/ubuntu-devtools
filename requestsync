@@ -127,6 +127,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     Return True if email successfully send, otherwise False.'''
     
     import smtplib
+    import socket
 
     to = 'new@bugs.launchpad.net'
 
@@ -192,7 +193,12 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         mailserver_port = 25
 
     # connect to the server
-    s = smtplib.SMTP(mailserver, mailserver_port)
+    try:
+        s = smtplib.SMTP(mailserver, mailserver_port)
+    except socket.error, s:
+        print "ERROR: Could not connect to mailserver %s at port %s: %s (%i)" % \
+            (mailserver, mailserver_port, s[1], s[0])
+        return False
 
     # authenticate to the server
     mailserver_user = os.getenv('DEBSMTP_USER')
