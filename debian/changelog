@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * pbuilder-dist:
      - Rewrite the script in Python to make it more robust and faster.
      - ^^^ NOT FINISHED YET, DO NOT UPLOAD THIS! ^^^
@@ -11,7 +12,26 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
        in order to run this script (LP: #194622).
      - End with exit code 1 if there's an error.
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Tue, 08 Apr 2008 16:48:35 +0200
+  [ Daniel Hahler ]
+  * requestsync:
+     - Use debian_bundle.changelog.Version for version comparison in
+       debian_changelog.
+     - Fix --lp for Firefox 3 (LP: 208808):
+       It now tries ~/.lpcookie.txt, ~/.mozilla/*/*/cookies.sqlite and
+       ~/.mozilla/*/*/cookies.txt to find a Launchpad cookie file.
+       Also added a hint that you can create a valid file, by logging into
+       Launchpad with Firefox.
+     - Added confirm loops, which displays the message to be send/posted and
+       either allows to edit (or forces to, in case of Ubuntu changes).
+       (LP: #194613, #194615)
+       This adds a convient edit_report method, which gets used both from the
+       Launchpad and mail code path.
+     - Do not fallback to submitting by email, if posting to Launchpad failed.
+       This hasn't been requested and therefore should not get done.
+     - post_bug: Catch IOError when setting bug importance (LP: #190061)
+     - mail_bug: Catch socket.error (LP: #190739)
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Wed, 16 Apr 2008 14:18:27 +0200
 
 ubuntu-dev-tools (0.30) hardy; urgency=low
 

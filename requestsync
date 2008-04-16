@@ -6,10 +6,21 @@
 # Martin Pitt <martin.pitt@ubuntu.com>
 # Steve Kowalik <stevenk@ubuntu.com>
 # Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
+# Daniel Hahler <ubuntu@thequod.de>
 #
 # License: GPLv2, see /usr/share/common-licenses/GPL
 
 import os, sys, urllib, subprocess, getopt
+from debian_bundle.changelog import Version
+
+# Set this to the path of your Launchpad cookie file, when using
+# python-launchpad-bugs support (--lp).
+# The following will be tried automatically, if unset (first match gets used):
+# 1. ~/.lpcookie.txt
+# 2. ~/.mozilla/*/*/cookies.sqlite
+# 3. ~/.mozilla/*/*/cookies.txt
+launchpad_cookiefile = None
+
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -54,13 +65,17 @@ def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
     (exclusive).'''
 
+    base_version = Version(version)
+
     ch = ''
     subdir = sourcepkg[0]
     if sourcepkg.startswith('lib'):
         subdir = 'lib%s' % sourcepkg[3]
     for l in urllib.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg)):
-        if l.startswith(sourcepkg) and l.find(version + ')') > 0:
-            break
+        if l.startswith(sourcepkg):
+            ch_version = l[ l.find("(")+1 : l.find(")") ]
+            if Version(ch_version) <= base_version:
+                break
         ch += l
 
     return ch
@@ -83,10 +98,10 @@ def debian_component(sourcepkg):
         component = raw_comp[1].strip()
     return component
 
-def wait_for_enter_or_exit():
-    """Helper function to wait for ENTER and catch Control-C for abortion."""
+def raw_input_exit_on_ctrlc(*args, **kwargs):
+    """A wrapper around raw_input() to exit with a normalized message on Control-C"""
     try:
-        raw_input()
+        return raw_input(*args, **kwargs)
     except KeyboardInterrupt:
         print 'Abort requested. No sync request filed.'
         sys.exit(1)
@@ -112,6 +127,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     Return True if email successfully send, otherwise False.'''
     
     import smtplib
+    import socket
 
     to = 'new@bugs.launchpad.net'
 
@@ -120,6 +136,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         print >> sys.stderr, 'The environment variable DEBEMAIL needs to be set to make use of this script.'
         return False
 
+    # generate initial mailbody
     mailbody = ''
     if source_package:
         mailbody += ' affects ubuntu/%s\n' % source_package
@@ -127,7 +144,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         mailbody += ' affects ubuntu\n'
     mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n\n%s' % (status, subscribe, bugtext)
 
-    # sign it
+    # prepare sign_command
     sign_command = 'gpg'
     for cmd in ('gpg2', 'gnome-gpg'):
         if os.access('/usr/bin/%s' % cmd, os.X_OK):
@@ -137,17 +154,29 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     if keyid:
         gpg_command.extend(('-u', keyid))
 
-    gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-    signed_report = gpg.communicate(mailbody)[0]
-    assert gpg.returncode == 0
+    in_confirm_loop = True
+    while in_confirm_loop:
+        # sign it
+        gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+        signed_report = gpg.communicate(mailbody)[0]
+        assert gpg.returncode == 0
 
-    # generate email
-    mail = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (myemailaddr, to, bugtitle, signed_report)
+        # generate email
+        mail = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (myemailaddr, to, bugtitle, signed_report)
 
-    print mail
-
-    print 'Press ENTER to file this bug, Control-C to abort.'
-    wait_for_enter_or_exit()
+        # ask for confirmation and allow to edit:
+        print mail
+        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
+        while 1:
+            val = raw_input_exit_on_ctrlc()
+            if val.lower() in ('y', 'yes'):
+                (bugtitle, mailbody) = edit_report(bugtitle, mailbody)
+                break
+            elif val.lower() in ('n', 'no', ''):
+                in_confirm_loop = False
+                break
+            else:
+                print "Invalid answer"
 
     # get server address
     mailserver = os.getenv('DEBSMTP')
@@ -164,7 +193,12 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         mailserver_port = 25
 
     # connect to the server
-    s = smtplib.SMTP(mailserver, mailserver_port)
+    try:
+        s = smtplib.SMTP(mailserver, mailserver_port)
+    except socket.error, s:
+        print "ERROR: Could not connect to mailserver %s at port %s: %s (%i)" % \
+            (mailserver, mailserver_port, s[1], s[0])
+        return False
 
     # authenticate to the server
     mailserver_user = os.getenv('DEBSMTP_USER')
@@ -189,23 +223,34 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
 def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     '''Use python-launchpad-bugs to submit the sync request.
-    Return True if email successfully send, otherwise False.'''
+    Return True if successfully posted, otherwise False.'''
 
     import glob, os.path
+    global launchpad_cookiefile
 
     try:
         import launchpadbugs.connector
     except ImportError:
         print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
-        print >> sys.stderr, 'Falling back to submitting per email.'
         return False
 
     # Search cookiefile (for authentication to lp)
-    try:
-        cookiefile = glob.glob(os.path.expanduser('~/.mozilla/*/*/cookies.txt'))[0]
-    except IndexError:
-        print >> sys.stderr, 'Could not find Firefox cookie file'
-        return False
+    if launchpad_cookiefile == None:
+        try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite', '~/.mozilla/*/*/cookies.txt')
+        for try_glob in try_globs:
+            try:
+                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
+            except IndexError:
+                continue
+            # Found:
+            launchpad_cookiefile = cookiefile
+            print "Using cookie file at %s" % launchpad_cookiefile
+            break
+
+        if launchpad_cookiefile == None:
+            print >> sys.stderr, 'Could not find cookie file for Launchpad (looked in %s)' % ", ".join(try_globs)
+            print >> sys.stderr, 'You should be able to create a valid file by logging into Launchpad with Firefox'
+            return False
 
     if source_package:
         product = {'name': source_package, 'target': 'ubuntu'}
@@ -213,17 +258,32 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
         # new source package
         product = {'name': 'ubuntu'}
 
-    print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
+    in_confirm_loop = True
+    while in_confirm_loop:
+        print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
 
-    print 'Press ENTER to file this bug, Control-C to abort.'
-    wait_for_enter_or_exit()
+        # ask for confirmation and allow to edit:
+        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
+        while 1:
+            val = raw_input_exit_on_ctrlc()
+            if val.lower() in ('y', 'yes'):
+                (bugtitle, bugtext) = edit_report(bugtitle, bugtext)
+                break
+            elif val.lower() in ('n', 'no', ''):
+                in_confirm_loop = False
+                break
+            else:
+                print "Invalid answer"
 
     # Create bug
     Bug = launchpadbugs.connector.ConnectBug()
-    Bug.authentication = cookiefile
+    Bug.authentication = launchpad_cookiefile
 
     bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
-    bug.importance = 'Wishlist'
+    try:
+        bug.importance = 'Wishlist'
+    except IOError, s:
+        print "Warning: setting importance failed: %s" % s
     bug.status = status
     bug.subscriptions.add(subscribe)
     bug.commit()
@@ -231,6 +291,54 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     print 'Sync request filed as bug #%i: https://launchpad.net/bugs/%i' % (bug.bugnumber, bug.bugnumber)
 
     return True
+
+def edit_report(subject, body, changes_required=False):
+    """Edit a report (consisting of subject and body) in sensible-editor.
+    
+    subject and body get decorated, before they are written to the temporary
+    file and undecorated after editing again.
+    If changes_required is True and the file has not been edited
+    (according to its mtime), an error is written to STDERR and the
+    program exits.
+    Returns (new_subject, new_body).
+    """
+    import re, string
+
+    report = "Summary (one line):\n%s\n\nDescription:\n%s" % (subject, body)
+
+    # Create tempfile and remember mtime
+    import tempfile
+    report_file = tempfile.NamedTemporaryFile( prefix='requestsync_' )
+    report_file.file.write(report)
+    report_file.file.flush()
+    mtime_before = os.stat( report_file.name ).st_mtime
+
+    # Launch editor
+    try:
+        editor = subprocess.check_call( ['sensible-editor', report_file.name] )
+    except subprocess.CalledProcessError, e:
+        print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
+        sys.exit(1)
+
+    # Check if the tempfile has been changed
+    if changes_required:
+        report_file_info = os.stat( report_file.name )
+        if mtime_before == os.stat( report_file.name ).st_mtime:
+            print >> sys.stderr, 'The temporary file %s has not been changed, but you have\nto explain why the Ubuntu changes can be dropped. Aborting. [Press ENTER]' % (report_file.name,)
+            raw_input()
+            sys.exit(1)
+
+    report_file.file.seek(0)
+    report = report_file.file.read()
+    report_file.file.close()
+
+    # Undecorate report again:
+    (new_subject, new_body) = report.split("\nDescription:\n", 1)
+    # Remove prefix and whitespace for subject:
+    new_subject = string.rstrip( re.sub("\n", " ", re.sub("^Summary \(one line\):\s*", "", new_subject, 1)) )
+
+    return (new_subject, new_body)
+
 
 #
 # entry point
@@ -242,7 +350,6 @@ if __name__ == '__main__':
     keyid = None
     use_lp_bugs = False
     need_interaction = False
-    edit_report = False
 
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsk:', ('lp'))
@@ -292,12 +399,13 @@ if __name__ == '__main__':
         base_ver = base_ver[:uidx]
         need_interaction = True
 
-        print 'There have been changes made in Ubuntu.'
+        print 'Changes have been made to the package in Ubuntu.'
         print 'Please edit the report and give an explanation.'
-        print 'Press ENTER to start your editor. Press Control-C to abort now. Not saving the report file will abort the request, too.'
-        wait_for_enter_or_exit()
-        report += '\nExplanation of the Ubuntu delta and why it can be dropped:\n\n' + \
-                  'ENTER_EXPLANATION_HERE\n\n'
+        print 'Press ENTER to start your editor. Press Control-C to abort now.'
+        print 'Not saving the report file will abort the request, too.'
+        raw_input_exit_on_ctrlc()
+        report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' + \
+                  '>>> ENTER_EXPLANATION_HERE <<<\n\n'
 
     uidx = base_ver.find('build')
     if uidx > 0:
@@ -309,47 +417,21 @@ if __name__ == '__main__':
     report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
-    # Do we want to edit the report?
     if need_interaction:
-        edit_report = True
-    else:
-        val = raw_input('Do you want to edit the report [y/N]? ')
-        if val.lower() in ('y', 'yes'):
-            edit_report = True
+        report = edit_report(title, report, changes_required=True)
 
-    if edit_report:
-        # Create tempfile and remember mtime
-        import tempfile
-        report_file = tempfile.NamedTemporaryFile( prefix='requestsync_' )
-        report_file.file.write(report)
-        report_file.file.flush()
-        mtime_before = os.stat( report_file.name ).st_mtime
-
-        # Launch editor
-        try:
-            editor = subprocess.check_call( ['sensible-editor', report_file.name] )
-        except subprocess.CalledProcessError, e:
-            print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
-            sys.exit(1)
-
-        # Check if the tempfile has been changed
-        report_file_info = os.stat( report_file.name )
-        if mtime_before == os.stat( report_file.name ).st_mtime:
-            print >> sys.stderr, 'The temporary file %s has not been changed. Aborting. [Press ENTER]' % (report_file.name,)
-            raw_input()
-            sys.exit(1)
-        report_file.file.seek(0)
-        report = report_file.file.read()
-        report_file.file.close()
-
-    # mail or post the sync request
+    # Post sync request using Launchpad interface:
     srcpkg = not newsource and srcpkg or None
     if use_lp_bugs:
         # Map status to the values expected by lp-bugs
         mapping = {'new': 'New', 'confirmed': 'Confirmed'}
         if post_bug(srcpkg, subscribe, mapping[status], title, report):
             sys.exit(0)
+        # Abort on error:
+        print 'Something went wrong. No sync request filed.'
+        sys.exit(1)
 
+    # Mail sync request:
     if mail_bug(srcpkg, subscribe, status, title, report, keyid):
         sys.exit(0)
 
