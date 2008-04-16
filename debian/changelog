@@ -1,3 +1,21 @@
+ubuntu-dev-tools (0.31) hardy; urgency=low
+
+  * requestsync:
+    - Use debian_bundle.changelog.Version for version comparison in
+      debian_changelog.
+    - Fix --lp for Firefox 3: it now tries ~/.lpcookie.txt,
+      ~/.mozilla/*/*/cookies.sqlite and ~/.mozilla/*/*/cookies.txt to find
+      a Launchpad cookie file
+    - Added confirm loops, which displays the message to be send/posted and
+      either allows to edit (or forces to, in case of Ubuntu changes).
+      (LP: #194613, #194615)
+      This adds a convient edit_report method, which gets used both from the
+      Launchpad and mail code path.
+    - Do not fallback to submitting by email, if posting to Launchpad failed.
+      This hasn't been requested and therefore should not get done.
+
+ -- Daniel Hahler <ubuntu@thequod.de>  Wed, 16 Apr 2008 01:57:41 +0200
+
 ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
 
   [ Stephan Hermann ]
@@ -11,8 +29,6 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       When interaction is not required, ask the user if she wants to edit.
       (LP: #190351)
     * Exit, if versions in Ubuntu and Debian are the same already.
-    * Use debian_bundle.changelog.Version for version comparison in
-      debian_changelog.
 
  -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 18:27:06 +0100
 
