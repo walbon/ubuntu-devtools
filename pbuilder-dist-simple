@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Copyright (C) Jamin W. Collins <jcollins@asgardsrealm.net>
+# Copyright (C) Jordan Mantha <mantha@ubuntu.com>
+#
+# License: GPLv2 or later
+#
+# This script is a wrapper to be able to easily use pbuilder for
+# different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
+#
+# Create symlinks to this script naming them 'pbuilder-feisty', 'pbuilder-
+# gutsy', 'pbuilder-hardy', etc. If you want additional features try
+# out the more advanced script 'pbuilder-dist'.
+
+OPERATION=$1
+DISTRIBUTION=`basename $0 | cut -f2 -d '-'`
+PROCEED=false
+BASE_DIR="$HOME/pbuilder"
+case $OPERATION in
+   create|update|build|clean|login|execute )
+      PROCEED=true
+      ;;
+esac
+if [ $PROCEED = true ]; then
+   shift 
+   if [ ! -d $BASE_DIR/${DISTRIBUTION}_result ]
+   then mkdir -p $BASE_DIR/${DISTRIBUTION}_result/
+   fi
+   sudo pbuilder $OPERATION \
+      --basetgz $BASE_DIR/$DISTRIBUTION-base.tgz \
+      --distribution $DISTRIBUTION \
+      --buildresult $BASE_DIR/$DISTRIBUTION_result \
+      --othermirror "deb http://archive.ubuntu.com/ubuntu $DISTRIBUTION universe multiverse" $@
+else
+   echo "Invalid command..."
+   echo "Valid commands are:"
+   echo "   create"
+   echo "   update"
+   echo "   build"
+   echo "   clean"
+   echo "   login"
+   echo "   execute"
+   exit 1
+fi

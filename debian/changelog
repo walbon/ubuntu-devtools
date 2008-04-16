@@ -1,5 +1,10 @@
-ubuntu-dev-tools (0.31) hardy; urgency=low
+ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * pbuilder-dist:
+     - Rewrite the script in Python to make it more robust and faster.
+
+  [ Daniel Hahler ]
   * requestsync:
     - Use debian_bundle.changelog.Version for version comparison in
       debian_changelog.
@@ -18,12 +23,110 @@ ubuntu-dev-tools (0.31) hardy; urgency=low
     - post_bug: Catch IOError when setting bug importance (LP: #190061)
     - mail_bug: Catch socket.error (LP: #190739)
 
- -- Daniel Hahler <ubuntu@thequod.de>  Wed, 16 Apr 2008 01:57:41 +0200
+ -- Daniel Hahler <ubuntu@thequod.de>  Wed, 16 Apr 2008 02:32:40 +0200
 
-ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.30) hardy; urgency=low
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * pbuilder-dist-simple, doc/pbuilder-dist-simple.1, setup.py:
+     - Add the original pbuilder-dist script as pbuilder-dist-simple.
+  * setup.py:
+     - Really install reverse-build-depends (LP: #203523).
+  * debian/source.lintian-overrides:
+     - Override lintian's useless warnings (about this being a NMU).
+
+  [ Adrien Cunin ]
+  * debian/ubuntu-dev-tools.install: install bash_completion/pbuilder-dist in
+    /etc/bash_completion.d/ instead of /etc/bash_completion.d/pbuilder-dist/
+  * bash_completion/pbuilder-dist: apply the completion not only to
+    pbuilder-dist but also to pbuilder-{hardy,sid,etc.}
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Tue, 08 Apr 2008 16:33:52 +0200
+
+ubuntu-dev-tools (0.29) hardy; urgency=low
+
+  * grab-attachments, setup.py: added grab-attachments tool. You give it bug
+    numbers, it gets you their attachments. Useful for sponsoring. 
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 10 Mar 2008 11:31:50 +0100
+
+ubuntu-dev-tools (0.28) hardy; urgency=low
+
+  [ Adrien Cunin ]
+  * pbuilder-dist:
+     - Fixed minor bash syntax error
+     - Removed quotes around the path when using --aptconfdir, otherwise
+       pbuilder create fails
+
+  [ Kees Cook ]
+  * mk-sbuild-lv: add --personality option from Jamie Strandboge (LP: #199181)
+  * check-symbols: rename temp files to avoid .so versioning confusion.
+
+ -- Kees Cook <kees@ubuntu.com>  Thu, 06 Mar 2008 11:05:02 -0800
+
+ubuntu-dev-tools (0.27) hardy; urgency=low
+
+  [ Andrew Hunter ]
+  * ppaput:
+    - Separated ppaput script from backend python modules (LP: #192184).
+    - Switched from homegrown option parseing to Optparse, much more
+      robust and less code duplication.
+
+  [ Daniel Holbach ]
+  * README, debian/rules, doc/ppaput.1.docbook, ppaput, setup.py: removed
+    ppaput for now. It has shortcomings and is not actively used in the
+    sponsoring process (LP: #194634).
+
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * This upload removes accidentaly uploaded files (LP: #194635, #194618,
+    #194621).
+  * Remove executable bit from AUTHORS file (LP: #194619).
+  * debian/control:
+     - Change the Vcs-Bzr address to the correct one.
+     - Move the reportbug dependency to Recommends.
+     - Drop docbook2x build dependency (see Daniel's changes).
+  * Move ppaput.py (the module) into new ubuntutools/ directory and
+    remove it's shabang.
+  * submittodebian:
+     - Check if reportbug is installed and if it isn't throw an error.
+  * suspicious-sources:
+     - Ignore .in files.
+  * pbuilder-dist:
+     - Apply patch from James Westby to fix a problem where it always
+       wanted to get the architecture to use as an option if a symlink
+       was being used .
+     - Fix a recently introduced problem where pbuilder-dist would always
+       want to know the architecture if a symlink was being used. Thanks to
+       Adrien Cunin and James Westby for their help on this (LP: #194633).
+     - Escape many variables to avoid possible problems there.
+     - Reorganize the code a bit and comment it.
+     - Accept "upgrade" as an alias for "update".
+     - Hide lsb_release's traceback if pbuilder-dist is manually aborted
+       while the distribution was being detected.
+  * 404main:
+     - Try to filter out entries from Debian and PPAs, thanks to Adrien
+       Cunin! (LP: #194704)
+     - Add limited support for multiple distributions (and update they
+       manpage to reflect this).
+     - TODO: Use python-apt instead of lots of pipes.
+  * debian/copyright.
+     - Add ppaput (the executable has been removed for now -see above-,
+       but there is still the module in the source package).
+  * debian/pycompat:
+     - Remove it, as it is not necessary for python-central.
+
+  [ Terence Simpson ]
+  * dgetlp:
+     - Fix bug where optaining the .orig.tar.gz would fail if the package
+       name contains hypens.
+     - Add support for native packages.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 24 Feb 2008 19:11:06 +0100
+
+ubuntu-dev-tools (0.26) hardy; urgency=low
 
   [ Stephan Hermann ]
-  * pbuild-dist: fixed a bug with the *sudo call.
+  * pbuilder-dist: fixed a bug with the *sudo call.
     changed from $SUDOREPLACE "pbuilder" to $SUDOREPLACE -- pbuilder ...
 
   [ Daniel Hahler ]
@@ -34,7 +137,18 @@ ubuntu-dev-tools (0.26) UNRELEASED; urgency=low
       (LP: #190351)
     * Exit, if versions in Ubuntu and Debian are the same already.
 
- -- Daniel Hahler <ubuntu@thequod.de>  Sat, 09 Feb 2008 18:27:06 +0100
+  [ Siegfried-Angel Gevatter Pujals (RainCT) ]
+  * Add manpages for update-maintainer and 404main.
+  * Move pbuilder-dist.bash_completion into new bash_completion/
+    directory and tell dh_install to take care of the stuff there.
+  * Let update-maintainer also accept --no-changelog (in addition to
+    the current --nochangelog), improve its error messages and change
+    the default section to universe.
+  * Add AUTHORS section to doc/check-symbols.1, and little changes to
+    doc/suspicious-source.1.
+  * Fix some issues with the new pbuilder-dist code.
+
+ -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Sun, 17 Feb 2008 19:35:46 +0100
 
 ubuntu-dev-tools (0.25) hardy; urgency=low
 
@@ -50,7 +164,8 @@ ubuntu-dev-tools (0.25) hardy; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
   * what-patch:
-     - Print a list of files that have been modified outside debian/.
+     - Print a list of files that have been modified outside the
+       debian/ directory (LP: #174933).
      - Add -h and -q options.
      - Add proper exit values.
   * debian/control:

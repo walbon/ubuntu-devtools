@@ -1,0 +1,34 @@
+.TH UPDATE\-MAINTAINER "1" "February 17, 2008" "ubuntu-dev-tools"
+
+.SH NAME
+update\-maintainer \- change Maintainer field in a Debian source package
+
+.SH SYNOPSIS
+.B update\-maintainer [\fI\-\-path=<PATH>\fR] [\fI\-\-section=<SECTION>\fR] [\fI\-\-nochangelog\fR]
+
+.SH DESCRIPTION
+\fBupdate\-maintainer\fP updates the Maintainer field in the source of
+an Ubuntu package to match the DebianMaintainerField specification.
+.PP
+See https://wiki.ubuntu.com/DebianMaintainerField for more information.
+
+.SH OPTIONS
+.TP
+\fB\-\-path=<PATH>\fP
+This option allows you to specify the path to the source directory.
+.TP
+\fB\-\-section=<SECTION>\fP
+Manually specify the section of the package. This is necessary if the
+package is not yet in the archive or if you don't have an Internet
+connection available when you run \fBupdate\-maintainer\fP.
+.TP
+\fB\-\-nochangelog\fP, \fB\-\-no\-changelog\fP
+By default, \fBupdate\-maintainer\fP adds an entry to the changelog
+explaining that it changed the Maintainer field. If you don't want
+that to happen, use this option.
+
+.SH AUTHOR
+\fBupdate-maintainer\fP has been written by Albin Tonnerre <lut1n.tne@gmail.com>
+and this manual page by Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>.
+.PP
+Both are released under the GNU General Public License, version 2.

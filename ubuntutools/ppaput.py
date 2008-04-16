@@ -1,19 +1,8 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2007, Canonical, Daniel Holbach
-#
-# GPL 3
-#
-#
-# 11:57:27 < dholbach> but what it does is: build a source package of
-#                      the current source tree you're in, upload it to PPA
-#                      and follow up on a bug report, subscribe the right
-#                      sponsors, set the right status - if you pass "-n"
-#                      it will file a bug report, add a (LP: #....)  to
-#                      the changelog also
-# 11:57:37 < dholbach> I thought it'd help with our sponsoring process
-#
+# Modified by Andrew Hunter
+# License: GPLv3
 
 import re
 import os
@@ -23,25 +12,14 @@ import string
 try:
     import launchpadbugs.connector as Connector
 except:
-    print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.14)  installed to use ppaput."
+    raise ImportError, "You need python-launchpad-bugs (>= 0.2.14) installed to use ppaput."
     sys.exit(1)
 
 #try:
 #    import apt
 #except:
-#    print >> sys.stderr, "You need  python-apt  installed to use ppaput."
+#    raise ImportError, "You need python-apt installed to use ppaput."
 #    sys.exit(1)
-
-
-USAGE = \
-"""Usage: ppaput [-n] [<location>] [<debuild options>]
-
--n		    to file a new bug
-<location>	    dput alias
-<debuild options>   options that are passed to debuild(1)
-"""
-
 
 def dput_check():
     if not os.path.exists("/usr/bin/dput"):
@@ -111,12 +89,16 @@ def get_name_version_section_and_release():
      version, \
      release) = re.findall(r'^(.*)\ \((.*)\)\ (.*?)\;\ .*', head)[0]
     section = "main"
-    
-    for line in open(controlfile).readlines():
-        if line.startswith("Section"):
-            if line.split("Section: ")[1].count("/")>0:
-                section = line.split("Section: ")[1].split("/")[0].strip()
-                return (name, version, section)
+ 
+#
+#Is this nessicary? All ppa install to main now.
+#
+   
+#    for line in open(controlfile).readlines(): 
+#        if line.startswith("Section"):
+#            if line.split("Section: ")[1].count("/")>0:
+#                section = line.split("Section: ")[1].split("/")[0].strip()
+#                return (name, version, section)
 
     return (name, version, section, release)
 
@@ -189,38 +171,6 @@ def deal_with_bugreport(bugnumbers, host, section, incoming, sourcepackage,
         bug.commit()
 
 
-def check_arguments(args):
-    new_bug = False
-    location = 'default'
-    debuild_args = list()
-
-    if len(sys.argv) == 2 and sys.argv[1] in ["--help", "-H"]:
-        print USAGE
-        sys.exit(0)
-
-    if len(sys.argv) == 1:
-        return (new_bug, location, debuild_args)
-
-    if sys.argv[1] == "-n":
-        new_bug = True
-        if len(sys.argv)>2:
-            if sys.argv[2].startswith("-"):
-                debuild_args = sys.argv[2:]
-            else:
-                location = sys.argv[2]
-            if len(sys.argv)>3:
-                debuild_args = sys.argv[3:]
-    else:
-        if sys.argv[1].startswith("-"):
-            debuild_args.append(sys.argv[1:])
-        else:
-            location = sys.argv[1]
-            if len(sys.argv)>2:
-                debuild_args = sys.argv[2:]
-    
-    return (new_bug, location, debuild_args)
-
-
 def file_bug(sourcepackage, version):
     Bug = Connector.ConnectBug()
     Bug.authentication = os.path.expanduser("~/.lpcookie")
@@ -242,36 +192,3 @@ def file_bug(sourcepackage, version):
 	(bug.bugnumber, bug.bugnumber)
 
     return bug.bugnumber
-        
-
-def main():
-    (new_bug, location, debuild_args) = check_arguments(sys.argv)
-    (sourcepackage, version, \
-     section, release) = get_name_version_section_and_release()
-
-    if new_bug:
-	    bugnumber = file_bug(sourcepackage, version)
-	    os.system("dch -a 'Fixes (LP: #%s)'" % bugnumber)
-    if not call_debuild(debuild_args):
-	    sys.exit(1)
-    
-    changesfile = "../%s_%s_source.changes" % (sourcepackage, version)
-    if not os.path.exists(os.path.expanduser(changesfile)):
-        print >>  sys.stderr, "%s does not exist." % \
-	        os.path.expanduser(changesfile)
-        sys.exit(1)
-
-    host = lookup_dput_host(location)
-    (dput_res, incoming) = call_dput(location, changesfile)
-    if not dput_res:
-        print >> sys.stderr, "%s was not uploaded." % changesfile
-        sys.exit(1)
-
-    fixed_lp_bugs = find_fixed_launchpad_bug(changesfile)
-    if(fixed_lp_bugs):
-	    deal_with_bugreport(fixed_lp_bugs, host, section, incoming, 
-	                        sourcepackage, version, release)
-
-    
-if __name__ == '__main__':
-	main()

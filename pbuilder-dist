@@ -1,271 +1,318 @@
-#!/bin/sh
-# Copyright by:
-#   Jamin W. Collins <jcollins@asgardsrealm.net>
-#   Jordan Mantha <mantha@ubuntu.com>
-#   Siegfried-A. Gevatter <rainct@ubuntu.com>
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2008 Siegfried-A. Gevatter <rainct@ubuntu.com>
+# Based upon pbuilder-dist-simple by Jamin Collins and Jordan Mantha.
+#
 # License: GPLv2 or later
 #
-# This script is a wrapper to use pbuilder with many different
-# distributions / versions. (It was originally created because of
-# bug #255165 in Debian.)
+# This script is a wrapper to be able to easily use pbuilder for
+# different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
 #
-# If you want to use this copy of the script only for a single distribution
-# / version, rename it to 'pbuilder-dapper', 'pbuilder-feisty', 'pbuilder-gutsy', 
-# or whatever it is. If you have an amd64, you can also use names like
-# 'pbuilder-feisty-i386', etc.
+# You can create symlinks to a pbuilder-dist executable to get different
+# configurations. For example, a symlink called pbuilder-hardy will assume
+# that the target distribution is always meant to be Ubuntu Hardy.
 
-# Base directory where pbuilder will put all the files it creates
-# This is overriden by the global variable $PBUILDFOLDER
-BASE_DIR="$HOME/pbuilder"
+import sys
+import os
 
-# Enable additional components by default? (universe and multiverse in Ubuntu,
-# contrib and non-free in Debian.)
-EXTRACOMP=1
+class pbuilder_dist:
+	
+	def __init__(self):
+		
+		# Base directory where pbuilder will put all the files it creates.
+		self.base = None
+		
+		# Name of the operation which pbuilder should perform.
+		self.operation = None
+		
+		# Wheter additional components should be used or not. That is,
+		# 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
+		# and 'non-free' for Debian.
+		self.extra_components = True
+		
+		# File where the log of the last operation will be saved.
+		self.logfile = None
+		
+		# System architecture
+		self.system_architecture = None
+		
+		# Build architecture
+		self.build_architecture = None
+		
+		# System's distribution
+		self.system_distro = None
+		
+		# Target distribution
+		self.target_distro = None
+		
+		# This is an identificative string which will either take the form
+		# 'distribution' or 'distribution-architecture'.
+		self.chroot_string = None
+		
+		# Proxy
+		self.proxy = None
+		
+		# Authentication method
+		self.auth = 'sudo'
+		
+		##############################################################
+		
+		if 'PBUILDFOLDER' in os.environ:
+			self.base = os.environ['PBUILDFOLDER']
+		else:
+			self.base = os.path.expanduser('~/pbuilder/')
+		
+		if 'PBUILDAUTH' in os.environ:
+			self.auth = os.environ['PBUILDAUTH']
+		
+		self.system_architecture = host_architecture()
+		
+		if not self.system_architecture or 'not found' in self.system_architecture:
+			print 'Error: Not running on a Debian based system; could not detect its architecture.'
+		
+		if not os.path.isfile('/etc/lsb-release'):
+			print 'Error: Not running on a Debian based system; could not find /etc/lsb-release.'
+			exit(1)
+		
+		for line in open('/etc/lsb-release'):
+			line = line.strip()
+			if line.startswith('DISTRIB_CODENAME'):
+				self.system_distro = line[17:]
+				break
+		
+		if not self.system_distro:
+			print 'Error: Could not determine what distribution you are running.'
+			exit(1)
+		
+		self.target_distro = self.system_distro
+		
+		if 'http_proxy' in os.environ:
+			self.base = os.environ['http_proxy']
+		elif 'HTTP_PROXY' in os.environ:
+			self.base = os.environ['HTTP_PROXY']
+		
+		##############################################################
+	
+	def __getitem__(self, name):
+		
+		return getattr(self, name)
+	
+	def _calculate(self):
+		""" pbuilder_dist.calculate(distro) -> None
+		
+		Do all necessary variable changes (and therefore required checks)
+		before the string that will be executed is generated. At this
+		point it's expected that no more variables will be modified
+		outside this class. 
+		
+		"""
+		
+		if not self.build_architecture:
+			self.chroot_string = self.target_distro
+			self.build_architecture = self.system_architecture
+		else:
+			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
+		
+		if not self.logfile:
+			self.logfile = '%(base)s/.%(chroot_string)s.log' % self
+	
+	def set_target_distro(self, distro):
+		""" pbuilder_dist.set_target_distro(distro) -> None
+		
+		Check if the given target distribution name is correct, if it
+		isn't know to the system ask the user for confirmation before
+		proceeding, and finally either save the value into the appropiate
+		variable or finalize pbuilder-dist's execution.
+		
+		"""
+		
+		if not distro.isalpha():
+			print 'Error: «%s» is an invalid distribution codename.'
+			sys.exit(1)
+		
+		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
+			answer = ask('Warning: Unknown distribution «%s». Do you want to continue [y/N]? ' % distro)
+			if answer not in ('y', 'Y'):
+				sys.exit(0)
+		
+		self.target_distro = distro
+	
+	def set_operation(self, operation):
+		""" pbuilder_dist.set_operation -> None
+		
+		Check if the given string is a valid pbuilder operation and
+		depending on this either save it into the appropiate variable
+		or finalize pbuilder-dist's execution.
+		
+		"""
+		
+		arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
+		
+		if operation not in arguments:
+			if item_ends_with(arguments, '.dsc'):
+					self.operation = 'build'
+			else:
+				print 'Error: «%s» is not a recognized argument.' % operation
+				print 'Please use one of those: ' + ', '.join(arguments) + '.'
+				sys.exit(1)
+		else:
+			self.operation = operation
+	
+	def get_command(self, remaining_arguments = None):
+		""" pbuilder_dist.get_command -> string
+		
+		Generate the pbuilder command which matches the given configuration
+		and return it as a string.
+		
+		"""
+		
+		# Calculate variables which depend on arguments given at runtime.
+		self._calculate()
+		
+		arguments = [
+			self.operation,
+			'--basetgz "%(base)s/%(chroot_string)s-base.tgz"' % self,
+			'--distribution "%(target_distro)s"' % self,
+			'--buildresult "%(base)s/%(chroot_string)s_result/"' % self,
+			'--logfile "%(logfile)s"' % self,
+			'--aptcache "/var/cache/apt/archives/"',
+			### --mirror "${ARCHIVE}" \
+			]
+		
+		if self.build_architecture != self.system_architecture:
+			arguments.append('--debootstrapopts --arch')
+			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
+		
+		if self.proxy:
+			arguments.append('--http-proxy "%(proxy)s"' % self)
+		
+		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
+		
+		# Append remaining arguments
+		if remaining_arguments:
+			arguments.extend(remaining_arguments)
+		
+		return self.auth + ' /usr/sbin/pbuilder ' + ' '.join(arguments)
 
-# Save the log of the last operation in a dot-file? ('.lastlog' in BASE_DIR)
-SAVELOG=0
+def host_architecture():
+	""" host_architecture -> string
+	
+	Detect the host's architecture and return it as a string
+	(i386/amd64/other values).
+	
+	"""
+	
+	return os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386').replace('i686', 'i386')
 
-# Allow this script to use /var/cache/apt/archives/ when possible
-if [ -z $SYSCACHE ]
-then
-	SYSCACHE=1
-fi
+def item_ends_with(list, string):
+	""" item_ends_with(list, string) -> bool
+	
+	Return True if one of the items in list ends with the given string,
+	or else return False.
+	
+	"""
+	
+	for item in list:
+		if item.endswith(string):
+			return True
+	
+	return False
 
-CALLDIR=`pwd`
+def ask(question):
+	""" ask(question) -> string
+	
+	Ask the given question and return the answer. Also catch
+	KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
+	immediately return None if one of those is found.
+	
+	"""
+	
+	try:
+		answer = raw_input(question)
+	except (KeyboardInterrupt, EOFError):
+		print
+		answer = None
+	
+	return answer
 
+def help(exit_code = 0):
+	""" help() -> None
+	
+	Print a help message for pbuilder-dist, and exit with the given code.
+	
+	"""
+	
+	print 'Bad...'
+	
+	sys.exit(exit_code)
 
-################################
+def main():
+	""" main() -> None
+	
+	This is pbuilder-dist's main function. It creates a pbuilder_dist
+	object, modifies all necessary settings taking data from the
+	executable's name and command line options and finally either ends
+	the script and runs pbuilder itself or exists with an error message.
+	
+	"""
+	
+	script_name = os.path.basename(__name__ or sys.argv[0])
+	parts = script_name.split('-')
+	
+	# Copy arguments into another list for save manipulation
+	args = sys.argv[1:]
+	
+	if '-' in script_name and parts[0] != 'pbuilder' or len(parts) > 3:
+		print 'Error: «%s» is not a valid name for a «pbuilder-dist» executable.' % script_name
+		sys.exit(1)
+	
+	if len(args) < 1:
+		print 'Insufficient number of arguments.'
+		help(1)
+	
+	if args[0] in ('-h', '--help', 'help'):
+		help(0)
+	
+	app = pbuilder_dist()
+	
+	if len(parts) > 1:
+		app.set_target_distro(parts[1])
+	else:
+		app.set_target_distro(args.pop(0))
+	
+	if len(parts) > 2:
+		requested_arch = parts[2]
+	elif args[0] in ('i386', 'amd64'):
+		requested_arch = args.pop(0)
+	else:
+		requested_arch = None
+	
+	if requested_arch:
+		if requested_arch in ('i386', 'amd64') and app.system_architecture == 'amd64':
+			app.build_architecture = requested_arch
+		else:
+			print 'Error: Architecture switching is not supported on your system; wrong filename.'
+			sys.exit(1)
+	
+	if 'mainonly' in sys.argv:
+		app.extra_components = False
+		args.remove('mainonly')
+	
+	if len(args) < 1:
+		print 'Insufficient number of arguments.'
+		help(1)
+	
+	# Parse the operation
+	app.set_operation(args.pop(0))
+	
+	# Execute the pbuilder command
+	sys.exit(os.system(app.get_command(args)))
 
-ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
-SYSDIST=`lsb_release -cs`
-
-if [ $PBUILDFOLDER ] && [ $PBUILDFOLDER != "" ]
-then
-	BASE_DIR=$PBUILDFOLDER
-fi
-
-help()
-{
-        echo "Insufficient number of arguments."
-        echo "Usage: $0 "$( [ "$1" != 'show-dist-flag' ] || echo "<distribution> " )$( [ $ARCH != "amd64" ] || echo "[i386|amd64] " )"[mainonly|allcomp] [withlog|nolog] <operation>"
-        exit 1
-}
-
-if [ ! -z `echo \`basename $0\` | grep -- '-'`  ] && [ `basename $0` != 'pbuilder-dist' ]
-then
-    if [ $# -lt 1 ]
-    then
-        help
-    fi
-    
-    BINARCH=`basename $0 | cut -f3 -d '-'`
-    DISTRIBUTION=`basename $0 | cut -f2 -d '-'`
-else
-    if [ $# -lt 2 ]
-    then
-        help show-dist-flag
-    fi
-    
-    DISTRIBUTION=$1
-    shift 1
-fi
-
-
-if [ $1 = "i386" ]  || [ $1 = "amd64" ]
-then
-    if [ $ARCH = "amd64" ]; then
-        BINARCH=$1
-    else
-        echo "Warning: Architecture switching is not supported on your system; ignoring argument."
-    fi
-    
-    shift 1
-fi
-
-
-if [ $1 = "mainonly" ]; then
-    EXTRACOMP=0
-    shift 1
-elif [ $1 = "allcomp" ]; then
-    EXTRACOMP=1
-    shift 1
-fi
-
-
-if [ $1 = "withlog" ]; then
-    SAVELOG=1
-    shift 1
-elif [ $1 = "nolog" ]; then
-    SAVELOG=0
-    shift 1
-fi
-
-
-distdata()
-{
-    if [ "$1" = "debian" ]
-    then
-        # Set Debian specific data
-        ISDEBIAN=True
-	if [ -z $ARCHIVE ]
-	then
-        	ARCHIVE="http://ftp.debian.org"
-	fi
-        COMPONENTS="main"$( [ $EXTRACOMP = 0 ] || echo " contrib non-free" )
-    else
-        # Set Ubuntu specific data
-        ISDEBIAN=False
-	if [ -z $ARCHIVE ]
-	then
-        	ARCHIVE="http://archive.ubuntu.com/ubuntu"
-	fi
-        COMPONENTS="main restricted"$( [ $EXTRACOMP = 0 ] || echo " universe multiverse" )
-    fi
-}
-
-
-case $DISTRIBUTION in
-    dapper|edgy|feisty|gutsy|hardy)	# warty|hoary|breezy
-        distdata ubuntu
-        ;;
-    
-    oldstable|sarge|stable|etch|testing|lenny|unstable|sid|experimental)
-        distdata debian
-        ;;
-    
-    *)
-        if [ ! -d $BASE_DIR/${DISTRIBUTION}-* ]
-        then
-            echo -n "Warning: Unknown distribution «$DISTRIBUTION». Do you want to continue [y/N]? "
-            read continue
-            
-            if [ "$continue" != 'y' ] && [ "$continue" != 'Y' ]
-            then
-                echo "Aborting..."
-                exit 1
-            fi
-        fi
-        distdata
-        ;;
-esac
-
-
-OPERATION=$1
-
-case $OPERATION in
-    create|update|build|clean|login|execute)
-        shift 1
-        ;;
-    
-    *)
-    	if [ ${1##*.} =  'dsc' ]
-    	then
-    		OPERATION=build
-    	else
-        	echo "Unrecognized argument. Please use one of those:"
-        	echo "    create"
-        	echo "    update"
-        	echo "    build"
-        	echo "    clean"
-        	echo "    login"
-        	echo "    execute"
-        	exit 1
-        fi
-        ;;
-esac
-
-FOLDERBASE="${DISTRIBUTION}-$( ([ "$BINARCH" != "" ] && echo $BINARCH) || echo $ARCH )"
-
-if [ ! -d $BASE_DIR/${FOLDERBASE}_result ]
-then
-    mkdir -p $BASE_DIR/${FOLDERBASE}_result
-fi
-
-if [ $SYSCACHE != 0 ] && [ "$SYSDIST" = "$DISTRIBUTION" ] && [ "$ARCH" = "$BINARCH" -o -z $BINARCH ]
-then
-		DEBCACHE='/var/cache/apt/archives/'
-fi
-
-
-# Check what version of pbuilder is installed, and if
-# it's supported, use the --components option
-if dpkg --compare-versions $(dpkg-query -W -f='${Version}' pbuilder) ge 0.174
-then
-	COMPONENTS_LINE="--othermirror \"\" --components \"$COMPONENTS\""
-else
-	# else, do it the old way
-	if [ $ISDEBIAN = True ]; then
-		echo "Warning: If this operation fails it might be because you changed the value of $COMPONENTS in the pbuilderrc file."
-		echo "See https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/140964 for more information."
-	fi
-	COMPONENTS_LINE="--othermirror \"deb $ARCHIVE $DISTRIBUTION $COMPONENTS\""
-fi
-
-if [ -n $http_proxy ] || [ -n $HTTP_PROXY ]
-then
-	if [ -n $http_proxy ]
-	then
-		PROXY=$http_proxy
-	else
-		PROXY=$HTTP_PROXY
-	fi
-fi
-
-
-if [ $ISDEBIAN = "False" ]
-then
-	if [ ! -d $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ ]
-	then
-		mkdir -p $BASE_DIR/etc/$DISTRIBUTION/apt.conf
-	fi
-	if [ ! -e $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list ]
-	then
-		echo "deb $ARCHIVE $DISTRIBUTION $COMPONENTS" > $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list
-		case $DISTRIBUTION in 
-			dapper|edgy|feisty|gutsy )
-				cat >>  $BASE_DIR/etc/$DISTRIBUTION/apt.conf/sources.list <<EOF
-deb $ARCHIVE $DISTRIBUTION-security $COMPONENTS
-deb $ARCHIVE $DISTRIBUTION-updates $COMPONENTS
-EOF
-				;;
-			* )
-				;;
-		esac
-	fi
-fi
-
-if [ -z $PBUILDAUTH ]
-then
-	if [ -n $DESKTOP_SESSION  ]
-	then
-		case $DESKTOP_SESSION in 
-			gnome )
-				SUDOREPLACE="gksudo -D \"Pbuilder\" "
-				;;
-			kde|kde4 )
-				SUDOREPLACE="kdesudo -d --comment \"Pbuilder\""
-				;;
-			* )
-				SUDOREPLACE="sudo"
-				;;
-		esac
-	else
-		SUDOREPLACE=sudo
-	fi
-else
-	SUDOREPLACE=$PBUILDAUTH
-fi
-
-echo $@
-
-$SUDOREPLACE -- pbuilder $OPERATION \
---basetgz $BASE_DIR/$FOLDERBASE-base.tgz \
---distribution $DISTRIBUTION \
---debootstrapopts --arch \
---debootstrapopts $BINARCH \
-$( [ $SAVELOG = 0 ] || echo "--logfile $BASE_DIR/.lastlog" ) \
-$( [ -z $PROXY ] || echo "--http-proxy $PROXY" ) \
-$( [ -z $DEBCACHE ] || echo "--aptcache $DEBCACHE" ) \
---buildresult $BASE_DIR/$FOLDERBASE_result \
---mirror $ARCHIVE \
---aptconfdir $BASE_DIR/etc/$DISTRIBUTION/apt.conf/ $@
+if __name__ == '__main__':
+	
+	try:
+		main()
+	except KeyboardInterrupt:
+		print 'Manually aborted.'
+		sys.exit(1)

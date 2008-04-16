@@ -1,18 +1,11 @@
 #!/usr/bin/make -f
 
-DEB_PYTHON_SYSTEM       := pycentral
+DEB_PYTHON_SYSTEM := pycentral
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
 DEB_INSTALL_MANPAGES_ubuntu-dev-tools = doc/*.1
 
-build/ubuntu-dev-tools::
-	docbook2x-man doc/ppaput.1.docbook; mv ppaput.1 doc
-
-install/ubuntu-dev-tools::
-	mkdir -p debian/ubuntu-dev-tools/etc/bash_completion.d/
-	cp -v pbuilder-dist.bash_completion debian/ubuntu-dev-tools/etc/bash_completion.d/pbuilder-dist
-
-clean::
-	rm -f doc/ppaput.1
+binary-install/ubuntu-dev-tools::
+	rm -rf debian/ubuntu-dev-tools/usr/lib

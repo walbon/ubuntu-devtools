@@ -26,7 +26,7 @@ then
 		cd ..
 	elif [ ! -f ./debian/control ]; then
 		echo "\
-Couldn't find the file debian/control. You have to be inside the \
+Couldn't find file debian/control. You have to be inside the \
 source directory of a Debian package or pass the name of the \
 package(s) whose build dependencies you want to install in order \
 to use this script."

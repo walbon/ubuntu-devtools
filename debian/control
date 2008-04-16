@@ -2,10 +2,10 @@ Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
 Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
-Vcs-Bzr: https://launchpad.net/ubuntu-dev-tools/
+Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
 Build-Depends: cdbs (>= 0.4.49), debhelper (>= 5), python-all-dev (>= 2.4)
-Build-Depends-Indep: docbook2x, python-central (>= 0.5)
+Build-Depends-Indep: python-central (>= 0.5)
 XS-Python-Version: all
 Homepage: https://launchpad.net/ubuntu-dev-tools/
 Standards-Version: 3.7.3
@@ -13,8 +13,8 @@ Standards-Version: 3.7.3
 Package: ubuntu-dev-tools
 Architecture: all
 Section: devel
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), reportbug (>= 3.39ubuntu1), python-debian, dctrl-tools, lsb-release
-Recommends: bzr, pbuilder
+Depends: ${python:Depends}, binutils, devscripts, sudo, python-launchpad-bugs (>= 0.2.25), python-debian, dctrl-tools, lsb-release
+Recommends: bzr, pbuilder, reportbug (>= 3.39ubuntu1)
 Conflicts: devscripts (<< 2.10.7ubuntu5)
 Replaces: devscripts (<< 2.10.7ubuntu5)
 XB-Python-Version: ${python:Versions}
