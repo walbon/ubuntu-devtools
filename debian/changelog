@@ -11,6 +11,9 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
      - Add a brief explanation about why sudo privilegies are required
        in order to run this script (LP: #194622).
      - End with exit code 1 if there's an error.
+  * suspicious-source:
+     - Whitelist C# files (LP: #225691): *.cs.
+     - Whitelist manpages: *.[0-9].
 
   [ Daniel Hahler ]
   * requestsync:
