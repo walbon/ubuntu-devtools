@@ -19,7 +19,7 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
   * requestsync:
      - Use debian_bundle.changelog.Version for version comparison in
        debian_changelog.
-     - Fix --lp for Firefox 3 (LP: 208808):
+     - Fix --lp for Firefox 3 (LP: #208808):
        It now tries ~/.lpcookie.txt, ~/.mozilla/*/*/cookies.sqlite and
        ~/.mozilla/*/*/cookies.txt to find a Launchpad cookie file.
        Also added a hint that you can create a valid file, by logging into
