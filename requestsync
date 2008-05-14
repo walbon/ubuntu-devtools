@@ -418,21 +418,21 @@ if __name__ == '__main__':
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
     if need_interaction:
-        report = edit_report(title, report, changes_required=True)
+        (_, bug_text) = edit_report(title, report, changes_required=True)
 
     # Post sync request using Launchpad interface:
     srcpkg = not newsource and srcpkg or None
     if use_lp_bugs:
         # Map status to the values expected by lp-bugs
         mapping = {'new': 'New', 'confirmed': 'Confirmed'}
-        if post_bug(srcpkg, subscribe, mapping[status], title, report):
+        if post_bug(srcpkg, subscribe, mapping[status], title, bug_text):
             sys.exit(0)
         # Abort on error:
         print 'Something went wrong. No sync request filed.'
         sys.exit(1)
 
     # Mail sync request:
-    if mail_bug(srcpkg, subscribe, status, title, report, keyid):
+    if mail_bug(srcpkg, subscribe, status, title, bug_text, keyid):
         sys.exit(0)
 
     print 'Something went wrong. No sync request filed.'
