@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2007-2008 Siegfried-A. Gevatter <rainct@ubuntu.com>
+# With some changes by Iain Lane <iain@orangesquash.org.uk>
 # Based upon pbuilder-dist-simple by Jamin Collins and Jordan Mantha.
 #
 # License: GPLv2 or later
@@ -62,6 +63,9 @@ class pbuilder_dist:
 			self.base = os.environ['PBUILDFOLDER']
 		else:
 			self.base = os.path.expanduser('~/pbuilder/')
+
+		if not os.path.exists(self.base):
+			os.makedirs(self.base)
 		
 		if 'PBUILDAUTH' in os.environ:
 			self.auth = os.environ['PBUILDAUTH']
@@ -115,7 +119,7 @@ class pbuilder_dist:
 			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
 		
 		if not self.logfile:
-			self.logfile = '%(base)s/.%(chroot_string)s.log' % self
+			self.logfile = '%(base)s.%(chroot_string)s.log' % self
 	
 	def set_target_distro(self, distro):
 		""" pbuilder_dist.set_target_distro(distro) -> None
@@ -172,9 +176,9 @@ class pbuilder_dist:
 		
 		arguments = [
 			self.operation,
-			'--basetgz "%(base)s/%(chroot_string)s-base.tgz"' % self,
+			'--basetgz "%(base)s%(chroot_string)s-base.tgz"' % self,
 			'--distribution "%(target_distro)s"' % self,
-			'--buildresult "%(base)s/%(chroot_string)s_result/"' % self,
+			'--buildresult "%(base)s%(chroot_string)s_result/"' % self,
 			'--logfile "%(logfile)s"' % self,
 			'--aptcache "/var/cache/apt/archives/"',
 			### --mirror "${ARCHIVE}" \
@@ -257,7 +261,7 @@ def main():
 	
 	"""
 	
-	script_name = os.path.basename(__name__ or sys.argv[0])
+	script_name = os.path.basename(sys.argv[0])
 	parts = script_name.split('-')
 	
 	# Copy arguments into another list for save manipulation
