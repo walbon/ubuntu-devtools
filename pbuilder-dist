@@ -128,7 +128,7 @@ class pbuilder_dist:
 		"""
 		
 		if not distro.isalpha():
-			print 'Error: «%s» is an invalid distribution codename.'
+			print 'Error: «%s» is an invalid distribution codename.' % distro
 			sys.exit(1)
 		
 		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
