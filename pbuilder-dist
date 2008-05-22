@@ -62,6 +62,9 @@ class pbuilder_dist:
 			self.base = os.environ['PBUILDFOLDER']
 		else:
 			self.base = os.path.expanduser('~/pbuilder/')
+
+		if not os.path.exists(self.base):
+			os.makedirs(self.base)
 		
 		if 'PBUILDAUTH' in os.environ:
 			self.auth = os.environ['PBUILDAUTH']
