@@ -257,7 +257,7 @@ def main():
 	
 	"""
 	
-	script_name = os.path.basename(__name__ or sys.argv[0])
+	script_name = os.path.basename(sys.argv[0])
 	parts = script_name.split('-')
 	
 	# Copy arguments into another list for save manipulation
