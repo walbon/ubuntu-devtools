@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2007-2008 Siegfried-A. Gevatter <rainct@ubuntu.com>
+# With some changes by Iain Lane <iain@orangesquash.org.uk>
 # Based upon pbuilder-dist-simple by Jamin Collins and Jordan Mantha.
 #
 # License: GPLv2 or later
