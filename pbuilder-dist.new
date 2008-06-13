@@ -1,0 +1,322 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2007-2008 Siegfried-A. Gevatter <rainct@ubuntu.com>
+# With some changes by Iain Lane <iain@orangesquash.org.uk>
+# Based upon pbuilder-dist-simple by Jamin Collins and Jordan Mantha.
+#
+# License: GPLv2 or later
+#
+# This script is a wrapper to be able to easily use pbuilder for
+# different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
+#
+# You can create symlinks to a pbuilder-dist executable to get different
+# configurations. For example, a symlink called pbuilder-hardy will assume
+# that the target distribution is always meant to be Ubuntu Hardy.
+
+import sys
+import os
+
+class pbuilder_dist:
+	
+	def __init__(self):
+		
+		# Base directory where pbuilder will put all the files it creates.
+		self.base = None
+		
+		# Name of the operation which pbuilder should perform.
+		self.operation = None
+		
+		# Wheter additional components should be used or not. That is,
+		# 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
+		# and 'non-free' for Debian.
+		self.extra_components = True
+		
+		# File where the log of the last operation will be saved.
+		self.logfile = None
+		
+		# System architecture
+		self.system_architecture = None
+		
+		# Build architecture
+		self.build_architecture = None
+		
+		# System's distribution
+		self.system_distro = None
+		
+		# Target distribution
+		self.target_distro = None
+		
+		# This is an identificative string which will either take the form
+		# 'distribution' or 'distribution-architecture'.
+		self.chroot_string = None
+		
+		# Proxy
+		self.proxy = None
+		
+		# Authentication method
+		self.auth = 'sudo'
+		
+		##############################################################
+		
+		if 'PBUILDFOLDER' in os.environ:
+			self.base = os.environ['PBUILDFOLDER']
+		else:
+			self.base = os.path.expanduser('~/pbuilder/')
+
+		if not os.path.exists(self.base):
+			os.makedirs(self.base)
+		
+		if 'PBUILDAUTH' in os.environ:
+			self.auth = os.environ['PBUILDAUTH']
+		
+		self.system_architecture = host_architecture()
+		
+		if not self.system_architecture or 'not found' in self.system_architecture:
+			print 'Error: Not running on a Debian based system; could not detect its architecture.'
+		
+		if not os.path.isfile('/etc/lsb-release'):
+			print 'Error: Not running on a Debian based system; could not find /etc/lsb-release.'
+			exit(1)
+		
+		for line in open('/etc/lsb-release'):
+			line = line.strip()
+			if line.startswith('DISTRIB_CODENAME'):
+				self.system_distro = line[17:]
+				break
+		
+		if not self.system_distro:
+			print 'Error: Could not determine what distribution you are running.'
+			exit(1)
+		
+		self.target_distro = self.system_distro
+		
+		if 'http_proxy' in os.environ:
+			self.base = os.environ['http_proxy']
+		elif 'HTTP_PROXY' in os.environ:
+			self.base = os.environ['HTTP_PROXY']
+		
+		##############################################################
+	
+	def __getitem__(self, name):
+		
+		return getattr(self, name)
+	
+	def _calculate(self):
+		""" pbuilder_dist.calculate(distro) -> None
+		
+		Do all necessary variable changes (and therefore required checks)
+		before the string that will be executed is generated. At this
+		point it's expected that no more variables will be modified
+		outside this class. 
+		
+		"""
+		
+		if not self.build_architecture:
+			self.chroot_string = self.target_distro
+			self.build_architecture = self.system_architecture
+		else:
+			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
+		
+		if not self.logfile:
+			self.logfile = '%(base)s.%(chroot_string)s.log' % self
+	
+	def set_target_distro(self, distro):
+		""" pbuilder_dist.set_target_distro(distro) -> None
+		
+		Check if the given target distribution name is correct, if it
+		isn't know to the system ask the user for confirmation before
+		proceeding, and finally either save the value into the appropiate
+		variable or finalize pbuilder-dist's execution.
+		
+		"""
+		
+		if not distro.isalpha():
+			print 'Error: «%s» is an invalid distribution codename.' % distro
+			sys.exit(1)
+		
+		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
+			answer = ask('Warning: Unknown distribution «%s». Do you want to continue [y/N]? ' % distro)
+			if answer not in ('y', 'Y'):
+				sys.exit(0)
+		
+		self.target_distro = distro
+	
+	def set_operation(self, operation):
+		""" pbuilder_dist.set_operation -> None
+		
+		Check if the given string is a valid pbuilder operation and
+		depending on this either save it into the appropiate variable
+		or finalize pbuilder-dist's execution.
+		
+		"""
+		
+		arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
+		
+		if operation not in arguments:
+			if item_ends_with(arguments, '.dsc'):
+					self.operation = 'build'
+			else:
+				print 'Error: «%s» is not a recognized argument.' % operation
+				print 'Please use one of those: ' + ', '.join(arguments) + '.'
+				sys.exit(1)
+		else:
+			self.operation = operation
+	
+	def get_command(self, remaining_arguments = None):
+		""" pbuilder_dist.get_command -> string
+		
+		Generate the pbuilder command which matches the given configuration
+		and return it as a string.
+		
+		"""
+		
+		# Calculate variables which depend on arguments given at runtime.
+		self._calculate()
+		
+		arguments = [
+			self.operation,
+			'--basetgz "%(base)s%(chroot_string)s-base.tgz"' % self,
+			'--distribution "%(target_distro)s"' % self,
+			'--buildresult "%(base)s%(chroot_string)s_result/"' % self,
+			'--logfile "%(logfile)s"' % self,
+			'--aptcache "/var/cache/apt/archives/"',
+			### --mirror "${ARCHIVE}" \
+			]
+		
+		if self.build_architecture != self.system_architecture:
+			arguments.append('--debootstrapopts --arch')
+			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
+		
+		if self.proxy:
+			arguments.append('--http-proxy "%(proxy)s"' % self)
+		
+		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
+		
+		# Append remaining arguments
+		if remaining_arguments:
+			arguments.extend(remaining_arguments)
+		
+		return self.auth + ' /usr/sbin/pbuilder ' + ' '.join(arguments)
+
+def host_architecture():
+	""" host_architecture -> string
+	
+	Detect the host's architecture and return it as a string
+	(i386/amd64/other values).
+	
+	"""
+	
+	return os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386').replace('i686', 'i386')
+
+def item_ends_with(list, string):
+	""" item_ends_with(list, string) -> bool
+	
+	Return True if one of the items in list ends with the given string,
+	or else return False.
+	
+	"""
+	
+	for item in list:
+		if item.endswith(string):
+			return True
+	
+	return False
+
+def ask(question):
+	""" ask(question) -> string
+	
+	Ask the given question and return the answer. Also catch
+	KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
+	immediately return None if one of those is found.
+	
+	"""
+	
+	try:
+		answer = raw_input(question)
+	except (KeyboardInterrupt, EOFError):
+		print
+		answer = None
+	
+	return answer
+
+def help(exit_code = 0):
+	""" help() -> None
+	
+	Print a help message for pbuilder-dist, and exit with the given code.
+	
+	"""
+	
+	print 'Bad...'
+	
+	sys.exit(exit_code)
+
+def main():
+	""" main() -> None
+	
+	This is pbuilder-dist's main function. It creates a pbuilder_dist
+	object, modifies all necessary settings taking data from the
+	executable's name and command line options and finally either ends
+	the script and runs pbuilder itself or exists with an error message.
+	
+	"""
+	
+	script_name = os.path.basename(sys.argv[0])
+	parts = script_name.split('-')
+	
+	# Copy arguments into another list for save manipulation
+	args = sys.argv[1:]
+	
+	if '-' in script_name and parts[0] != 'pbuilder' or len(parts) > 3:
+		print 'Error: «%s» is not a valid name for a «pbuilder-dist» executable.' % script_name
+		sys.exit(1)
+	
+	if len(args) < 1:
+		print 'Insufficient number of arguments.'
+		help(1)
+	
+	if args[0] in ('-h', '--help', 'help'):
+		help(0)
+	
+	app = pbuilder_dist()
+	
+	if len(parts) > 1:
+		app.set_target_distro(parts[1])
+	else:
+		app.set_target_distro(args.pop(0))
+	
+	if len(parts) > 2:
+		requested_arch = parts[2]
+	elif args[0] in ('i386', 'amd64'):
+		requested_arch = args.pop(0)
+	else:
+		requested_arch = None
+	
+	if requested_arch:
+		if requested_arch in ('i386', 'amd64') and app.system_architecture == 'amd64':
+			app.build_architecture = requested_arch
+		else:
+			print 'Error: Architecture switching is not supported on your system; wrong filename.'
+			sys.exit(1)
+	
+	if 'mainonly' in sys.argv:
+		app.extra_components = False
+		args.remove('mainonly')
+	
+	if len(args) < 1:
+		print 'Insufficient number of arguments.'
+		help(1)
+	
+	# Parse the operation
+	app.set_operation(args.pop(0))
+	
+	# Execute the pbuilder command
+	sys.exit(os.system(app.get_command(args)))
+
+if __name__ == '__main__':
+	
+	try:
+		main()
+	except KeyboardInterrupt:
+		print 'Manually aborted.'
+		sys.exit(1)

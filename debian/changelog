@@ -1,9 +1,8 @@
 ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
-  * pbuilder-dist:
+  * pbuilder-dist.new:
      - Rewrite the script in Python to make it more robust and faster.
-     - ^^^ NOT FINISHED YET, DO NOT UPLOAD THIS! ^^^
   * what-patch:
      - If cdbs-edit-patch is used, output "cdbs (patchsys.mk)" instead of
        just "cdbs" (LP: #195795).
@@ -38,8 +37,11 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
   * mk-sbuild-lv
     - don't install recommended packages during chroot install.
     - allow customization of schroot.conf suffix and LV/snapshot sizes.
+  * what-patch:
+    - restore previous output behavior, added logic to verbose test instead.
+    - added details for each patch system report.
 
- -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 10:52:14 -0700
+ -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 11:10:44 -0700
 
 ubuntu-dev-tools (0.30) hardy; urgency=low
 
