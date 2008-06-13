@@ -35,9 +35,11 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
      - mail_bug: Catch socket.error (LP: #190739)
 
   [ Kees Cook ]
-  * mk-sbuild-lv: don't install recommended packages during chroot install.
+  * mk-sbuild-lv
+    - don't install recommended packages during chroot install.
+    - allow customization of schroot.conf suffix and LV/snapshot sizes.
 
- -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 10:10:39 -0700
+ -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 10:52:14 -0700
 
 ubuntu-dev-tools (0.30) hardy; urgency=low
 

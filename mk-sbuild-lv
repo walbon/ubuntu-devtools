@@ -19,8 +19,6 @@
 # to do i386 builds on amd64, you will need to patch "sbuild" to correctly
 # detect the chroot architecture:
 #   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
-#
-# Version: 0.12
 
 set -e
 
@@ -81,6 +79,10 @@ if ! id | fgrep -q '(sbuild)'; then
     exit 1
 fi
 
+# Set up configurable defaults (loaded after option processing)
+LV_SIZE="5G"
+SNAPSHOT_SIZE="4G"
+
 function usage()
 {
     echo "Usage: $0 [OPTIONS] VG Release" >&2
@@ -91,6 +93,11 @@ function usage()
     echo "  --debug                    Turn on script debugging"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
+    echo ""
+    echo "Configuration (via ~/.mk-sbuild-lv.rc)"
+    echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
+    echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
+    echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     exit 1
 }
 
@@ -166,6 +173,11 @@ CHROOT_LV="${name}_chroot${arch_suffix}"
 CHROOT_PATH="/dev/$VG/$CHROOT_LV"
 CHROOT_NAME="${name}${arch_suffix}"
 
+# Load customizations
+if [ -r ~/.mk-sbuild-lv.rc ]; then
+    . ~/.mk-sbuild-lv.rc
+fi
+
 # Does the specified VG exist?  (vgdisplay doesn't set error codes...)
 if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
     exit 1 
@@ -180,7 +192,7 @@ else
 fi
 
 # Allocate the "golden" chroot LV
-sudo lvcreate -n "$CHROOT_LV" -L 5G "$VG"
+sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
 sudo mkfs -t ext3 "$CHROOT_PATH"
 
 # Mount and debootstrap the chroot
@@ -227,7 +239,7 @@ source-groups=sbuild,root,admin
 source-root-groups=root,sbuild,admin
 device=CHROOT_PATH
 mount-options=-o noatime
-lvm-snapshot-options=--size 4G
+lvm-snapshot-options=--size SNAPSHOT_SIZE
 run-setup-scripts=true
 run-exec-scripts=true
 EOM
@@ -235,9 +247,13 @@ fi
 if [ ! -z "$personality" ]; then
     echo "personality=$personality" >> "$TEMP_SCHROOTCONF"
 fi
+if [ ! -z "$SCHROOT_CONF_SUFFIX" ]; then
+    echo "$SCHROOT_CONF_SUFFIX" >> "$TEMP_SCHROOTCONF"
+fi
 cat "$TEMP_SCHROOTCONF" | sed \
         -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
         -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
+        -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
         | \
         sudo bash -c "cat >> /etc/schroot/schroot.conf"
 rm -f "$TEMP_SCHROOTCONF"
