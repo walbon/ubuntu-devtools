@@ -126,18 +126,18 @@ while :; do
             name="$2"
             shift 2
             ;;
-	--source-template)
-	    TEMPLATE_SOURCES="$2"
-	    shift 2
-	    if [ ! -r $TEMPLATE_SOURCES ]; then
-		echo "W: Template file $TEMPLATE_SOURCES is not readable"
-		echo "W: Continuing with default sources!"
-	    fi
-	    ;;
-	--debootstrap-mirror)
-	    DEBOOTSTRAP_MIRROR="$2"
-	    shift 2
-	    ;;
+        --source-template)
+            TEMPLATE_SOURCES="$2"
+            shift 2
+            if [ ! -r $TEMPLATE_SOURCES ]; then
+                echo "W: Template file $TEMPLATE_SOURCES is not readable"
+                echo "W: Continuing with default sources!"
+            fi
+            ;;
+        --debootstrap-mirror)
+            DEBOOTSTRAP_MIRROR="$2"
+            shift 2
+            ;;
         --)
             shift
             break
