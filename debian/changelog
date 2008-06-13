@@ -34,7 +34,10 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
      - post_bug: Catch IOError when setting bug importance (LP: #190061)
      - mail_bug: Catch socket.error (LP: #190739)
 
- -- Siegfried-Angel Gevatter Pujals (RainCT) <rainct@ubuntu.com>  Wed, 16 Apr 2008 14:18:27 +0200
+  [ Kees Cook ]
+  * mk-sbuild-lv: don't install recommended packages during chroot install.
+
+ -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 10:10:39 -0700
 
 ubuntu-dev-tools (0.30) hardy; urgency=low
 

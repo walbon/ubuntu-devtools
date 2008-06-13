@@ -261,7 +261,7 @@ apt-get update || true
 echo set debconf/frontend Noninteractive | debconf-communicate
 echo set debconf/priority critical | debconf-communicate
 # Install basic build tool set, trying to match buildd
-apt-get -y install $BUILD_PKGS
+apt-get -y --no-install-recommends install $BUILD_PKGS
 # Set up expected /dev entries
 if [ ! -r /dev/stdin ];  then ln -s /proc/self/fd/0 /dev/stdin;  fi
 if [ ! -r /dev/stdout ]; then ln -s /proc/self/fd/1 /dev/stdout; fi
