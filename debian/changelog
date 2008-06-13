@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.32) UNRELEASED; urgency=low
+
+  * [empty changelog for new bzr commits] 
+
+ -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 11:55:24 -0700
+
 ubuntu-dev-tools (0.31) intrepid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
