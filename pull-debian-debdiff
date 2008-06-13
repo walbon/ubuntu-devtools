@@ -1,15 +1,11 @@
 #!/usr/bin/perl
-# Copyright 2007 (C) Kees Cook <kees@ubuntu.com>
-# License: GPLv2
+# Copyright 2007-2008 Kees Cook <kees@ubuntu.com>
+# License GPLv3
 #
 # This script attempts to find and download a specific version of a Debian
 # package and its immediate parent to generate a debdiff.
 #
 # Requirements: devscripts diffstat dpkg-dev
-#
-# Cleanups needed:
-#  - general cleanup
-#  - parse diff.gz/orig.tar.gz from .dsc file instead of guessing version
 
 use strict;
 use warnings;
@@ -20,28 +16,36 @@ sub geturls
     my $file;
 
     $file = "${pkg}_${version}.dsc";
-    warn "Trying $urlbase/$file ...\n";
+    print "Want '$file'\n";
     if (! -r "$file") {
-
+        warn "Trying $urlbase/$file ...\n";
         system("wget $urlbase/$file");
         return 0 if ($? != 0);
     }
 
-    warn "Pulling source of $urlbase/$file ...\n";
-
-    $file = "${pkg}_${version}.diff.gz";
-    if (! -r "$file") {
-        system("wget $urlbase/$file");
-        return 0 if ($? != 0);
+    # Parse the .dsc file for list of required files...
+    my @needed;
+    open(DSC,"$file") || return 0;
+    while (my $line=<DSC>) {
+        if ($line =~ /^Files:/) {
+            while (my $file=<DSC>) {
+                chomp($file);
+                last if ($file !~ /^ /);
+                my @parts = split(/\s+/,$file);
+                my $want = pop(@parts);
+                print "Want '$want'\n";
+                push(@needed,$want);
+            }
+        }
     }
+    close(DSC);
 
-    my $orig_ver = $version;
-    $orig_ver =~ s/-.*//;
-
-    $file = "${pkg}_${orig_ver}.orig.tar.gz";
-    if (! -r "$file") {
-        system("wget $urlbase/$file");
-        return 0 if ($? != 0);
+    foreach my $file (@needed) {
+        if (! -r "$file") {
+            warn "Pulling $urlbase/$file ...\n";
+            system("wget $urlbase/$file");
+            return 0 if ($? != 0);
+        }
     }
 
     return 1;
@@ -80,6 +84,8 @@ sub download_source
         if (!geturls($urlbase,$pkg,$version)) {
             # Try snapshot
 
+            $urlbase="http://snapshot.debian.net/package/$pkg/$version";
+            warn "Fetching snapshot url via '$urlbase' ...\n";
             $urlbase=`curl -sI 'http://snapshot.debian.net/package/$pkg/$version' | grep ^[lL]ocation | cut -d' ' -f2 | head -1`;
             $urlbase =~ s/[\r\n]//g;
             warn "Trying snapshot location '$urlbase' ...\n";
@@ -94,8 +100,10 @@ sub download_source
 }
 
 
+
 my $pkg = $ARGV[0];
 my $version = $ARGV[1];
+my $just_fetch = ($ARGV[2] && $ARGV[2] eq "--fetch");
 my $skip = $ARGV[2] || 1;
 $skip+=0;
 
@@ -106,19 +114,32 @@ if (!defined($pkg) || !defined($version)) {
 
 # Extract latest source
 die "Cannot locate $pkg $version\n" unless download_source($pkg,$version);
+exit(0) if ($just_fetch);
 system("dpkg-source -x ${pkg}_${version}.dsc");
 die "Unpack of $pkg $version failed\n" unless ($? == 0);
 
 # Locate prior changelog entry
 my $prev_ver;
-my $srcdir;
-opendir(DIR,".");
-while ($srcdir = readdir(DIR)) {
-    last if ($srcdir =~ /^${pkg}-/ && -d $srcdir);
+my $upstream_version = $version;
+if ($upstream_version =~ /^([^-]+)-/) {
+    $upstream_version = $1;
 }
-closedir(DIR);
+my $srcdir="$pkg-$upstream_version";
+if (! -d "$srcdir") {
+    undef $srcdir;
+    my $dir;
+    opendir(DIR,".");
+    while ($dir = readdir(DIR)) {
+        if ($dir =~ /^${pkg}-/ && -d $dir) {
+            $srcdir = $dir;
+            last;
+        }
+    }
+    closedir(DIR);
+}
 die "Cannot locate source tree\n" if (!defined($srcdir));
-open(LOG,"<$srcdir/debian/changelog");
+my $log = "$srcdir/debian/changelog";
+open(LOG,"<$log") || die "$log: $!\n";
 while (my $line=<LOG>) {
     if ($line =~ /^$pkg \((?:\d+:)?([^\)]+)\)/) {
         my $seen = $1;
@@ -136,8 +157,8 @@ close(LOG);
 die "Cannot find earlier source version\n" if (!defined($prev_ver));
 
 die "Cannot locate $pkg $prev_ver\n" unless download_source($pkg,$prev_ver);
-system("dpkg-source -x ${pkg}_${prev_ver}.dsc");
-die "Unpack of $pkg $prev_ver failed\n" unless ($? == 0);
+#system("dpkg-source -x ${pkg}_${prev_ver}.dsc");
+#die "Unpack of $pkg $prev_ver failed\n" unless ($? == 0);
 
 system("debdiff ${pkg}_${prev_ver}.dsc ${pkg}_${version}.dsc > ${pkg}_${version}.debdiff");
 die "Cannot debdiff\n" unless ($? == 0);

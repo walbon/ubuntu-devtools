@@ -40,8 +40,15 @@ ubuntu-dev-tools (0.31) UNRELEASED; urgency=low
   * what-patch:
     - restore previous output behavior, added logic to verbose test instead.
     - added details for each patch system report.
+  * pull-debian-debdiff:
+    - parse .dsc file for required source files.
+    - switch to GPLv3
+  * debian/control: add Depends needed for pull-debian-debdiff.
+  * debian/copyright:
+    - updated pull-debian-debdiff, which is now GPLv3.
+    - adjusted Copyright lines to make lintian happy.
 
- -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 11:10:44 -0700
+ -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 11:43:24 -0700
 
 ubuntu-dev-tools (0.30) hardy; urgency=low
 

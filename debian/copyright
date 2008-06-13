@@ -21,23 +21,23 @@ Upstream Authors:
 
 Copyright:
 
-	Canonical Ltd. 2006-2008
-	Albert Damen <albrt@gmx.net> 2007
-	Albin Tonnerre <lut1n.tne@gmail.com> 2006-2007
-	Daniel Holbach <daniel.holbach@ubuntu.com> 2006-2007
-	Luke Yelavich <themuso@ubuntu.com> 2006-2007
-	Martin Pitt <martin.pitt@ubuntu.com> 2007
-	Michael Bienia <geser@ubuntu.com> 2006-2007
-	Kees Cook <kees@ubuntu.com> 2006-2008
-	Pete Savage <petesavage@ubuntu.com> 2006-2007
-	Siegfried-A. Gevatter <rainct@ubuntu.com> 2007-2008
-	Terence Simpson <stdin@stdin.me.uk> 2007
+	(C) 2006-2008, Canonical Ltd.
+	(C) 2007, Albert Damen <albrt@gmx.net>
+	(C) 2006-2007, Albin Tonnerre <lut1n.tne@gmail.com>
+	(C) 2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
+	(C) 2006-2007, Luke Yelavich <themuso@ubuntu.com>
+	(C) 2007, Martin Pitt <martin.pitt@ubuntu.com>
+	(C) 2006-2007, Michael Bienia <geser@ubuntu.com>
+	(C) 2006-2008, Kees Cook <kees@ubuntu.com>
+	(C) 2006-2007, Pete Savage <petesavage@ubuntu.com>
+	(C) 2007-2008, Siegfried-A. Gevatter <rainct@ubuntu.com>
+	(C) 2007, Terence Simpson <stdin@stdin.me.uk>
 
 Licenses:
 
 404main, check-symbols, dch-repeat, dgetlp, mk-sbuild-lv, pbuilder-dist,
-pull-debian-debdiff, requestsync, reverse-build-depends, submittodebian,
-update-maintainer and what-patch are licensed under GPLv2:
+requestsync, reverse-build-depends, submittodebian, update-maintainer
+and what-patch are licensed under GPLv2:
 
     This package is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,8 +51,8 @@ update-maintainer and what-patch are licensed under GPLv2:
 On Debian systems, the complete text of the GNU General Public License v2
 can be found in `/usr/share/common-licenses/GPL-2'.
 
-get-branches, get-build-deps, massfile, ppaput and suspicious-source
-are licensed under GPLv3:
+get-branches, get-build-deps, debian-pull-debdiff, massfile, ppaput and
+suspicious-source are licensed under GPLv3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
