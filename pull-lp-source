@@ -1,0 +1,76 @@
+#!/usr/bin/python
+# pull-lp-source -- pull a source package from Launchpad
+# Basic usage: pull-lp-source <source package> [<distro>]
+#
+# Copyright (C) 2008 Iain Lane, BackportFromLP class taken from
+# prevu tool and:
+# Copyright (C) 2006 John Dong <jdong@ubuntu.com>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+# TODO: Determine before going to LP whether a source package and distro exist or not.
+# TODO: Determine current development distro programatically
+
+import sys,os
+
+class BackportFromLP():
+
+	def __getitem__(self, name):
+		return getattr(self, name)
+
+	def __init__(self, package, target_distro):
+		self.package=package
+		self.target_distro=target_distro
+		self.__prepare_sources()
+	def __prepare_sources(self):
+		# Scrape from Launchpad the source package :)
+		import re		
+
+		contents = os.popen('wget -q https://launchpad.net/ubuntu/%(target_distro)s/+source/%(package)s -O-' % self).read()
+		links = re.findall('a href=\"(.*\.dsc)\"', contents)
+		
+		if len(links) == 1 and (os.system("dget -xu http://launchpad.net%s" % links[0])) == 0:
+			print 'Success'
+		else:
+			raise ValueError, "Failed to fetch and extract source. Ensure that the package specified is a valid source package name and Launchpad is not down."
+
+default_distro = 'intrepid'
+
+def usage():
+	print 'Usage: %s <package> [distro]' % sys.argv[0]
+
+if __name__=='__main__':
+
+	args = sys.argv[1:] or []
+
+	if len(args) >= 1:
+		package = args[0]
+
+	if len(args) == 2:
+		distro = args[1]
+	elif len(args) == 1:
+		distro=os.getenv('DIST') or default_distro
+	else: # incorrect args
+		usage()
+		sys.exit(1)
+
+	# Correct-ish args, can proceed
+	try:
+		print 'Attempting to get %s from distro %s' % (package, distro)
+		BackportFromLP(package, distro)
+	except ValueError, e:
+		print "Error when downloading package %s from distro %s: %s" % (package, distro, e)
+
