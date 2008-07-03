@@ -1,8 +1,14 @@
 ubuntu-dev-tools (0.32) UNRELEASED; urgency=low
 
+  [ Kees Cook ]
   * [empty changelog for new bzr commits] 
 
- -- Kees Cook <kees@ubuntu.com>  Fri, 13 Jun 2008 11:55:24 -0700
+  [ Iain Lane ]
+  * Add pull-lp-source: Get source packages from LP to avoid mirror lag.
+  * requestsync: Fix bug where requestsync would fall over when requesting
+    sync for package with no local changes.
+
+ -- Iain Lane <iain@orangesquash.org.uk>  Thu, 03 Jul 2008 17:44:19 +0100
 
 ubuntu-dev-tools (0.31) intrepid; urgency=low
 
