@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-# Copyright 2007 (C) Kees Cook <kees@ubuntu.com>
+# Copyright 2007-2008 (C) Canonical, Ltd
+# Author: Kees Cook <kees@ubuntu.com>
 # License: GPLv2
 #
 # This script is used to repeat a change log into an older release.  It
@@ -30,7 +31,7 @@ EOM
     exit(0);
 }
 
-my @releases = ('dapper', 'edgy', 'feisty', 'gutsy', 'hardy');
+my @releases = ('dapper', 'feisty', 'gutsy', 'hardy', 'intrepid');
 
 #Getopt::Long::Configure("bundling", "no_ignore_case");
 our $opt_build_tree = "/scratch/ubuntu/build";
