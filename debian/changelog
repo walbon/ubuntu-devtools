@@ -7,6 +7,10 @@ ubuntu-dev-tools (0.32) UNRELEASED; urgency=low
   [ Kees Cook ]
   * dch-repeat: drop edgy, add intrepid.  Update Copyright years.
 
+  [ Mario Limonciello ]
+  * mk-sbuild-lv: Add lpia build support.
+  * mk-sbuild-lv: Copy mirror used for debootstrap into chroot too.
+
  -- Kees Cook <kees@ubuntu.com>  Wed, 09 Jul 2008 09:49:26 -0700
 
 ubuntu-dev-tools (0.31) intrepid; urgency=low
