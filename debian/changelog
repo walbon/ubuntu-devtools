@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.33) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.33) intrepid; urgency=low
 
   * update-maintainer: Stop mentioning "Modify Maintainer: value blabla" since
     it is a required global policy anyway and totally pointless changelog
