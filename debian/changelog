@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.34) UNRELEASED; urgency=low
+
+  * update-maintainer: Remove dangling reference to --nochangelog
+    in usage function.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Fri, 18 Jul 2008 13:29:53 +0100
+
 ubuntu-dev-tools (0.33) intrepid; urgency=low
 
   * update-maintainer: Stop mentioning "Modify Maintainer: value blabla" since

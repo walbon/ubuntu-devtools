@@ -7,7 +7,7 @@
 
 usage() {
 cat <<EOF
-Usage: $0 [--path=PATH] [--section=SECTION] [--nochangelog]
+Usage: $0 [--path=PATH] [--section=SECTION]
 --path=PATH 		Specify the path of the source directory.
 --section=SECTION 	Specify the section of the package (if the package is
 			not yet in the archive.
