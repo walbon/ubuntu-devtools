@@ -17,6 +17,8 @@
 import sys
 import os
 
+debian_distros = ["etch", "lenny", "sid", "stable", "testing", "unstable"]
+
 class pbuilder_dist:
 	
 	def __init__(self):
@@ -182,8 +184,18 @@ class pbuilder_dist:
 			'--logfile "%(logfile)s"' % self,
 			'--aptcache "/var/cache/apt/archives/"',
 			### --mirror "${ARCHIVE}" \
+			'--bindmounts /var/cache/archive/ --override-config'
 			]
 		
+		localrepo = '/var/cache/archive/%(target_distro)s' % self
+
+		if os.path.exists(localrepo):
+			arguments.append('--othermirror "deb file:///var/cache/archive/ %(target_distro)s/"' % self)
+
+		if self.target_distro in debian_distros:
+			arguments.append('--mirror "ftp://ftp.debian.org/debian"')
+			arguments.append('--components "main contrib non-free"')
+
 		if self.build_architecture != self.system_architecture:
 			arguments.append('--debootstrapopts --arch')
 			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
