@@ -1,0 +1,29 @@
+.TH PULL-LP-SOURCE "1" "4 August 2008" "ubuntu-dev-tools"
+.SH NAME
+pull-lp-source \- Download a source package from Launchpad
+.SH SYNOPSIS
+.B pull-lp-source <\fBsource package\fR> [\fItarget release\fR]
+
+.B pull-lp-source -h
+.SH DESCRIPTION
+.PP 
+\fBpull-lp-source\fR downloads and extracts the latest version of
+<\fBsource package\fR> from Launchpad. If the optional parameter
+[\fItarget release\fR] is specified, the latest version in that release
+will be downloaded instead.
+.SH OPTIONS
+.PP
+Listed below are the command line options for requestsync:
+.TP
+.B \-h, --help
+Display a help message and exit.
+.TP
+.B <source package>
+This is the source package that you would like to be downloaded from Launchpad.
+.TP
+.B [target release]
+This is the release that you would like the source package to be downloaded from.
+This value defaults to the current development release.
+.SH AUTHOR
+.PP
+This manual page was written by Iain Lane
