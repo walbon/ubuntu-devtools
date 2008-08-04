@@ -9,13 +9,13 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
 
   [ Iain Lane ]
   * Add pull-lp-source: Get source packages from LP to avoid mirror lag.
-  * pull-lp-source.new:
+  * pbuilder-dist.new:
      - Set mirror and componente for debian distros
      - Use local apt cache if available
   * massfile:
      - Modify to work with Firefox 3 cookies
 
- -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:29:46 +0100
+ -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:43:10 +0100
 
 ubuntu-dev-tools (0.34) intrepid; urgency=low
 
