@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.35) intrepid; urgency=low
+
+  * doc/update-maintainer.1:
+     - Remove the reference to the --no-changelog option from the manpage.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Mon, 04 Aug 2008 14:50:15 +0200
+
 ubuntu-dev-tools (0.34) intrepid; urgency=low
 
   * update-maintainer: Remove dangling reference to --nochangelog
