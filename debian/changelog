@@ -6,14 +6,17 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
   * requestsync:
      - If the email interface is used, check if DEBEMAIL is set before anything
        else (LP: #254632).
+  * massfile, examples/massfile.instructions:
+     - Make it possible to give the created bugs a determined status.
 
   [ Iain Lane ]
-  * Add pull-lp-source: Get source packages from LP to avoid mirror lag.
+  * Add pull-lp-source, which get source packages from LP to avoid mirror lag.
   * pbuilder-dist.new:
-     - Set mirror and componente for debian distros
-     - Use local apt cache if available
+     - Set mirror and component for Debian distros.
+     - Use local apt cache if available.
   * massfile:
-     - Modify to work with Firefox 3 cookies
+     - Modify it to work with Firefox 3 cookies, taking code from requestsync.
+     - Set the status to Confirmed, by default.
 
  -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:43:10 +0100
 

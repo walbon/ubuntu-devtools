@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 # (C) Canonical, 2007, GPL v3
-# Authors:
-# Iain Lane <iain@orangesquash.org.uk>, taking some code written by:
-# Daniel Hahler <ubuntu-launchpad@thequod.de>
+#
+# Modified by Iain Lane <iain@orangesquash.org.uk>, taking some code written by
+# Daniel Hahler <ubuntu@thequod.de>
 
 import os
 import sys
@@ -22,7 +22,7 @@ def read_config():
     instr = dict()
     
     for field in "subject", "assignee", "subscribers", "tags", "text", \
-                 "buglist-url":
+                 "buglist-url", "status":
         instr[field] = instructions.get(field)
     
     return instr
@@ -89,7 +89,10 @@ def file_bug(config):
             if tag.strip("\n").strip():
                 bug.tags.append(tag.strip("\n").strip())
         bug.assignee = config["assignee"]
-	bug.status = "Confirmed"
+        if config["status"]:
+            bug.status = config["status"].capitalize()
+        else:
+            bug.status = "Confirmed"
         bug.commit()
     except:
         "Bug for '%s' was not filed." % config["sourcepackage"]
@@ -123,10 +126,10 @@ def lp_cookie():
             break
 
         if cookie == None:
-            raise RuntimeError('''Could not find cookie file for Launchpad (looked in %s)
-            You should be able to create a valid file by logging into Launchpad with Firefox''') % ", ".join(try_globs)
-            
-    
+            raise RuntimeError("Could not find cookie file for Launchpad \
+(looked in %s). You should be able to create a valid file by logging into \
+Launchpad with Firefox") % ", ".join(try_globs)
+
 def main():
     if not check_configfiles():
         sys.exit(1)

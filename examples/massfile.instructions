@@ -1,5 +1,6 @@
 subject: [UNMETDEPS] $pack has unmet dependencies
 assignee: 
+status: confirmed
 subscribers: motu
 tags: unmetdeps
 buglist-url: http://bugs.launchpad.net/ubuntu/+bugs?field.tag=unmetdeps
@@ -13,4 +14,3 @@ text:
  installable (on AMD64) at the moment.
  .
  Please have a look and make sure it's installable again.
-
