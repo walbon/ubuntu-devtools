@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 #
 # (C) Canonical, 2007, GPL v3
+#
+# Modified by Iain Lane <iain@orangesquash.org.uk>, taking some code written by
+# Daniel Hahler <ubuntu@thequod.de>
 
 import os
 import sys
 import email
 import subprocess
+import glob
 
 import launchpadbugs.connector as Connector
 
@@ -18,7 +22,7 @@ def read_config():
     instr = dict()
     
     for field in "subject", "assignee", "subscribers", "tags", "text", \
-                 "buglist-url":
+                 "buglist-url", "status":
         instr[field] = instructions.get(field)
     
     return instr
@@ -66,7 +70,7 @@ def check_configfiles():
 
 def file_bug(config):
     Bug = Connector.ConnectBug()
-    Bug.authentication = os.path.expanduser("~/.lpcookie")
+    Bug.authentication = cookie
 
     try:
         summary = config["subject"].replace("$pack", config["sourcepackage"])
@@ -85,6 +89,10 @@ def file_bug(config):
             if tag.strip("\n").strip():
                 bug.tags.append(tag.strip("\n").strip())
         bug.assignee = config["assignee"]
+        if config["status"]:
+            bug.status = config["status"].capitalize()
+        else:
+            bug.status = "Confirmed"
         bug.commit()
     except:
         "Bug for '%s' was not filed." % config["sourcepackage"]
@@ -100,16 +108,38 @@ def read_buglist(url):
         
     return packages
     
-    
+def lp_cookie():
+    global cookie
+    cookie = None
+
+    # Search cookiefile (for authentication to lp)
+    if cookie == None:
+        try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite', '~/.mozilla/*/*/cookies.txt')
+        for try_glob in try_globs:
+            try:
+                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
+            except IndexError:
+                continue
+            # Found:
+            print "Using cookie file at «%s».\n" % cookiefile
+            cookie = cookiefile
+            break
+
+        if cookie == None:
+            raise RuntimeError("Could not find cookie file for Launchpad \
+(looked in %s). You should be able to create a valid file by logging into \
+Launchpad with Firefox") % ", ".join(try_globs)
+
 def main():
     if not check_configfiles():
         sys.exit(1)
 
-    if not os.path.exists(os.path.expanduser("~/.lpcookie")):
-        print >> sys.stderr, \
-            "Launchpad cookie not found in ~/.lpcookie."
+    try:
+        lp_cookie() 
+    except RuntimeError, e:
+        print e
         sys.exit(1)
-    
+
     config = read_config()
     pack_list = read_list()
     buglist = read_buglist(config["buglist-url"])

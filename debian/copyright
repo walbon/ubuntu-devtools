@@ -18,6 +18,7 @@ Upstream Authors:
 	Soren Hansen <soren@ubuntu.com>
 	Steve Kowalik <stevenk@ubuntu.com>
 	Terence Simpson <stdin@stdin.me.uk>
+	Iain Lane <iain@orangesquash.org.uk>
 
 Copyright:
 
@@ -32,6 +33,7 @@ Copyright:
 	(C) 2006-2007, Pete Savage <petesavage@ubuntu.com>
 	(C) 2007-2008, Siegfried-A. Gevatter <rainct@ubuntu.com>
 	(C) 2007, Terence Simpson <stdin@stdin.me.uk>
+	(C) 2008, Iain Lane <iain@orangesquash.org.uk>
 
 Licenses:
 
@@ -51,8 +53,8 @@ and what-patch are licensed under GPLv2:
 On Debian systems, the complete text of the GNU General Public License v2
 can be found in `/usr/share/common-licenses/GPL-2'.
 
-get-branches, get-build-deps, debian-pull-debdiff, massfile, ppaput and
-suspicious-source are licensed under GPLv3:
+get-branches, get-build-deps, debian-pull-debdiff, massfile, ppaput,
+suspicious-source and pull-lp-source are licensed under GPLv3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -68,4 +70,5 @@ can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following of the scripts can be used, at your option, regarding any
 later version of the previously specified license: 404main, pbuilder-dist,
-dgetlp, reverse-build-depends, suspicious-source and get-build-deps.
+dgetlp, reverse-build-depends, suspicious-source, pull-lp-source  and
+get-build-deps.
