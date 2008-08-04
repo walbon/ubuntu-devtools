@@ -2,6 +2,9 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
 
   * doc/update-maintainer.1:
      - Remove the reference to the --no-changelog option from the manpage.
+  * requestsync:
+     - If the email interface is used, check if DEBEMAIL is set before anything
+       else (LP: #254632).
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Mon, 04 Aug 2008 14:50:15 +0200
 
