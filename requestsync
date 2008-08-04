@@ -123,6 +123,14 @@ Options:
 '''
     sys.exit(1)
 
+def get_email_address():
+    '''Get the DEBEMAIL environment variable or give an error.'''
+    myemailaddr = os.getenv('DEBEMAIL')
+    if not myemailaddr:
+        print >> sys.stderr, 'The environment variable DEBEMAIL needs to be ' +\
+            ' set to make use of this script, unless you use option --lp.'
+    return myemailaddr
+
 def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
     '''Submit the sync request per email.
     Return True if email successfully send, otherwise False.'''
@@ -132,9 +140,8 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
 
     to = 'new@bugs.launchpad.net'
 
-    myemailaddr = os.getenv('DEBEMAIL')
+    myemailaddr = get_email_address()
     if not myemailaddr:
-        print >> sys.stderr, 'The environment variable DEBEMAIL needs to be set to make use of this script.'
         return False
 
     # generate initial mailbody
@@ -362,9 +369,12 @@ if __name__ == '__main__':
         if o == '-s':   sponsorship = True
         if o == '-k':   keyid = a
         if o == '--lp': use_lp_bugs = True
-
+    
     if len(args) not in (2, 3):
         usage()
+
+    if not use_lp_bugs and not get_email_address():
+        sys.exit(1)
 
     (srcpkg, release) = args[:2]
     force_base_ver = None

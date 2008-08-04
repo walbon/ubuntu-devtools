@@ -1,14 +1,51 @@
-ubuntu-dev-tools (0.32) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.35) intrepid; urgency=low
 
-  [ Kees Cook ]
-  * [empty changelog for new bzr commits] 
+  [ Siegfried-Angel Gevatter Pujals ]
+  * doc/update-maintainer.1:
+     - Remove the reference to the --no-changelog option from the manpage.
+  * requestsync:
+     - If the email interface is used, check if DEBEMAIL is set before anything
+       else (LP: #254632).
 
   [ Iain Lane ]
   * Add pull-lp-source: Get source packages from LP to avoid mirror lag.
+  * pull-lp-source.new:
+     - Set mirror and componente for debian distros
+     - Use local apt cache if available
+  * massfile:
+     - Modify to work with Firefox 3 cookies
+
+ -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:29:46 +0100
+
+ubuntu-dev-tools (0.34) intrepid; urgency=low
+
+  * update-maintainer: Remove dangling reference to --nochangelog
+    in usage function.
+
+ -- Luke Yelavich <themuso@ubuntu.com>  Mon, 28 Jul 2008 15:50:38 +1000
+
+ubuntu-dev-tools (0.33) intrepid; urgency=low
+
+  * update-maintainer: Stop mentioning "Modify Maintainer: value blabla" since
+    it is a required global policy anyway and totally pointless changelog
+    noise.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 18 Jul 2008 12:29:57 +0100
+
+ubuntu-dev-tools (0.32) intrepid; urgency=low
+
+  [ Iain Lane ]
   * requestsync: Fix bug where requestsync would fall over when requesting
     sync for package with no local changes.
 
- -- Iain Lane <iain@orangesquash.org.uk>  Thu, 03 Jul 2008 17:44:19 +0100
+  [ Kees Cook ]
+  * dch-repeat: drop edgy, add intrepid.  Update Copyright years.
+
+  [ Mario Limonciello ]
+  * mk-sbuild-lv: Add lpia build support.
+  * mk-sbuild-lv: Copy mirror used for debootstrap into chroot too.
+
+ -- Mario Limonciello <mario_limonciello@dell.com>  Thu, 17 Jul 2008 11:20:49 -0500
 
 ubuntu-dev-tools (0.31) intrepid; urgency=low
 

@@ -119,7 +119,7 @@ while :; do
             # By default, use the native architecture.
             arch_opt="--arch $2"
             arch_suffix="-$2"
-            if [ -z "$personality" -a "$2" = "i386" ]
+            if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
             then
                 personality="linux32"
             fi
@@ -191,6 +191,11 @@ else
     variant_opt="--variant=buildd"
 fi
 
+# are we doing an lpia build?
+if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ]; then
+    DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/"
+fi
+
 # Allocate the "golden" chroot LV
 sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
 sudo mkfs -t ext3 "$CHROOT_PATH"
@@ -208,10 +213,10 @@ if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
     cat > "$TEMP_SOURCES" <<EOM
-deb http://archive.ubuntu.com/ubuntu RELEASE main restricted universe multiverse
-deb-src http://archive.ubuntu.com/ubuntu RELEASE main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu RELEASE-updates main restricted universe multiverse
-deb-src http://archive.ubuntu.com/ubuntu RELEASE-updates main restricted universe multiverse
+deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
+deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
+deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
+deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
 deb http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 deb-src http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 EOM
