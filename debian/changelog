@@ -8,6 +8,12 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
        else (LP: #254632).
   * massfile, examples/massfile.instructions:
      - Make it possible to give the created bugs a determined status.
+  * debian/control:
+     - Bump Standards Version to 3.8.0.
+  * debian/rules:
+     - It's not necessary anymore to remove usr/lib.
+  * setup.py:
+     - Order the scripts list alphabetically and add pull-lp-source.
 
   [ Iain Lane ]
   * Add pull-lp-source, which get source packages from LP to avoid mirror lag.
@@ -18,7 +24,7 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
      - Modify it to work with Firefox 3 cookies, taking code from requestsync.
      - Set the status to Confirmed, by default.
 
- -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:29:46 +0100
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 09 Aug 2008 13:58:23 +0200
 
 ubuntu-dev-tools (0.34) intrepid; urgency=low
 
