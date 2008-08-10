@@ -1,0 +1,58 @@
+.TH DCH-REPEAT "1" "10 August 2008" "ubuntu-dev-tools"
+.SH NAME
+dch-repeat \- repeats a change log entry into an older release.
+
+.SH SYNOPSIS
+
+.B dch-repeat \-\-build-tree <\fIPATH\fR>
+
+.B dch-repeat \-\-source-release <\fIRELEASE\fR>
+
+.B dch-repeat \-\-target-release <\fIRELEASE\fR>
+
+.B dch-repeat \-\-devel-release <\fIRELEASE\fR>
+
+.B dch-repeat \-\-pocket <\fIPOCKET\fR>
+
+.B dch-repeat \-h
+
+.SH DESCRIPTION
+.PP 
+\fBdch-repeat\fR is used to repeat a change log into an older release.  It
+expects that --build-tree is laid out with each Ubuntu release as a separate
+directory ("feisty", "edgy", etc).
+
+.PP
+For example, if gimp had a security update prepared for Feisty in
+$TREE/feisty/gimp-2.2.13, running \fBdch-repeat\fR in $TREE/edgy/gimp-2.2.13
+would pull in the latest changelog from the Feisty build.
+
+.SH OPTIONS
+.PP
+Listed below are the command line options for \fBdch-repeat\fR:
+.TP
+.B \-h or \-\-help
+Display a help message and exit.
+.TP
+.B \-\-build-tree PATH
+Base of build trees. Default is /scratch/ubuntu/build.
+.TP
+.B \-s or \-\-source-release RELEASE
+Which release to take changelog from.
+.TP
+.B \-\-target-release RELEASE
+Which release to build into.
+.TP
+.B \-\-devel-release RELEASE
+Which release is the development release.
+.TP
+.B \-\-pocket POCKET
+Which pocket to use.
+
+.SH AUTHOR
+.PP
+\fBdch-repeat\fR was written by Kees Cook <kees@ubuntu.com>. This manual page was written by Jonathan Patrick Davies <jpds@ubuntu.com>.
+
+.SH SEE ALSO 
+.PP
+.BR dch(1).

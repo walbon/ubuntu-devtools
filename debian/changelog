@@ -1,10 +1,14 @@
 ubuntu-dev-tools (0.36) intrepid; urgency=low
 
     [ Jonathan Patrick Davies ]
-    * doc/what-patch.1: Written and added.
+    * doc/ Created new manpages for:
+      - what-patch.1.
+      - dch-repeat.1.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Sun 10 Aug 2008 11:02:55 +0100
+
 ubuntu-dev-tools (0.35) intrepid; urgency=low
+
   [ Siegfried-Angel Gevatter Pujals ]
   * doc/update-maintainer.1:
      - Remove the reference to the --no-changelog option from the manpage.
