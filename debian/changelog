@@ -4,6 +4,7 @@ ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
   * doc/ Created new manpages for:
     - what-patch.1.
     - dch-repeat.1.
+    - grab-attachment.1.
   * doc/requestsync.1: Described variables used by requestsync in man
     page. (LP: #237595)
 

@@ -1,3 +1,5 @@
+- Fix all bugs at Launchpad:
+  https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools
 - Create missing manpages (for all commands).
 - Modify 404main to use the more robust python-apt module.
 - Use the short version of the GPL license in all scripts.
