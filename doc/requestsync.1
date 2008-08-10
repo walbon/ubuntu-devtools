@@ -36,8 +36,8 @@ multiverse, or ubuntu-core-dev for main or restricted.
 .TP
 .B \-k \fI<keyid>\fR
 Specifies your GPG key.
-Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in
-.IR $HOME/.bashrc .
+Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in your shell's
+configuration (For example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
@@ -56,12 +56,36 @@ This should always be the latest development release of Ubuntu.
 In some cases, the base version (where the Ubuntu package started differing
 from the Debian package) cannot be automatically determined.
 Specify this option in this case.
+
+.SH ENVIRONMENT VARIABLES
+.PP
+\fBrequestsync\fR uses the following variables which should be set in your
+shell's configuration by adding \fIexport VARIABLE=\fR lines, where VARIABLE is
+one of the following:
+
+.TP
+.B GPGKEY
+Specifies your GnuPG key ID.
+.TP
+.B DEBEMAIL
+Specifies which email should be used when sending to Launchpad.
+.TP
+.B DEBSMTP
+Set which SMTP server to use when sending mail. If unspecified this defaults to
+fioldland.ubuntu.com.
+.TP
+.B DEBSMTP_PORT
+Sets which port of the SMTP server to use. Default is 25.
+.TP
+.B DEBSMTP_USER and DEBSMTP_PASS
+Sets the username and password to use when authenticating to the SMTP server.
+
 .SH AUTHOR
 .PP
 This manual page was pieced together by Steve Kowalik.
 
-It was then updated by Ryan Kavanagh and Michael Bienia to reflect
-additional features.
+It was then updated by Ryan Kavanagh, Michael Bienia, and Jonathan Patrick
+Davies to reflect additional features.
 .SH SEE ALSO 
 .PP 
 .BR rmadison (1)
