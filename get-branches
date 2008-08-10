@@ -7,29 +7,89 @@
 # This script is used to checkout or branch all the Bazaar branches
 # in a Launchpad team.
 
-import urllib2
-import sys
-import re
 import os
+import re
+import subprocess
+import sys
+import urllib2
+from optparse import OptionParser
 
 def main():
-    usage = "Usage: get-branches <directory> <team> [checkout|branch]"
-    if len(sys.argv) < 3:
-        print >> sys.stderr, usage
+    usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
+    usage += "\nUsage: %prog <team>"
+    optParser = OptionParser(usage)
+    optsParsed = 0
+
+    # Our options.
+    optParser.add_option("-d", "--directory", action = "store_true",
+            dest = "directory", help = "Directory to download branches to.")
+    optParser.add_option("-t", "--team", action = "store_true",
+            dest = "lpteam", help = "Launchpad team to download branches from.")
+    optParser.add_option("-o", "--operation", action = "store_true",
+            dest = "operation", help = "Whether to branch or checkout the " \
+                "Bazaar branches. May be either 'branch' or 'checkout'.")
+
+    (options, args) = optParser.parse_args()
+
+    # Parse our options.
+    # Dictionary settings.
+    if options.directory:
+        try:
+            directory = args[optsParsed]
+            optsParsed += 1
+        except IndexError:
+            print >> sys.stderr, "The '-d' option requires an argument."
+            optParser.print_help()
+            sys.exit(1)
+
+        if not os.path.isdir(directory): # Check that it is a directory.
+            print >> sys.stderr, "%s is not a directory." % directory
+            sys.exit(1)
+        else:
+            directory = os.path.abspath(args[0])
+    else:
+        # Otherwise use our current directory.
+        directory = os.getcwd()
+
+    # Launchpad team setting.
+    if options.lpteam:
+        try:
+            team = args[0]
+            optsParsed += 1
+        except IndexError:
+            print >> sys.stderr, "The '-t' option requires an argument."
+            optParser.print_help()
+            sys.exit(1)
+
+    # Type of Bazaar operation to perform.
+    if options.operation:
+        try: 
+            operation_type = args[optsParsed]
+            optsParsed += 1
+        except IndexError:
+            print >> sys.stderr, "The '-o' option requires an argument."
+            optParser.print_help()
+            sys.exit(1)
+
+        # Got an argument, check if it is valid.
+        if operation_type.lower() not in ("branch", "checkout"):
+            print >> sys.stderr, "Invalid operation '%s' for '-o' flag." % \
+                operation_type
+            optParser.print_help()
+            sys.exit(1)
+    else:
+        operation_type = "branch"
+
+    # No flags, and no team name specified.
+    if not options.lpteam and not args:
+        print >> sys.stderr, "No team has been specified."
+        optParser.print_help()
         sys.exit(1)
-    
-    directory = os.path.abspath(sys.argv[1]))
-    team = sys.argv[2]
-    operation_type = "branch"
-    if len(sys.argv) == 4:
-        operation_type = sys.argv[3]
+    elif args:
+        team = args[optsParsed]
 
     pwd = os.getcwd()
-    try:
-        os.chdir(directory)
-    except:
-        print >> sys.stderr, "Directory '%s' not found." % directory
-        sys.exit(1)
+    os.chdir(directory)
 
     try:
         os.makedirs(team)
@@ -37,34 +97,50 @@ def main():
         pass
     os.chdir(team)
     
-    sock = urllib2.urlopen("http://code.launchpad.net/~%s" % team)
+    # Try to open the teams code page.
+    try:
+        sock = urllib2.urlopen("https://code.launchpad.net/~%s" % team)
+    except urllib2.HTTPError:
+        print >> sys.stderr, "The page http://code.launchpad.net/~%s does " \
+            "not exist." % team
+        print >> sys.stderr, "Perhaps invalid team name?"
+        sys.exit(1)
+
     branch_list_page = sock.read()
     sock.close()
+    
     branch_page_urls_regex = r'.*<a href="/(~%s/.*)".*' % team
     branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
+    
+    print "Downloading all branches for the team '%s'. This may take some " \
+        "time." % team
+    
     for url in branch_page_urls:
-        sock = urllib2.urlopen("http://code.launchpad.net/%s" % url)
-	branch_page = sock.read()
-	sock.close()
-        branch_url_regex = r'<th>Hosted on Launchpad:</th>.*\n.*<td>(.*)</td>'
+        sock = urllib2.urlopen("https://code.launchpad.net/%s" % url)
+        branch_page = sock.read()
+        sock.close()
+	
+        branch_url_regex = r'<tt>bzr branch lp:~(.*)</tt>'
         branch_url = re.findall(branch_url_regex, branch_page)
-	print branch_url[0]
+        print "Downloading branch:", branch_url[0]
+
         if branch_url[0]:
             product = branch_url[0].split("/")[-2]
             branch_nick = branch_url[0].split("/")[-1]
-	    if not os.path.exists(product):
-		os.makedirs(product)
-	    os.chdir(product)
-	    if not os.path.exists(branch_nick):
-		os.system("bzr %s %s" % (operation_type, branch_url[0]))
-	    else:
-		os.chdir(branch_nick)
-		os.system("bzr merge --pull --remember")
-        os.chdir(os.path.join(directory, team))
+       
+  	    if not os.path.exists(product):
+  	        os.makedirs(product)
+           	os.chdir(product)
+       	       	    
+        if not os.path.exists(branch_nick):
+            subprocess.call(["bzr", operation_type, "lp:~%s" % branch_url[0]])
+        else:
+            os.chdir(branch_nick)
+            subprocess.call(["bzr", "merge", "--pull", "--remember"])
+            os.chdir(os.path.join(directory, team))
             
     os.chdir(pwd)
     sys.exit(0)
     
-
 if __name__ == "__main__":
     main()

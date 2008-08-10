@@ -11,6 +11,11 @@ ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
     - Added code to handle exceptions and short version of GPL.
     - Rewrote option handling with optparse.
     - Filter bugs subscribed to the ubuntu-archive team.
+  * get-branches:
+    - Rewrote option handling with optparse.
+    - Added short version of GPL to header.
+    - Fixed regular expressions to work with new Launchpad interface.
+    - Use subprocess.call() on Bazaar instead of os.system().
   * debian/copyright: Updated Authors and copyrights.
 
   [ Siegfried-Angel Gevatter Pujals ]
