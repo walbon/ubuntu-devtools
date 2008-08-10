@@ -1,3 +1,0 @@
-# Override useless NMU warnings; this is a native Ubuntu package.
-ubuntu-dev-tools source: changelog-should-mention-nmu
-ubuntu-dev-tools source: source-nmu-has-incorrect-version-number

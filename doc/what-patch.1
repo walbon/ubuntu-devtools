@@ -1,10 +1,10 @@
 .TH WHAT-PATCH "1" "10 August 2008" "ubuntu-dev-tools"
 .SH NAME
-what-patch \- detects which patch system a Debian package uses.
+what-patch \- detects which patch system a Debian package uses
 
 .SH SYNOPSIS
 
-.B what-patch [\-h] [\-v]
+.B what-patch [options]
 
 .SH DESCRIPTION
 .PP 
@@ -24,14 +24,16 @@ Display a help message and exit.
 .TP
 .B \-v
 Enable verbose mode. This shall include the listing of any files modified
-outside for the debian/ directory and report any addition details about the
+outside or the debian/ directory and report any additional details about the
 patch system if available.
 
-.SH AUTHOR
+.SH AUTHORS
 .PP
 \fBwhat-patch\fR was written by Kees Cook <kees@ubuntu.com>, Siegfried-A.
 Gevatter <rainct@ubuntu.com>, and Daniel Hahler <ubuntu@thequod.de>, among
 others. This manual page was written by Jonathan Patrick Davies <jpds@ubuntu.com>.
+.PP
+Both are released under the GNU General Public License, version 2.
 
 .SH SEE ALSO 
 .PP
@@ -39,4 +41,4 @@ The Ubuntu MOTU team has some documentation about patch systems at the Ubuntu
 wiki: \fBhttps://wiki.ubuntu.com/PackagingGuide/PatchSystems\fR
 
 .PP
-.BR cdbs-edit-patch (1), dbs-edit-patch (1), patch-edit-patch (1)
+.B cdbs-edit-patch(1), dbs-edit-patch(1), dpatch-edit-patch(1)
