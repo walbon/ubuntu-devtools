@@ -1,4 +1,5 @@
 - Create missing manpages (for all commands).
-- Document ubuntutools Python modules.
-- Add the process-interdiff script to ubuntu-dev-tools.
 - Modify 404main to use the more robust python-apt module.
+- Use the short version of the GPL license in all scripts.
+- Ask all authors who have used GPL if they are happy with using "or any later"
+  versions of the license.
