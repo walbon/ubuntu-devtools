@@ -7,7 +7,11 @@ ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
     - grab-attachment.1.
   * doc/requestsync.1: Described variables used by requestsync in man
     page. (LP: #237595)
-  * hugdaylist: Added code to handle exceptions.
+  * hugdaylist:
+    - Added code to handle exceptions and short version of GPL.
+    - Rewrote option handling with optparse.
+    - Filter bugs subscribed to the ubuntu-archive team.
+  * debian/copyright: Updated Authors and copyrights.
 
   [ Siegfried-Angel Gevatter Pujals ]
   * Change the versioning scheme from 0.XX to 0.XXubuntu1. Delete
