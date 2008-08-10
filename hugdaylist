@@ -21,9 +21,9 @@ try:
     import launchpadbugs.connector as Connector
     BugList = Connector.ConnectBugList()
     Bug = Connector.ConnectBug(method="Text")
-except:
+except ImportError:
     print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.25)  installed to use hugdaylist."
+	"You need python-launchpad-bugs (>= 0.2.25) installed to use hugdaylist."
     sys.exit(1)
 
 
@@ -38,7 +38,10 @@ def check_args():
         sys.exit(1)
     
     if sys.argv[1] == "-n":
-        howmany = int(sys.argv[2])
+        try:
+            howmany = int(sys.argv[2])
+        except IndexError:
+            print "Option '-n' requires a number."
         if len(sys.argv) < 4:
         	print USAGE
         	sys.exit(1)
@@ -82,5 +85,8 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
-
+    try:
+	    main()
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Aborted"
+        sys.exit(1)
