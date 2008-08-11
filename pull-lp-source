@@ -22,11 +22,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# TODO: Determine before going to LP whether a source package and distro exist or not.
 # TODO: Determine current development distro programatically
 
-import sys
 import os
+import subprocess
+import sys
+import urllib2
+from optparse import OptionParser
 
 class BackportFromLP:
 
@@ -40,13 +42,13 @@ class BackportFromLP:
 	
 	def __prepare_sources(self):
 		# Scrape the source package from Launchpad :)
-		import re		
+		import re
 
 		contents = os.popen('wget -q https://launchpad.net/ubuntu/%(target_distro)s/+source/%(package)s -O-' % self).read()
 		links = re.findall('a href=\"(.*\.dsc)\"', contents)
 		
 		if len(links) == 1 and \
-		(os.system('dget -x http://launchpad.net%s' % links[0])) == 0:
+	    subprocess.call(['dget', '-x', 'http://launchpad.net%s' % links[0]]) == 0:
 			print '\nSuccess!'
 		else:
 			raise ValueError, '\nFailed to fetch and extract the source. ' +\
@@ -55,33 +57,49 @@ class BackportFromLP:
 
 default_distro = 'intrepid'
 
-def usage():
-	print 'Usage: %s <package> [distro]' % sys.argv[0]
-
 if __name__ == '__main__':
+    usage = "Usage: %prog <package> [distribution]"
+    optParser = OptionParser(usage)
+    (options, args) = optParser.parse_args()
+    
+    if not args:
+        print >> sys.stderr, "Need arguments."
+        optParser.print_help()
+        sys.exit(1)
+    
+    package = args[0]
 
-	args = sys.argv[1:] or []
+    if len(args) == 2: # Custom distribution specified.
+        distro = args[1]
+    else:
+        distro = os.getenv('DIST') or default_distro
 
-	if args == [] or args[0] in ('-h', '--help'):
-		usage()
-		sys.exit(0)
+	# Correct-ish args, can proceed.
+    # Check distro by checking if Launchpad page exists
+    try:
+        urllib2.urlopen("https://launchpad.net/ubuntu/%s" % distro)
+    except urllib2.HTTPError:
+        print >> sys.stderr, "The distribution '%s' does not appear to exist on " \
+            "Launchpad." % distro
+        sys.exit(1)
 
-	if len(args) >= 1:
-		package = args[0]
+    # Check package exists.
+    """ TODO: Find a way to check that the package exists here.
+    madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
+        '-s', distro, package], stdout = subprocess.PIPE)
+    out = madison.communicate()[0]
+    print madison.returncode
+    assert (madison.returncode == 0)
+    if madison == 0:
+        print "The '%s' package doesn't appear to exist in %s." % (package, distro)
+        sys.exit(1)
+    """
 
-	if len(args) == 2:
-		distro = args[1]
-	elif len(args) == 1:
-		distro = os.getenv('DIST') or default_distro
-	else: # incorrect args
-		usage()
-		sys.exit(1)
-
-	# Correct-ish args, can proceed
-	try:
-		print 'Attempting to get %s from distro %s...' % \
-			(package, distro.capitalize())
-		BackportFromLP(package, distro)
-	except ValueError, e:
-		print 'Error when downloading package %s from distro %s: %s' % \
-			(package, distro, e)
+    # All good - start downloading...
+    try:
+        print 'Attempting to get %s from distro %s...' % \
+		    (package, distro.capitalize())
+        BackportFromLP(package, distro)
+    except ValueError, e:
+        print 'Error when downloading package %s from distro %s: %s' % \
+		    (package, distro, e)

@@ -4,6 +4,10 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
   * get-branches: Open the teams code page before making a new directory.
   * doc/get-branches.1: Created.
   * hugdaylist: Improved argument and error handling.
+  * pull-lp-source:
+    - Use optparse for option handling.
+    - Check that 'distro' exists on Launchpad.
+    - Use subprocess for dget calls.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com> Sun, 10 August 2008 22:07:58 +0100
 
