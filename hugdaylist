@@ -50,6 +50,7 @@ def check_args():
     # Our usage options.
     usage = "usage: %prog [-n <number>] launchpad-buglist-url"
     optParser = OptionParser(usage)
+    argsParsed = 0
 
     # Options - namely just the number of bugs to output.
     optParser.add_option("-n", "--number", action = "store_true",
@@ -57,11 +58,14 @@ def check_args():
 
     # Parse arguments.
     (options, args) = optParser.parse_args()
+    print options
+    print args
     
     # Check if we want a number other than the default.
     if options.number:
         try:
-            howmany = int(args[0])
+            howmany = int(args[argsParsed])
+            argsParsed += 1
         except:
             print >> sys.stderr, "Option '-n' requires an integer for an " \
                 "argument."
@@ -75,7 +79,7 @@ def check_args():
         optParser.print_help()
         sys.exit(1)
     else:
-        url = args[0]
+        url = args[argsParsed]
 
     return (howmany, url)
 
@@ -92,8 +96,13 @@ def filter_unsolved(b):
 
 def main(): 
     (howmany, url) = check_args()
-    
-    bl = BugList(url)
+   
+    try:
+        bl = BugList(url)
+    except:
+        print >> sys.stderr, "The page '%s' does not appear to exist." % url
+        sys.exit(1)
+
     l = filter(filter_unsolved, bl)
     
     if not l:
