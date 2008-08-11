@@ -58,7 +58,7 @@ def prepareLaunchpadCookie():
         
     # Found SQLite file. Parse information from it.
     if launchpad_cookiefile.find('cookies.sqlite') != -1:
-        from pysqlite2 import dbapi2 as sqlite
+        import sqlite3 as sqlite
         
         con = sqlite.connect(launchpad_cookiefile)
         
