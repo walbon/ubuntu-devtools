@@ -58,8 +58,6 @@ def check_args():
 
     # Parse arguments.
     (options, args) = optParser.parse_args()
-    print options
-    print args
     
     # Check if we want a number other than the default.
     if options.number:
