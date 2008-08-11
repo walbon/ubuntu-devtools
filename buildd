@@ -1,0 +1,84 @@
+#!/usr/bin/python
+# 
+#   buildd - command line interface for Launchpad buildd operations.
+#
+#   Copyright (C) 2007 Canonical Ltd.
+#   Author: Martin Pitt <martin.pitt@canonical.com>.
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import urllib2
+import re
+import sys
+from urllib import urlencode
+
+sys.path.append('/usr/share/ubuntu-dev-tools/')
+import common
+
+# Parse arguments.
+try:
+    (package, release, op) = sys.argv[1:]
+except ValueError:
+    print >> sys.stderr, '''Usage: %s <srcpackage> <release> <operation>
+    
+operation: status | retry | rescore [priority (default 5000)]''' % sys.argv[0]
+    sys.exit(1)
+
+# Prepare Launchpad cookie.
+urlopener = common.prepareLaunchpadCookie()
+
+# Find out the version in given release.
+try:
+	page = urlopener.open('https://launchpad.net/ubuntu/+source/' + package).read()
+except urllib2.HTTPError:
+    print >> sys.stderr, 'This source does not appear to exist in Ubuntu'
+    sys.exit(1)
+
+m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, package.replace('+', '\+')), page)
+if not m:
+    print >> sys.stderr, 'Cannot find this source package in this release'
+    sys.exit(1)
+version = m.group(1)
+print 'Source version:', version
+
+# Parse out build URLs, states, and arches.
+buildstats = {}
+page = urlopener.open('https://launchpad.net/ubuntu/+source/%s/%s' % (package, version))
+url = page.geturl()
+page = page.read()
+for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
+    (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
+    if m.group(2) == release:
+        print '%s: %s' % (m.group(3), m.group(4))
+        buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
+
+# Operations.
+if op == 'status':
+    sys.exit(0)
+
+for build, (arch, status) in buildstats.iteritems():
+    if op == 'rescore':
+        if status == 'Needs building':
+            print 'rescoring', build, '(%s)' % arch
+            urlopener.open(build+'/+rescore', urlencode(
+                {'SCORE': '5000', 'RESCORE': '1'}))
+    elif op == 'retry':
+        if status in ('Failed to build', 'Chroot problem', 'Failed to upload'):
+            print 'retrying', build, '(%s)' % arch
+            urlopener.open(build+'/+retry', urlencode(
+                {'RETRY': '1'}))
+    else:
+        print >> sys.stderr, 'Invalid operation'
+        sys.exit(1)
