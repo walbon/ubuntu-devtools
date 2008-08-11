@@ -37,7 +37,8 @@ operation: status | retry | rescore [priority (default 5000)]''' % sys.argv[0]
     sys.exit(1)
 
 # Prepare Launchpad cookie.
-urlopener = common.prepareLaunchpadCookie()
+launchpadCookie = common.prepareLaunchpadCookie()
+urlopener = common.setupLaunchpadUrlOpener(launchpadCookie)
 
 # Find out the version in given release.
 try:

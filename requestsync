@@ -255,23 +255,11 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
         print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
         return False
 
-    # Search cookiefile (for authentication to lp)
-    if launchpad_cookiefile == None:
-        try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite', '~/.mozilla/*/*/cookies.txt')
-        for try_glob in try_globs:
-            try:
-                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
-            except IndexError:
-                continue
-            # Found:
-            launchpad_cookiefile = cookiefile
-            print "Using cookie file at «%s».\n" % launchpad_cookiefile
-            break
-
-        if launchpad_cookiefile == None:
-            print >> sys.stderr, 'Could not find cookie file for Launchpad (looked in %s)' % ", ".join(try_globs)
-            print >> sys.stderr, 'You should be able to create a valid file by logging into Launchpad with Firefox'
-            return False
+    # Use functions from ubuntu-dev-tools to create Launchpad cookie file.
+    sys.path.append('/usr/share/ubuntu-dev-tools/')
+    import common
+    
+    launchpad_cookiefile = common.prepareLaunchpadCookie()
 
     if source_package:
         product = {'name': source_package, 'target': 'ubuntu'}

@@ -50,10 +50,10 @@ def prepareLaunchpadCookie():
 
     # Unable to find an correct file.
     if launchpad_cookiefile == None:
-        print >> sys.stderr, 'Could not find cookie file for Launchpad " \
-            "(looked in " \ %s)' % ", ".join(try_globs)
-        print >> sys.stderr, 'You should be able to create a valid file by " \
-            "logging into Launchpad with Firefox'
+        print >> sys.stderr, "Could not find cookie file for Launchpad. "
+        print >> sys.stderr, "Looked in: %s" % ", ".join(try_globs)
+        print >> sys.stderr, "You should be able to create a valid file by " \
+            "logging into Launchpad with Firefox."
         sys.exit(1)
         
     # Found SQLite file. Parse information from it.
@@ -64,7 +64,7 @@ def prepareLaunchpadCookie():
         
         cur = con.cursor()
         cur.execute("select host, path, isSecure, expiry, name, value from moz_cookies where host like ?", ['%%launchpad%%'])
-            
+        
         ftstr = ["FALSE", "TRUE"]
         
         newLPCookie = open("%s/.lpcookie.txt" % os.environ.get('HOME'), 'w')
@@ -78,13 +78,26 @@ def prepareLaunchpadCookie():
         
         newLPCookie.write("\n") # New line.
         newLPCookie.close()
+        
+        # Check what we have written.
+        checkCookie = open("%s/.lpcookie.txt" % os.environ.get('HOME')).read()
+        if checkCookie == "# HTTP Cookie File.\n\n":
+            print >> sys.stderr, "No Launchpad cookies were written to file. " \
+                "Please visit and log into Launchpad and run this script again."
+            os.remove("%s/.lpcookie.txt" % os.environ.get('HOME')) # Delete file.
+            sys.exit(1)
+        
         launchpad_cookiefile = "%s/.lpcookie.txt" % os.environ.get('HOME')
 
     print "Using cookie file at: %s." % launchpad_cookiefile
     
-    # Build HTML opener with cookie file.
+    # Return the Launchpad cookie.
+    return launchpad_cookiefile
+    
+def setupLaunchpadUrlOpener(cookie):
+    """ Build HTML opener with cookie file. """
     cj = cookielib.MozillaCookieJar()
-    cj.load(launchpad_cookiefile)
+    cj.load(cookie)
     urlopener = urllib2.build_opener()
     urlopener.add_handler(urllib2.HTTPCookieProcessor(cj))
     
