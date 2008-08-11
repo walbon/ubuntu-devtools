@@ -48,6 +48,15 @@ def main():
     (options, args) = optParser.parse_args()
 
     # Parse our options.
+    # No flags, and no team name specified.
+    if not options.lpteam and not args:
+        print >> sys.stderr, "No team has been specified."
+        optParser.print_help()
+        sys.exit(1)
+    
+    if args:
+        team = args[0]
+
     # Dictionary settings.
     if options.directory:
         try:
@@ -71,7 +80,7 @@ def main():
     # Launchpad team setting.
     if options.lpteam:
         try:
-            team = args[0]
+            team = args[optsParsed]
             optsParsed += 1
         except IndexError:
             print >> sys.stderr, "The '-t' option requires an argument."
@@ -96,14 +105,6 @@ def main():
             sys.exit(1)
     else:
         operation_type = "branch"
-
-    # No flags, and no team name specified.
-    if not options.lpteam and not args:
-        print >> sys.stderr, "No team has been specified."
-        optParser.print_help()
-        sys.exit(1)
-    elif args:
-        team = args[optsParsed]
 
     pwd = os.getcwd()
     os.chdir(directory)
