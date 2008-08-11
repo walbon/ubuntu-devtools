@@ -6,7 +6,7 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
   * hugdaylist: Improved argument and error handling.
   * pull-lp-source:
     - Use optparse for option handling.
-    - Check that 'distro' exists on Launchpad.
+    - Check that the 'release' and 'package' actually exist on Launchpad.
     - Use subprocess for dget calls.
 
   [ Siegfried-Angel Gevatter Pujals ]

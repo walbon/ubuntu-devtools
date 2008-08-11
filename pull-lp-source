@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # pull-lp-source -- pull a source package from Launchpad
-# Basic usage: pull-lp-source <source package> [<distro>]
+# Basic usage: pull-lp-source <source package> [<release>]
 #
 # Copyright (C) 2008 Iain Lane <iain@orangesquash.org.uk>
 #
@@ -26,6 +26,7 @@
 
 
 import os
+import re
 import subprocess
 import sys
 import urllib2
@@ -36,16 +37,14 @@ class BackportFromLP:
 	def __getitem__(self, name):
 		return getattr(self, name)
 	
-	def __init__(self, package, target_distro):
+	def __init__(self, package, target_release):
 		self.package = package
-		self.target_distro = target_distro
+		self.target_release = target_release
 		self.__prepare_sources()
 	
 	def __prepare_sources(self):
 		# Scrape the source package from Launchpad :)
-		import re
-
-		contents = os.popen('wget -q https://launchpad.net/ubuntu/%(target_distro)s/+source/%(package)s -O-' % self).read()
+		contents = os.popen('wget -q https://launchpad.net/ubuntu/%(target_release)s/+source/%(package)s -O-' % self).read()
 		links = re.findall('a href=\"(.*\.dsc)\"', contents)
 		
 		if len(links) == 1 and \
@@ -56,7 +55,7 @@ class BackportFromLP:
 				'Ensure that the package specified is a valid source ' +\
 				'package name and that Launchpad is not down.'
 
-default_distro = 'intrepid'
+default_release = 'intrepid'
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [distribution]"
@@ -71,36 +70,34 @@ if __name__ == '__main__':
     package = args[0]
 
     if len(args) == 2: # Custom distribution specified.
-        distro = args[1]
+        release = args[1]
     else:
-        distro = os.getenv('DIST') or default_distro
+        release = os.getenv('DIST') or default_release
 
 	# Correct-ish args, can proceed.
-    # Check distro by checking if Launchpad page exists
+    # Check release by checking if Launchpad page exists
     try:
-        urllib2.urlopen("https://launchpad.net/ubuntu/%s" % distro)
+        urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
     except urllib2.HTTPError:
-        print >> sys.stderr, "The distribution '%s' does not appear to exist on " \
-            "Launchpad." % distro
+        print >> sys.stderr, "The '%s' release does not appear to exist on " \
+            "Launchpad." % release
         sys.exit(1)
 
     # Check package exists.
-    """ TODO: Find a way to check that the package exists here.
-    madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
-        '-s', distro, package], stdout = subprocess.PIPE)
-    out = madison.communicate()[0]
-    print madison.returncode
-    assert (madison.returncode == 0)
-    if madison == 0:
-        print "The '%s' package doesn't appear to exist in %s." % (package, distro)
+    sourcePage = urllib2.urlopen("https://launchpad.net/ubuntu/%s/+source/%s" % \
+        (release, package)).read()
+    m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, \
+        package.replace('+', '\+')), sourcePage)
+    if not m:
+        print >> sys.stderr, "The '%s' package does not appear to exist in " \
+            "the '%s' release." % (package, release)
         sys.exit(1)
-    """
 
     # All good - start downloading...
     try:
-        print 'Attempting to get %s from distro %s...' % \
-		    (package, distro.capitalize())
-        BackportFromLP(package, distro)
+        print 'Attempting to get %s from release %s...' % \
+		    (package, release.capitalize())
+        BackportFromLP(package, release)
     except ValueError, e:
-        print 'Error when downloading package %s from distro %s: %s' % \
-		    (package, distro, e)
+        print 'Error when downloading package %s from release %s: %s.' % \
+		    (package, release, e)
