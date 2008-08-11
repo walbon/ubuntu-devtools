@@ -1,7 +1,10 @@
 ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
 
   [ Jonathan Patrick Davies ]
-  * get-branches: Open the teams code page before making a new directory.
+  * get-branches:
+    - Open the teams code page before making a new directory.
+    - Now check team option before anything else.
+    - Check that the team has branches before downloading.
   * doc/get-branches.1: Created.
   * hugdaylist: Improved argument and error handling.
   * pull-lp-source:
@@ -16,7 +19,6 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
   * requestsync: Use the functions in the common.py file above to authenticate
     with Launchpad.
   * debian/control: Changed XS-Python-Version to >= 2.5.
-  * get-branches: Now check team option before anything else.
 
   [ Siegfried-Angel Gevatter Pujals ]
   * Add the GNU General Public License header to all scripts.

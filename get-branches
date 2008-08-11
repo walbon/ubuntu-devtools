@@ -118,12 +118,6 @@ def main():
         print >> sys.stderr, "Perhaps invalid team name?"
         sys.exit(1)
 
-    try:
-        os.makedirs(team)
-    except:
-        pass
-    os.chdir(team)
-    
     branch_list_page = sock.read()
     sock.close()
     
@@ -132,6 +126,18 @@ def main():
     
     print "Downloading all branches for the team '%s'. This may take some " \
         "time." % team
+
+    # Check the team actually has branches.
+    if len(branch_page_urls) == 0:
+        print "The team '%s' does not have any branches on Launchpad." % team
+        os.rmdir(team)
+        sys.exit(0)
+    
+    try:
+        os.makedirs(team)
+    except:
+        pass
+    os.chdir(team)
     
     for url in branch_page_urls:
         sock = urllib2.urlopen("https://code.launchpad.net/%s" % url)
