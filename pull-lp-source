@@ -58,7 +58,7 @@ class BackportFromLP:
 default_release = 'intrepid'
 
 if __name__ == '__main__':
-    usage = "Usage: %prog <package> [distribution]"
+    usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
     (options, args) = optParser.parse_args()
     
