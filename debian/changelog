@@ -9,7 +9,7 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
     - Check that the 'release' and 'package' actually exist on Launchpad.
     - Use subprocess for dget calls.
   * buildd: Imported from Martin Pitt's scripts.
-  * ubuntutools/common.py: Python module to be used to enable the use of cookies
+  * common.py: Python module to be used to enable the use of cookies
     to authenticate with Launchpad.
   * debian/ubuntu-dev-tools.install: Added line to install common.py above to
     the correct location.
