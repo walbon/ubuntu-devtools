@@ -1,7 +1,19 @@
 #!/bin/bash
+#
 # Copyright 2007 (C) Siegfried-A. Gevatter <rainct@ubuntu.com>
 # Based upon a script by Martin Pitt <martin.pitt@ubuntu.com>
-# License: GPLv3 or later
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# See file /usr/share/common-licenses/GPL for more details.
 #
 # This script outputs a list of files which are not common source files. This
 # should be run in the root of a source tree to find files which might not be

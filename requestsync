@@ -9,7 +9,20 @@
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <iain@orangesquash.org.uk>
 #
-# License: GPLv2, see /usr/share/common-licenses/GPL-2
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 2.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-2 for more details.
+#
+# ##################################################################
 
 import os, sys, urllib, subprocess, getopt
 from debian_bundle.changelog import Version
