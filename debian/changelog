@@ -2,6 +2,7 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
 
   [ Jonathan Patrick Davies ]
   * get-branches: Open the teams code page before making a new directory.
+  * doc/get-branches.1: Created.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com> Sun, 10 August 2008 22:07:58 +0100
 

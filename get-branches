@@ -59,7 +59,8 @@ def main():
             sys.exit(1)
 
         if not os.path.isdir(directory): # Check that it is a directory.
-            print >> sys.stderr, "%s is not a directory." % directory
+            print >> sys.stderr, "%s is not a valid directory." % directory
+            optParser.print_help()
             sys.exit(1)
         else:
             directory = os.path.abspath(args[0])
@@ -138,7 +139,7 @@ def main():
 	
         branch_url_regex = r'<tt>bzr branch lp:~(.*)</tt>'
         branch_url = re.findall(branch_url_regex, branch_page)
-        print "Downloading branch:", branch_url[0]
+        print "Downloading branch: lp:~%s." % branch_url[0]
 
         if branch_url[0]:
             product = branch_url[0].split("/")[-2]
