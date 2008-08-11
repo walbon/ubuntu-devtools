@@ -107,21 +107,21 @@ def main():
     pwd = os.getcwd()
     os.chdir(directory)
 
+    # Try to open the teams code page.
+    try:
+        sock = urllib2.urlopen("https://code.launchpad.net/~%s" % team)
+    except urllib2.HTTPError:
+        print >> sys.stderr, "The page https://code.launchpad.net/~%s does " \
+            "not exist." % team
+        print >> sys.stderr, "Perhaps invalid team name?"
+        sys.exit(1)
+
     try:
         os.makedirs(team)
     except:
         pass
     os.chdir(team)
     
-    # Try to open the teams code page.
-    try:
-        sock = urllib2.urlopen("https://code.launchpad.net/~%s" % team)
-    except urllib2.HTTPError:
-        print >> sys.stderr, "The page http://code.launchpad.net/~%s does " \
-            "not exist." % team
-        print >> sys.stderr, "Perhaps invalid team name?"
-        sys.exit(1)
-
     branch_list_page = sock.read()
     sock.close()
     
