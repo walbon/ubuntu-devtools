@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 from distutils.core import setup
 import glob
@@ -16,6 +16,7 @@ if os.path.exists(changelog):
 setup(name='ubuntu-dev-tools',
       version=version,
       scripts=['404main',
+               'buildd',
                'check-symbols',
                'dch-repeat',
                'dgetlp',
