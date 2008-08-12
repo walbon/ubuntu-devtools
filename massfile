@@ -29,6 +29,10 @@ import glob
 
 import launchpadbugs.connector as Connector
 
+sys.path.append('/usr/share/ubuntu-dev-tools/')
+import common
+
+cookie = common.prepareLaunchpadCookie()
 
 def read_config():
     instructions_file = open("instructions")
@@ -55,8 +59,7 @@ def read_list():
 
 def file_bug():
     Bug = Connector.ConnectBug()
-    Bug.authentication = os.path.expanduser("~/.lpcookie")
-
+    Bug.authentication = cookie
 
 def check_configfiles():
     result = True
@@ -85,11 +88,6 @@ def check_configfiles():
 
 def file_bug(config):
     Bug = Connector.ConnectBug()
-
-    sys.path.append('/usr/share/ubuntu-dev-tools/')
-    import common
-
-    cookie = common.prepareLaunchpadCookie()
 
     Bug.authentication = cookie
 
