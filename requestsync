@@ -57,14 +57,14 @@ def checkNeedsSponsorship(component):
     if component in ['main', 'restricted']:
         team = "ubuntu-core-dev"
         sponsor = "ubuntu-main-sponsors"
-        teamLPPage = urlopener.open('https://launchpad.net/~%s').read()
     else:
         team = "ubuntu-dev"
         sponsor = "ubuntu-universe-sponsors"
-        teamLPPage = urlopener.open('https://launchpad.net/~%s').read()
+
+    teamLPPage = urlopener.open('https://launchpad.net/~%s' % team).read()
 
     if 'You are not a member of this team:' in teamLPPage:
-        print "You are not a member (direct or indirect) of the %s " \
+        print "You are not a member (direct or indirect) of the '%s' " \
             "team on Launchpad." % team
         print "Your sync request shall require an approval by a member of " \
             "the %s team." % sponsor
