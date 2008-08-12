@@ -3,6 +3,7 @@
 #             ubuntu-dev-tools package.
 #
 # Copyright (C) 2008 Jonathan Patrick Davies <jpds@ubuntu.com>
+# Copyright (C) 2008 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # Some of the functions are based upon code written by Martin Pitt
 # <martin.pitt@ubuntu.com> and Kees Cook <kees@ubuntu.com>.
@@ -28,6 +29,37 @@ import glob
 import os.path
 import sys
 import urllib2
+
+def mkdir(directory):
+    """ Create the given directory and all its parents recursively, but don't
+        raise an exception if it already exists. """
+    
+    path = [x for x in directory.split('/') if x]
+    
+    for i in xrange(len(path)):
+        current_path = '/' + '/'.join(path[:i+1])
+        if not os.path.isdir(current_path):
+            os.mkdir(current_path)
+
+def readlist(filename, uniq=True):
+    """ Read a list of words from the indicated file. """
+    
+    if not os.path.isfile(filename):
+        print 'File "%s" does not exist.' % filename
+        return False
+    
+    content = open(filename).read().replace('\n', ' ').replace(',', ' ')
+    
+    if not content.strip():
+        print 'File "%s" is empty.' % filename
+        return False
+    
+    items = [item for item in content.split() if item]
+    
+    if uniq:
+        items = list(set(items))
+    
+    return items
 
 def prepareLaunchpadCookie():
     """ Search for a cookie file in the places as defined by try_globs.

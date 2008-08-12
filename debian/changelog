@@ -10,6 +10,8 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
      - Change the license of all scripts from Kees Cook to the GPL version 3
        or later.
      - Order the script names alphabetically in debian/copyright.
+  * common.py:
+     - Add functions mkdir and readlist.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 12 Aug 2008 20:09:42 +0200
 
