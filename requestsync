@@ -27,7 +27,6 @@
 
 import getopt
 import os
-import re
 import subprocess
 import sys
 import urllib
@@ -335,7 +334,8 @@ def edit_report(subject, body, changes_required=False):
     program exits.
     Returns (new_subject, new_body).
     """
-    import  string
+    import re
+    import string
 
     report = "Summary (one line):\n%s\n\nDescription:\n%s" % (subject, body)
 
@@ -393,14 +393,14 @@ if __name__ == '__main__':
         if o == '-n':   newsource = True
         if o == '-k':   keyid = a
         if o == '--lp': use_lp_bugs = True
-    
-    sponsorship = checkNeedsSponsorship()
 
     if len(args) not in (2, 3):
         usage()
 
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
+    
+    sponsorship = checkNeedsSponsorship()
 
     (srcpkg, release) = args[:2]
     force_base_ver = None
