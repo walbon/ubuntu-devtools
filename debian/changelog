@@ -16,8 +16,13 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
     to authenticate with Launchpad.
   * debian/ubuntu-dev-tools.install: Added line to install common.py above to
     the correct location.
-  * requestsync: Use the functions in the common.py file above to authenticate
-    with Launchpad.
+  * requestsync:
+    - Use the functions in the common.py file above to authenticate with
+      Launchpad.
+    - Using the Launchpad cookie file, validate that the user is a member of
+      the ubuntu-dev team on Launchpad. Thus, checking if the user needs
+      sponsership or not (LP: #130648).
+  * doc/requestsync.1: Removed mention of -s flag. Obsoleted by the above.
   * debian/control: Changed XS-Python-Version to >= 2.5.
 
   [ Siegfried-Angel Gevatter Pujals ]

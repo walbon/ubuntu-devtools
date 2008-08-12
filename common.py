@@ -89,8 +89,6 @@ def prepareLaunchpadCookie():
         
         launchpad_cookiefile = "%s/.lpcookie.txt" % os.environ.get('HOME')
 
-    print "Using cookie file at: %s." % launchpad_cookiefile
-    
     # Return the Launchpad cookie.
     return launchpad_cookiefile
     

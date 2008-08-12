@@ -8,6 +8,7 @@
 #  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <iain@orangesquash.org.uk>
+#  Jonathan Patrick Davies <jpds@ubuntu.com>
 #
 # ##################################################################
 #
@@ -24,17 +25,45 @@
 #
 # ##################################################################
 
-import os, sys, urllib, subprocess, getopt
+import getopt
+import os
+import re
+import subprocess
+import sys
+import urllib
 from debian_bundle.changelog import Version
 
-# Set this to the path of your Launchpad cookie file, when using
-# python-launchpad-bugs support (--lp).
-# The following will be tried automatically, if unset (first match gets used):
-# 1. ~/.lpcookie.txt
-# 2. ~/.mozilla/*/*/cookies.sqlite
-# 3. ~/.mozilla/*/*/cookies.txt
-launchpad_cookiefile = None
+# Use functions from ubuntu-dev-tools to create Launchpad cookie file.
+sys.path.append('/usr/share/ubuntu-dev-tools/')
+import common
+    
+launchpad_cookiefile = common.prepareLaunchpadCookie()
 
+def checkNeedsSponsorship():
+    """
+        Check that the user has the appropriate permissions by checking what
+        Launchpad returns while authenticating with their cookie.
+
+        If they are an indirect or direct member of the ~ubuntu-dev team on
+        Launchpad - sponsorship is not required.
+
+        The prepareLaunchpadCookie function above shall ensure that a cookie
+        file exists first.
+    """
+    urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
+    
+    ubuntuDevLPPage = urlopener.open('https://launchpad.net/~ubuntu-dev').read()
+
+    if 'You are not a member of this team:' in ubuntuDevLPPage:
+        print "You are not a member (direct or indirect) of the ~ubuntu-dev " \
+            "team on Launchpad."
+        print "Your sync request shall require an approval by a member of " \
+            "either the ubuntu-main-sponsors or the ubuntu-universe-sponsors " \
+            "team,"
+        print "before it is processed by a member of the Ubuntu Archive admins."
+        return True # Sponsorship required.
+    else:
+        return False # Sponsorship not required.
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -247,7 +276,6 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     Return True if successfully posted, otherwise False.'''
 
     import glob, os.path
-    global launchpad_cookiefile
 
     try:
         import launchpadbugs.connector
@@ -255,11 +283,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
         print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
         return False
 
-    # Use functions from ubuntu-dev-tools to create Launchpad cookie file.
-    sys.path.append('/usr/share/ubuntu-dev-tools/')
-    import common
-    
-    launchpad_cookiefile = common.prepareLaunchpadCookie()
+    print "Using cookie file at", launchpad_cookiefile
 
     if source_package:
         product = {'name': source_package, 'target': 'ubuntu'}
@@ -311,7 +335,7 @@ def edit_report(subject, body, changes_required=False):
     program exits.
     Returns (new_subject, new_body).
     """
-    import re, string
+    import  string
 
     report = "Summary (one line):\n%s\n\nDescription:\n%s" % (subject, body)
 
@@ -361,16 +385,17 @@ if __name__ == '__main__':
     need_interaction = False
 
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsk:', ('lp'))
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnk:', ('lp'))
     except getopt.GetoptError:
         usage()
     for o, a in opts:
         if o == '-h':   usage()
         if o == '-n':   newsource = True
-        if o == '-s':   sponsorship = True
         if o == '-k':   keyid = a
         if o == '--lp': use_lp_bugs = True
     
+    sponsorship = checkNeedsSponsorship()
+
     if len(args) not in (2, 3):
         usage()
 
