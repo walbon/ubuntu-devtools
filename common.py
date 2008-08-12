@@ -67,7 +67,11 @@ def prepareLaunchpadCookie():
         
         ftstr = ["FALSE", "TRUE"]
         
-        newLPCookie = open("%s/.lpcookie.txt" % os.environ.get('HOME'), 'w')
+        # This shall be where our new cookie file lives - at ~/.lpcookie.txt
+        newLPCookieLocation = "%s/.lpcookie.txt" % os.environ.get('HOME')
+        
+        # Open file for writing.
+        newLPCookie = open(newLPCookieLocation, 'w')
         newLPCookie.write("# HTTP Cookie File.\n") # Header.
         
         for item in cur.fetchall():
@@ -77,15 +81,19 @@ def prepareLaunchpadCookie():
                 ftstr[item[2]], item[3], item[4], item[5]))
         
         newLPCookie.write("\n") # New line.
-        newLPCookie.close()
+        newLPCookie.close()     # And close file.
         
         # Check what we have written.
-        checkCookie = open("%s/.lpcookie.txt" % os.environ.get('HOME')).read()
+        checkCookie = open(newLPCookieLocation).read()
         if checkCookie == "# HTTP Cookie File.\n\n":
             print >> sys.stderr, "No Launchpad cookies were written to file. " \
                 "Please visit and log into Launchpad and run this script again."
-            os.remove("%s/.lpcookie.txt" % os.environ.get('HOME')) # Delete file.
+            os.remove(newLPCookieLocation) # Delete file.
             sys.exit(1)
+        
+        # For security reasons, change file mode to write and read
+        # only by owner.
+        os.chmod(newLPCookieLocation, 0600)
         
         launchpad_cookiefile = "%s/.lpcookie.txt" % os.environ.get('HOME')
 
