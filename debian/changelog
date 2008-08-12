@@ -23,6 +23,9 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
       the ubuntu-dev team on Launchpad. Thus, checking if the user needs
       sponsership or not (LP: #130648).
   * doc/requestsync.1: Removed mention of -s flag. Obsoleted by the above.
+  * massfile:
+    - Use the functions in the common.py file above to authenticate with
+      Launchpad.
   * debian/control: Changed XS-Python-Version to >= 2.5.
 
   [ Siegfried-Angel Gevatter Pujals ]

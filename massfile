@@ -85,6 +85,12 @@ def check_configfiles():
 
 def file_bug(config):
     Bug = Connector.ConnectBug()
+
+    sys.path.append('/usr/share/ubuntu-dev-tools/')
+    import common
+
+    cookie = common.prepareLaunchpadCookie()
+
     Bug.authentication = cookie
 
     try:
@@ -122,37 +128,9 @@ def read_buglist(url):
             packages.add(bug.sourcepackage)
         
     return packages
-    
-def lp_cookie():
-    global cookie
-    cookie = None
-
-    # Search cookiefile (for authentication to lp)
-    if cookie == None:
-        try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite', '~/.mozilla/*/*/cookies.txt')
-        for try_glob in try_globs:
-            try:
-                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
-            except IndexError:
-                continue
-            # Found:
-            print "Using cookie file at «%s».\n" % cookiefile
-            cookie = cookiefile
-            break
-
-        if cookie == None:
-            raise RuntimeError("Could not find cookie file for Launchpad \
-(looked in %s). You should be able to create a valid file by logging into \
-Launchpad with Firefox") % ", ".join(try_globs)
 
 def main():
     if not check_configfiles():
-        sys.exit(1)
-
-    try:
-        lp_cookie() 
-    except RuntimeError, e:
-        print e
         sys.exit(1)
 
     config = read_config()
