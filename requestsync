@@ -38,27 +38,36 @@ import common
     
 launchpad_cookiefile = common.prepareLaunchpadCookie()
 
-def checkNeedsSponsorship():
+def checkNeedsSponsorship(component):
     """
         Check that the user has the appropriate permissions by checking what
         Launchpad returns while authenticating with their cookie.
 
         If they are an indirect or direct member of the ~ubuntu-dev team on
-        Launchpad - sponsorship is not required.
+        Launchpad - sponsorship is not required if the package is in the
+        universe / multiverse component.
+
+        If they are in the ~ubuntu-core-dev team, no sponsorship required.
 
         The prepareLaunchpadCookie function above shall ensure that a cookie
         file exists first.
     """
     urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
     
-    ubuntuDevLPPage = urlopener.open('https://launchpad.net/~ubuntu-dev').read()
+    if component in ['main', 'restricted']:
+        team = "ubuntu-core-dev"
+        sponsor = "ubuntu-main-sponsors"
+        teamLPPage = urlopener.open('https://launchpad.net/~%s').read()
+    else:
+        team = "ubuntu-dev"
+        sponsor = "ubuntu-universe-sponsors"
+        teamLPPage = urlopener.open('https://launchpad.net/~%s').read()
 
-    if 'You are not a member of this team:' in ubuntuDevLPPage:
-        print "You are not a member (direct or indirect) of the ~ubuntu-dev " \
-            "team on Launchpad."
+    if 'You are not a member of this team:' in teamLPPage:
+        print "You are not a member (direct or indirect) of the %s " \
+            "team on Launchpad." % team
         print "Your sync request shall require an approval by a member of " \
-            "either the ubuntu-main-sponsors or the ubuntu-universe-sponsors " \
-            "team,"
+            "the %s team." % sponsor
         print "before it is processed by a member of the Ubuntu Archive admins."
         return True # Sponsorship required.
     else:
@@ -399,7 +408,6 @@ if __name__ == '__main__':
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
     
-    sponsorship = checkNeedsSponsorship()
 
     (srcpkg, release) = args[:2]
     force_base_ver = None
@@ -411,6 +419,8 @@ if __name__ == '__main__':
 
     debiancomponent = debian_component(srcpkg)
     deb_version = cur_deb_version(srcpkg)
+    
+    sponsorship = checkNeedsSponsorship(component)
 
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)

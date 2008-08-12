@@ -1,6 +1,8 @@
 ubuntu-dev-tools (0.38ubuntu1) intrepid; urgency=low
 
-  * Changes go here.
+  [ Jonathan Patrick Davies ]
+  * requestsync: Check if user is a member of ubuntu-core-dev if sync request
+    is for a package in main.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 14:52:34 +0100
 
