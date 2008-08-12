@@ -3,7 +3,15 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
   [ Jonathan Patrick Davies ]
   * common.py: Use os.path.expanduser() instead of os.environ.
 
- -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 18:32:05 +0100
+  [ Siegfried-Angel Gevatter Pujals ]
+  * debian/control:
+     - Add sbuild as an alternative recommends to pbuilder.
+  * what-patch, pull-debian-debdiff, mk-sbuild-lv, dch-repat, debian/copyright:
+     - Change the license of all scripts from Kees Cook to the GPL version 3
+       or later.
+     - Order the script names alphabetically in debian/copyright.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 12 Aug 2008 20:09:42 +0200
 
 ubuntu-dev-tools (0.38ubuntu1) intrepid; urgency=low
 
