@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.38ubuntu1) intrepid; urgency=low
+
+  * Changes go here.
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 14:52:34 +0100
+
 ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
 
   [ Jonathan Patrick Davies ]
@@ -33,7 +39,7 @@ ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
   * Remove files AUTHORS (it duplicated content from debian/copyright) and
     README (superseded by the manpages).
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Mon, 11 Aug 2008 19:44:53 +0200
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 14:48:35 +0100
 
 ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
 
