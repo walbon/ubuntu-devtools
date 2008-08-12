@@ -68,7 +68,7 @@ def prepareLaunchpadCookie():
         ftstr = ["FALSE", "TRUE"]
         
         # This shall be where our new cookie file lives - at ~/.lpcookie.txt
-        newLPCookieLocation = "%s/.lpcookie.txt" % os.environ.get('HOME')
+        newLPCookieLocation = os.path.expanduser("~/lpcookie.txt")
         
         # Open file for writing.
         newLPCookie = open(newLPCookieLocation, 'w')
@@ -95,7 +95,7 @@ def prepareLaunchpadCookie():
         # only by owner.
         os.chmod(newLPCookieLocation, 0600)
         
-        launchpad_cookiefile = "%s/.lpcookie.txt" % os.environ.get('HOME')
+        launchpad_cookiefile = newLPCookieLocation
 
     # Return the Launchpad cookie.
     return launchpad_cookiefile
