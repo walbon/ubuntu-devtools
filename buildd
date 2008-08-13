@@ -31,8 +31,12 @@ from urllib import urlencode
 sys.path.append('/usr/share/ubuntu-dev-tools/')
 import common
 
+# Usage.
+usage = "%prog <srcpackage> <release> <operation>\n\n"
+usage += "Where operation may be one of: rescore, retry, or status.\n"
+usage += "Only Launchpad Buildd Admins may rescore package builds."
+
 # Prepare our option parser.
-usage = "%prog <srcpackage> <release> <operation>"
 optParser = OptionParser(usage)
 
 # Retry options 
