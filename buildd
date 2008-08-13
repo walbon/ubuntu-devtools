@@ -3,7 +3,9 @@
 #   buildd - command line interface for Launchpad buildd operations.
 #
 #   Copyright (C) 2007 Canonical Ltd.
-#   Author: Martin Pitt <martin.pitt@canonical.com>.
+#   Authors:
+#    - Martin Pitt <martin.pitt@canonical.com>
+#    - Jonathan Patrick Davies <jpds@ubuntu.com>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -19,22 +21,50 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import urllib2
 import re
 import sys
+import urllib2
+from optparse import OptionGroup
+from optparse import OptionParser
 from urllib import urlencode
 
 sys.path.append('/usr/share/ubuntu-dev-tools/')
 import common
 
-# Parse arguments.
-try:
-    (package, release, op) = sys.argv[1:]
-except ValueError:
-    print >> sys.stderr, '''Usage: %s <srcpackage> <release> <operation>
-    
-operation: status | retry | rescore [priority (default 5000)]''' % sys.argv[0]
+# Prepare our option parser.
+usage = "%prog <srcpackage> <release> <operation>"
+optParser = OptionParser(usage)
+
+# Retry options 
+retryOptions = OptionGroup(optParser, "Retry options",
+    "These options may only be used with the 'retry' operation.")
+retryOptions.add_option("-a", "--arch", type = "string",
+    action = "store", dest = "architecture",
+    help = "Try to rebuild a specific architecture.")
+
+# Add the retry options to the main group.
+optParser.add_option_group(retryOptions)
+
+# Parse our options.
+(options, args) = optParser.parse_args()
+
+# Check we have the correct number of arguments.
+if len(args) < 3:
+    optParser.error("Incorrect number of arguments.")
+
+package = str(args[0])
+release = str(args[1])
+op      = str(args[2]).lower()
+
+# Check our operation.
+if op not in ("rescore", "retry", "status"):
+    print >> sys.stderr, "Invalid operation: %s." % op
     sys.exit(1)
+
+# If the user has specified an architecture to build, we only wish to rebuild it
+# and nothing else.
+if options.architecture: oneArch = True
+else: oneArch = False
 
 # Prepare Launchpad cookie.
 launchpadCookie = common.prepareLaunchpadCookie()
@@ -44,15 +74,24 @@ urlopener = common.setupLaunchpadUrlOpener(launchpadCookie)
 try:
 	page = urlopener.open('https://launchpad.net/ubuntu/+source/' + package).read()
 except urllib2.HTTPError:
-    print >> sys.stderr, 'This source does not appear to exist in Ubuntu'
+    print >> sys.stderr, "The source package (%s) does not appear to exist " \
+        "in Ubuntu." % package
     sys.exit(1)
 
-m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, package.replace('+', '\+')), page)
+m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
+    package.replace('+', '\+')), page)
 if not m:
-    print >> sys.stderr, 'Cannot find this source package in this release'
+    print >> sys.stderr, "Cannot find this source package (%s) in this " \
+        "release (%s)." % (package, release.capitalize())
     sys.exit(1)
+
 version = m.group(1)
-print 'Source version:', version
+
+# Output details.
+print "The source version for '%s' in %s is at %s." % (package,
+    release.capitalize(), version)
+
+print "Current build status for this package is as follows:"
 
 # Parse out build URLs, states, and arches.
 buildstats = {}
@@ -62,7 +101,7 @@ page = page.read()
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
-        print '%s: %s' % (m.group(3), m.group(4))
+        print '%s: %s.' % (m.group(3), m.group(4))
         buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
 
 # Operations.
@@ -72,14 +111,15 @@ if op == 'status':
 for build, (arch, status) in buildstats.iteritems():
     if op == 'rescore':
         if status == 'Needs building':
-            print 'rescoring', build, '(%s)' % arch
-            urlopener.open(build+'/+rescore', urlencode(
+            print 'Rescoring', build, '(%s).' % arch
+            urlopener.open(build + '/+rescore', urlencode(
                 {'SCORE': '5000', 'RESCORE': '1'}))
     elif op == 'retry':
         if status in ('Failed to build', 'Chroot problem', 'Failed to upload'):
-            print 'retrying', build, '(%s)' % arch
-            urlopener.open(build+'/+retry', urlencode(
+            if oneArch and not options.architecture == arch:
+                # Skip this architecture.
+                continue
+            
+            print 'Retrying:', build, '(%s).' % arch
+            urlopener.open(build + '/+retry', urlencode(
                 {'RETRY': '1'}))
-    else:
-        print >> sys.stderr, 'Invalid operation'
-        sys.exit(1)

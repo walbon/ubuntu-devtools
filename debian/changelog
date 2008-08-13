@@ -2,6 +2,10 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
 
   [ Jonathan Patrick Davies ]
   * common.py: Use os.path.expanduser() instead of os.environ.
+  * buildd:
+    - Added optparse support for option handling.
+    - Added support to request the rebuilding of only one architecture.
+  * hugdaylist: Improved number of bugs option handling.
 
   [ Siegfried-Angel Gevatter Pujals ]
   * debian/control:

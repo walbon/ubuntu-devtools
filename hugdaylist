@@ -54,22 +54,14 @@ def check_args():
     argsParsed = 0
 
     # Options - namely just the number of bugs to output.
-    optParser.add_option("-n", "--number", action = "store_true",
+    optParser.add_option("-n", "--number", type = "int",
             dest = "number", help = "Number of entries to output.")
 
     # Parse arguments.
     (options, args) = optParser.parse_args()
     
     # Check if we want a number other than the default.
-    if options.number:
-        try:
-            howmany = int(args[argsParsed])
-            argsParsed += 1
-        except:
-            print >> sys.stderr, "Option '-n' requires an integer for an " \
-                "argument."
-            optParser.print_help()
-            sys.exit(1)
+    howmany = options.number
 
     # Check that we have an URL.
     if not args:
