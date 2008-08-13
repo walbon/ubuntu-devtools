@@ -52,8 +52,8 @@ optParser.add_option_group(retryOptions)
 if len(args) < 3:
     optParser.error("Incorrect number of arguments.")
 
-package = str(args[0])
-release = str(args[1])
+package = str(args[0]).lower()
+release = str(args[1]).lower()
 op      = str(args[2]).lower()
 
 # Check our operation.
@@ -63,8 +63,18 @@ if op not in ("rescore", "retry", "status"):
 
 # If the user has specified an architecture to build, we only wish to rebuild it
 # and nothing else.
-if options.architecture: oneArch = True
-else: oneArch = False
+if op != "retry" and options.architecture:
+    print >> sys.stderr, "Operation %s does not use the --arch option." % op
+    sys.exit(1)
+elif op == "retry" and options.architecture:
+    if options.architecture not in ("sparc", "powerpc", "lpia", "ia64", "i386",
+        "hppa", "amd64"):
+        print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
+        sys.exit(1)
+    else:
+        oneArch = True
+else:
+    oneArch = False
 
 # Prepare Launchpad cookie.
 launchpadCookie = common.prepareLaunchpadCookie()
