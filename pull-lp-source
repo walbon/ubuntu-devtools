@@ -34,26 +34,26 @@ from optparse import OptionParser
 
 class BackportFromLP:
 
-	def __getitem__(self, name):
-		return getattr(self, name)
-	
-	def __init__(self, package, target_release):
-		self.package = package
-		self.target_release = target_release
-		self.__prepare_sources()
-	
-	def __prepare_sources(self):
-		# Scrape the source package from Launchpad :)
-		contents = urllib2.urlopen('https://launchpad.net/ubuntu/%(target_release)s/+source/%(package)s' % self).read()
-		links = re.findall('a href=\"(.*\.dsc)\"', contents)
-		
-		if len(links) == 1 and \
-	    subprocess.call(['dget', '-x', 'http://launchpad.net%s' % links[0]]) == 0:
-			print '\nSuccess!'
-		else:
-			raise ValueError, '\nFailed to fetch and extract the source. ' +\
-				'Ensure that the package specified is a valid source ' +\
-				'package name and that Launchpad is not down.'
+    def __getitem__(self, name):
+        return getattr(self, name)
+    
+    def __init__(self, package, target_release):
+        self.package = package
+        self.target_release = target_release
+        self.__prepare_sources()
+    
+    def __prepare_sources(self):
+        # Scrape the source package from Launchpad :)
+        contents = urllib2.urlopen('https://launchpad.net/ubuntu/%(target_release)s/+source/%(package)s' % self).read()
+        links = re.findall('a href=\"(.*\.dsc)\"', contents)
+        
+        if len(links) == 1 and \
+        subprocess.call(['dget', '-xu', 'http://launchpad.net%s' % links[0]]) == 0:
+            print '\nSuccess!'
+        else:
+            raise ValueError, '\nFailed to fetch and extract the source. ' +\
+                'Ensure that the package specified is a valid source ' +\
+                'package name and that Launchpad is not down.'
 
 default_release = 'intrepid'
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     else:
         release = os.getenv('DIST') or default_release
 
-	# Correct-ish args, can proceed.
+    # Correct-ish args, can proceed.
     # Check release by checking if Launchpad page exists
     try:
         urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
@@ -84,20 +84,43 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # Check package exists.
-    sourcePage = urllib2.urlopen("https://launchpad.net/ubuntu/%s/+source/%s" % \
-        (release, package)).read()
-    m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, \
-        package.replace('+', '\+')), sourcePage)
-    if not m:
-        print >> sys.stderr, "The '%s' package does not appear to exist in " \
-            "the '%s' release." % (package, release)
+    try:
+
+        sourcePage = urllib2.urlopen("https://launchpad.net/ubuntu/%s/+source/%s" % \
+            (release, package)).read()
+        m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, \
+            package.replace('+', '\+')), sourcePage)
+    
+        if not m:
+            print >> sys.stderr, "The '%s' package does not appear to exist in " \
+                "the '%s' release." % (package, release)
+            sys.exit(1)
+
+    except urllib2.HTTPError, e: # Raised on 404
+           
+        if e.code == 404:
+
+            print >> sys.stderr, "The '%s' package does not appear to exist in " \
+                "the '%s' release." % (package, release)
+
+        else: # Other code, probably LP malfunction
+            
+            print >> sys.stderr, "Error when checking Launchpad for package: %s " % e
+
         sys.exit(1)
+
+    except urllib2.URLError, e: # Other error (NXDOMAIN, ...)
+
+            (_, reason) = e.reason
+
+            print >> sys.stderr, "Error when checking Launchpad for package: %s " % reason
+            sys.exit(1)
 
     # All good - start downloading...
     try:
         print 'Attempting to get %s from release %s...' % \
-		    (package, release.capitalize())
+            (package, release.capitalize())
         BackportFromLP(package, release)
     except ValueError, e:
         print 'Error when downloading package %s from release %s: %s.' % \
-		    (package, release, e)
+            (package, release, e)
