@@ -7,18 +7,19 @@ Upstream Authors:
 	Albin Tonnerre <lut1n.tne@gmail.com>
 	Daniel Hahler <ubuntu@thequod.de>
 	Daniel Holbach <daniel.holbach@ubuntu.com>
+	Iain Lane <iain@orangesquash.org.uk>
 	Jamin W. Collins <jcollins@asgardsrealm.net>
+	Jonathan Patrick Davies <jpds@ubuntu.com>
 	Jordan Mantha <mantha@ubuntu.com>
+	Kees Cook <kees@ubuntu.com>
 	Luke Yelavich <themuso@ubuntu.com>
 	Martin Pitt <martin.pitt@ubuntu.com>
 	Michael Bienia <geser@ubuntu.com>
 	Pete Savage <petesavage@ubuntu.com>
-	Kees Cook <kees@ubuntu.com>
 	Siegfried-A. Gevatter <rainct@ubuntu.com>
 	Soren Hansen <soren@ubuntu.com>
 	Steve Kowalik <stevenk@ubuntu.com>
 	Terence Simpson <stdin@stdin.me.uk>
-	Iain Lane <iain@orangesquash.org.uk>
 
 Copyright:
 
@@ -34,12 +35,13 @@ Copyright:
 	(C) 2007-2008, Siegfried-A. Gevatter <rainct@ubuntu.com>
 	(C) 2007, Terence Simpson <stdin@stdin.me.uk>
 	(C) 2008, Iain Lane <iain@orangesquash.org.uk>
+	(C) 2008, Jonathan Patrick Davies <jpds@ubuntu.com>
 
 Licenses:
 
-404main, check-symbols, dch-repeat, dgetlp, mk-sbuild-lv, pbuilder-dist,
-requestsync, reverse-build-depends, submittodebian, update-maintainer
-and what-patch are licensed under GPLv2:
+404main, check-symbols,  dgetlp, pbuilder-dist, requestsync,
+reverse-build-depends, submittodebian and update-maintainer are licensed
+under the GNU General Public License, version 2:
 
     This package is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,8 +55,9 @@ and what-patch are licensed under GPLv2:
 On Debian systems, the complete text of the GNU General Public License v2
 can be found in `/usr/share/common-licenses/GPL-2'.
 
-get-branches, get-build-deps, debian-pull-debdiff, massfile, ppaput,
-suspicious-source and pull-lp-source are licensed under GPLv3:
+dch-repeat, get-branches, get-build-deps, massfile, mk-sbuild-lv, ppaput,
+pull-debian-debdiff, pull-lp-source, suspicious-source and what-patch are
+licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,6 +72,6 @@ On Debian systems, the complete text of the GNU General Public License v3
 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following of the scripts can be used, at your option, regarding any
-later version of the previously specified license: 404main, pbuilder-dist,
-dgetlp, reverse-build-depends, suspicious-source, pull-lp-source  and
-get-build-deps.
+later version of the previously specified license: 404main, dch-repeat, dgetlp,
+get-build-deps, mk-sbuild-lv, pull-debian-debdiff, pull-lp-source,
+reverse-build-depends, suspicious-source, what-patch.

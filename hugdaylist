@@ -1,65 +1,107 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2007, Canonical, Daniel Holbach
+# Copyright (C) 2007 Canonical Ltd., Daniel Holbach
+# Copyright (C) 2008 Jonathan Patrick Davies <jpds@ubuntu.com>
 #
-# GPL 3
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-3 for more details.
+#
+# ##################################################################
+#
+#
+# hugdaylist - produces MoinMoin wiki formatted tables based on a Launchpad bug
+#              list.
 #
 # hugdaylist <url>
 # - produces lists like https://wiki.ubuntu.com/UbuntuBugDay/20070912?action=raw
 #
 # hugdaylist -n <howmany> <url>
-# - will only list <howmany> URLs
-#
+# - will only list <howmany> URLs.
 
-import re
 import os
-import sys
+import re
 import string
+import sys
+from optparse import OptionParser
 
 try:
     import launchpadbugs.connector as Connector
     BugList = Connector.ConnectBugList()
     Bug = Connector.ConnectBug(method="Text")
-except:
+except ImportError:
     print >> sys.stderr, \
-	"You need  python-launchpad-bugs (>= 0.2.25)  installed to use hugdaylist."
+	"python-launchpad-bugs (>= 0.2.25) needs to be installed to use hugdaylist."
     sys.exit(1)
-
-
-USAGE = "hugdaylist [-n <howmany>] <URL>"
 
 def check_args():
     howmany = -1
     url = ""
+
+    # Our usage options.
+    usage = "usage: %prog [-n <number>] launchpad-buglist-url"
+    optParser = OptionParser(usage)
+    argsParsed = 0
+
+    # Options - namely just the number of bugs to output.
+    optParser.add_option("-n", "--number", action = "store_true",
+            dest = "number", help = "Number of entries to output.")
+
+    # Parse arguments.
+    (options, args) = optParser.parse_args()
     
-    if len(sys.argv) < 2:
-        print >> sys.stderr, USAGE
+    # Check if we want a number other than the default.
+    if options.number:
+        try:
+            howmany = int(args[argsParsed])
+            argsParsed += 1
+        except:
+            print >> sys.stderr, "Option '-n' requires an integer for an " \
+                "argument."
+            optParser.print_help()
+            sys.exit(1)
+
+    # Check that we have an URL.
+    if not args:
+        print >> sys.stderr, "An URL pointing to a Launchpad bug list is " \
+           "required."
+        optParser.print_help()
         sys.exit(1)
-    
-    if sys.argv[1] == "-n":
-        howmany = int(sys.argv[2])
-        if len(sys.argv) < 4:
-        	print USAGE
-        	sys.exit(1)
-        url = sys.argv[3]
     else:
-        url = sys.argv[1]
-    
+        url = args[argsParsed]
+
     return (howmany, url)
 
 def filter_unsolved(b):
     bug = Bug(int(b))
+    # Filter out special types of bugs:
+    # - https://wiki.ubuntu.com/Bugs/HowToTriage#Special%20types%20of%20bugs
     return filter(lambda a: a.status != 'Fix Committed' and \
 			 (a.assignee in ['motu','desktop-bugs'] or \
 			  not a.assignee), bug.infotable) and \
 	'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
-	'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers]
+	'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers] and \
+	'ubuntu-archive' not in [str(s) for s in bug.subscribers]
 
 def main(): 
     (howmany, url) = check_args()
-    
-    bl = BugList(url)
+   
+    try:
+        bl = BugList(url)
+    except:
+        print >> sys.stderr, "The page '%s' does not appear to exist." % url
+        sys.exit(1)
+
     l = filter(filter_unsolved, bl)
     
     if not l:
@@ -82,5 +124,8 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
-
+    try:
+	    main()
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Aborted."
+        sys.exit(1)

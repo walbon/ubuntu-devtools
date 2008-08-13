@@ -1,3 +1,93 @@
+ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
+
+  [ Jonathan Patrick Davies ]
+  * common.py: Use os.path.expanduser() instead of os.environ.
+
+  [ Siegfried-Angel Gevatter Pujals ]
+  * debian/control:
+     - Add sbuild as an alternative recommends to pbuilder.
+  * what-patch, pull-debian-debdiff, mk-sbuild-lv, dch-repat, debian/copyright:
+     - Change the license of all scripts from Kees Cook to the GPL version 3
+       or later.
+     - Order the script names alphabetically in debian/copyright.
+  * common.py:
+     - Add functions mkdir and readlist.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 12 Aug 2008 20:09:42 +0200
+
+ubuntu-dev-tools (0.38ubuntu1) intrepid; urgency=low
+
+  [ Jonathan Patrick Davies ]
+  * requestsync: Check if user is a member of ubuntu-core-dev if sync request
+    is for a package in main.
+  * common.py: Change cookie file permissions to read and write only by user.
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 14:52:34 +0100
+
+ubuntu-dev-tools (0.37ubuntu1) intrepid; urgency=low
+
+  [ Jonathan Patrick Davies ]
+  * get-branches:
+    - Open the teams code page before making a new directory.
+    - Now check team option before anything else.
+    - Check that the team has branches before downloading.
+  * doc/get-branches.1: Created.
+  * hugdaylist: Improved argument and error handling.
+  * pull-lp-source:
+    - Use optparse for option handling.
+    - Check that the 'release' and 'package' actually exist on Launchpad.
+    - Use subprocess for dget calls.
+  * buildd: Imported from Martin Pitt's scripts.
+  * common.py: Python module to be used to enable the use of cookies
+    to authenticate with Launchpad.
+  * debian/ubuntu-dev-tools.install: Added line to install common.py above to
+    the correct location.
+  * requestsync:
+    - Use the functions in the common.py file above to authenticate with
+      Launchpad.
+    - Using the Launchpad cookie file, validate that the user is a member of
+      the ubuntu-dev team on Launchpad. Thus, checking if the user needs
+      sponsership or not (LP: #130648).
+  * doc/requestsync.1: Removed mention of -s flag. Obsoleted by the above.
+  * massfile:
+    - Use the functions in the common.py file above to authenticate with
+      Launchpad.
+  * debian/control: Changed XS-Python-Version to >= 2.5.
+
+  [ Siegfried-Angel Gevatter Pujals ]
+  * Add the GNU General Public License header to all scripts.
+  * Remove files AUTHORS (it duplicated content from debian/copyright) and
+    README (superseded by the manpages).
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 12 Aug 2008 14:48:35 +0100
+
+ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
+
+  [ Jonathan Patrick Davies ]
+  * doc/ Created new manpages for:
+    - what-patch.1.
+    - dch-repeat.1.
+    - grab-attachment.1.
+  * doc/requestsync.1: Described variables used by requestsync in man
+    page. (LP: #237595)
+  * hugdaylist:
+    - Added code to handle exceptions and short version of GPL.
+    - Rewrote option handling with optparse.
+    - Filter bugs subscribed to the ubuntu-archive team.
+  * get-branches:
+    - Rewrote option handling with optparse.
+    - Added short version of GPL to header.
+    - Fixed regular expressions to work with new Launchpad interface.
+    - Use subprocess.call() on Bazaar instead of os.system().
+  * debian/copyright: Updated Authors and copyrights.
+
+  [ Siegfried-Angel Gevatter Pujals ]
+  * Change the versioning scheme from 0.XX to 0.XXubuntu1. Delete
+    debian/source.lintian-overrides, as with this it isn't necessary anymore.
+  * General manpage cleanup (fix typos, use the same section names in all
+    manpages, etc).
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Sun, 10 Aug 2008 22:02:05 +0100
 ubuntu-dev-tools (0.35) intrepid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
@@ -8,6 +98,12 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
        else (LP: #254632).
   * massfile, examples/massfile.instructions:
      - Make it possible to give the created bugs a determined status.
+  * debian/control:
+     - Bump Standards Version to 3.8.0.
+  * debian/rules:
+     - It's not necessary anymore to remove usr/lib.
+  * setup.py:
+     - Order the scripts list alphabetically and add pull-lp-source.
 
   [ Iain Lane ]
   * Add pull-lp-source, which get source packages from LP to avoid mirror lag.
@@ -18,7 +114,7 @@ ubuntu-dev-tools (0.35) intrepid; urgency=low
      - Modify it to work with Firefox 3 cookies, taking code from requestsync.
      - Set the status to Confirmed, by default.
 
- -- Iain Lane <iain@orangesquash.org.uk>  Mon, 04 Aug 2008 18:43:10 +0100
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 09 Aug 2008 13:58:23 +0200
 
 ubuntu-dev-tools (0.34) intrepid; urgency=low
 

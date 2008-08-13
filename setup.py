@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 from distutils.core import setup
 import glob
@@ -15,25 +15,27 @@ if os.path.exists(changelog):
 
 setup(name='ubuntu-dev-tools',
       version=version,
-      scripts=['404main', 
-               'check-symbols', 
-               'get-branches',
-               'pbuilder-dist',
-               'pbuilder-dist-simple',
-               'update-maintainer', 
+      scripts=['404main',
+               'buildd',
+               'check-symbols',
                'dch-repeat',
-               'mk-sbuild-lv',	       
-               'pull-debian-debdiff',
-               'what-patch',
-               'suspicious-source',
-               'requestsync',
+               'dgetlp',
+               'get-branches',
+               'get-build-deps',
+               'grab-attachments',
                'hugdaylist',
                'massfile',
-               'submittodebian',
-               'get-build-deps',
-               'dgetlp',
+               'mk-sbuild-lv',
+               'pbuilder-dist',
+               'pbuilder-dist-simple',
+               'pull-debian-debdiff',
+               'pull-lp-source',
+               'requestsync',
                'reverse-build-depends',
-               'grab-attachments',
+               'submittodebian',
+               'suspicious-source',
+               'update-maintainer',
+               'what-patch', 
             ],
     packages=['ubuntutools'],
 )

@@ -29,15 +29,10 @@ Display a help message and exit.
 Specifies that the package is a new package, and requestsync should not
 attempt to look it up in Ubuntu since it will not exist.
 .TP
-.B \-s
-Specifies that you require sponsorship.
-You need this option if you are not a member of ubuntu-dev for universe or
-multiverse, or ubuntu-core-dev for main or restricted.
-.TP
 .B \-k \fI<keyid>\fR
 Specifies your GPG key.
-Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in
-.IR $HOME/.bashrc .
+Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in your shell's
+configuration (For example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
@@ -50,18 +45,43 @@ This is the source package that you would like to be synced from Debian.
 .B <target release>
 This is the release that you would like the source package to be synced
 into.
-This should always be the latest development release of Ubuntu, i.e.: hardy.
+This should always be the latest development release of Ubuntu.
 .TP
 .B [base version]
 In some cases, the base version (where the Ubuntu package started differing
 from the Debian package) cannot be automatically determined.
 Specify this option in this case.
-.SH AUTHOR
-.PP
-This manual page was pieced together by Steve Kowalik.
 
-It was then updated by Ryan Kavanagh and Michael Bienia to reflect
-additional features.
+.SH ENVIRONMENT VARIABLES
+.PP
+\fBrequestsync\fR uses the following variables which should be set in your
+shell's configuration by adding \fIexport VARIABLE=\fR lines, where VARIABLE is
+one of the following:
+
+.TP
+.B GPGKEY
+Specifies your GnuPG key ID.
+.TP
+.B DEBEMAIL
+Specifies which email should be used when sending to Launchpad.
+.TP
+.B DEBSMTP
+Set which SMTP server to use when sending mail. If unspecified this defaults to
+fioldland.ubuntu.com.
+.TP
+.B DEBSMTP_PORT
+Sets which port of the SMTP server to use. Default is 25.
+.TP
+.B DEBSMTP_USER and DEBSMTP_PASS
+Sets the username and password to use when authenticating to the SMTP server.
+
 .SH SEE ALSO 
 .PP 
 .BR rmadison (1)
+
+.SH AUTHOR
+.PP
+.B requestsync
+and this manual page were written by the Ubuntu MOTU Team.
+.PP
+Both are released under the GNU General Public License, version 2.

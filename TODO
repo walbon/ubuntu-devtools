@@ -1,4 +1,7 @@
+- Fix all bugs at Launchpad:
+  https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools
 - Create missing manpages (for all commands).
-- Document ubuntutools Python modules.
-- Add the process-interdiff script to ubuntu-dev-tools.
 - Modify 404main to use the more robust python-apt module.
+- Ask all authors who have used GPL if they are happy with using "or any later"
+  versions of the license.
+- pull-lp-source: determine the current development distro programatically.
