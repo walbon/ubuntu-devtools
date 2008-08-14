@@ -130,22 +130,28 @@ for build, (arch, status) in buildstats.iteritems():
 
     # Check if our package is successfully built and retry/rescore requested.
     if oneArch and options.architecture == arch:
-        if status in ('Successfully built'):
-            print "Package has been marked as successfully built on %s." % arch
+        if status in ("Successfully built", "Currently building",
+                "Build for superseded Source", "Dependency wait"):
+            print "Package is marked as %s on %s." % (status.lower(), arch)
             print "A %s of this package shall not be requested." % op
-            sys.exit(0)
 
-    # Check if package is building, before rescoring.
-    if oneArch and options.architecture == arch:
-        if op == "rescore" and status not in ("Needs building"):
+        # Check if package is building, before rescoring.
+        if status not in ("Needs building") and op in ("rescore"):
             print "Package is not in the build queue on %s - shall not " \
                 "rescore it." % arch
+        
+        # Stop, no other architectures require checking.
+        sys.exit(0)
 
     if op == 'rescore':
         if status == 'Needs building':
             print 'Rescoring', build, '(%s).' % arch
-            urlopener.open(build + '/+rescore', urlencode(
-                {'SCORE': '5000', 'RESCORE': '1'}))
+            try:
+                urlopener.open(build + '/+rescore', urlencode(
+                    {'SCORE': '5000', 'RESCORE': '1'}))
+            except:
+                print "Unable to request rescore of %s on %s." % (package,
+                    arch)
     elif op == 'retry':
         if status in ('Failed to build', 'Chroot problem', 'Failed to upload'):
             print 'Retrying:', build, '(%s).' % arch
