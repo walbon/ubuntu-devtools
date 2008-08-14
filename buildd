@@ -127,6 +127,12 @@ for build, (arch, status) in buildstats.iteritems():
         # Skip this architecture.
         continue
 
+    if oneArch and options.architecture == arch:
+        if status in ('Successfully built'):
+            print "Package has been marked as successfully built on %s." % arch
+            print "A %s of this package shall not be requested." % op
+            sys.exit(0)
+
     if op == 'rescore':
         if status == 'Needs building':
             print 'Rescoring', build, '(%s).' % arch
