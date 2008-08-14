@@ -69,9 +69,9 @@ def main():
     operation_type = str(options.operation).lower()
 
     # Got an argument, check if it is valid.
-    if operation_type.lower() not in ("branch", "checkout"):
-        optParser.error("Invalid operation '%s' for '-o' flag.") % \
-            operation_type
+    if operation_type not in ("branch", "checkout"):
+        optParser.error("Invalid operation '%s' for '-o' flag." % \
+            operation_type)
     
 
     # Fetch our current directory to return to later.
