@@ -1,4 +1,12 @@
+ubuntu-dev-tools (0.40ubuntu1) intrepid; urgency=low
+
+  * Changes go here.
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Thu, 14 Aug 2008 12:23:41 +0100
+
 ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
+
+  * Bazaar revision 169.
 
   [ Jonathan Patrick Davies ]
   * common.py: Use os.path.expanduser() instead of os.environ.
@@ -6,6 +14,7 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
     - Added optparse support for option handling.
     - Added support to request the rebuilding or rescoring of only one
       architecture.
+    - Various other improvements.
   * hugdaylist: Improved number of bugs option handling.
   * get-branches: Improved option handling.
 
@@ -22,7 +31,7 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
   [ Iain Lane ]
   * pull-lp-source: Better handle errors when going to LP 
 
- -- Iain Lane <iain@orangesquash.org.uk>  Wed, 13 Aug 2008 10:56:12 +0100
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Thu, 14 Aug 2008 12:21:45 +0100
 
 ubuntu-dev-tools (0.38ubuntu1) intrepid; urgency=low
 
