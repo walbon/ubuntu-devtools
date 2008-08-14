@@ -1,0 +1,53 @@
+.TH BUILDD "1" "14 August 2008" "ubuntu-dev-tools"
+.SH NAME
+buildd \- command-line interface to Launchpad build operations
+
+.SH SYNOPSIS
+
+.B buildd <srcpackage> <release> <operation>
+
+.B buildd \-\-help
+
+.SH DESCRIPTION
+.PP 
+\fBbuildd\fR provides a command line interface to the Launchpad build
+operations.
+
+.PP
+\fBbuildd\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to authenticate
+to Launchpad.
+
+.SH OPERATIONS
+.PP
+Listed below are the available operations for \fBbuildd\fR:
+.TP
+.B status
+Outputs the build status of the package on Launchpad on all architectures.
+.TP
+.B retry
+Requests that the package has another attempt at rebuilding from source. This
+shall only work if the package has \fIFailed to build\fR on Launchpad.
+.TP
+.B rescore
+Requests that the packages build priority be raised in the build queue. Only
+members of the Launchpad build administrators may issue this operation and may
+only be performed on packages which \fINeed building\fR.
+
+.SH OPTIONS
+.PP
+Listed below are the command line options for \fBbuildd\fR:
+.TP
+.B \-h or \-\-help
+Display a help message and exit.
+.TP
+.B \-a or \-\-architecture
+Only available for \fIrescore\fR and \fIretry\fR operations only. This shall
+only request the rebuilding/rescoring on the specified architecture only.
+
+.SH AUTHORS
+.PP
+\fBbuildd\fR was written by Martin Pitt <martin.pitt@canonical.com>, and
+this manual page was written by Jonathan Patrick Davies <jpds@ubuntu.com>.
+.PP
+Both are released under the terms of the GNU General Public License, version 3
+or (at your option) any later version.

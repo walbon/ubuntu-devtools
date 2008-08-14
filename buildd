@@ -95,7 +95,7 @@ except urllib2.HTTPError:
 m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
     package.replace('+', '\+')), page)
 if not m:
-    print >> sys.stderr, "Cannot find this source package (%s) in this " \
+    print >> sys.stderr, "Unable to find this source package (%s) in this " \
         "release (%s)." % (package, release.capitalize())
     sys.exit(1)
 
@@ -128,32 +128,26 @@ for build, (arch, status) in buildstats.iteritems():
         # Skip this architecture.
         continue
 
-    # Check if our package is successfully built and retry/rescore requested.
-    if oneArch and options.architecture == arch:
-        if status in ("Successfully built", "Currently building",
-                "Build for superseded Source", "Dependency wait"):
-            print "Package is marked as %s on %s." % (status.lower(), arch)
-            print "A %s of this package shall not be requested." % op
-
-        # Check if package is building, before rescoring.
-        if status not in ("Needs building") and op in ("rescore"):
-            print "Package is not in the build queue on %s - shall not " \
-                "rescore it." % arch
-        
-        # Stop, no other architectures require checking.
-        sys.exit(0)
-
-    if op == 'rescore':
-        if status == 'Needs building':
+    if op in ('rescore'):
+        if status in ('Needs building'):
             print 'Rescoring', build, '(%s).' % arch
+
             try:
                 urlopener.open(build + '/+rescore', urlencode(
                     {'SCORE': '5000', 'RESCORE': '1'}))
             except:
-                print "Unable to request rescore of %s on %s." % (package,
-                    arch)
-    elif op == 'retry':
+                print >> sys.stderr, "Unable to request rescore on %s." % arch
+        else:
+            print "Not rescoring on %s; status is: %s." % (arch, status.lower())
+    
+    if op in ('retry'): # Retry requested.
         if status in ('Failed to build', 'Chroot problem', 'Failed to upload'):
             print 'Retrying:', build, '(%s).' % arch
-            urlopener.open(build + '/+retry', urlencode(
-                {'RETRY': '1'}))
+
+            try:
+                urlopener.open(build + '/+retry', urlencode(
+                    {'RETRY': '1'}))
+            except: # Error encountered while submitting request.
+                print >> sys.stderr, "Unable to request retry on %s." % arch
+        else: # The package does not require rebuilding.
+            print "Not retrying on %s; status is %s." % (arch, status.lower())

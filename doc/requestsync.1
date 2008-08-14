@@ -18,6 +18,19 @@ follows so that it can sign the mail and send it off to Launchpad.
 Alternatively a sync request can be filed directly using the launchpadbugs
 python module (option \fB\-\-lp\fR). \fBrequestsync\fR falls back to mail
 the sync request if submitting using the launchpadbugs module fails.
+
+.PP
+\fBrequestsync\fR checks if you have the permissions to request the sync from
+the archive administrators directly by checking if you are a member of the
+\fI~ubuntu-dev\fR team (for universe/multiverse syncs) or a member of the
+\fI~ubuntu-core-dev\fR team (for main/restricted syncs) on Launchpad. If you are
+not a member of the appropriate team, the script shall subscribe the necessary
+team with approval rights to the bug report for you.
+
+.PP
+\fBrequestsync\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to
+authenticate with Launchpad.
+
 .SH OPTIONS
 .PP
 Listed below are the command line options for requestsync:

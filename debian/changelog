@@ -1,6 +1,9 @@
 ubuntu-dev-tools (0.40ubuntu1) intrepid; urgency=low
 
-  * Changes go here.
+  [ Jonathan Patrick Davies ]
+  * buildd: Code cleanup on single arch options.
+  * doc/buildd.1: Created.
+  * doc/requestsync.1: Added note about sponsorship detecting.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Thu, 14 Aug 2008 12:23:41 +0100
 
