@@ -7,6 +7,7 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
     - Added support to request the rebuilding or rescoring of only one
       architecture.
   * hugdaylist: Improved number of bugs option handling.
+  * get-branches: Improved option handling.
 
   [ Siegfried-Angel Gevatter Pujals ]
   * debian/control:

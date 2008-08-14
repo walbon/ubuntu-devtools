@@ -21,7 +21,8 @@
 # ##################################################################
 #
 # This script is used to checkout or branch all the Bazaar branches
-# in a Launchpad team.
+# of a Launchpad team.
+#
 
 import os
 import re
@@ -34,79 +35,49 @@ def main():
     usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
     usage += "\nUsage: %prog <team>"
     optParser = OptionParser(usage)
-    optsParsed = 0
 
     # Our options.
-    optParser.add_option("-d", "--directory", action = "store_true",
-            dest = "directory", help = "Directory to download branches to.")
-    optParser.add_option("-t", "--team", action = "store_true",
-            dest = "lpteam", help = "Launchpad team to download branches from.")
-    optParser.add_option("-o", "--operation", action = "store_true",
-            dest = "operation", help = "Whether to branch or checkout the " \
-                "Bazaar branches. May be either 'branch' or 'checkout'.")
+    optParser.add_option("-d", "--directory", action = "store", type = "string",
+        dest = "directory", default = ".",
+        help = "Directory to download branches to.")
+    optParser.add_option("-t", "--team", action = "store", type = "string",
+        dest = "lpteam", help = "Launchpad team to download branches from.")
+    optParser.add_option("-o", "--operation", action = "store", type = "string",
+        dest = "operation", default = "branch",
+        help = "Whether to branch or checkout the Bazaar branches. May be " \
+            "either 'branch' or 'checkout'.")
 
     (options, args) = optParser.parse_args()
 
-    # Parse our options.
-    # No flags, and no team name specified.
-    if not options.lpteam and not args:
-        print >> sys.stderr, "No team has been specified."
-        optParser.print_help()
-        sys.exit(1)
+    # Parse our options aka Russian roulette time.
+    if len(args) != 1 and options.lpteam == None:
+        optParser.error("No team has been specified.")
     
-    if args:
-        team = args[0]
-
-    # Dictionary settings.
-    if options.directory:
-        try:
-            directory = args[optsParsed]
-            optsParsed += 1
-        except IndexError:
-            print >> sys.stderr, "The '-d' option requires an argument."
-            optParser.print_help()
-            sys.exit(1)
-
-        if not os.path.isdir(directory): # Check that it is a directory.
-            print >> sys.stderr, "%s is not a valid directory." % directory
-            optParser.print_help()
-            sys.exit(1)
-        else:
-            directory = os.path.abspath(args[0])
-    else:
-        # Otherwise use our current directory.
-        directory = os.getcwd()
-
     # Launchpad team setting.
     if options.lpteam:
-        try:
-            team = args[optsParsed]
-            optsParsed += 1
-        except IndexError:
-            print >> sys.stderr, "The '-t' option requires an argument."
-            optParser.print_help()
-            sys.exit(1)
+        team = str(options.lpteam).lower()
+    if args:
+        team = str(args[0]).lower()
 
+    directory = options.directory
+
+    # Dictionary settings.
+    if not os.path.isdir(directory): # Check that it is a directory.
+        optParser.error("%s is not a valid directory." % directory)
+    
     # Type of Bazaar operation to perform.
-    if options.operation:
-        try: 
-            operation_type = args[optsParsed]
-            optsParsed += 1
-        except IndexError:
-            print >> sys.stderr, "The '-o' option requires an argument."
-            optParser.print_help()
-            sys.exit(1)
+    operation_type = str(options.operation).lower()
 
-        # Got an argument, check if it is valid.
-        if operation_type.lower() not in ("branch", "checkout"):
-            print >> sys.stderr, "Invalid operation '%s' for '-o' flag." % \
-                operation_type
-            optParser.print_help()
-            sys.exit(1)
-    else:
-        operation_type = "branch"
+    # Got an argument, check if it is valid.
+    if operation_type.lower() not in ("branch", "checkout"):
+        optParser.error("Invalid operation '%s' for '-o' flag.") % \
+            operation_type
+    
 
+    # Fetch our current directory to return to later.
     pwd = os.getcwd()
+
+    # Change to the specified directory.
     os.chdir(directory)
 
     # Try to open the teams code page.
@@ -124,19 +95,19 @@ def main():
     branch_page_urls_regex = r'.*<a href="/(~%s/.*)".*' % team
     branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
     
-    print "Downloading all branches for the team '%s'. This may take some " \
-        "time." % team
-
     # Check the team actually has branches.
     if len(branch_page_urls) == 0:
         print "The team '%s' does not have any branches on Launchpad." % team
-        os.rmdir(team)
         sys.exit(0)
     
+    print "Downloading all branches for the team '%s'. This may take some " \
+        "time." % team
+
     try:
         os.makedirs(team)
     except:
         pass
+
     os.chdir(team)
     
     for url in branch_page_urls:
