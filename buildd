@@ -71,8 +71,8 @@ if op not in ("retry", 'rescore') and options.architecture:
     print >> sys.stderr, "Operation %s does not use the --arch option." % op
     sys.exit(1)
 elif op in ("retry", "rescore") and options.architecture:
-    if options.architecture not in ("sparc", "powerpc", "lpia", "ia64", "i386",
-        "hppa", "amd64"):
+    if options.architecture not in ("amd64", "hppa", "i386", "ia64", "lpia",
+            "powerpc", "sparc"):
         print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
         sys.exit(1)
     else:
@@ -105,13 +105,14 @@ version = m.group(1)
 print "The source version for '%s' in %s is at %s." % (package,
     release.capitalize(), version)
 
-print "Current build status for this package is as follows:"
-
 # Parse out build URLs, states, and arches.
 buildstats = {}
 page = urlopener.open('https://launchpad.net/ubuntu/+source/%s/%s' % (package, version))
 url = page.geturl()
 page = page.read()
+
+print "Current build status for this package is as follows:"
+
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
@@ -127,11 +128,18 @@ for build, (arch, status) in buildstats.iteritems():
         # Skip this architecture.
         continue
 
+    # Check if our package is successfully built and retry/rescore requested.
     if oneArch and options.architecture == arch:
         if status in ('Successfully built'):
             print "Package has been marked as successfully built on %s." % arch
             print "A %s of this package shall not be requested." % op
             sys.exit(0)
+
+    # Check if package is building, before rescoring.
+    if oneArch and options.architecture == arch:
+        if op == "rescore" and status not in ("Needs building"):
+            print "Package is not in the build queue on %s - shall not " \
+                "rescore it." % arch
 
     if op == 'rescore':
         if status == 'Needs building':
