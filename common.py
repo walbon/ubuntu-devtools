@@ -101,7 +101,7 @@ def prepareLaunchpadCookie():
         ftstr = ["FALSE", "TRUE"]
         
         # This shall be where our new cookie file lives - at ~/.lpcookie.txt
-        newLPCookieLocation = os.path.expanduser("~/lpcookie.txt")
+        newLPCookieLocation = os.path.expanduser("~/.lpcookie.txt")
         
         # Open file for writing.
         newLPCookie = open(newLPCookieLocation, 'w')
