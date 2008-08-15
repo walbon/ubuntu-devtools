@@ -265,8 +265,12 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     try:
         s = smtplib.SMTP(mailserver, mailserver_port)
     except socket.error, s:
-        print "ERROR: Could not connect to mailserver %s at port %s: %s (%i)" % \
+        print sys.stderr, >> "Could not connect to mailserver %s at port %s: %s (%i)" % \
             (mailserver, mailserver_port, s[1], s[0])
+        print "The port %s may be firewalled. Please try using requestsync with" \
+            % mailserver_port
+        print "the '--lp' flag to file a sync request with the launchpadbugs " \
+            "module."
         return False
 
     # authenticate to the server
