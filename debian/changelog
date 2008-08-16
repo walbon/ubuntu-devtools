@@ -1,13 +1,13 @@
 ubuntu-dev-tools (0.40ubuntu1) intrepid; urgency=low
 
-  [ Jonathan Patrick Davies ]
+  * Bazaar revision 174.
   * buildd: Code cleanup on single arch options.
   * doc/buildd.1: Created.
   * doc/requestsync.1: Added note about sponsorship detecting.
   * requestsync: Suggest using the --lp flag when mailing a request encounters
     a failure.
 
- -- Jonathan Patrick Davies <jpds@ubuntu.com>  Thu, 14 Aug 2008 12:23:41 +0100
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Sat, 16 Aug 2008 23:38:41 +0100
 
 ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
 
