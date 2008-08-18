@@ -2,6 +2,8 @@ ubuntu-dev-tools (0.40ubuntu4) UNRELEASED; urgency=low
 
   * Replace .BB in doc/pbuilder-dist.1 with a newline to fix a syntax error.
   * Drop spurious tab in buildd.
+  * When https_proxy is in the environment, output a warning and disable it as
+    urllib/urllib2 don't support it; see LP #122551.
 
  -- Loic Minier <lool@dooz.org>  Mon, 18 Aug 2008 12:21:58 +0200
 
