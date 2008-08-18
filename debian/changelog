@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.40ubuntu4) UNRELEASED; urgency=low
+
+  * Replace .BB in doc/pbuilder-dist.1 with a newline to fix a syntax error.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 18 Aug 2008 12:21:58 +0200
+
 ubuntu-dev-tools (0.40ubuntu3) intrepid; urgency=low
 
   * Import urllib2.
