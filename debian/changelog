@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.40ubuntu3) intrepid; urgency=low
+
+  * Import urllib2.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 18 Aug 2008 12:07:27 +0200
+
 ubuntu-dev-tools (0.40ubuntu2) intrepid; urgency=low
 
   * requestsync: Correct print statement redirect to sys,stderr. 

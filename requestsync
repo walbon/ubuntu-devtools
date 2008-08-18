@@ -30,6 +30,7 @@ import os
 import subprocess
 import sys
 import urllib
+import urllib2
 from debian_bundle.changelog import Version
 
 # Use functions from ubuntu-dev-tools to create Launchpad cookie file.
