@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.40ubuntu2) intrepid; urgency=low
+
+  * requestsync: Correct print statement redirect to sys,stderr. 
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Mon, 18 Aug 2008 10:59:59 +0100
+
 ubuntu-dev-tools (0.40ubuntu1) intrepid; urgency=low
 
   * Bazaar revision 174.
