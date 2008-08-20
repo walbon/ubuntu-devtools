@@ -71,14 +71,17 @@ def prepareLaunchpadCookie():
     try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite',
         '~/.mozilla/*/*/cookies.txt')
     
+    cookie_file_list = []
     if launchpad_cookiefile == None:
         for try_glob in try_globs:
             try:
-                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
-            except IndexError:
-                continue # Unable to glob file - carry on.
-            # Found:
-            launchpad_cookiefile = cookiefile
+                cookie_file_list += glob.glob(os.path.expanduser(try_glob))
+            except:
+                pass
+
+    for cookie_file in cookie_file_list:
+        launchpad_cookiefile = _check_for_launchpad_cookie(cookie_file)
+        if launchpad_cookiefile != None:
             break
 
     # Unable to find an correct file.
@@ -88,51 +91,52 @@ def prepareLaunchpadCookie():
         print >> sys.stderr, "You should be able to create a valid file by " \
             "logging into Launchpad with Firefox."
         sys.exit(1)
-        
-    # Found SQLite file. Parse information from it.
-    if launchpad_cookiefile.find('cookies.sqlite') != -1:
+
+    return launchpad_cookiefile
+
+def _check_for_launchpad_cookie(cookie_file):
+    # Found SQLite file? Parse information from it.
+    if cookie_file.find('cookies.sqlite') != -1:
         import sqlite3 as sqlite
-        
-        con = sqlite.connect(launchpad_cookiefile)
-        
+
+        con = sqlite.connect(cookie_file)
+
         cur = con.cursor()
         cur.execute("select host, path, isSecure, expiry, name, value from moz_cookies where host like ?", ['%%launchpad%%'])
-        
+
+        # No matching cookies?  Abort.
+        items = cur.fetchall()
+        if len(items) == 0:
+            return None
+
         ftstr = ["FALSE", "TRUE"]
-        
+
         # This shall be where our new cookie file lives - at ~/.lpcookie.txt
         newLPCookieLocation = os.path.expanduser("~/.lpcookie.txt")
-        
+
         # Open file for writing.
         newLPCookie = open(newLPCookieLocation, 'w')
+        # For security reasons, change file mode to write and read
+        # only by owner.
+        os.chmod(newLPCookieLocation, 0600)
         newLPCookie.write("# HTTP Cookie File.\n") # Header.
-        
-        for item in cur.fetchall():
+
+        for item in items:
             # Write entries.
             newLPCookie.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
                 item[0], ftstr[item[0].startswith('.')], item[1],
                 ftstr[item[2]], item[3], item[4], item[5]))
-        
+
         newLPCookie.write("\n") # New line.
         newLPCookie.close()     # And close file.
-        
-        # Check what we have written.
-        checkCookie = open(newLPCookieLocation).read()
-        if checkCookie == "# HTTP Cookie File.\n\n":
-            print >> sys.stderr, "No Launchpad cookies were written to file. " \
-                "Please visit and log into Launchpad and run this script again."
-            os.remove(newLPCookieLocation) # Delete file.
-            sys.exit(1)
-        
-        # For security reasons, change file mode to write and read
-        # only by owner.
-        os.chmod(newLPCookieLocation, 0600)
-        
-        launchpad_cookiefile = newLPCookieLocation
 
-    # Return the Launchpad cookie.
-    return launchpad_cookiefile
-    
+        return newLPCookieLocation
+    else:
+        if open(cookie_file).read().find('launchpad.net') != -1:
+            return cookie_file
+
+    return None
+
 def setupLaunchpadUrlOpener(cookie):
     """ Build HTML opener with cookie file. """
     cj = cookielib.MozillaCookieJar()

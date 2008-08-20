@@ -1,11 +1,16 @@
-ubuntu-dev-tools (0.40ubuntu4) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.41) intrepid; urgency=low
 
+  [ Loic Minier ]
   * Replace .BB in doc/pbuilder-dist.1 with a newline to fix a syntax error.
   * Drop spurious tab in buildd.
   * When https_proxy is in the environment, output a warning and disable it as
     urllib/urllib2 don't support it; see LP #122551.
 
- -- Loic Minier <lool@dooz.org>  Mon, 18 Aug 2008 12:21:58 +0200
+  [ Kees Cook ]
+  * common.py: allow for multiple firefox instances, check all possible
+    cookie files.
+
+ -- Kees Cook <kees@ubuntu.com>  Wed, 20 Aug 2008 10:58:24 -0700
 
 ubuntu-dev-tools (0.40ubuntu3) intrepid; urgency=low
 
@@ -132,6 +137,7 @@ ubuntu-dev-tools (0.36ubuntu1) intrepid; urgency=low
     manpages, etc).
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Sun, 10 Aug 2008 22:02:05 +0100
+
 ubuntu-dev-tools (0.35) intrepid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
