@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.42) UNRELEASED; urgency=low
+
+  * requestsync: Add -d option to allow overriding the Debian distro to sync
+  from. (LP: #253497)
+
+ -- Jelmer Vernooij <jelmer@samba.org>  Sat, 23 Aug 2008 18:28:45 +0200
+
 ubuntu-dev-tools (0.41) intrepid; urgency=low
 
   [ Loic Minier ]
