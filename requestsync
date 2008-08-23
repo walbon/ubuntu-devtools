@@ -40,10 +40,10 @@ def cur_version_component(sourcepkg, release):
     print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
     sys.exit(1)
 
-def cur_deb_version(sourcepkg):
-    '''Return the current debian version of a package in unstable.'''
+def cur_deb_version(sourcepkg, distro):
+    '''Return the current debian version of a package in a Debian distro.'''
     madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', \
-                                '-s', 'unstable', sourcepkg], \
+                                '-s', distro, sourcepkg], \
                                stdout=subprocess.PIPE)
     out = madison.communicate()[0]
     assert (madison.returncode == 0)
@@ -81,9 +81,9 @@ def debian_changelog(sourcepkg, component, version):
 
     return ch
 
-def debian_component(sourcepkg):
+def debian_component(sourcepkg, distro):
     '''Return the Debian component for the source package.'''
-    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', '-s', 'unstable', \
+    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', '-s', distro, \
                                 sourcepkg], stdout=subprocess.PIPE)
     out = madison.communicate()[0]
     assert (madison.returncode == 0)
@@ -115,11 +115,11 @@ automatically, and you'll get a complete Debian changelog. Specify the correct
 base version of the package in Ubuntu.
 
 Options:
-	-h		print this help
-	-n		new source package (doesn't exist yet in Ubuntu)
-	-s		request sponsoring (through ubuntu-{main,universe}-sponsors)
-	-k <keyid>	sign email with <keyid> (only used when submitting per email)
-	--lp		use python-launchpad-bugs instead of email for bug submitting
+    -h        print this help
+    -n        new source package (doesn't exist yet in Ubuntu)
+    -s        request sponsoring (through ubuntu-{main,universe}-sponsors)
+    -k <keyid>    sign email with <keyid> (only used when submitting per email)
+    --lp        use python-launchpad-bugs instead of email for bug submitting
 '''
     sys.exit(1)
 
@@ -358,9 +358,10 @@ if __name__ == '__main__':
     keyid = None
     use_lp_bugs = False
     need_interaction = False
+    distro = 'unstable'
 
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsk:', ('lp'))
+		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsd:k:', ('lp'))
     except getopt.GetoptError:
         usage()
     for o, a in opts:
@@ -368,6 +369,7 @@ if __name__ == '__main__':
         if o == '-n':   newsource = True
         if o == '-s':   sponsorship = True
         if o == '-k':   keyid = a
+        if o == '-d':   distro = a
         if o == '--lp': use_lp_bugs = True
     
     if len(args) not in (2, 3):
@@ -384,8 +386,8 @@ if __name__ == '__main__':
     if not newsource:
         (cur_ver, component) = cur_version_component(srcpkg, release)
 
-    debiancomponent = debian_component(srcpkg)
-    deb_version = cur_deb_version(srcpkg)
+    debiancomponent = debian_component(srcpkg, distro)
+    deb_version = cur_deb_version(srcpkg, distro)
 
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
@@ -401,7 +403,7 @@ if __name__ == '__main__':
         else:
             subscribe = 'ubuntu-universe-sponsors'
 
-    report = 'Please sync %s %s (%s) from Debian unstable (%s).\n\n' % (srcpkg, deb_version, component, debiancomponent)
+    report = 'Please sync %s %s (%s) from Debian %s (%s).\n\n' % (srcpkg, deb_version, component, distro, debiancomponent)
     title = report[:-2]
     
     base_ver = cur_ver
