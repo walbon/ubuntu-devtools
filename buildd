@@ -1,0 +1,160 @@
+#!/usr/bin/python
+# 
+#   buildd - command line interface for Launchpad buildd operations.
+#
+#   Copyright (C) 2007 Canonical Ltd.
+#   Authors:
+#    - Martin Pitt <martin.pitt@canonical.com>
+#    - Jonathan Patrick Davies <jpds@ubuntu.com>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import re
+import sys
+import urllib2
+from optparse import OptionGroup
+from optparse import OptionParser
+from urllib import urlencode
+
+sys.path.append('/usr/share/ubuntu-dev-tools/')
+import common
+
+# Usage.
+usage = "%prog <srcpackage> <release> <operation>\n\n"
+usage += "Where operation may be one of: rescore, retry, or status.\n"
+usage += "Only Launchpad Buildd Admins may rescore package builds."
+
+# Prepare our option parser.
+optParser = OptionParser(usage)
+
+# Retry options 
+retryRescoreOptions = OptionGroup(optParser, "Retry and rescore options",
+    "These options may only be used with the 'retry' and 'rescore' operations.")
+retryRescoreOptions.add_option("-a", "--arch", type = "string",
+    action = "store", dest = "architecture",
+    help = "Rebuild or rescore a specific architecture.")
+
+# Add the retry options to the main group.
+optParser.add_option_group(retryRescoreOptions)
+
+# Parse our options.
+(options, args) = optParser.parse_args()
+
+# Check we have the correct number of arguments.
+if len(args) < 3:
+    optParser.error("Incorrect number of arguments.")
+
+package = str(args[0]).lower()
+release = str(args[1]).lower()
+op      = str(args[2]).lower()
+
+# Check our operation.
+if op not in ("rescore", "retry", "status"):
+    print >> sys.stderr, "Invalid operation: %s." % op
+    sys.exit(1)
+
+# If the user has specified an architecture to build, we only wish to rebuild it
+# and nothing else.
+if op not in ("retry", 'rescore') and options.architecture:
+    print >> sys.stderr, "Operation %s does not use the --arch option." % op
+    sys.exit(1)
+elif op in ("retry", "rescore") and options.architecture:
+    if options.architecture not in ("amd64", "hppa", "i386", "ia64", "lpia",
+            "powerpc", "sparc"):
+        print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
+        sys.exit(1)
+    else:
+        oneArch = True
+else:
+    oneArch = False
+
+# Clear https_proxy env var as it's not supported in urllib/urllib2; see
+# LP #122551
+if os.environ.has_key('https_proxy'):
+    print >> sys.stderr, "Ignoring https_proxy (no support in urllib/urllib2; see LP #122551)"
+    del os.environ['https_proxy']
+
+# Prepare Launchpad cookie.
+launchpadCookie = common.prepareLaunchpadCookie()
+urlopener = common.setupLaunchpadUrlOpener(launchpadCookie)
+
+# Find out the version in given release.
+try:
+    page = urlopener.open('https://launchpad.net/ubuntu/+source/' + package).read()
+except urllib2.HTTPError:
+    print >> sys.stderr, "The source package (%s) does not appear to exist " \
+        "in Ubuntu." % package
+    sys.exit(1)
+
+m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
+    package.replace('+', '\+')), page)
+if not m:
+    print >> sys.stderr, "Unable to find this source package (%s) in this " \
+        "release (%s)." % (package, release.capitalize())
+    sys.exit(1)
+
+version = m.group(1)
+
+# Output details.
+print "The source version for '%s' in %s is at %s." % (package,
+    release.capitalize(), version)
+
+# Parse out build URLs, states, and arches.
+buildstats = {}
+page = urlopener.open('https://launchpad.net/ubuntu/+source/%s/%s' % (package, version))
+url = page.geturl()
+page = page.read()
+
+print "Current build status for this package is as follows:"
+
+for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
+    (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
+    if m.group(2) == release:
+        print '%s: %s.' % (m.group(3), m.group(4))
+        buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
+
+# Operations.
+if op == 'status':
+    sys.exit(0)
+
+for build, (arch, status) in buildstats.iteritems():
+    if oneArch and not options.architecture == arch:
+        # Skip this architecture.
+        continue
+
+    if op in ('rescore'):
+        if status in ('Needs building'):
+            print 'Rescoring', build, '(%s).' % arch
+
+            try:
+                urlopener.open(build + '/+rescore', urlencode(
+                    {'SCORE': '5000', 'RESCORE': '1'}))
+            except:
+                print >> sys.stderr, "Unable to request rescore on %s." % arch
+        else:
+            print "Not rescoring on %s; status is: %s." % (arch, status.lower())
+    
+    if op in ('retry'): # Retry requested.
+        if status in ('Failed to build', 'Chroot problem', 'Failed to upload'):
+            print 'Retrying:', build, '(%s).' % arch
+
+            try:
+                urlopener.open(build + '/+retry', urlencode(
+                    {'RETRY': '1'}))
+            except: # Error encountered while submitting request.
+                print >> sys.stderr, "Unable to request retry on %s." % arch
+        else: # The package does not require rebuilding.
+            print "Not retrying on %s; status is %s." % (arch, status.lower())

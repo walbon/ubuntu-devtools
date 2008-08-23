@@ -8,20 +8,83 @@
 #  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <iain@orangesquash.org.uk>
+#  Jonathan Patrick Davies <jpds@ubuntu.com>
 #
-# License: GPLv2, see /usr/share/common-licenses/GPL-2
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 2.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-2 for more details.
+#
+# ##################################################################
 
-import os, sys, urllib, subprocess, getopt
+import getopt
+import os
+import subprocess
+import sys
+import urllib
+import urllib2
 from debian_bundle.changelog import Version
 
-# Set this to the path of your Launchpad cookie file, when using
-# python-launchpad-bugs support (--lp).
-# The following will be tried automatically, if unset (first match gets used):
-# 1. ~/.lpcookie.txt
-# 2. ~/.mozilla/*/*/cookies.sqlite
-# 3. ~/.mozilla/*/*/cookies.txt
-launchpad_cookiefile = None
+# Use functions from ubuntu-dev-tools to create Launchpad cookie file.
+sys.path.append('/usr/share/ubuntu-dev-tools/')
+import common
+    
+launchpad_cookiefile = common.prepareLaunchpadCookie()
 
+def checkNeedsSponsorship(component):
+    """
+        Check that the user has the appropriate permissions by checking what
+        Launchpad returns while authenticating with their cookie.
+
+        If they are an indirect or direct member of the ~ubuntu-dev team on
+        Launchpad - sponsorship is not required if the package is in the
+        universe / multiverse component.
+
+        If they are in the ~ubuntu-core-dev team, no sponsorship required.
+
+        The prepareLaunchpadCookie function above shall ensure that a cookie
+        file exists first.
+    """
+    urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
+
+    # Check where the package is and assign the appropriate variables.
+    if component in ['main', 'restricted']:
+        team = "ubuntu-core-dev"
+        sponsor = "ubuntu-main-sponsors"
+    else:
+        team = "ubuntu-dev"
+        sponsor = "ubuntu-universe-sponsors"
+    
+    # Try and open up Launchpad.
+    try: teamLPPage = urlopener.open('https://launchpad.net/~%s' % team).read()
+    except urllib2.HTTPError:
+        print >> sys.stderr, "Unable to connect to Launchpad."
+    
+    # Check if they are a member of the team.
+    if "You are an indirect member of this team:" in teamLPPage or \
+        "You are a member of this team." in teamLPPage:
+        return False # Sponsorship not required.
+
+    # Check if they are not.
+    if "You are not a member of this team" in teamLPPage:
+        print "You are not a member (direct or indirect) of the '%s' " \
+            "team on Launchpad." % team
+        print "Your sync request shall require an approval by a member of " \
+            "the '%s'\nteam, who shall be subscribed to this bug report." % sponsor
+        print "This must be done before it can be processed by a member of " \
+            "the Ubuntu Archive team."
+        print "Should the above be incorrect, please press Control-C now to " \
+            "stop this script now\nand check the cookie file at:", launchpad_cookiefile
+        raw_input_exit_on_ctrlc() # Abort if necessary.
+        return True # Sponsorship required.
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
@@ -108,18 +171,17 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
         sys.exit(1)
 
 def usage():
-    print '''Usage: requestsync [-h|-n|-s|-k <keyid>|--lp] <source package> <target release> [basever]
+    print '''Usage: requestsync [-h|-n|-k <keyid>|--lp] <source package> <target release> [basever]
 
 In some cases, the base version (fork point from Debian) cannot be determined
 automatically, and you'll get a complete Debian changelog. Specify the correct
 base version of the package in Ubuntu.
 
 Options:
-    -h        print this help
-    -n        new source package (doesn't exist yet in Ubuntu)
-    -s        request sponsoring (through ubuntu-{main,universe}-sponsors)
-    -k <keyid>    sign email with <keyid> (only used when submitting per email)
-    --lp        use python-launchpad-bugs instead of email for bug submitting
+	-h		print this help
+	-n		new source package (doesn't exist yet in Ubuntu)
+	-k <keyid>	sign email with <keyid> (only used when submitting per email)
+	--lp		use python-launchpad-bugs instead of email for bug submitting
 '''
     sys.exit(1)
 
@@ -204,8 +266,12 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     try:
         s = smtplib.SMTP(mailserver, mailserver_port)
     except socket.error, s:
-        print "ERROR: Could not connect to mailserver %s at port %s: %s (%i)" % \
+        print >> sys.stderr, "Could not connect to mailserver %s at port %s: %s (%i)" % \
             (mailserver, mailserver_port, s[1], s[0])
+        print "The port %s may be firewalled. Please try using requestsync with" \
+            % mailserver_port
+        print "the '--lp' flag to file a sync request with the launchpadbugs " \
+            "module."
         return False
 
     # authenticate to the server
@@ -234,7 +300,6 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     Return True if successfully posted, otherwise False.'''
 
     import glob, os.path
-    global launchpad_cookiefile
 
     try:
         import launchpadbugs.connector
@@ -242,23 +307,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
         print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
         return False
 
-    # Search cookiefile (for authentication to lp)
-    if launchpad_cookiefile == None:
-        try_globs = ('~/.lpcookie.txt', '~/.mozilla/*/*/cookies.sqlite', '~/.mozilla/*/*/cookies.txt')
-        for try_glob in try_globs:
-            try:
-                cookiefile = glob.glob(os.path.expanduser(try_glob))[0]
-            except IndexError:
-                continue
-            # Found:
-            launchpad_cookiefile = cookiefile
-            print "Using cookie file at «%s».\n" % launchpad_cookiefile
-            break
-
-        if launchpad_cookiefile == None:
-            print >> sys.stderr, 'Could not find cookie file for Launchpad (looked in %s)' % ", ".join(try_globs)
-            print >> sys.stderr, 'You should be able to create a valid file by logging into Launchpad with Firefox'
-            return False
+    print "Using cookie file at", launchpad_cookiefile
 
     if source_package:
         product = {'name': source_package, 'target': 'ubuntu'}
@@ -310,7 +359,8 @@ def edit_report(subject, body, changes_required=False):
     program exits.
     Returns (new_subject, new_body).
     """
-    import re, string
+    import re
+    import string
 
     report = "Summary (one line):\n%s\n\nDescription:\n%s" % (subject, body)
 
@@ -361,22 +411,22 @@ if __name__ == '__main__':
     distro = 'unstable'
 
     try:
-		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnsd:k:', ('lp'))
+		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnd:k:', ('lp'))
     except getopt.GetoptError:
         usage()
     for o, a in opts:
         if o == '-h':   usage()
         if o == '-n':   newsource = True
-        if o == '-s':   sponsorship = True
         if o == '-k':   keyid = a
         if o == '-d':   distro = a
         if o == '--lp': use_lp_bugs = True
-    
+
     if len(args) not in (2, 3):
         usage()
 
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
+    
 
     (srcpkg, release) = args[:2]
     force_base_ver = None
@@ -388,6 +438,8 @@ if __name__ == '__main__':
 
     debiancomponent = debian_component(srcpkg, distro)
     deb_version = cur_deb_version(srcpkg, distro)
+    
+    sponsorship = checkNeedsSponsorship(component)
 
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)

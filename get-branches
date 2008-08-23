@@ -1,70 +1,141 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2007 (C) Canonical Ltd.
+#
+# Copyright (C) 2007 Canonical Ltd.
 # Created by Daniel Holbach <daniel.holbach@ubuntu.com>
-# License: GPLv3
+# Modified by Jonathan Patrick Davies <jpds@ubuntu.com>
+#
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-3 for more details.
+#
+# ##################################################################
 #
 # This script is used to checkout or branch all the Bazaar branches
-# in a Launchpad team.
+# of a Launchpad team.
+#
 
-import urllib2
-import sys
-import re
 import os
+import re
+import subprocess
+import sys
+import urllib2
+from optparse import OptionParser
 
 def main():
-    usage = "Usage: get-branches <directory> <team> [checkout|branch]"
-    if len(sys.argv) < 3:
-        print >> sys.stderr, usage
-        sys.exit(1)
-    
-    directory = os.path.abspath(sys.argv[1]))
-    team = sys.argv[2]
-    operation_type = "branch"
-    if len(sys.argv) == 4:
-        operation_type = sys.argv[3]
+    usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
+    usage += "\nUsage: %prog <team>"
+    optParser = OptionParser(usage)
 
+    # Our options.
+    optParser.add_option("-d", "--directory", action = "store", type = "string",
+        dest = "directory", default = ".",
+        help = "Directory to download branches to.")
+    optParser.add_option("-t", "--team", action = "store", type = "string",
+        dest = "lpteam", help = "Launchpad team to download branches from.")
+    optParser.add_option("-o", "--operation", action = "store", type = "string",
+        dest = "operation", default = "branch",
+        help = "Whether to branch or checkout the Bazaar branches. May be " \
+            "either 'branch' or 'checkout'.")
+
+    (options, args) = optParser.parse_args()
+
+    # Parse our options aka Russian roulette time.
+    if len(args) != 1 and options.lpteam == None:
+        optParser.error("No team has been specified.")
+    
+    # Launchpad team setting.
+    if options.lpteam:
+        team = str(options.lpteam).lower()
+    if args:
+        team = str(args[0]).lower()
+
+    directory = options.directory
+
+    # Dictionary settings.
+    if not os.path.isdir(directory): # Check that it is a directory.
+        optParser.error("%s is not a valid directory." % directory)
+    
+    # Type of Bazaar operation to perform.
+    operation_type = str(options.operation).lower()
+
+    # Got an argument, check if it is valid.
+    if operation_type not in ("branch", "checkout"):
+        optParser.error("Invalid operation '%s' for '-o' flag." % \
+            operation_type)
+    
+
+    # Fetch our current directory to return to later.
     pwd = os.getcwd()
+
+    # Change to the specified directory.
+    os.chdir(directory)
+
+    # Try to open the teams code page.
     try:
-        os.chdir(directory)
-    except:
-        print >> sys.stderr, "Directory '%s' not found." % directory
+        sock = urllib2.urlopen("https://code.launchpad.net/~%s" % team)
+    except urllib2.HTTPError:
+        print >> sys.stderr, "The page https://code.launchpad.net/~%s does " \
+            "not exist." % team
+        print >> sys.stderr, "Perhaps invalid team name?"
         sys.exit(1)
+
+    branch_list_page = sock.read()
+    sock.close()
+    
+    branch_page_urls_regex = r'.*<a href="/(~%s/.*)".*' % team
+    branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
+    
+    # Check the team actually has branches.
+    if len(branch_page_urls) == 0:
+        print "The team '%s' does not have any branches on Launchpad." % team
+        sys.exit(0)
+    
+    print "Downloading all branches for the team '%s'. This may take some " \
+        "time." % team
 
     try:
         os.makedirs(team)
     except:
         pass
+
     os.chdir(team)
     
-    sock = urllib2.urlopen("http://code.launchpad.net/~%s" % team)
-    branch_list_page = sock.read()
-    sock.close()
-    branch_page_urls_regex = r'.*<a href="/(~%s/.*)".*' % team
-    branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
     for url in branch_page_urls:
-        sock = urllib2.urlopen("http://code.launchpad.net/%s" % url)
-	branch_page = sock.read()
-	sock.close()
-        branch_url_regex = r'<th>Hosted on Launchpad:</th>.*\n.*<td>(.*)</td>'
+        sock = urllib2.urlopen("https://code.launchpad.net/%s" % url)
+        branch_page = sock.read()
+        sock.close()
+	
+        branch_url_regex = r'<tt>bzr branch lp:~(.*)</tt>'
         branch_url = re.findall(branch_url_regex, branch_page)
-	print branch_url[0]
+        print "Downloading branch: lp:~%s." % branch_url[0]
+
         if branch_url[0]:
             product = branch_url[0].split("/")[-2]
             branch_nick = branch_url[0].split("/")[-1]
-	    if not os.path.exists(product):
-		os.makedirs(product)
-	    os.chdir(product)
-	    if not os.path.exists(branch_nick):
-		os.system("bzr %s %s" % (operation_type, branch_url[0]))
-	    else:
-		os.chdir(branch_nick)
-		os.system("bzr merge --pull --remember")
-        os.chdir(os.path.join(directory, team))
+       
+  	    if not os.path.exists(product):
+  	        os.makedirs(product)
+           	os.chdir(product)
+       	       	    
+        if not os.path.exists(branch_nick):
+            subprocess.call(["bzr", operation_type, "lp:~%s" % branch_url[0]])
+        else:
+            os.chdir(branch_nick)
+            subprocess.call(["bzr", "merge", "--pull", "--remember"])
+            os.chdir(os.path.join(directory, team))
             
     os.chdir(pwd)
     sys.exit(0)
     
-
 if __name__ == "__main__":
     main()
