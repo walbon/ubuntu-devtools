@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.42ubuntu1) intrepid; urgency=low
+
+  * requestsync: Exit when connecting to Launchpad fails.
+
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Sun, 24 Aug 2008 21:43:30 +0100
+
 ubuntu-dev-tools (0.41) intrepid; urgency=low
 
   [ Loic Minier ]

@@ -67,6 +67,7 @@ def checkNeedsSponsorship(component):
     try: teamLPPage = urlopener.open('https://launchpad.net/~%s' % team).read()
     except urllib2.HTTPError:
         print >> sys.stderr, "Unable to connect to Launchpad."
+        sys.exit(1)
     
     # Check if they are a member of the team.
     if "You are an indirect member of this team:" in teamLPPage or \
