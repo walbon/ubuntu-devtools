@@ -2,6 +2,7 @@ ubuntu-dev-tools (0.42ubuntu1) intrepid; urgency=low
 
   [Jonathan Patrick Davies]
   * requestsync: Exit when connecting to Launchpad fails.
+  * doc/requestsync.1: Document new -d flag.
 
   [ Jelmer Vernooij ]
   * requestsync: Add -d option to allow overriding the Debian distro to sync

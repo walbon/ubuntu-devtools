@@ -2,7 +2,7 @@
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync\fR [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+.B requestsync\fR [\fB-d distro\fR] [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 
 .B requestsync \-\-lp\fR [\fB\-ns\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 
@@ -38,6 +38,10 @@ Listed below are the command line options for requestsync:
 .TP
 .B \-h
 Display a help message and exit.
+.TP
+.B \-d
+Specifies which Debian distribution a package should be synced from. Default is
+\fIunstable\fR.
 .TP
 .B \-n
 Specifies that the package is a new package, and requestsync should not
