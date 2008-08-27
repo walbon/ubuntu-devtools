@@ -27,6 +27,7 @@
 import cookielib
 import glob
 import os.path
+import re
 import sys
 import urllib2
 
@@ -60,6 +61,54 @@ def readlist(filename, uniq=True):
         items = list(set(items))
     
     return items
+
+def checkReleaseExists(release):
+    """ Check that an Ubuntu release exists by opening
+        https://launchpad.net/ubuntu/releaseName page on Launchpad.
+
+        If an error is returned; the release does not exist. """
+    try:
+        urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
+    except urllib2.HTTPError:
+        print >> sys.stderr, "The '%s' release does not appear to exist on " \
+            "Launchpad." % release
+        sys.exit(1)
+
+def checkSourceExists(package, release):
+    """ Check that a package exists by opening its
+        https://launchpad.net/ubuntu/+source/package page.
+        
+        Return the page and version in release. """
+    try:
+        page = urllib2.urlopen('https://launchpad.net/ubuntu/+source/' + package).read()
+
+        m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
+                package.replace('+', '\+')), page)
+        if not m:
+            print >> sys.stderr, "Unable to find this source package (%s) in " \
+                "this release (%s)." % (package, release.capitalize())
+            sys.exit(1)
+
+    except urllib2.HTTPError, error: # Raised on 404.
+        if error.code == 404:
+            print >> sys.stderr, "The source package (%s) does not appear to " \
+                "exist in Ubuntu." % package
+        else: # Other error code, probably Launchpad malfunction.
+            print >> sys.stderr, "Error when checking Launchpad for package: " \
+                "%s." % error
+        
+        sys.exit(1) # Exit. Error encountered.
+
+    except urllib2.URLError, error: # Other error (NXDOMAIN, ...)
+        (_, reason) = error.reason
+        print >> sys.stderr, "Error when checking Launchpad for package: %s." % \
+            reason
+        sys.exit(1)
+
+    # Get package version.
+    version = m.group(1)
+
+    return page, version
 
 def prepareLaunchpadCookie():
     """ Search for a cookie file in the places as defined by try_globs.

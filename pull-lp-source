@@ -32,6 +32,10 @@ import sys
 import urllib2
 from optparse import OptionParser
 
+# Ubuntu-dev-tools modules.
+sys.path.append("/usr/share/ubuntu-dev-tools")
+import common
+
 class BackportFromLP:
 
     def __getitem__(self, name):
@@ -67,54 +71,19 @@ if __name__ == '__main__':
         optParser.print_help()
         sys.exit(1)
     
-    package = args[0]
+    package = str(args[0]).lower()
 
     if len(args) == 2: # Custom distribution specified.
-        release = args[1]
+        release = str(args[1]).lower()
     else:
         release = os.getenv('DIST') or default_release
 
     # Correct-ish args, can proceed.
     # Check release by checking if Launchpad page exists
-    try:
-        urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
-    except urllib2.HTTPError:
-        print >> sys.stderr, "The '%s' release does not appear to exist on " \
-            "Launchpad." % release
-        sys.exit(1)
+    common.checkReleaseExists(release)
 
     # Check package exists.
-    try:
-
-        sourcePage = urllib2.urlopen("https://launchpad.net/ubuntu/%s/+source/%s" % \
-            (release, package)).read()
-        m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release, \
-            package.replace('+', '\+')), sourcePage)
-    
-        if not m:
-            print >> sys.stderr, "The '%s' package does not appear to exist in " \
-                "the '%s' release." % (package, release)
-            sys.exit(1)
-
-    except urllib2.HTTPError, e: # Raised on 404
-           
-        if e.code == 404:
-
-            print >> sys.stderr, "The '%s' package does not appear to exist in " \
-                "the '%s' release." % (package, release)
-
-        else: # Other code, probably LP malfunction
-            
-            print >> sys.stderr, "Error when checking Launchpad for package: %s " % e
-
-        sys.exit(1)
-
-    except urllib2.URLError, e: # Other error (NXDOMAIN, ...)
-
-            (_, reason) = e.reason
-
-            print >> sys.stderr, "Error when checking Launchpad for package: %s " % reason
-            sys.exit(1)
+    common.checkSourceExists(package, release)
 
     # All good - start downloading...
     try:
