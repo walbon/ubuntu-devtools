@@ -164,20 +164,20 @@ def _check_for_launchpad_cookie(cookie_file):
         newLPCookieLocation = os.path.expanduser("~/.lpcookie.txt")
 
         # Open file for writing.
-        newLPCookie = open(newLPCookieLocation, 'w')
-        # For security reasons, change file mode to write and read
-        # only by owner.
-        os.chmod(newLPCookieLocation, 0600)
-        newLPCookie.write("# HTTP Cookie File.\n") # Header.
+        try:
+            newLPCookie = open(newLPCookieLocation, 'w')
+            # For security reasons, change file mode to write and read
+            # only by owner.
+            os.chmod(newLPCookieLocation, 0600)
+            newLPCookie.write("# HTTP Cookie File for Launchpad.\n") # Header.
 
-        for item in items:
-            # Write entries.
-            newLPCookie.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                item[0], ftstr[item[0].startswith('.')], item[1],
-                ftstr[item[2]], item[3], item[4], item[5]))
-
-        newLPCookie.write("\n") # New line.
-        newLPCookie.close()     # And close file.
+            for item in items:
+                # Write entries.
+                newLPCookie.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
+                    item[0], ftstr[item[0].startswith('.')], item[1],
+                    ftstr[item[2]], item[3], item[4], item[5]))
+        finally:
+            newLPCookie.close()     # And close file.
 
         return newLPCookieLocation
     else:
@@ -188,8 +188,16 @@ def _check_for_launchpad_cookie(cookie_file):
 
 def setupLaunchpadUrlOpener(cookie):
     """ Build HTML opener with cookie file. """
-    cj = cookielib.MozillaCookieJar()
-    cj.load(cookie)
+
+    # Attempt to load our cookie file.
+    try:
+        cj = cookielib.MozillaCookieJar()
+        cj.load(cookie)
+    except cookielib.LoadError, error:
+        print "Unable to load cookie file: %s (%s)" % (cookie, error)
+        sys.exit(1)
+
+    # Add cookie to our URL opener.
     urlopener = urllib2.build_opener()
     urlopener.add_handler(urllib2.HTTPCookieProcessor(cj))
     
