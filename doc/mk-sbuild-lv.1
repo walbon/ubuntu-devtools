@@ -1,0 +1,73 @@
+.TH MK-SBUILD-LV "1" "27 August 2008" "ubuntu-dev-tools"
+
+.SH NAME
+mk-sbuild-lv \- creates LVM snapshot chroots via schroot and sbuild
+
+.SH SYNOPSIS
+\fB mk-sbuild-lv\fR [\fB--arch=ARCH\fR] [\fB--name=NAME\fR]
+[\fB--personality=PERSONALITY\fR] [\fB--debug\fR] [\fB--source-template=FILE\fR]
+[\fB--debootstrap-mirror=URL\fR] <\fBVG\fR> <\fBRelease\fR>
+
+.SH DESCRIPTION
+.PP 
+\fBmk-sbuild-lv\fR creates LVM snapshot chroots via schroot and sbuild.
+
+.SH OPTIONS
+.PP
+Listed below are the command line options for mk-sbuild-lv:
+.TP
+.B \-\-arch=ARCH
+What architecture to select (defaults to the native architecture).
+.TP
+.B \-\-name=NAME
+Base name for the schroot (arch is appended)
+.TP
+.B \-\-personality=PERSONALITY
+What personality to use (defaults to match --arch)
+.TP
+.B \-\-debug
+Turn on script debugging
+.TP
+.B \-\-source-template=FILE
+Use FILE as the sources.list template (defaults to $HOME/.mk-sbuild-lv.sources)
+.TP
+.B \-\-debootstrap-mirror=URL
+Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
+official Ubuntu repositories for the supported architectures).
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.B LV_SIZE
+Size of source LVs (defaults to 5G)
+.TP
+.B SNAPSHOT_SIZE
+Size of snapshot LVs (defaults to 4G)
+.TP
+.B SCHROOT_CONF_SUFFIX
+Lines to append to schroot entries
+
+.SH FILES
+.TP
+.B $HOME/.mk-sbuild-lv.sources
+Can contain a customized sources.list. It will be read when creating the
+schroot, see sources.list(5) for more details on format.
+.TP
+.B $HOME/.mk-sbuild-lv.schroot.conf
+Can contain a customized configuration section to be inserted into
+/etc/schroot/schroot.conf, see schroot.conf(5) for more details on format.
+.SH USING THE CHROOTS
+.TP
+To UPDATE the golden image: \fBschroot -c ${CHROOT_NAME}-source -u root -- sh -c apt-get update && apt-get -y upgrade\fR
+.TP
+To ENTER an image snapshot: \fBschroot -c ${CHROOT_NAME}\fR
+.TP
+To BUILD within a snapshot: \fBsbuild -d ${SCHROOT_NAME} PACKAGE*.dsc\fR
+
+.SH SEE ALSO
+.BR sbuild-setup (7), sources.list (5), schroot.conf (5), https://help.ubuntu.com/community/SbuildLVMHowto
+
+.SH AUTHOR
+.PP
+\fBmk-sbuild-lv\fR was written written by Kees Cook <kees@ubuntu.com>. This
+man page was written by Ryan Kavanagh <ryanakca@kubuntu.org>. Both are released
+under the GNU General Public License, version 3 or later.

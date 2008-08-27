@@ -8,10 +8,11 @@ ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
   [Ryan Kavanagh]
   * dgetlp.1: New manpage
   * dgetlp: fix typo in usage
-  * hugdaylist: New manpage
+  * hugdaylist.1: New manpage
   * s/requestsync/pull-lp-source/g in doc/pull-lp-source.1
+  * mk-sbuild-lv.1: New manpage
 
- -- Ryan Kavanagh <ryanakca@kubuntu.org>  Wed, 27 Aug 2008 11:20:11 -0400
+ -- Ryan Kavanagh <ryanakca@kubuntu.org>  Wed, 27 Aug 2008 13:51:15 -0400
 
 ubuntu-dev-tools (0.42ubuntu1) intrepid; urgency=low
 
