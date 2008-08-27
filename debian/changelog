@@ -1,16 +1,21 @@
 ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
 
-  [Jonathan Patrick Davies]
+  [ Jonathan Patrick Davies ]
   * common.py:
     - If loading a cookie file raises an exception exit. 
     - Improve cookie file writing.
+  * requestsync: Return an error when the script is unable to connect to
+    packages.debian.org (LP: #261916).
 
-  [Ryan Kavanagh]
+  [ Ryan Kavanagh ]
   * dgetlp.1: New manpage
   * dgetlp: fix typo in usage
   * hugdaylist.1: New manpage
   * s/requestsync/pull-lp-source/g in doc/pull-lp-source.1
   * mk-sbuild-lv.1: New manpage
+
+  [ Karl Goetz ]
+  * Add a Recommends: on ca-certificates (LP: #247157).
 
  -- Ryan Kavanagh <ryanakca@kubuntu.org>  Wed, 27 Aug 2008 13:51:15 -0400
 

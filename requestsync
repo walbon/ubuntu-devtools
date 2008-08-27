@@ -134,9 +134,19 @@ def debian_changelog(sourcepkg, component, version):
 
     ch = ''
     subdir = sourcepkg[0]
+
     if sourcepkg.startswith('lib'):
         subdir = 'lib%s' % sourcepkg[3]
-    for l in urllib.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg)):
+
+    # Get the debian/changelog file from packages.debian.org.
+    try:
+        debianChangelogPage = urllib2.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg))
+    except urllib2.HTTPError, error:
+        print >> sys.stderr, "Unable to connect to packages.debian.org. " \
+            "Received a %s." % error.code
+        sys.exit(1)
+
+    for l in debianChangelogPage:
         if l.startswith(sourcepkg):
             ch_version = l[ l.find("(")+1 : l.find(")") ]
             if Version(ch_version) <= base_version:
