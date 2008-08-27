@@ -1,10 +1,17 @@
 ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
 
+  [Jonathan Patrick Davies]
   * common.py:
     - If loading a cookie file raises an exception exit. 
     - Improve cookie file writing.
 
- -- Jonathan Patrick Davies <jpds@ubuntu.com>  Wed, 27 Aug 2008 15:32:14 +0100
+  [Ryan Kavanagh]
+  * dgetlp.1: New manpage
+  * dgetlp: fix typo in usage
+  * hugdaylist: New manpage
+  * s/requestsync/pull-lp-source/g in doc/pull-lp-source.1
+
+ -- Ryan Kavanagh <ryanakca@kubuntu.org>  Wed, 27 Aug 2008 11:20:11 -0400
 
 ubuntu-dev-tools (0.42ubuntu1) intrepid; urgency=low
 

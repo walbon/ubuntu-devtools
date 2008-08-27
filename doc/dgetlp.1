@@ -1,0 +1,37 @@
+.TH DGETLP "1" "27 August 2008" "ubuntu-dev-tools"
+
+.SH NAME
+dgetlp \- simulate ``dget'' behaviour for files hosted at
+librarian.launchpad.net
+
+.SH SYNOPSIS
+.B dgetlp [-d] <\fBLaunchpad DSC URL\fR>
+
+.SH DESCRIPTION
+.PP 
+\fBdgetlp\fR downloads and optionally extracts the <\fBLaunchpad DSC URL\fR> from Launchpad.
+
+.SH OPTIONS
+.PP
+Listed below are the command line options for dgetlp:
+.TP
+.B \-d
+Download the .dsc file and display the commands that would be run otherwise.
+.TP
+.B <Launchpad DSC URL>
+This is the source package that you would like to be downloaded from Launchpad.
+
+.SH ENVIRONMENT VARIABLES
+.TP
+DIST
+Specifies the default target.
+
+.SH EXAMPLE
+.B dgetlp http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
+
+.SH AUTHOR
+.PP
+\fBdgetlp\fR was written written by Terence Simpson <tsimpson@ubuntu.com> and
+modified by Siegfried-A. Gevatter <rainct@ubuntu.com>. This man page was written
+by Ryan Kavanagh <ryanakca@kubuntu.org>. Both are released under the GNU General
+Public License, version 2 or later.

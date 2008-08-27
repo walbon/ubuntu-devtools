@@ -37,7 +37,7 @@ usage()
 cat << EOF
 Usage: $0 [-d] <Launchpad URL>
 
-This scripts simulates «dget»'s behaviour for files hostead at
+This scripts simulates «dget»'s behaviour for files hosted at
 launchpadlibrarian.net.
 
 If you specify the -d option then it won't do anything, except download the
