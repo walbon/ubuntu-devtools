@@ -62,20 +62,11 @@ def checkNeedsSponsorship(component):
     else:
         team = "ubuntu-dev"
         sponsor = "ubuntu-universe-sponsors"
-    
-    # Try and open up Launchpad.
-    try: teamLPPage = urlopener.open('https://launchpad.net/~%s' % team).read()
-    except urllib2.HTTPError:
-        print >> sys.stderr, "Unable to connect to Launchpad."
-        sys.exit(1)
-    
-    # Check if they are a member of the team.
-    if "You are an indirect member of this team:" in teamLPPage or \
-        "You are a member of this team." in teamLPPage:
-        return False # Sponsorship not required.
 
-    # Check if they are not.
-    if "You are not a member of this team" in teamLPPage:
+    # Check if they are a member of the team.
+    teamMember = common.isLPTeamMember(team)
+    
+    if not teamMember:
         print "You are not a member (direct or indirect) of the '%s' " \
             "team on Launchpad." % team
         print "Your sync request shall require an approval by a member of " \
@@ -86,6 +77,9 @@ def checkNeedsSponsorship(component):
             "stop this script now\nand check the cookie file at:", launchpad_cookiefile
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
+
+    # Is a team member, no sponsorship required.
+    return False
 
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''

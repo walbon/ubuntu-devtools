@@ -120,6 +120,20 @@ for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<
 if op == 'status':
     sys.exit(0)
 
+# Leaving operations may only be done by Ubuntu developers (retry) or buildd
+# admins (rescore). Check if the proper permissions are in place.
+if op == "rescore": teamNeeded = "launchpad-buildd-admins"
+if op == "retry": teamNeeded = "ubuntu-dev"
+
+necessaryPrivs = common.isLPTeamMember(teamNeeded)
+
+if not necessaryPrivs:
+    print >> sys.stderr, "You cannot perform the %s operation as you are not " \
+        "a member of the '%s' team on Launchpad." % (op, teamNeeded)
+    print "If this is incorrect, please log in to Launchpad using Firefox, " \
+        "delete the ~/.lpcookie.txt file and rerun this script."
+    sys.exit(1)
+
 for build, (arch, status) in buildstats.iteritems():
     if oneArch and not options.architecture == arch:
         # Skip this architecture.
