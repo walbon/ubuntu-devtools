@@ -102,8 +102,8 @@ common.checkReleaseExists(release)
 component = common.packageComponent(package, release)
 
 # Output details.
-print "The source version for '%s' in %s is at %s." % (package,
-    release.capitalize(), version)
+print "The source version for '%s' in %s (%s) is at %s." % (package,
+    release.capitalize(), component, version)
 
 # Parse out build URLs, states, and arches.
 buildstats = {}
@@ -127,8 +127,10 @@ if op == 'status':
 # admins (rescore). Check if the proper permissions are in place.
 if op == "rescore": teamNeeded = "launchpad-buildd-admins"
 if op == "retry":
-    if component == "main": teamNeeded = "ubuntu-core-dev"
-    else: teamNeeded = "ubuntu-dev"
+    if component in ("main", "restricted"):
+        teamNeeded = "ubuntu-core-dev"
+    else:
+        teamNeeded = "ubuntu-dev"
 
 necessaryPrivs = common.isLPTeamMember(teamNeeded)
 
