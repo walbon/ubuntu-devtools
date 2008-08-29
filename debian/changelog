@@ -6,11 +6,15 @@ ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
     - Improve cookie file writing.
     - New function: isLPTeamMember() - checks if the user is a member of the
       Launchpad team using cookies for authentication.
+    - New function: packageComponent() - returns which component a package in
+      Ubuntu is in.
   * requestsync:
     - Return an error when the script is unable to connect to
       packages.debian.org (LP: #261916).
     - Adapt team checking with the function above.
-  * buildd: Adapt privilege checking code to the new function above.
+  * buildd:
+    - Adapt privilege checking code to the new function above.
+    - Check which component the package is in.
 
   [ Ryan Kavanagh ]
   * dgetlp.1: New manpage

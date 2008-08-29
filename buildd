@@ -123,14 +123,19 @@ if op == 'status':
 # Leaving operations may only be done by Ubuntu developers (retry) or buildd
 # admins (rescore). Check if the proper permissions are in place.
 if op == "rescore": teamNeeded = "launchpad-buildd-admins"
-if op == "retry": teamNeeded = "ubuntu-dev"
+if op == "retry":
+    component = common.packageComponent(package, release)
+
+    if component == "main": teamNeeded = "ubuntu-core-dev"
+    else: teamNeeded = "ubuntu-dev"
 
 necessaryPrivs = common.isLPTeamMember(teamNeeded)
 
 if not necessaryPrivs:
-    print >> sys.stderr, "You cannot perform the %s operation as you are not " \
-        "a member of the '%s' team on Launchpad." % (op, teamNeeded)
-    print "If this is incorrect, please log in to Launchpad using Firefox, " \
+    print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
+        "as you are not member of the '%s' team on Launchpad." % (op, component,
+            teamNeeded)
+    print "Should this is incorrect, please log in to Launchpad using Firefox, " \
         "delete the ~/.lpcookie.txt file and rerun this script."
     sys.exit(1)
 

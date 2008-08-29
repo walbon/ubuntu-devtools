@@ -28,6 +28,7 @@ import cookielib
 import glob
 import os.path
 import re
+import subprocess
 import sys
 import urllib2
 
@@ -95,7 +96,7 @@ def checkSourceExists(package, release):
                 "exist in Ubuntu." % package
         else: # Other error code, probably Launchpad malfunction.
             print >> sys.stderr, "Error when checking Launchpad for package: " \
-                "%s." % error
+                "%s." % error.code
         
         sys.exit(1) # Exit. Error encountered.
 
@@ -233,3 +234,17 @@ def isLPTeamMember(team):
         return False
 
     return True
+
+def packageComponent(package, release):
+    madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
+        '-s', release, package], stdout = subprocess.PIPE)
+    out = madison.communicate()[0]
+    assert (madison.returncode == 0)
+    
+    for l in out.splitlines():
+        (pkg, version, rel, builds) = l.split('|')
+        component = 'main'
+        if rel.find('/') != -1: 
+            component = rel.split('/')[1]
+
+    return component.strip()
