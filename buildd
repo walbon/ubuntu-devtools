@@ -98,6 +98,9 @@ common.checkReleaseExists(release)
 # Find out the version in given release.
 (page, version) = common.checkSourceExists(package, release)
 
+# Get the component the package is in.
+component = common.packageComponent(package, release)
+
 # Output details.
 print "The source version for '%s' in %s is at %s." % (package,
     release.capitalize(), version)
@@ -124,8 +127,6 @@ if op == 'status':
 # admins (rescore). Check if the proper permissions are in place.
 if op == "rescore": teamNeeded = "launchpad-buildd-admins"
 if op == "retry":
-    component = common.packageComponent(package, release)
-
     if component == "main": teamNeeded = "ubuntu-core-dev"
     else: teamNeeded = "ubuntu-dev"
 
@@ -135,7 +136,7 @@ if not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
         "as you are not member of the '%s' team on Launchpad." % (op, component,
             teamNeeded)
-    print "Should this is incorrect, please log in to Launchpad using Firefox, " \
+    print "Should this be incorrect, please log in to Launchpad using Firefox, " \
         "delete the ~/.lpcookie.txt file and rerun this script."
     sys.exit(1)
 
