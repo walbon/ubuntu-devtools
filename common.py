@@ -86,23 +86,23 @@ def checkSourceExists(package, release):
         m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
                 package.replace('+', '\+')), page)
         if not m:
-            print >> sys.stderr, "Unable to find this source package (%s) in " \
-                "this release (%s)." % (package, release.capitalize())
+            print >> sys.stderr, "Unable to find this source package '%s' in " \
+                "the %s release." % (package, release.capitalize())
             sys.exit(1)
 
     except urllib2.HTTPError, error: # Raised on 404.
         if error.code == 404:
-            print >> sys.stderr, "The source package (%s) does not appear to " \
+            print >> sys.stderr, "The source package '%s' does not appear to " \
                 "exist in Ubuntu." % package
         else: # Other error code, probably Launchpad malfunction.
-            print >> sys.stderr, "Error when checking Launchpad for package: " \
+            print >> sys.stderr, "Error while checking Launchpad for package: " \
                 "%s." % error.code
         
         sys.exit(1) # Exit. Error encountered.
 
     except urllib2.URLError, error: # Other error (NXDOMAIN, ...)
         (_, reason) = error.reason
-        print >> sys.stderr, "Error when checking Launchpad for package: %s." % \
+        print >> sys.stderr, "Error while checking Launchpad for package: %s." % \
             reason
         sys.exit(1)
 

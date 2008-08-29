@@ -99,7 +99,7 @@ def file_bug(config):
                                "target": "ubuntu"},
                       summary=summary,
                       description=description)
-        print "Successfully filed bug %s: http://launchpad.net/bugs/%s" % \
+        print "Successfully filed bug %s: https://launchpad.net/bugs/%s" % \
             (bug.bugnumber, bug.bugnumber)
         for sub in config["subscribers"].split(","):
             if sub.strip("\n").strip():

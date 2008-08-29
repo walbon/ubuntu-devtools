@@ -52,7 +52,7 @@ class BackportFromLP:
         links = re.findall('a href=\"(.*\.dsc)\"', contents)
         
         if len(links) == 1 and \
-        subprocess.call(['dget', '-xu', 'http://launchpad.net%s' % links[0]]) == 0:
+        subprocess.call(['dget', '-xu', 'https://launchpad.net%s' % links[0]]) == 0:
             print '\nSuccess!'
         else:
             raise ValueError, '\nFailed to fetch and extract the source. ' +\
