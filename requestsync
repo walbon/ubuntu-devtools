@@ -73,7 +73,7 @@ def checkNeedsSponsorship(component):
             "the '%s'\nteam, who shall be subscribed to this bug report." % sponsor
         print "This must be done before it can be processed by a member of " \
             "the Ubuntu Archive team."
-        print "Should the above be incorrect, please press Control-C now to " \
+        print "Should the above be incorrect, please press Ctrl-C now to " \
             "stop this script now\nand check the cookie file at:", launchpad_cookiefile
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
@@ -81,6 +81,33 @@ def checkNeedsSponsorship(component):
     # Is a team member, no sponsorship required.
     return False
 
+def checkExistingReports(package):
+    """ Check existing bug reports on Launchpad for a possible sync request.
+
+        If found ask for confirmation on filing a request.
+    """
+    import launchpadbugs.connector as Connector
+
+    # Connect to the bug list.
+    bugList = Connector.ConnectBugList()
+
+    # Fetch the package bug list from Launchpad.
+    pkgBugList = bugList("https://bugs.launchpad.net/ubuntu/+source/%s" % package)
+
+    if len(pkgBugList) == 0:
+        return # No bugs found.
+
+    for bug in pkgBugList:
+        # See if Please sync package is in the bug summary.
+        if ("Please sync %s" % package) in bug.summary:
+            print "A bug with the title: '%s' has been found on Launchpad." % bug.summary
+            print "Please see the following URL to verify this before filing a " \
+               "duplicate report:"
+            print " -", bug.url
+            print "Press Ctrl-C to stop filing the bug report now, otherwise " \
+                "please press enter."
+            raw_input_exit_on_ctrlc()
+            
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
     madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
@@ -450,6 +477,8 @@ if __name__ == '__main__':
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
         sys.exit(1)
+
+    checkExistingReports(srcpkg)
 
     # generate bug report
     subscribe = 'ubuntu-archive'

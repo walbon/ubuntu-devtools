@@ -9,6 +9,8 @@ ubuntu-dev-tools (0.43ubuntu2) UNRELEASED; urgency=low
     - Wrapped Depends line and bumped debhelper build-dependency version to 6.
   * debian/compat: Changed to 6.
   * Moved https_proxy dropping code to common.py.
+  * requestsync: Check for already existing sync requests before filing a new
+    one.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 01 Sep 2008 09:48:38 +0100
 
