@@ -109,7 +109,7 @@ print "Current build status for this package is as follows:"
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
-        print '%s\t : %s.' % (m.group(3), m.group(4))
+        print '%s\t: %s.' % (m.group(3), m.group(4))
         buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
 
 # Operations.
