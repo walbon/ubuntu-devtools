@@ -116,15 +116,15 @@ print "Current build status for this package is as follows:"
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
-        print '%s: %s.' % (m.group(3), m.group(4))
+        print '%s\t : %s.' % (m.group(3), m.group(4))
         buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
 
 # Operations.
 if op == 'status':
     sys.exit(0)
 
-# Leaving operations may only be done by Ubuntu developers (retry) or buildd
-# admins (rescore). Check if the proper permissions are in place.
+# Operations that are remaining may only be done by Ubuntu developers (retry)
+# or buildd admins (rescore). Check if the proper permissions are in place.
 if op == "rescore": teamNeeded = "launchpad-buildd-admins"
 if op == "retry":
     if component in ("main", "restricted"):
