@@ -97,16 +97,23 @@ def checkExistingReports(package):
     if len(pkgBugList) == 0:
         return # No bugs found.
 
-    for bug in pkgBugList:
-        # See if Please sync package is in the bug summary.
-        if ("Please sync %s" % package) in bug.summary:
-            print "A bug with the title: '%s' has been found on Launchpad." % bug.summary
-            print "Please see the following URL to verify this before filing a " \
-               "duplicate report:"
-            print " -", bug.url
-            print "Press Ctrl-C to stop filing the bug report now, otherwise " \
-                "please press enter."
-            raw_input_exit_on_ctrlc()
+    matchingBugs = [bug for bug in pkgBugList if "Please sync %s" % 
+                          package in bug.summary]
+
+    if len(matchingBugs) == 0:
+        return # No sync bugs found.
+
+    print "The following bugs could be possible duplicate sync bug(s) on Launchpad:"
+
+    for bug in matchingBugs:
+        print " *", bug.summary
+        print "   -", bug.url
+    
+    print "Please check out the above URLs to verify this before filing a " \
+        "duplicate report."
+    print "Press Ctrl-C to stop filing the bug report now, otherwise " \
+         "please press enter."
+    raw_input_exit_on_ctrlc()
             
 def cur_version_component(sourcepkg, release):
     '''Determine current package version in ubuntu.'''
