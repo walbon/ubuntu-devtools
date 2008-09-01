@@ -8,14 +8,14 @@ pbuilder\-dist\-simple \- simple multi-distribution pbuilder wrapper
 
 .SH DESCRIPTION
 \fBpbuilder\-dist\fP is a wrapper that makes it easy to use pbuilder with
-chroots for many different Ubuntu/Debian distributions. If you need more
-features than \fBpbuilder\-dist\-simple\fP provides, have a look at
-\fBpbuilder\-dist\fP.
+chroots for many different Ubuntu/Debian distributions.
+If you need more features than \fBpbuilder\-dist\-simple\fP provides, have a
+look at \fBpbuilder\-dist\fP.
 
 .SH USAGE
 Create one symlink to \fBpbuilder\-dist\-simple\fP for each distribution
-for which you want a build environment, naming them like "pbuilder-hardy",
-"pbuilder-gutsy", etc.
+for which you want a build environment, naming them like "pbuilder\-hardy",
+"pbuilder\-gutsy", etc.
 .PP
 Replace \fIoperation\fP with the action you want \fBpbuilder\-dist\-simple\fP
 to do (create, update, build, clean, login or execute).
@@ -33,8 +33,9 @@ Builds the specified package on an already existing Ubuntu Hardy environment.
 
 .SH FILES
 By default, \fBpbuilder\-dist\-simple\fP will store all the files it
-generates in \fB~/pbuilder/\fP. This can be changed by modifying the
-BASE_DIR value on the top of the script to any other directory you want.
+generates in \fB~/pbuilder/\fP.
+This can be changed by modifying the BASE_DIR value on the top of the script
+to any other directory you want.
 If the directory doesn't exit, it will be created at runtime.
 
 .SH SEE ALSO

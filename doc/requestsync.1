@@ -2,46 +2,47 @@
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync\fR [\fB-d distro\fR] [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
-
+.B requestsync\fR [\fB\-d distro\fR] [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+.br
 .B requestsync \-\-lp\fR [\fB\-ns\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
-
+.br
 .B requestsync \-h
 .SH DESCRIPTION
-.PP 
 \fBrequestsync\fR looks at the versions of <source package> in Debian and
 Ubuntu and prompts for an explanation of why the Ubuntu changes (if there
 are any) should be dropped.
-The changelog entry is then downloaded from packages.debian.org. If the sync
-request is being filed per email (default), a prompt for your GPG passphrase
-follows so that it can sign the mail and send it off to Launchpad.
+The changelog entry is then downloaded from packages.debian.org.
+If the sync request is being filed per email (default), a prompt for your
+GPG passphrase follows so that it can sign the mail and send it off to
+Launchpad.
 Alternatively a sync request can be filed directly using the launchpadbugs
-python module (option \fB\-\-lp\fR). \fBrequestsync\fR falls back to mail
-the sync request if submitting using the launchpadbugs module fails.
+python module (option \fB\-\-lp\fR).
+\fBrequestsync\fR falls back to mail the sync request if submitting using
+the launchpadbugs module fails.
 
 .PP
 \fBrequestsync\fR checks if you have the permissions to request the sync from
 the archive administrators directly by checking if you are a member of the
-\fI~ubuntu-dev\fR team (for universe/multiverse syncs) or a member of the
-\fI~ubuntu-core-dev\fR team (for main/restricted syncs) on Launchpad. If you are
-not a member of the appropriate team, the script shall subscribe the necessary
-team with approval rights to the bug report for you.
+\fI~ubuntu\-dev\fR team (for universe/multiverse syncs) or a member of the
+\fI~ubuntu\-core\-dev\fR team (for main/restricted syncs) on Launchpad.
+If you are not a member of the appropriate team, the script will subscribe
+the necessary team with approval rights to the bug report for you.
 
 .PP
 \fBrequestsync\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to
-authenticate with Launchpad. This cookie is created on run from the Mozilla
-Firefox cookie file at \fI~/.mozilla/*/*/cookies.sqlite\fR.
+authenticate with Launchpad.
+This cookie is created on run from the Mozilla Firefox cookie file at
+\fI~/.mozilla/*/*/cookies.sqlite\fR.
 
 .SH OPTIONS
-.PP
 Listed below are the command line options for requestsync:
 .TP
 .B \-h
 Display a help message and exit.
 .TP
 .B \-d
-Specifies which Debian distribution a package should be synced from. Default is
-\fIunstable\fR.
+Specifies which Debian distribution a package should be synced from.
+Default is \fIunstable\fR.
 .TP
 .B \-n
 Specifies that the package is a new package, and requestsync should not
@@ -50,11 +51,11 @@ attempt to look it up in Ubuntu since it will not exist.
 .B \-k \fI<keyid>\fR
 Specifies your GPG key.
 Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in your shell's
-configuration (For example: \fI$HOME/.bashrc\fR).
+configuration (for example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
-Use the launchpadbugs python module (packaged as python-launchpad-bugs) to
+Use the launchpadbugs python module (packaged as python\-launchpad\-bugs) to
 file the sync request in Launchpad.
 .TP
 .B <source package>
@@ -71,7 +72,6 @@ from the Debian package) cannot be automatically determined.
 Specify this option in this case.
 
 .SH ENVIRONMENT VARIABLES
-.PP
 \fBrequestsync\fR uses the following variables which should be set in your
 shell's configuration by adding \fIexport VARIABLE=\fR lines, where VARIABLE is
 one of the following:
@@ -84,8 +84,8 @@ Specifies your GnuPG key ID.
 Specifies which email should be used when sending to Launchpad.
 .TP
 .B DEBSMTP
-Set which SMTP server to use when sending mail. If unspecified this defaults to
-fioldland.ubuntu.com.
+Set which SMTP server to use when sending mail.
+If unspecified this defaults to fiordland.ubuntu.com.
 .TP
 .B DEBSMTP_PORT
 Sets which port of the SMTP server to use. Default is 25.
@@ -94,11 +94,9 @@ Sets which port of the SMTP server to use. Default is 25.
 Sets the username and password to use when authenticating to the SMTP server.
 
 .SH SEE ALSO 
-.PP 
 .BR rmadison (1)
 
 .SH AUTHOR
-.PP
 .B requestsync
 and this manual page were written by the Ubuntu MOTU Team.
 .PP

@@ -17,8 +17,9 @@ missing build dependencies.
 .PP
 Alternatively, you can call it with a list of space-separated package
 names, or the name of a single file which contains the package names
-each on a line. Then it will install the missing dependencies for those
-packages using "apt-get build-dep".
+each on a line.
+Then it will install the missing dependencies for those packages using
+"apt\-get build\-dep".
 
 .SH EXAMPLES
 .TP
@@ -30,9 +31,9 @@ get\-build\-deps geany
 Installs the build dependencies for the version of \fBgeany\fP that's
 in the repositories.
 .TP
-get\-build\-deps geany epiphany-browser rhythmbox
+get\-build\-deps geany epiphany\-browser rhythmbox
 Same as the previous example but also with the dependencies for
-.B epiphany-browser
+.B epiphany\-browser
 and
 .BR rhythmbox .
 .TP
@@ -50,10 +51,10 @@ for the dependencies to match the indicated versions, but just installs
 the newest one available in the repositories.
 
 .SH SEE ALSO
-.BR dpkg-checkbuilddeps (1),
-.BR apt-get (8)
+.BR dpkg\-checkbuilddeps (1),
+.BR apt\-get (8)
 
 .SH AUTHORS
 \fBget\-build\-deps\fP and this manual page have been written by Siegfried-Angel
-Gevatter Pujals <rainct@ubuntu.com>. They are released under the GNU General
-Public License, version 3 or later.
+Gevatter Pujals <rainct@ubuntu.com>.
+They are released under the GNU General Public License, version 3 or later.

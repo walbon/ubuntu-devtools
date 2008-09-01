@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.43ubuntu2) UNRELEASED; urgency=low
+
+  * Fix a number of minor glitches in manual pages.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 01 Sep 2008 09:48:38 +0100
+
 ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
 
   * Bazaar revision 195.
