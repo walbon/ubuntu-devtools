@@ -91,14 +91,15 @@ def checkExistingReports(package):
     # Connect to the bug list.
     bugList = Connector.ConnectBugList()
 
-    # Fetch the package bug list from Launchpad.
+    # Fetch the package's bug list from Launchpad.
     pkgBugList = bugList("https://bugs.launchpad.net/ubuntu/+source/%s" % package)
 
     if len(pkgBugList) == 0:
         return # No bugs found.
 
+    # Search bug list for other sync requests.
     matchingBugs = [bug for bug in pkgBugList if "Please sync %s" % 
-                          package in bug.summary]
+                        package in bug.summary]
 
     if len(matchingBugs) == 0:
         return # No sync bugs found.
@@ -109,8 +110,8 @@ def checkExistingReports(package):
         print " *", bug.summary
         print "   -", bug.url
     
-    print "Please check out the above URLs to verify this before filing a " \
-        "duplicate report."
+    print "Please check the above URLs to verify this before filing a " \
+        "possible duplicate report."
     print "Press Ctrl-C to stop filing the bug report now, otherwise " \
          "please press enter."
     raw_input_exit_on_ctrlc()
