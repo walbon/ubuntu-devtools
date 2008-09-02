@@ -1,4 +1,6 @@
-ubuntu-dev-tools (0.43ubuntu2) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.44ubuntu1) intrepid; urgency=low
+
+  * Bazaar revision 203.
 
   [ Colin Watson ]
   * Fix a number of minor glitches in manual pages.
@@ -12,7 +14,7 @@ ubuntu-dev-tools (0.43ubuntu2) UNRELEASED; urgency=low
   * requestsync: Check for already existing sync requests before filing a new
     one.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon, 01 Sep 2008 09:48:38 +0100
+ -- Jonathan Patrick Davies <jpds@ubuntu.com>  Tue, 02 Sep 2008 21:43:49 +0100
 
 ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
 
