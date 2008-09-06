@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
+
+  * common.py:
+     - Trying to read from a locked sqlite cookie database isn't a fatal
+       error anymore.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 06 Sep 2008 15:46:55 +0200
+
 ubuntu-dev-tools (0.44ubuntu1) intrepid; urgency=low
 
   * Bazaar revision 203.

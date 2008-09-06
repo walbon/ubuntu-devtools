@@ -25,5 +25,5 @@ Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
  packaging work a lot easier.
  .
- Such tools can include bug filing, build rebuilding, packaging preparation,
- package analysis, among other things.
+ Such tools can include bug filing, build rebuilding, packaging preparation
+ and package analysis, among other things.

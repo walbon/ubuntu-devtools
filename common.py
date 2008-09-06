@@ -92,7 +92,7 @@ def checkSourceExists(package, release):
         m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
                 package.replace('+', '\+')), page)
         if not m:
-            print >> sys.stderr, "Unable to find this source package '%s' in " \
+            print >> sys.stderr, "Unable to find source package '%s' in " \
                 "the %s release." % (package, release.capitalize())
             sys.exit(1)
 
@@ -140,7 +140,7 @@ def prepareLaunchpadCookie():
         if launchpad_cookiefile != None:
             break
 
-    # Unable to find an correct file.
+    # Unable to find a correct file.
     if launchpad_cookiefile == None:
         print >> sys.stderr, "Could not find cookie file for Launchpad. "
         print >> sys.stderr, "Looked in: %s" % ", ".join(try_globs)
@@ -152,13 +152,16 @@ def prepareLaunchpadCookie():
 
 def _check_for_launchpad_cookie(cookie_file):
     # Found SQLite file? Parse information from it.
-    if cookie_file.find('cookies.sqlite') != -1:
+    if 'cookies.sqlite' in cookie_file.find():
         import sqlite3 as sqlite
 
         con = sqlite.connect(cookie_file)
-
         cur = con.cursor()
-        cur.execute("select host, path, isSecure, expiry, name, value from moz_cookies where host like ?", ['%%launchpad%%'])
+        try:
+            cur.execute("select host, path, isSecure, expiry, name, value from moz_cookies where host like ?", ['%%launchpad%%'])
+        except sqlite.OperationalError:
+            print 'Warning: Database "%s" is locked; ignoring it.' % cookie_file
+            return None
 
         # No matching cookies?  Abort.
         items = cur.fetchall()
