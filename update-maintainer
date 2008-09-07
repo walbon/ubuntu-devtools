@@ -66,6 +66,20 @@ else
     echo "Please execute «$0» in the source folder." >&2 && exit 1
 fi
 
+if [ ! -r $DEBIANDIR/changelog ]
+then
+    echo "Make sure that the changelog file is readable." >&2 && exit 1
+fi
+
+for file in control{,.in,.real}; do
+    if [ -f $DEBIANDIR/$file ]; then
+        if [ ! -r $DEBIANDIR/$file -o ! -w $DEBIANDIR/$file ]; then
+            echo "Make sure that the control file(s) is (are) readable and writable." >&2 && exit 1
+        fi
+        controls="$controls $file"
+    fi
+done
+
 if [ -z "$(head -1 $DEBIANDIR/changelog | grep -E '\(*ubuntu.*\)')" ]
 then
 	echo "Latest changelog entry has no Ubuntu version number." >&2
@@ -95,6 +109,6 @@ case $section in
     *)      echo "No section found for this package; aborting" >&2; exit 1 ;;
 esac
 
-for file in control{,.in,.real}; do
-    [ -f $DEBIANDIR/$file ] && sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
+for file in $controls; do
+    sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
 done
