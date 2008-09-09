@@ -152,7 +152,7 @@ def prepareLaunchpadCookie():
 
 def _check_for_launchpad_cookie(cookie_file):
     # Found SQLite file? Parse information from it.
-    if 'cookies.sqlite' in cookie_file.find():
+    if 'cookies.sqlite' in cookie_file:
         import sqlite3 as sqlite
 
         con = sqlite.connect(cookie_file)

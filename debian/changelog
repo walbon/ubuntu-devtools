@@ -12,6 +12,9 @@ ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
      - at the end, only modify those control files, so that the script doesn't
        return 1 anymore when it was actually successful
 
+  [ Jonathan Patrick Davies ]
+  * buildd: Revert arch:status string format.
+
  -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 07 Sep 2008 15:10:08 +0200
 
 ubuntu-dev-tools (0.44ubuntu1) intrepid; urgency=low
