@@ -11,6 +11,11 @@ ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
        readable/writable, and note which control files we are going to modify
      - at the end, only modify those control files, so that the script doesn't
        return 1 anymore when it was actually successful
+  * pbuilder-dist:
+     - Eliminated some warning with a better check for whether a given distro
+       already has a pbuilder chroot in $BASE_DIR, when that distro is not
+       known by the script
+     - Added intrepid as a known distro
 
   [ Jonathan Patrick Davies ]
   * buildd: Revert arch:status string format.

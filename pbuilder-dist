@@ -183,7 +183,7 @@ fi
 # Check if the distribution exists, and fill the variables that change
 # depending on wheter the target distribution is Ubuntu or Debian.
 case $DISTRIBUTION in
-    dapper|edgy|feisty|gutsy|hardy)
+    dapper|edgy|feisty|gutsy|hardy|intrepid)
         distdata ubuntu
         ;;
     
@@ -192,7 +192,7 @@ case $DISTRIBUTION in
         ;;
     
     *)
-        if [ ! -d $BASE_DIR/${DISTRIBUTION}-* ]
+        if [ ! -f $BASE_DIR/${DISTRIBUTION}-${ARCHITECTURE}-base.tgz ]
         then
             echo -n "Warning: Unknown distribution «$DISTRIBUTION». Do you want to continue [y/N]? "
             read continue
