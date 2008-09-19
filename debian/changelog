@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.46ubuntu1) UNRELEASED; urgency=low
+
+  [ Cesare Tirabassi ]
+  * reverse-build-depends:
+    - add -X option to grep-dctrl so that it only works with exact matches
+      (LP: #272273).
+
+ -- Cesare Tirabassi <norsetto@ubuntu.com>  Fri, 19 Sep 2008 22:55:45 +0200
+
 ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
