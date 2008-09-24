@@ -1,13 +1,4 @@
-ubuntu-dev-tools (0.46ubuntu1) UNRELEASED; urgency=low
-
-  [ Cesare Tirabassi ]
-  * reverse-build-depends:
-    - add -X option to grep-dctrl so that it only works with exact matches
-      (LP: #272273).
-
- -- Cesare Tirabassi <norsetto@ubuntu.com>  Fri, 19 Sep 2008 22:55:45 +0200
-
-ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
+ubuntu-dev-tools (0.45) intrepid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * common.py:
@@ -25,11 +16,17 @@ ubuntu-dev-tools (0.45ubuntu1) intrepid; urgency=low
        already has a pbuilder chroot in $BASE_DIR, when that distro is not
        known by the script
      - Added intrepid as a known distro
+  * Return to previous versioning, without the ubuntu1 bit
 
   [ Jonathan Patrick Davies ]
   * buildd: Revert arch:status string format.
 
- -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 07 Sep 2008 15:10:08 +0200
+  [ Cesare Tirabassi ]
+  * reverse-build-depends:
+    - add -X option to grep-dctrl so that it only works with exact matches
+      (LP: #272273).
+
+ -- Adrien Cunin <adri2000@ubuntu.com>  Wed, 24 Sep 2008 16:01:09 +0200
 
 ubuntu-dev-tools (0.44ubuntu1) intrepid; urgency=low
 
