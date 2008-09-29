@@ -198,10 +198,12 @@ class pbuilder_dist:
 			'--logfile "%(logfile)s"' % self,
 			'--aptcache "/var/cache/apt/archives/"',
 			### --mirror "${ARCHIVE}" \
-			'--bindmounts "/var/cache/archive/"',
 			'--override-config',
 			]
-		
+
+		if os.path.exists("/var/cache/archive/"):
+			arguments.append('--bindmounts "/var/cache/archive/"')		
+
 		localrepo = '/var/cache/archive/%(target_distro)s' % self
 		if os.path.exists(localrepo):
 			arguments.append('--othermirror ' +\
