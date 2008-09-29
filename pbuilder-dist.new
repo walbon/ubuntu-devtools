@@ -107,10 +107,10 @@ class pbuilder_dist:
 		
 		self.target_distro = self.system_distro
 		
-		if 'http_proxy' in os.environ:
-			self.base = os.environ['http_proxy']
-		elif 'HTTP_PROXY' in os.environ:
-			self.base = os.environ['HTTP_PROXY']
+#		if 'http_proxy' in os.environ:
+#			self.base = os.environ['http_proxy']
+#		elif 'HTTP_PROXY' in os.environ:
+#			self.base = os.environ['HTTP_PROXY']
 		
 		##############################################################
 	
