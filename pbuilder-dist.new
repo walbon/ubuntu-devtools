@@ -67,9 +67,6 @@ class pbuilder_dist:
 		# 'distribution' or 'distribution-architecture'.
 		self.chroot_string = None
 		
-		# Proxy
-		self.proxy = None
-		
 		# Authentication method
 		self.auth = 'sudo'
 		
@@ -106,11 +103,6 @@ class pbuilder_dist:
 			exit(1)
 		
 		self.target_distro = self.system_distro
-		
-#		if 'http_proxy' in os.environ:
-#			self.base = os.environ['http_proxy']
-#		elif 'HTTP_PROXY' in os.environ:
-#			self.base = os.environ['HTTP_PROXY']
 		
 		##############################################################
 	
@@ -212,13 +204,12 @@ class pbuilder_dist:
 		if self.target_distro in debian_distros:
 			arguments.append('--mirror "ftp://ftp.debian.org/debian"')
 			arguments.append('--components "main contrib non-free"')
+		else:
+			arguments.append('--components "main restricted universe multiverse"')
 		
 		if self.build_architecture != self.system_architecture:
 			arguments.append('--debootstrapopts --arch')
 			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
-		
-		if self.proxy:
-			arguments.append('--http-proxy "%(proxy)s"' % self)
 		
 		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
 		
