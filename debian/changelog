@@ -1,8 +1,14 @@
-ubuntu-dev-tools (0.46) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.46) intrepid; urgency=low
 
+  [ Daniel Hahler ]
   * submittodebian: use "intrepid" for Usertags (LP: #276073)
 
- -- Daniel Hahler <ubuntu@thequod.de>  Mon, 29 Sep 2008 22:46:43 +0200
+  [ Matt Zimmerman ]
+  * add new program 'ubuntuiso' which prints information about Ubuntu isos by
+    extracting files from them
+  * Add Recommends: genisoimage for ubuntuiso
+
+ -- Matt Zimmerman <mdz@ubuntu.com>  Thu, 02 Oct 2008 22:34:44 +0100
 
 ubuntu-dev-tools (0.45) intrepid; urgency=low
 
