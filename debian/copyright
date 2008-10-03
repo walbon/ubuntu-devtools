@@ -14,6 +14,7 @@ Upstream Authors:
 	Kees Cook <kees@ubuntu.com>
 	Luke Yelavich <themuso@ubuntu.com>
 	Martin Pitt <martin.pitt@ubuntu.com>
+    Matt Zimmerman <mdz@ubuntu.com>
 	Michael Bienia <geser@ubuntu.com>
 	Pete Savage <petesavage@ubuntu.com>
 	Siegfried-A. Gevatter <rainct@ubuntu.com>
@@ -40,8 +41,8 @@ Copyright:
 Licenses:
 
 404main, check-symbols,  dgetlp, pbuilder-dist, requestsync,
-reverse-build-depends, submittodebian and update-maintainer are licensed
-under the GNU General Public License, version 2:
+reverse-build-depends, submittodebian, ubuntuiso and update-maintainer are
+licensed under the GNU General Public License, version 2:
 
     This package is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,8 +53,8 @@ under the GNU General Public License, version 2:
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-On Debian systems, the complete text of the GNU General Public License v2
-can be found in `/usr/share/common-licenses/GPL-2'.
+On Debian and Ubuntu systems, the complete text of the GNU General Public
+License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, massfile, mk-sbuild-lv, ppaput,
 pull-debian-debdiff, pull-lp-source, suspicious-source and what-patch are
@@ -68,8 +69,8 @@ licensed under the GNU General Public License, version 3:
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-On Debian systems, the complete text of the GNU General Public License v3
-can be found in `/usr/share/common-licenses/GPL-3'.
+On Debian and Ubuntu systems, the complete text of the GNU General Public
+License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following of the scripts can be used, at your option, regarding any
 later version of the previously specified license: 404main, dch-repeat, dgetlp,
