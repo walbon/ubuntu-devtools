@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright 2007 (C) Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
 #
@@ -58,12 +58,13 @@ done
 cd ${path-.}
 
 # look for the debian directory
-if [ -f debian/control -a -f debian/changelog ]; then
+if [ -f debian/control ] && [ -f debian/changelog ]; then
     DEBIANDIR=debian
-elif [ -f control -a -f changelog ]; then
+elif [ -f control ] && [ -f changelog ]; then
     DEBIANDIR=.
 else
-    echo "Please execute «$0» in the source folder." >&2 && exit 1
+    echo "Please execute «$0» in the source folder." >&2
+    exit 1
 fi
 
 if [ ! -r $DEBIANDIR/changelog ]
@@ -71,16 +72,16 @@ then
     echo "Make sure that the changelog file is readable." >&2 && exit 1
 fi
 
-for file in control{,.in,.real}; do
+for file in control control.in control.real; do
     if [ -f $DEBIANDIR/$file ]; then
-        if [ ! -r $DEBIANDIR/$file -o ! -w $DEBIANDIR/$file ]; then
+        if [ ! -r $DEBIANDIR/$file ] || [ ! -w $DEBIANDIR/$file ]; then
             echo "Make sure that the control file(s) is (are) readable and writable." >&2 && exit 1
         fi
         controls="$controls $file"
     fi
 done
 
-if [ -z "$(head -1 $DEBIANDIR/changelog | grep -E '\(*ubuntu.*\)')" ]
+if ! head -1 $DEBIANDIR/changelog | grep -q '(*ubuntu.*)'
 then
 	echo "Latest changelog entry has no Ubuntu version number." >&2
 	exit 1

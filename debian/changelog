@@ -8,6 +8,9 @@ ubuntu-dev-tools (0.46) UNRELEASED; urgency=low
     extracting files from them
   * Add Recommends: genisoimage for ubuntuiso
 
+  [ Colin Watson ]
+  * update-maintainer: Convert to plain #! /bin/sh.
+
  -- Matt Zimmerman <mdz@ubuntu.com>  Thu, 02 Oct 2008 22:34:44 +0100
 
 ubuntu-dev-tools (0.45) intrepid; urgency=low
