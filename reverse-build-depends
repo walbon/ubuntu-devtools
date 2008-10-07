@@ -54,7 +54,7 @@ then
 fi
 
 result=$(
-	grep-dctrl -X -sPackage -F Build-Depends,Build-Depends-Indep $1 \
+	grep-dctrl -sPackage -F Build-Depends,Build-Depends-Indep $1 \
 	/var/lib/apt/lists/*Sources | cut -d ' ' -f 2)
 
 if [ -z $count ] && [ -z $single_line ]
