@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.46) intrepid; urgency=low
+ubuntu-dev-tools (0.46) UNRELEASED; urgency=low
 
   [ Daniel Hahler ]
   * submittodebian: use "intrepid" for Usertags (LP: #276073)
