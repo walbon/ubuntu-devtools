@@ -34,10 +34,26 @@ def extract(iso, path):
 	return stdout
 
 def main():
-	iso = sys.argv[1]
+	isos = sys.argv[1:]
+	err = False
 
-	version = extract(iso, '/.disk/info')
-	print version
+	for iso in isos:
+		if len(isos) > 1:
+			prefix = '%s:' % iso
+		else:
+			prefix = ''
+
+		version = extract(iso, '/.disk/info')
+
+		if len(version) == 0:
+			print >>sys.stderr, '%s does not appear to be an Ubuntu ISO' % iso
+			err = True
+			continue
+
+		print prefix + version
+
+	if err:
+		sys.exit(1)
 
 if __name__ == '__main__':
 	main()
