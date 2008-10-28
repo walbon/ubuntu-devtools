@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
+
+  * dch-repeat: drop "feisty" from the list of known releases.
+
+ -- Kees Cook <kees@ubuntu.com>  Tue, 28 Oct 2008 10:40:53 -0700
+
 ubuntu-dev-tools (0.46) intrepid; urgency=low
 
   [ Daniel Hahler ]
