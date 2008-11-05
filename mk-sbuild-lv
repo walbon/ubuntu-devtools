@@ -282,7 +282,9 @@ rm -f "$TEMP_SCHROOTCONF"
 BUILD_PKGS="build-essential fakeroot devscripts"
 # Add edgy+ buildd tools
 if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
-    BUILD_PKGS="$BUILD_PKGS pkg-create-dbgsym pkgbinarymangler"
+    # Disable recommends for a smaller chroot (gutsy and later only)
+    # Add buildd tools
+    BUILD_PKGS="--no-install-recommends $BUILD_PKGS pkg-create-dbgsym pkgbinarymangler"
 fi
 sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 #!/bin/bash
@@ -298,7 +300,7 @@ apt-get update || true
 echo set debconf/frontend Noninteractive | debconf-communicate
 echo set debconf/priority critical | debconf-communicate
 # Install basic build tool set, trying to match buildd
-apt-get -y --no-install-recommends install $BUILD_PKGS
+apt-get -y install $BUILD_PKGS
 # Set up expected /dev entries
 if [ ! -r /dev/stdin ];  then ln -s /proc/self/fd/0 /dev/stdin;  fi
 if [ ! -r /dev/stdout ]; then ln -s /proc/self/fd/1 /dev/stdout; fi
@@ -311,7 +313,7 @@ sudo chmod +x "$MNT"/finish.sh
 sudo umount "$MNT"
 rmdir "$MNT"
 # Run finalization script on the "golden" copy via schroot.
-(cd / && schroot -c "$CHROOT_NAME"-source -u root /finish.sh)
+schroot -c "$CHROOT_NAME"-source -u root /finish.sh
 
 # Finished
 echo ""

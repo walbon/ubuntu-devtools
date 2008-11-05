@@ -1,6 +1,9 @@
 ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
 
   * dch-repeat: drop "feisty" from the list of known releases.
+  * mk-sbuild-lv:
+    - only use --no-install-recommends on gutsy and later.
+    - catch errors produced by "finish.sh".
 
  -- Kees Cook <kees@ubuntu.com>  Tue, 28 Oct 2008 10:40:53 -0700
 
