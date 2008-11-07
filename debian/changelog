@@ -1,9 +1,14 @@
 ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
 
+  [ Kees Cook ]
   * dch-repeat: drop "feisty" from the list of known releases.
   * mk-sbuild-lv:
     - only use --no-install-recommends on gutsy and later.
     - catch errors produced by "finish.sh".
+
+  [ James Westby ]
+  * requestsync: tell the user when you are waiting for input from them after
+    giving the sponsorship warning, rather than appearing to hang.
 
  -- Kees Cook <kees@ubuntu.com>  Tue, 28 Oct 2008 10:40:53 -0700
 

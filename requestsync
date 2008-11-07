@@ -73,8 +73,9 @@ def checkNeedsSponsorship(component):
             "the '%s'\nteam, who shall be subscribed to this bug report." % sponsor
         print "This must be done before it can be processed by a member of " \
             "the Ubuntu Archive team."
-        print "Should the above be incorrect, please press Ctrl-C now to " \
-            "stop this script now\nand check the cookie file at:", launchpad_cookiefile
+        print "If the above is correct please press Enter, otherwise please " \
+            "press Ctrl-C to stop this script now\nand check the cookie file " \
+            "at:", launchpad_cookiefile
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
 
