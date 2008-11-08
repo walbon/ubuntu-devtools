@@ -83,7 +83,7 @@ def edit_debdiff(debdiff):
 	run_cmd(cmd)
 
 def submit_bugreport(body, debdiff, changelog):
-	cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu intrepid ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
+	cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu jaunty ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
 	run_cmd(cmd)
 
 def run_cmd(cmd):

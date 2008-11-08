@@ -183,7 +183,7 @@ fi
 # Check if the distribution exists, and fill the variables that change
 # depending on wheter the target distribution is Ubuntu or Debian.
 case $DISTRIBUTION in
-    dapper|edgy|feisty|gutsy|hardy|intrepid)
+    dapper|edgy|feisty|gutsy|hardy|intrepid|jaunty)
         distdata ubuntu
         ;;
     

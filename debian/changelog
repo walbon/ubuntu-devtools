@@ -13,7 +13,11 @@ ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
   [ Michael Casadevall ]
   * Fixed buildd rescore (tested by Sarah Hobbs)
 
- -- Michael Casadevall <sonicmctails@gmail.com>  Sat, 08 Nov 2008 06:33:00 -0500
+  [ Iain Lane ]
+  * dch-repeat, pbuilder-dist, pull-lp-source: Add Jaunty to known releases
+  * submittodebian: Set usertags to jaunty
+
+ -- Michael Casadevall <sonicmctails@gmail.com>  Sat, 08 Nov 2008 17:07:48 +0000
 
 ubuntu-dev-tools (0.46) intrepid; urgency=low
 
