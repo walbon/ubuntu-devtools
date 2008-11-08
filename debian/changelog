@@ -10,7 +10,10 @@ ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
   * requestsync: tell the user when you are waiting for input from them after
     giving the sponsorship warning, rather than appearing to hang.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 28 Oct 2008 10:40:53 -0700
+  [ Michael Casadevall ]
+  * Fixed buildd rescore (tested by Sarah Hobbs)
+
+ -- Michael Casadevall <sonicmctails@gmail.com>  Sat, 08 Nov 2008 06:33:00 -0500
 
 ubuntu-dev-tools (0.46) intrepid; urgency=low
 

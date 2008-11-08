@@ -146,7 +146,7 @@ for build, (arch, status) in buildstats.iteritems():
 
             try:
                 urlopener.open(build + '/+rescore', urlencode(
-                    {'SCORE': '5000', 'RESCORE': '1'}))
+                    {'field.priority': '5000', 'field.actions.rescore': '1'}))
             except:
                 print >> sys.stderr, "Unable to request rescore on %s." % arch
         else:
