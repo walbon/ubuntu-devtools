@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.47) jaunty; urgency=low
 
   [ Kees Cook ]
   * dch-repeat: drop "feisty" from the list of known releases.
@@ -11,7 +11,11 @@ ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
     giving the sponsorship warning, rather than appearing to hang.
 
   [ Michael Casadevall ]
-  * Fixed buildd rescore (tested by Sarah Hobbs)
+  * buildd: Fixed rescore (tested by Sarah Hobbs)
+  * submittodebian: Changed default tag to Jaunty
+  * pbuilder-dist: Added jaunty to ubuntu releases
+  * pull-lp-source: Made jaunty the default
+  * dch-repeat: Added jaunty
 
  -- Michael Casadevall <sonicmctails@gmail.com>  Sat, 08 Nov 2008 06:33:00 -0500
 
