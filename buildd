@@ -103,6 +103,7 @@ buildstats = {}
 page = urlopener.open('https://launchpad.net/ubuntu/+source/%s/%s' % (package, version))
 url = page.geturl()
 page = page.read()
+release = release.split('-')[0] # strip off pocket
 
 print "Current build status for this package is as follows:"
 
