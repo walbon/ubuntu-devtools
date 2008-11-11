@@ -74,6 +74,7 @@ def checkReleaseExists(release):
         https://launchpad.net/ubuntu/releaseName page on Launchpad.
 
         If an error is returned; the release does not exist. """
+    release = release.split('-')[0] # remove pocket
     try:
         urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
     except urllib2.HTTPError:
@@ -86,14 +87,18 @@ def checkSourceExists(package, release):
         https://launchpad.net/ubuntu/+source/package page.
         
         Return the page and version in release. """
+    if '-' in release:
+        (release, pocket) = release.split('-', 1)
+    else:
+        pocket = 'release'
     try:
         page = urllib2.urlopen('https://launchpad.net/ubuntu/+source/' + package).read()
 
-        m = re.search('"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (release,
-                package.replace('+', '\+')), page)
+        m = re.search('<td>%s</td>\s*\n.*"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (
+                pocket, release, package.replace('+', '\+')), page)
         if not m:
             print >> sys.stderr, "Unable to find source package '%s' in " \
-                "the %s release." % (package, release.capitalize())
+                "the %s-%s pocket." % (package, release.capitalize(), pocket)
             sys.exit(1)
 
     except urllib2.HTTPError, error: # Raised on 404.
