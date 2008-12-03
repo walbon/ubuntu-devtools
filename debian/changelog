@@ -1,4 +1,23 @@
-ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.49) jaunty; urgency=low
+
+  [ Sarah Hobbs ]
+  * Add armel as an arch to buildd
+
+  [ Adrien Cunin ]
+  * Added ${misc:Depends} to dependencies to make lintian quiet
+
+ -- Adrien Cunin <adri2000@ubuntu.com>  Sun, 30 Nov 2008 23:23:01 +0100
+
+ubuntu-dev-tools (0.48) jaunty; urgency=low
+
+  * common.py, checkReleaseExists() and checkSourceExists(): Add support for
+    specifying pockets (e. g. release name "intrepid-proposed").
+  * buildd: Strip off pocket from release name when parsing the builds page,
+    so that this script works for pockets, too.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 11 Nov 2008 10:15:25 +0100
+
+ubuntu-dev-tools (0.47) jaunty; urgency=low
 
   [ Kees Cook ]
   * dch-repeat: drop "feisty" from the list of known releases.
@@ -11,7 +30,11 @@ ubuntu-dev-tools (0.47) UNRELEASED; urgency=low
     giving the sponsorship warning, rather than appearing to hang.
 
   [ Michael Casadevall ]
-  * Fixed buildd rescore (tested by Sarah Hobbs)
+  * buildd: Fixed rescore (tested by Sarah Hobbs)
+  * submittodebian: Changed default tag to Jaunty
+  * pbuilder-dist: Added jaunty to ubuntu releases
+  * pull-lp-source: Made jaunty the default
+  * dch-repeat: Added jaunty
 
   [ Iain Lane ]
   * dch-repeat, pbuilder-dist, pull-lp-source: Add Jaunty to known releases
