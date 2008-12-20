@@ -15,7 +15,7 @@ Architecture: all
 Section: devel
 Depends: ${python:Depends}, binutils, devscripts, sudo, python-debian,
   python-launchpad-bugs (>= 0.2.25), dctrl-tools, lsb-release, diffstat,
-  dpkg-dev, ${misc:Depends}
+  dpkg-dev, ${misc:Depends}, perl-modules, libwww-perl
 Recommends: bzr, pbuilder | sbuild, reportbug (>= 3.39ubuntu1),
   ca-certificates, genisoimage
 Conflicts: devscripts (<< 2.10.7ubuntu5)

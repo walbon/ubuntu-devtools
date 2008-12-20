@@ -21,6 +21,7 @@ Upstream Authors:
 	Soren Hansen <soren@ubuntu.com>
 	Steve Kowalik <stevenk@ubuntu.com>
 	Terence Simpson <stdin@stdin.me.uk>
+	Nathan Handler <nhandler@ubuntu.com>
 
 Copyright:
 
@@ -37,6 +38,7 @@ Copyright:
 	(C) 2007, Terence Simpson <stdin@stdin.me.uk>
 	(C) 2008, Iain Lane <iain@orangesquash.org.uk>
 	(C) 2008, Jonathan Patrick Davies <jpds@ubuntu.com>
+	(C) 2008, Nathan handler <nhandler@ubuntu.com>
 
 Licenses:
 
@@ -57,7 +59,7 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, massfile, mk-sbuild-lv, ppaput,
-pull-debian-debdiff, pull-lp-source, suspicious-source and what-patch are
+pull-debian-debdiff, pull-debian-source, pull-lp-source, suspicious-source and what-patch are
 licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
@@ -74,5 +76,5 @@ License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following of the scripts can be used, at your option, regarding any
 later version of the previously specified license: 404main, dch-repeat, dgetlp,
-get-build-deps, mk-sbuild-lv, pull-debian-debdiff, pull-lp-source,
+get-build-deps, mk-sbuild-lv, pull-debian-debdiff, pull-debian-source, pull-lp-source,
 reverse-build-depends, suspicious-source, what-patch.

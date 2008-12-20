@@ -1,0 +1,102 @@
+#!/usr/bin/perl
+# Script Name: pull-debian-source
+# Author: Nathan Handler <nhandler@ubuntu.com>
+# Usage: pull-debian-source <source package> [release]
+# Copyright (C) 2008 Nathan Handler <nhandler@ubuntu.com>
+# License: GNU General Public License
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in the /usr/share/common-licenses/GPL file.
+
+use warnings;
+use strict;
+use LWP::Simple;
+use File::Basename;
+
+my($package)=$ARGV[0] || &usage();
+&usage() if(($package=~m/\-\-help/i) || ($package=~m/\-h/i));
+my($release)=$ARGV[1] || 'unstable';
+&checkRelease($release);
+my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
+print "$dsc\n";
+exec("dget $dsc");
+sub checkRelease {
+	my($release)=shift || die("No Release Passed To checkRelease!\n");
+	chomp $release;
+	my %releases=(
+		'etch' => 1,
+		'stable' => 1,
+		'lenny' => 1,
+		'testing' => 1,
+		'sid' => 1,
+		'unstable' => 1,
+		'experimental' => 1
+	);
+	&invalidRelease(\%releases) unless $releases{$release}
+}
+sub getURL{
+	my($package)=shift || die("No Package Passed To getURL: $!\n");
+	my($release)=shift || die("No Release Passed to getURL: $!\n");
+	chomp $package;
+	chomp $release;
+	$package=lc($package);
+	$package=~s/\+/%2b/g;
+	$release=lc($release);
+	my($baseURL)='http://qa.debian.org/madison.php?text=on';
+	my($url)=$baseURL . '&package=' . $package . '&s=' . $release;
+	return $url;
+}
+sub getMadison {
+	my($url)=shift || die("No URL Passed to getMadison: $!\n");
+	chomp $url;
+	my($madison)=get($url);
+	die("Could Not Get $url") unless (defined $madison && $madison!~m/^\s*$/);
+	return $madison;
+}
+sub getDSC {
+	my($madison)=shift || die("No madison Passed to getDSC: $!\n");
+	if($madison=~m/^[WE]:/i) {
+		die("$madison");
+	}
+	my($baseURL)='http://ftp.debian.org/debian/pool/main/';
+	my(@madison)=split(/\n/,$madison);
+	foreach my $line (@madison) {
+		my($package,$version,$release,$archs)=split(/\|/,$line,4);
+		$package=~s/\s*//g;
+		$version=~s/\s*//g;
+		$release=~s/\s*//g;
+		$archs=~s/\s*//g;
+		if($archs=~m/source/) {
+			print "Package: $package\nVersion: $version\nRelease: $release\nArchitectures: $archs\n";
+			my($firstLetter)=substr($package,0,1);
+			my($url)=$baseURL . $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
+			return $url;
+		}
+	}
+	die("Unable To Find Source Package On Madison\n");
+}
+sub usage {
+	my($name)=basename($0);
+	die("USAGE: $name [-h] <source package> [target release]\n");
+}
+sub invalidRelease {
+	my($releases)=shift || die("Invalid Release!");
+	my(%releases)=%$releases;
+	my($validReleases);
+	while ( my ($key, $value) = each(%releases) ) {
+		if($value) {
+			$validReleases .= $key . ", ";
+		}
+	}
+	$validReleases=~s/,\s*$//;
+	die("Invalid Release!\nValid Releases: $validReleases\n");
+}

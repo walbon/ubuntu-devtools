@@ -1,3 +1,14 @@
+ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
+
+  * Add pull-debian-source script
+    - debian/control: Add perl-modules and libwww-perl as Depends
+    - debian/copyright:
+      + Add myself to the Upstream Authors and Copyright sections
+      + Add pull-debian-source to the License section
+    - Add doc/pull-debian-source.1
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Sat, 20 Dec 2008 16:32:27 -0600
+
 ubuntu-dev-tools (0.49) jaunty; urgency=low
 
   [ Sarah Hobbs ]

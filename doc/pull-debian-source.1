@@ -1,0 +1,33 @@
+.TH PULL\-DEBIAN\-SOURCE "1" "20 December 2008" "ubuntu-dev-tools"
+
+.SH NAME
+pull\-debian\-source \- download a source package from Debian
+
+.SH SYNOPSIS
+.B pull\-debian\-source \fR[\fB\-h\fR]\fB <\fBsource package\fR> [\fItarget release\fR]
+
+.SH DESCRIPTION
+\fBpull\-debian\-source\fR downloads and extracts the latest version of
+<\fBsource package\fR> from Debian.
+If the optional parameter [\fItarget release\fR] is specified, the latest
+version in that release will be downloaded instead.
+
+.SH OPTIONS
+Listed below are the command line options for pull\-debian\-source:
+.TP
+.B \-h, \-\-help
+Display the usage instructions and exit.
+.TP
+.B <source package>
+This is the source package that you would like to be downloaded from Debian.
+.TP
+.B [target release]
+This is the release that you would like the source package to be downloaded from.
+This value defaults to 'unstable'.
+
+.SH AUTHOR
+.PP
+\fBpull\-debian\-source\fR and this manual page were written by Nathan Handler
+<nhandler@ubuntu.com>. The manual page was based on Iain Lane's manual page for
+pull-lp-source.
+Both are released under the GNU General Public License, version 3 or later.
