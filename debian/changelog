@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
 
+  [ Nathan Handler ]
   * Add pull-debian-source script
     - debian/control: Add perl-modules and libwww-perl as Depends
     - debian/copyright:
@@ -7,7 +8,11 @@ ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
       + Add pull-debian-source to the License section
     - Add doc/pull-debian-source.1
 
- -- Nathan Handler <nhandler@ubuntu.com>  Sat, 20 Dec 2008 16:32:27 -0600
+  [ Siegfried-Angel Gevatter Pujals ]
+  * Move perl-modules and libwww-perl to Recommends, as they are only necessary
+    for a single script and Recommends are also installed by default.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 21 Dec 2008 11:45:56 +0100
 
 ubuntu-dev-tools (0.49) jaunty; urgency=low
 
