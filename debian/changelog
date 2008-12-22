@@ -54,7 +54,12 @@ ubuntu-dev-tools (0.47) jaunty; urgency=low
   * pull-lp-source: Made jaunty the default
   * dch-repeat: Added jaunty
 
- -- Michael Casadevall <sonicmctails@gmail.com>  Sat, 08 Nov 2008 06:33:00 -0500
+  [ Iain Lane ]
+  * dch-repeat, pbuilder-dist, pull-lp-source: Add Jaunty to known releases
+  * submittodebian: Set usertags to jaunty
+  * pbuilder-dist.new: Add "experimental" to known Debian releases 
+
+ -- Iain Lane <laney@ubuntu.com>  Wed, 03 Dec 2008 21:55:26 +0000
 
 ubuntu-dev-tools (0.46) intrepid; urgency=low
 
