@@ -75,6 +75,7 @@ sub getDSC {
 		$version=~s/\s*//g;
 		$release=~s/\s*//g;
 		$archs=~s/\s*//g;
+		$version=~s/^.*?\://;
 		if($archs=~m/source/) {
 			print "Package: $package\nVersion: $version\nRelease: $release\nArchitectures: $archs\n";
 			my($firstLetter)=substr($package,0,1);
