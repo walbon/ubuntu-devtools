@@ -10,7 +10,11 @@ ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals ]
   * debian/control: Add perl-modules and libwww-perl as Recommended packages
 
- -- Nathan Handler <nhandler@ubuntu.com>  Sun, 21 Dec 2008 12:11:47 -0600
+  [ Iain Lane ]
+  * pbuilder-dist.new: Add 'experimental' to list of known Debian releases.
+    pbuilder-experimental works fine with pbuilder-dist.new.
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Mon, 22 Dec 2008 10:52:14 -0600
 
 ubuntu-dev-tools (0.49) jaunty; urgency=low
 
