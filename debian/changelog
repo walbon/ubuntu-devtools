@@ -1,20 +1,18 @@
 ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
 
   [ Nathan Handler ]
-  * Add pull-debian-source script
-    - debian/control: Add perl-modules and libwww-perl as Depends
+  * Add pull-debian-source script (LP: #289141)
     - debian/copyright:
       + Add myself to the Upstream Authors and Copyright sections
       + Add pull-debian-source to the License section
     - Add doc/pull-debian-source.1
 
   [ Siegfried-Angel Gevatter Pujals ]
-  * Move perl-modules and libwww-perl to Recommends, as they are only necessary
-    for a single script and Recommends are also installed by default.
+  * debian/control: Add perl-modules and libwww-perl as Recommended packages
 
   [ Iain Lane ]
   * pbuilder-dist.new: Add 'experimental' to list of known Debian releases.
-    pbuilder-experimental works. 
+    pbuilder-experimental works fine with pbuilder-dist.new.
 
  -- Iain Lane <laney@ubuntu.com>  Sun, 21 Dec 2008 23:06:39 +0000
 
