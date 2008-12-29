@@ -8,7 +8,7 @@
 #  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <iain@orangesquash.org.uk>
-#  Jonathan Patrick Davies <jpds@ubuntu.com>
+#  Jonathan Davies <jpds@ubuntu.com>
 #
 # ##################################################################
 #
@@ -453,7 +453,7 @@ if __name__ == '__main__':
     distro = 'unstable'
 
     try:
-		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hnd:k:', ('lp'))
+		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hsnd:k:', ('lp'))
     except getopt.GetoptError:
         usage()
     for o, a in opts:
@@ -461,6 +461,7 @@ if __name__ == '__main__':
         if o == '-n':   newsource = True
         if o == '-k':   keyid = a
         if o == '-d':   distro = a
+        if o == "-s":   sponsorship = True
         if o == '--lp': use_lp_bugs = True
 
     if len(args) not in (2, 3):
@@ -468,7 +469,6 @@ if __name__ == '__main__':
 
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
-    
 
     (srcpkg, release) = args[:2]
     force_base_ver = None
@@ -480,8 +480,9 @@ if __name__ == '__main__':
 
     debiancomponent = debian_component(srcpkg, distro)
     deb_version = cur_deb_version(srcpkg, distro)
-    
-    sponsorship = checkNeedsSponsorship(component)
+
+    # -s flag not specified - check if we do need sponsorship.
+    if sponsorship == False: sponsorship = checkNeedsSponsorship(component)
 
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)

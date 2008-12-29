@@ -58,6 +58,12 @@ This is only used if the sync request is mailed to Launchpad.
 Use the launchpadbugs python module (packaged as python\-launchpad\-bugs) to
 file the sync request in Launchpad.
 .TP
+.B \-s
+Specifies that you require sponsorship.
+You need this option if you are not a member of ubuntu-dev for universe or
+multiverse, or ubuntu-core-dev for main or restricted. This shall disable the
+Launchpad team membership checking described above. 
+.TP
 .B <source package>
 This is the source package that you would like to be synced from Debian.
 .TP

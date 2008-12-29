@@ -17,6 +17,8 @@ ubuntu-dev-tools (0.50) UNRELEASED; urgency=low
   [ Jonathan Davies ]
   * buildd: Show which architectures are available in help and created a
     list of them for easy addition of new ones.
+  * requestsync: Readd sponsorship flag and related documentation in
+    doc/requestsync.1 (LP: #270605).
 
  -- Jonathan Davies <jpds@ubuntu.com>  Mon, 29 Dec 2008 18:45:02 +0000
 
