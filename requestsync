@@ -212,18 +212,19 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
         sys.exit(1)
 
 def usage():
-    print '''Usage: requestsync [-d distro|-h|-n|-k <keyid>|--lp] <source package> <target release> [basever]
+    print '''Usage: requestsync [-d distro|-h|-n|-s|-k <keyid>|--lp] <source package> <target release> [basever]
 
 In some cases, the base version (fork point from Debian) cannot be determined
 automatically, and you'll get a complete Debian changelog. Specify the correct
 base version of the package in Ubuntu.
 
 Options:
-	-d distro	override Debian distribution to sync from [unstable]
-	-h		print this help
-	-n		new source package (doesn't exist yet in Ubuntu)
-	-k <keyid>	sign email with <keyid> (only used when submitting per email)
-	--lp		use python-launchpad-bugs instead of email for bug submitting
+	-d distro	Override Debian distribution to sync from [unstable].
+	-h		Print this help.
+	-n		New source package (doesn't exist yet in Ubuntu).
+        -s              Specify that you require sponsorship.
+	-k <keyid>	Sign email with <keyid> (only used when submitting per email).
+	--lp		Use python-launchpad-bugs instead of email for bug submitting.
 '''
     sys.exit(1)
 
