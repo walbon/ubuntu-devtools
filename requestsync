@@ -483,13 +483,13 @@ if __name__ == '__main__':
     deb_version = cur_deb_version(srcpkg, distro)
 
     # -s flag not specified - check if we do need sponsorship.
-    if sponsorship == False: sponsorship = checkNeedsSponsorship(component)
+    if not sponsorship: sponsorship = checkNeedsSponsorship(component)
 
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
         sys.exit(1)
 
-    checkExistingReports(srcpkg)
+    if not newsource: checkExistingReports(srcpkg)
 
     # generate bug report
     subscribe = 'ubuntu-archive'
