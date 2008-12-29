@@ -5,7 +5,7 @@
 #   Copyright (C) 2007 Canonical Ltd.
 #   Authors:
 #    - Martin Pitt <martin.pitt@canonical.com>
-#    - Jonathan Patrick Davies <jpds@ubuntu.com>
+#    - Jonathan Davies <jpds@ubuntu.com>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -37,6 +37,10 @@ usage = "%prog <srcpackage> <release> <operation>\n\n"
 usage += "Where operation may be one of: rescore, retry, or status.\n"
 usage += "Only Launchpad Buildd Admins may rescore package builds."
 
+# Valid architectures.
+validArchs =  ["armel", "amd64", "hppa", "i386",
+                "ia64", "lpia", "powerpc", "sparc"]
+
 # Prepare our option parser.
 optParser = OptionParser(usage)
 
@@ -45,7 +49,9 @@ retryRescoreOptions = OptionGroup(optParser, "Retry and rescore options",
     "These options may only be used with the 'retry' and 'rescore' operations.")
 retryRescoreOptions.add_option("-a", "--arch", type = "string",
     action = "store", dest = "architecture",
-    help = "Rebuild or rescore a specific architecture.")
+    help = "Rebuild or rescore a specific architecture. " \
+        "Valid architectures include: " \
+        "%s." % ", ".join(validArchs))
 
 # Add the retry options to the main group.
 optParser.add_option_group(retryRescoreOptions)
@@ -72,8 +78,7 @@ if op not in ("retry", 'rescore') and options.architecture:
     print >> sys.stderr, "Operation %s does not use the --arch option." % op
     sys.exit(1)
 elif op in ("retry", "rescore") and options.architecture:
-    if options.architecture not in ("armel", "amd64", "hppa", "i386", "ia64", 
-	        "lpia", "powerpc", "sparc"):
+    if options.architecture not in validArchs:
         print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
         sys.exit(1)
     else:
