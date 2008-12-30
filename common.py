@@ -2,7 +2,7 @@
 # common.py - provides functions which are commonly used by the
 #             ubuntu-dev-tools package.
 #
-# Copyright (C) 2008 Jonathan Patrick Davies <jpds@ubuntu.com>
+# Copyright (C) 2008 Jonathan Davies <jpds@ubuntu.com>
 # Copyright (C) 2008 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
 #
 # Some of the functions are based upon code written by Martin Pitt
@@ -74,12 +74,17 @@ def checkReleaseExists(release):
         https://launchpad.net/ubuntu/releaseName page on Launchpad.
 
         If an error is returned; the release does not exist. """
-    release = release.split('-')[0] # remove pocket
+    release = release.split('-')[0] # Remove pocket
     try:
         urllib2.urlopen("https://launchpad.net/ubuntu/%s" % release)
     except urllib2.HTTPError:
-        print >> sys.stderr, "The '%s' release does not appear to exist on " \
-            "Launchpad." % release
+        print >> sys.stderr, "The Ubuntu '%s' release does not appear to " \
+            "exist on Launchpad." % release
+        sys.exit(1)
+    except urllib2.URLError, error: # Other error (NXDOMAIN, ...)
+        (_, reason) = error.reason
+        print >> sys.stderr, "Error while checking for Ubuntu '%s' " \
+            "release on Launchpad: %s." % (release, reason)
         sys.exit(1)
 
 def checkSourceExists(package, release):
@@ -91,6 +96,7 @@ def checkSourceExists(package, release):
         (release, pocket) = release.split('-', 1)
     else:
         pocket = 'release'
+
     try:
         page = urllib2.urlopen('https://launchpad.net/ubuntu/+source/' + package).read()
 
@@ -100,21 +106,18 @@ def checkSourceExists(package, release):
             print >> sys.stderr, "Unable to find source package '%s' in " \
                 "the %s-%s pocket." % (package, release.capitalize(), pocket)
             sys.exit(1)
-
     except urllib2.HTTPError, error: # Raised on 404.
         if error.code == 404:
             print >> sys.stderr, "The source package '%s' does not appear to " \
                 "exist in Ubuntu." % package
         else: # Other error code, probably Launchpad malfunction.
-            print >> sys.stderr, "Error while checking Launchpad for package: " \
-                "%s." % error.code
-        
+            print >> sys.stderr, "Error while checking Launchpad for Ubuntu " \
+                "package: %s." % error.code
         sys.exit(1) # Exit. Error encountered.
-
     except urllib2.URLError, error: # Other error (NXDOMAIN, ...)
         (_, reason) = error.reason
-        print >> sys.stderr, "Error while checking Launchpad for package: %s." % \
-            reason
+        print >> sys.stderr, "Error while checking Launchpad for Ubuntu " \
+            "package: %s." % reason
         sys.exit(1)
 
     # Get package version.

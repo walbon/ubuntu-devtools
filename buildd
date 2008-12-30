@@ -21,6 +21,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Our modules to import.
 import os
 import re
 import sys
@@ -29,6 +30,7 @@ from optparse import OptionGroup
 from optparse import OptionParser
 from urllib import urlencode
 
+# ubuntu-dev-tools modules.
 sys.path.append("/usr/share/ubuntu-dev-tools/")
 import common
 
@@ -58,6 +60,11 @@ optParser.add_option_group(retryRescoreOptions)
 
 # Parse our options.
 (options, args) = optParser.parse_args()
+
+# 'help' called by itself - show our help.
+if args[0].lower() in ("help") and len(args) == 1:
+    optParser.print_help()
+    sys.exit(0)
 
 # Check we have the correct number of arguments.
 if len(args) < 3:

@@ -49,7 +49,7 @@ def main():
 
     (options, args) = optParser.parse_args()
 
-    # Parse our options aka Russian roulette time.
+    # Parse our options.
     if len(args) != 1 and options.lpteam == None:
         optParser.error("No team has been specified.")
     
