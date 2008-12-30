@@ -1,6 +1,12 @@
 ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
 
-  * Changes go here.
+  * Change go here.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
+
+ubuntu-dev-tools (0.50.1) jaunty; urgency=low
+
+  * Modified setup.py to actually install pull-debian-source.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:39:35 +0000
 
