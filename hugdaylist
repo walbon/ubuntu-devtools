@@ -91,13 +91,14 @@ def main():
     try:
         bl = BugList(url)
     except:
-        print >> sys.stderr, "The page '%s' does not appear to exist." % url
+        print >> sys.stderr, "The URL at '%s' does not appear to have a bug " \
+            "list." % url
         sys.exit(1)
 
     l = filter(filter_unsolved, bl)
     
     if not l:
-        print "BugList of %s is empty." % url
+        print "Bug list of %s is empty." % url
         sys.exit(0)
     if howmany == -1:
         howmany = len(l)

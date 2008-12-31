@@ -117,13 +117,26 @@ url = page.geturl()
 page = page.read()
 release = release.split('-')[0] # strip off pocket
 
-print "Current build status for this package is as follows:"
+print "Current build status for this package:"
 
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
         print '%s: %s.' % (m.group(3), m.group(4))
         buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
+
+# Check that there actually are builds for that release.
+if len(buildstats) == 0:
+    print "No builds for '%s' found in the %s release - it may have been " \
+        "built in a former release." % (package, release.capitalize())
+    sys.exit(0)
+
+# Check if the package in question is architecture independent, and if so; that
+# i386 has been set as the architecture.
+if len(buildstats) == 1 and options.architecture != "i386":
+    print "Overriding architecture setting to i386 for architecture " \
+        "independent package..."
+    options.architecture = "i386"
 
 # Operations.
 if op == 'status':
