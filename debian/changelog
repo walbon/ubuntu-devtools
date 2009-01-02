@@ -6,10 +6,11 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
       pbuilder-dist, we will also create a cowbuilder-dist symlink to it.
 
   [ Nathan Handler ]
-  * pull-debian-source: Pass -xu arguments to dget to be consistant with
-    pull-lp-source
+  * pull-debian-source:
+    - Pass -xu arguments to dget to be consistant with pull-lp-source
+    - Add support for packages with a name beginning with "lib"
 
- -- Nathan Handler <nhandler@ubuntu.com>  Fri, 02 Jan 2009 10:35:27 -0600
+ -- Nathan Handler <nhandler@ubuntu.com>  Fri, 02 Jan 2009 11:35:36 -0600
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
