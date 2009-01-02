@@ -4,6 +4,10 @@ ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
   * buildd: Added checks for arch-indep packages and packages which have no
     builds in a release.
   * hugdaylist: String improvements.
+  * requestsync:
+    - Use optparse instead of getopt for option parsing.
+    - Skip existing bug report check if python-launchpad-bugs is not
+      installed.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
 
