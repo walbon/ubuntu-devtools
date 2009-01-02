@@ -186,7 +186,7 @@ class pbuilder_dist:
 		if self.builder == 'pbuilder':
 			base = '--basetgz "%s-base.tgz"' % prefix
 		elif self.builder == 'cowbuilder':
-			base = '--basepath "%s-base.cow"' % prefix,
+			base = '--basepath "%s-base.cow"' % prefix
 		
 		arguments = [
 			'--%s' % self.operation,
@@ -198,7 +198,7 @@ class pbuilder_dist:
 			### --mirror "${ARCHIVE}" \
 			'--override-config',
 			]
-
+		
 		if os.path.exists('/var/cache/archive/'):
 			arguments.append('--bindmounts "/var/cache/archive/"')		
 
@@ -259,7 +259,7 @@ def help(exit_code = 0):
 	
 	"""
 	
-	print 'Bad...'
+	print 'See  man pbuilder-dist  for more information.'
 	
 	sys.exit(exit_code)
 
@@ -324,7 +324,7 @@ def main():
 	app.set_operation(args.pop(0))
 	
 	# Execute the pbuilder command
-	print app.get_command(args)
+	sys.exit(os.system(app.get_command(args)))
 
 if __name__ == '__main__':
 	
