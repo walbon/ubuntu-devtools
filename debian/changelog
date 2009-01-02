@@ -11,7 +11,12 @@ ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
     - Implemented sleeps to --lp bug reporting in case of a slow
       Launchpad to stop mass bug filing (LP: #311289).
 
- -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
+  [ Siegfried-Angel Gevatter Pujals ]
+  * pbuilder-dist.new:
+    - Add compatibility for cowbuilder. Once pbuilder-dist.new replaces
+      pbuilder-dist, we will also create a cowbuilder-dist symlink to it.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Fri, 02 Jan 2009 14:40:51 +0100
 
 ubuntu-dev-tools (0.50.1) jaunty; urgency=low
 
