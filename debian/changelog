@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
     - Use optparse instead of getopt for option parsing.
     - Skip existing bug report check if python-launchpad-bugs is not
       installed.
+    - Implemented sleeps to --lp bug reporting in case of a slow
+      Launchpad to stop mass bug filing (LP: #311289).
 
  -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
 

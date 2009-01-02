@@ -32,6 +32,7 @@ import urllib
 import urllib2
 from debian_bundle.changelog import Version
 from optparse import OptionParser
+from time import sleep
 
 # Use functions from ubuntu-dev-tools to create Launchpad cookie file.
 sys.path.append('/usr/share/ubuntu-dev-tools/')
@@ -339,11 +340,10 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
 
     try:
         import launchpadbugs.connector
+        from launchpadbugs.lpconstants import HTTPCONNECTION
     except ImportError:
         print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
         return False
-
-    print "Using cookie file at", launchpad_cookiefile
 
     if source_package:
         product = {'name': source_package, 'target': 'ubuntu'}
@@ -366,20 +366,32 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
                 in_confirm_loop = False
                 break
             else:
-                print "Invalid answer"
+                print "Invalid answer."
 
     # Create bug
     Bug = launchpadbugs.connector.ConnectBug()
-    Bug.authentication = launchpad_cookiefile
+    # Force the usage of stable Launchpad.
+    Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
 
+    # Use our cookie file for authentication.
+    Bug.authentication = launchpad_cookiefile
+    print "Using LP cookie at: %s for authentication." % launchpad_cookiefile 
+
+    # Submit bug report.
     bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
+    sleep(2) # Wait in case of slow Launchpad.
+
     try:
         bug.importance = 'Wishlist'
     except IOError, s:
         print "Warning: setting importance failed: %s" % s
+    
     bug.status = status
     bug.subscriptions.add(subscribe)
+    sleep(1) # Wait.
+
     bug.commit()
+    sleep(1) # Wait.
 
     print 'Sync request filed as bug #%i: https://launchpad.net/bugs/%i' % (bug.bugnumber, bug.bugnumber)
 
