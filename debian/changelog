@@ -1,10 +1,15 @@
 ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist.new:
     - Add compatibility for cowbuilder. Once pbuilder-dist.new replaces
       pbuilder-dist, we will also create a cowbuilder-dist symlink to it.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Fri, 02 Jan 2009 14:40:51 +0100
+  [ Nathan Handler ]
+  * pull-debian-source: Pass -xu arguments to dget to be consistant with
+    pull-lp-source
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Fri, 02 Jan 2009 10:35:27 -0600
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
