@@ -31,6 +31,13 @@ import re
 import subprocess
 import sys
 import urllib2
+import urlparse
+try:
+    from launchpadlib.credentials import Credentials
+    from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT
+except ImportError:
+    Credentials = None
+    Launchpad = None
 
 # Clear https_proxy env var as it's not supported in urllib/urllib2; see
 # LP #122551
@@ -265,3 +272,53 @@ def packageComponent(package, release):
             component = rel.split('/')[1]
 
     return component.strip()
+
+
+def find_credentials(consumer, files, level=None):
+    """ search for credentials matching 'consumer' in path for given access level. """
+    if Credentials is None:
+        raise ImportError
+        
+    for f in files:
+        cred = Credentials()
+        try:
+            cred.load(open(f))
+        except:
+            continue
+        if cred.consumer.key == consumer:
+            return cred        
+    raise IOError("No credentials found")
+    
+def get_credentials(consumer, cred_file=None, level=None):
+    files = list()
+    if cred_file:
+        files.append(cred_file)
+    if "LPCREDENTIALS" in os.environ:
+        files.append(os.environ["LPCREDENTIALS"])
+    files.extend([
+        os.path.join(os.getcwd(), "lp_credentials.txt"),
+        os.path.expanduser("~/lp_credentials.txt"),
+    ])
+    return find_credentials(consumer, files, level)
+    
+def get_launchpad(consumer, server=STAGING_SERVICE_ROOT, cache=None,
+                  cred_file=None, level=None):
+    credentials = get_credentials(consumer, cred_file, level)
+    cache = cache or os.environ.get("LPCACHE", None)
+    return Launchpad(credentials, server, cache)
+    
+def translate_web_api(url, launchpad):
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    print scheme, netloc, path, query, fragment
+    if not (("edge" in netloc and "edge" in str(launchpad._root_uri))
+        or ("staging" in netloc and "staging" in str(launchpad._root_uri))):
+        raise ValueError("url conflict (url: %s, root: %s" %(url, launchpad._root_uri))
+    return str(launchpad._root_uri) + path.lstrip("/")
+    
+def translate_api_web(self_url):
+    return self_url.replace("api.", "").replace("beta/", "")
+    
+def approve_application():
+    """ function to create a token without using the Web UI """
+    pass
+    
