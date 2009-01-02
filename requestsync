@@ -87,20 +87,19 @@ def checkExistingReports(package):
 
         If found ask for confirmation on filing a request.
     """
-    import launchpadbugs.connector as Connector
-
-    # Connect to the bug list.
-    bugList = Connector.ConnectBugList()
+    try:
+        launchpad = common.get_launchpad("ubuntu-dev-tools")
+    except ImportError:
+        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
+        return False
 
     # Fetch the package's bug list from Launchpad.
-    pkgBugList = bugList("https://bugs.launchpad.net/ubuntu/+source/%s" % package)
-
-    if len(pkgBugList) == 0:
-        return # No bugs found.
+    pkg = launchpad.load("%subuntu/+source/%s" %(launchpad._root_uri, package))
+    pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
     matchingBugs = [bug for bug in pkgBugList if "Please sync %s" % 
-                        package in bug.summary]
+                        package in bug.title]
 
     if len(matchingBugs) == 0:
         return # No sync bugs found.
@@ -108,8 +107,8 @@ def checkExistingReports(package):
     print "The following bugs could be possible duplicate sync bug(s) on Launchpad:"
 
     for bug in matchingBugs:
-        print " *", bug.summary
-        print "   -", bug.url
+        print " *", bug.title
+        print "   -", common.translate_api_web(bug.self_link)
     
     print "Please check the above URLs to verify this before filing a " \
         "possible duplicate report."
@@ -313,7 +312,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
             (mailserver, mailserver_port, s[1], s[0])
         print "The port %s may be firewalled. Please try using requestsync with" \
             % mailserver_port
-        print "the '--lp' flag to file a sync request with the launchpadbugs " \
+        print "the '--lp' flag to file a sync request with the launchpadlib " \
             "module."
         return False
 
@@ -345,19 +344,17 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     import glob, os.path
 
     try:
-        import launchpadbugs.connector
+        launchpad = common.get_launchpad("ubuntu-dev-tools")
     except ImportError:
-        print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
+        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
         return False
 
-    print "Using cookie file at", launchpad_cookiefile
-
     if source_package:
-        product = {'name': source_package, 'target': 'ubuntu'}
+        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, source_package)
     else:
         # new source package
-        product = {'name': 'ubuntu'}
-
+        product_url = "%subuntu" %launchpad._root_uri
+        
     in_confirm_loop = True
     while in_confirm_loop:
         print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
@@ -376,19 +373,17 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
                 print "Invalid answer"
 
     # Create bug
-    Bug = launchpadbugs.connector.ConnectBug()
-    Bug.authentication = launchpad_cookiefile
+    bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
+    
+    #newly created bugreports have one task
+    task = bug.bug_tasks[0]
+    task.transitionToImportance(importance='Wishlist')
+    task.transitionToStatus(status=status)
+    
+    subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
+    bug.subscribe(person=subscribe_url)
 
-    bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
-    try:
-        bug.importance = 'Wishlist'
-    except IOError, s:
-        print "Warning: setting importance failed: %s" % s
-    bug.status = status
-    bug.subscriptions.add(subscribe)
-    bug.commit()
-
-    print 'Sync request filed as bug #%i: https://launchpad.net/bugs/%i' % (bug.bugnumber, bug.bugnumber)
+    print 'Sync request filed as bug #%i: %s' % (bug.id, common.translate_api_web(bug.self_link))
 
     return True
 
