@@ -1,6 +1,11 @@
-ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
 
-  [ Jonathan Davies ]
+  * Changes go here.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Fri, 02 Jan 2009 14:17:40 +0000
+
+ubuntu-dev-tools (0.51) jaunty; urgency=low
+
   * buildd: Added checks for arch-indep packages and packages which have no
     builds in a release.
   * hugdaylist: String improvements.
