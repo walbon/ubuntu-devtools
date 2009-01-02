@@ -35,14 +35,7 @@ import string
 import sys
 from optparse import OptionParser
 
-try:
-    import launchpadbugs.connector as Connector
-    BugList = Connector.ConnectBugList()
-    Bug = Connector.ConnectBug(method="Text")
-except ImportError:
-    print >> sys.stderr, \
-	"python-launchpad-bugs (>= 0.2.25) needs to be installed to use hugdaylist."
-    sys.exit(1)
+from common import get_launchpad, translate_web_api
 
 def check_args():
     howmany = -1
@@ -75,7 +68,7 @@ def check_args():
     return (howmany, url)
 
 def filter_unsolved(b):
-    bug = Bug(int(b))
+    bug = launchpad.bugs[int(b)]
     # Filter out special types of bugs:
     # - https://wiki.ubuntu.com/Bugs/HowToTriage#Special%20types%20of%20bugs
     return filter(lambda a: a.status != 'Fix Committed' and \
@@ -87,13 +80,24 @@ def filter_unsolved(b):
 
 def main(): 
     (howmany, url) = check_args()
-   
-    try:
-        bl = BugList(url)
-    except:
-        print >> sys.stderr, "The URL at '%s' does not appear to have a bug " \
-            "list." % url
+    if len(url.split("?", 1)) == 2:
+        # search options not supported, because there is no mapping web ui options <-> API options
+        print >> sys.stderr, "Options in url are not supported, url: %s" %url
         sys.exit(1)
+    
+    launchpad = get_launchpad("ubuntu-dev-tools")
+    api_url = translate_web_api(url, launchpad)
+    try:
+        product = launchpad.load(api_url)
+    except Exception, e:
+        x = getattr(e, "response", {})
+        if response.get("status", None) == "404":
+            print >> sys.stderr, "The URL at '%s' does not appear to be a valid url to a product" %url
+            sys.exit(1)
+        else:
+            raise
+    
+    bl = product.searchTasks()
 
     l = filter(filter_unsolved, bl)
     
