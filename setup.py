@@ -40,4 +40,5 @@ setup(name='ubuntu-dev-tools',
                'what-patch', 
             ],
     packages=['ubuntutools'],
+    py_modules = ['common'],
 )
