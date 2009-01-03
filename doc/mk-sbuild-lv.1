@@ -18,16 +18,19 @@ Listed below are the command line options for mk\-sbuild\-lv:
 What architecture to select (defaults to the native architecture).
 .TP
 .B \-\-name=NAME
-Base name for the schroot (arch is appended)
+Base name for the schroot (arch is appended).
 .TP
 .B \-\-personality=PERSONALITY
-What personality to use (defaults to match \-\-arch)
+What personality to use (defaults to match \-\-arch).
 .TP
 .B \-\-debug
-Turn on script debugging
+Turn on script debugging.
+.TP
+.B \-\-skip\-updates
+Do not include the -updates pocket in the installed sources.list.
 .TP
 .B \-\-source\-template=FILE
-Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild\-lv.sources)
+Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild\-lv.sources).
 .TP
 .B \-\-debootstrap\-mirror=URL
 Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
@@ -36,15 +39,21 @@ official Ubuntu repositories for the supported architectures).
 .SH ENVIRONMENT VARIABLES
 .TP
 .B LV_SIZE
-Size of source LVs (defaults to 5G)
+Size of source LVs (defaults to 5G).
 .TP
 .B SNAPSHOT_SIZE
-Size of snapshot LVs (defaults to 4G)
+Size of snapshot LVs (defaults to 4G).
 .TP
 .B SCHROOT_CONF_SUFFIX
-Lines to append to schroot entries
+Lines to append to schroot entries.
+.TP
+.B SKIP_UPDATES
+Do not include the -updates pocket in the installed sources.list.
 
 .SH FILES
+.TP
+.B $HOME/.mk\-sbuild\-lv.rc
+Sourced for environment variables (defined above).
 .TP
 .B $HOME/.mk\-sbuild\-lv.sources
 Can contain a customized sources.list.

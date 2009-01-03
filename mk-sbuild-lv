@@ -107,6 +107,7 @@ function usage()
     echo "  --name=NAME                Base name for the schroot (arch is appended)"
     echo "  --personality=PERSONALITY  What personality to use (defaults to match --arch)"
     echo "  --debug                    Turn on script debugging"
+    echo "  --skip-updates             Do not include -updates pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
     echo ""
@@ -114,6 +115,7 @@ function usage()
     echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
     echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
+    echo "  SKIP_UPDATES               Enable --skip-updates"
     exit 1
 }
 
@@ -121,7 +123,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,arch:,name:,source-template:,debootstrap-mirror:,personality:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:" -- "$@"`
 eval set -- "$OPTS"
 
 name=""
@@ -144,6 +146,10 @@ while :; do
         --personality)
             personality="$2"
             shift 2
+            ;;
+        --skip-updates)
+            SKIP_UPDATES="1"
+            shift
             ;;
         --name)
             name="$2"
@@ -231,8 +237,14 @@ else
     cat > "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
 deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
+EOM
+    if [ -z "$SKIP_UPDATES" ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
 deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
+EOM
+    fi
+    cat >> "$TEMP_SOURCES" <<EOM
 deb http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 deb-src http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 EOM
