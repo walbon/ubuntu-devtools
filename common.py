@@ -32,6 +32,7 @@ import subprocess
 import sys
 import urllib2
 import urlparse
+import urllib
 try:
     from launchpadlib.credentials import Credentials
     from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT
@@ -307,13 +308,29 @@ def get_launchpad(consumer, server=STAGING_SERVICE_ROOT, cache=None,
     cache = cache or os.environ.get("LPCACHE", None)
     return Launchpad(credentials, server, cache)
     
+def query_to_dict(query_string):
+    result = dict()
+    options = filter(None, query_string.split("&"))
+    for opt in options:
+        key, value = opt.split("=")
+        result.setdefault(key, set()).add(value)
+    return result
+        
 def translate_web_api(url, launchpad):
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
-    print scheme, netloc, path, query, fragment
+    query = query_to_dict(query)
     if not (("edge" in netloc and "edge" in str(launchpad._root_uri))
         or ("staging" in netloc and "staging" in str(launchpad._root_uri))):
         raise ValueError("url conflict (url: %s, root: %s" %(url, launchpad._root_uri))
-    return str(launchpad._root_uri) + path.lstrip("/")
+    if path.endswith("/+bugs"):
+        path = path[:-6]
+        if "ws.op" in query:
+            raise ValueError("Invalid web url, url: %s" %url)
+        query["ws.op"] = "searchTasks"
+    scheme, netloc, api_path, _, _ = urlparse.urlsplit(str(launchpad._root_uri))
+    query = urllib.urlencode(query)
+    url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"), query, fragment))
+    return url
     
 def translate_api_web(self_url):
     return self_url.replace("api.", "").replace("beta/", "")
