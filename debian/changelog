@@ -1,11 +1,33 @@
-ubuntu-dev-tools (0.51) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
 
-  [ Jonathan Davies ]
+  [ Siegfried-Angel Gevatter Pujals ]
+  * pbuilder-dist.new:
+    - Add compatibility for cowbuilder. Once pbuilder-dist.new replaces
+      pbuilder-dist, we will also create a cowbuilder-dist symlink to it.
+
+  [ Nathan Handler ]
+  * pull-debian-source:
+    - Pass -xu arguments to dget to be consistant with pull-lp-source
+    - Add support for packages with a name beginning with "lib"
+
+  [ Kees Cook ]
+  * mk-sbuild-lv: add --skip-updates to allow building security-only chroots.
+
+ -- Kees Cook <kees@ubuntu.com>  Sat, 03 Jan 2009 10:44:02 -0800
+
+ubuntu-dev-tools (0.51) jaunty; urgency=low
+
   * buildd: Added checks for arch-indep packages and packages which have no
     builds in a release.
   * hugdaylist: String improvements.
+  * requestsync:
+    - Use optparse instead of getopt for option parsing.
+    - Skip existing bug report check if python-launchpad-bugs is not
+      installed.
+    - Implemented sleeps to --lp bug reporting in case of a slow
+      Launchpad to stop mass bug filing (LP: #311289).
 
- -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
+ -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000 
 
 ubuntu-dev-tools (0.50.1) jaunty; urgency=low
 

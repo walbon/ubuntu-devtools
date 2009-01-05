@@ -28,7 +28,7 @@ my($release)=$ARGV[1] || 'unstable';
 &checkRelease($release);
 my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
 print "$dsc\n";
-exec("dget $dsc");
+exec("dget -xu $dsc");
 sub checkRelease {
 	my($release)=shift || die("No Release Passed To checkRelease!\n");
 	chomp $release;
@@ -78,7 +78,13 @@ sub getDSC {
 		$version=~s/^.*?\://;
 		if($archs=~m/source/) {
 			print "Package: $package\nVersion: $version\nRelease: $release\nArchitectures: $archs\n";
-			my($firstLetter)=substr($package,0,1);
+			my($firstLetter);
+			if($package=~m/^lib/) {
+				$firstLetter="lib" . substr($package,3,1);
+			}
+			else {
+				$firstLetter=substr($package,0,1);
+			}
 			my($url)=$baseURL . $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
 			return $url;
 		}

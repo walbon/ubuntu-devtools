@@ -35,7 +35,7 @@ debian_distros = ['etch', 'lenny', 'sid', 'stable', 'testing', 'unstable', 'expe
 
 class pbuilder_dist:
 	
-	def __init__(self):
+	def __init__(self, builder):
 		
 		# Base directory where pbuilder will put all the files it creates.
 		self.base = None
@@ -69,6 +69,9 @@ class pbuilder_dist:
 		
 		# Authentication method
 		self.auth = 'sudo'
+		
+		# Builder
+		self.builder = builder
 		
 		##############################################################
 		
@@ -110,25 +113,6 @@ class pbuilder_dist:
 		
 		return getattr(self, name)
 	
-	def _calculate(self):
-		""" pbuilder_dist.calculate(distro) -> None
-		
-		Do all necessary variable changes (and therefore required checks)
-		before the string that will be executed is generated. At this
-		point it's expected that no more variables will be modified
-		outside this class. 
-		
-		"""
-		
-		if not self.build_architecture:
-			self.chroot_string = self.target_distro
-			self.build_architecture = self.system_architecture
-		else:
-			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
-		
-		if not self.logfile:
-			self.logfile = '%(base)s.%(chroot_string)s.log' % self
-	
 	def set_target_distro(self, distro):
 		""" pbuilder_dist.set_target_distro(distro) -> None
 		
@@ -162,8 +146,12 @@ class pbuilder_dist:
 		arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
 		
 		if operation not in arguments:
-			if item_ends_with(arguments, '.dsc'):
+			if operation.endswith('.dsc'):
+				if os.path.isfile(operation):
 					self.operation = 'build'
+				else:
+					print 'Error: Could not find file «%s».' % operation
+					sys.exit(1)
 			else:
 				print 'Error: «%s» is not a recognized argument.' % operation
 				print 'Please use one of those: ' + ', '.join(arguments) + '.'
@@ -179,20 +167,38 @@ class pbuilder_dist:
 		
 		"""
 		
-		# Calculate variables which depend on arguments given at runtime.
-		self._calculate()
+		if not self.build_architecture:
+			self.chroot_string = self.target_distro
+			self.build_architecture = self.system_architecture
+		else:
+			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
+		
+		prefix = os.path.join(self.base, self.chroot_string)
+		result = '%s_result/' % prefix
+		
+		if not self.logfile:
+			self.logfile = os.path.normpath('%s/build.log' % result)
+		
+		if not os.path.isdir(result):
+			# Create the results directory, if it doesn't exist.
+			os.makedirs(result)
+		
+		if self.builder == 'pbuilder':
+			base = '--basetgz "%s-base.tgz"' % prefix
+		elif self.builder == 'cowbuilder':
+			base = '--basepath "%s-base.cow"' % prefix
 		
 		arguments = [
-			self.operation,
-			'--basetgz "%(base)s%(chroot_string)s-base.tgz"' % self,
+			'--%s' % self.operation,
+			base,
 			'--distribution "%(target_distro)s"' % self,
-			'--buildresult "%(base)s%(chroot_string)s_result/"' % self,
-			'--logfile "%(logfile)s"' % self,
+			'--buildresult "%s"' % result,
+			'--logfile "%s"' % self.logfile,
 			'--aptcache "/var/cache/apt/archives/"',
 			### --mirror "${ARCHIVE}" \
 			'--override-config',
 			]
-
+		
 		if os.path.exists('/var/cache/archive/'):
 			arguments.append('--bindmounts "/var/cache/archive/"')		
 
@@ -217,7 +223,7 @@ class pbuilder_dist:
 		if remaining_arguments:
 			arguments.extend(remaining_arguments)
 		
-		return self.auth + ' /usr/sbin/pbuilder ' + ' '.join(arguments)
+		return self.auth + ' /usr/sbin/' + self.builder + ' ' + ' '.join(arguments)
 
 def host_architecture():
 	""" host_architecture -> string
@@ -228,20 +234,6 @@ def host_architecture():
 	"""
 	
 	return os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386').replace('i686', 'i386')
-
-def item_ends_with(list, string):
-	""" item_ends_with(list, string) -> bool
-	
-	Return True if one of the items in list ends with the given string,
-	or else return False.
-	
-	"""
-	
-	for item in list:
-		if item.endswith(string):
-			return True
-	
-	return False
 
 def ask(question):
 	""" ask(question) -> string
@@ -267,7 +259,7 @@ def help(exit_code = 0):
 	
 	"""
 	
-	print 'Bad...'
+	print 'See  man pbuilder-dist  for more information.'
 	
 	sys.exit(exit_code)
 
@@ -287,7 +279,8 @@ def main():
 	# Copy arguments into another list for save manipulation
 	args = sys.argv[1:]
 	
-	if '-' in script_name and parts[0] != 'pbuilder' or len(parts) > 3:
+	if '-' in script_name and (parts[0] != 'pbuilder' and \
+	parts[0] != 'cowbuilder') or len(parts) > 3:
 		print 'Error: «%s» is not a valid name for a «pbuilder-dist» executable.' % script_name
 		sys.exit(1)
 	
@@ -298,9 +291,9 @@ def main():
 	if args[0] in ('-h', '--help', 'help'):
 		help(0)
 	
-	app = pbuilder_dist()
+	app = pbuilder_dist(parts[0])
 	
-	if len(parts) > 1:
+	if len(parts) > 1 and parts[1] != 'dist' and '.' not in parts[1]:
 		app.set_target_distro(parts[1])
 	else:
 		app.set_target_distro(args.pop(0))

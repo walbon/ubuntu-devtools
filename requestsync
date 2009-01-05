@@ -25,13 +25,14 @@
 #
 # ##################################################################
 
-import getopt
 import os
 import subprocess
 import sys
 import urllib
 import urllib2
 from debian_bundle.changelog import Version
+from optparse import OptionParser
+from time import sleep
 
 # Use functions from ubuntu-dev-tools to create Launchpad cookie file.
 sys.path.append('/usr/share/ubuntu-dev-tools/')
@@ -76,6 +77,8 @@ def checkNeedsSponsorship(component):
         print "If the above is correct please press Enter, otherwise please " \
             "press Ctrl-C to stop this script now\nand check the cookie file " \
             "at:", launchpad_cookiefile
+        print "Logging into Launchpad, deleting the above and rerunning this " \
+            "script should be enough to generate the cookie."
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
 
@@ -87,10 +90,15 @@ def checkExistingReports(package):
 
         If found ask for confirmation on filing a request.
     """
+
     try:
         launchpad = common.get_launchpad("ubuntu-dev-tools")
     except ImportError:
-        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
+        print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
+            'python-launchpadlib installed?'
+        print >> sys.stderr, "Skipping existing report check, you should "\
+            "manually check at:"
+        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
         return False
 
     # Fetch the package's bug list from Launchpad.
@@ -209,23 +217,6 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
     except KeyboardInterrupt:
         print 'Abort requested. No sync request filed.'
         sys.exit(1)
-
-def usage():
-    print '''Usage: requestsync [-d distro|-h|-n|-s|-k <keyid>|--lp] <source package> <target release> [basever]
-
-In some cases, the base version (fork point from Debian) cannot be determined
-automatically, and you'll get a complete Debian changelog. Specify the correct
-base version of the package in Ubuntu.
-
-Options:
-	-d distro	Override Debian distribution to sync from [unstable].
-	-h		Print this help.
-	-n		New source package (doesn't exist yet in Ubuntu).
-        -s              Specify that you require sponsorship.
-	-k <keyid>	Sign email with <keyid> (only used when submitting per email).
-	--lp		Use python-launchpad-bugs instead of email for bug submitting.
-'''
-    sys.exit(1)
 
 def get_email_address():
     '''Get the DEBEMAIL environment variable or give an error.'''
@@ -370,7 +361,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
                 in_confirm_loop = False
                 break
             else:
-                print "Invalid answer"
+                print "Invalid answer."
 
     # Create bug
     bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
@@ -384,7 +375,6 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     bug.subscribe(person=subscribe_url)
 
     print 'Sync request filed as bug #%i: %s' % (bug.id, common.translate_api_web(bug.self_link))
-
     return True
 
 def edit_report(subject, body, changes_required=False):
@@ -441,52 +431,73 @@ def edit_report(subject, body, changes_required=False):
 #
 
 if __name__ == '__main__':
-    newsource = False
-    sponsorship = False
-    keyid = None
-    use_lp_bugs = False
-    need_interaction = False
-    distro = 'unstable'
+    # Our usage options.
+    usage = "Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] <source "
+    usage += "package> <target release> [base version]"
+    optParser = OptionParser(usage)
 
-    try:
-		opts, args = getopt.gnu_getopt(sys.argv[1:], 'hsnd:k:', ('lp'))
-    except getopt.GetoptError:
-        usage()
-    for o, a in opts:
-        if o == '-h':   usage()
-        if o == '-n':   newsource = True
-        if o == '-k':   keyid = a
-        if o == '-d':   distro = a
-        if o == "-s":   sponsorship = True
-        if o == '--lp': use_lp_bugs = True
+    optParser.add_option("-d", type = "string",
+        dest = "dist", default = "unstable",
+        help = "Debian distribution to sync from.")
+    optParser.add_option("-k", type = "string",
+        dest = "keyid", default = None,
+        help = "GnuPG key ID to use for signing report.")
+    optParser.add_option("-n", action = "store_true",
+        dest = "newpkg", default = False,
+        help = "Whether package to sync is a new package in Ubuntu.")
+    optParser.add_option("--lp", action = "store_true",
+        dest = "lpbugs", default = False,
+        help = "Specify whether to use the launchpadbugs module for filing " \
+            "report.")
+    optParser.add_option("-s", action = "store_true",
+        dest = "sponsor", default = False,
+        help = "Force sponsorship requirement (shall be autodetected if not " \
+            "specified).")
+
+    (options, args) = optParser.parse_args()
+
+    newsource = options.newpkg
+    sponsorship = options.sponsor
+    keyid = options.keyid
+    use_lp_bugs = options.lpbugs
+    need_interaction = False
+    distro = options.dist
 
     if len(args) not in (2, 3):
-        usage()
+        optParser.error("Source package / target release missing - please " \
+            "specify.")
 
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
 
-    (srcpkg, release) = args[:2]
+    srcpkg = args[0]
+    release = args[1]
     force_base_ver = None
-    if len(args) == 3:
-        force_base_ver = args[2]
+
+    # Base version specified.
+    if len(args) == 3: force_base_ver = args[2]
+
     (cur_ver, component) = ('0', 'universe') # Let's assume universe
-    if not newsource:
-        (cur_ver, component) = cur_version_component(srcpkg, release)
+    
+    # Find Ubuntu release's package version.
+    if not newsource: (cur_ver, component) = cur_version_component(srcpkg, release)
 
     debiancomponent = debian_component(srcpkg, distro)
+    # Find Debian release's package version.
     deb_version = cur_deb_version(srcpkg, distro)
 
-    # -s flag not specified - check if we do need sponsorship.
-    if not sponsorship: sponsorship = checkNeedsSponsorship(component)
-
+    # Debian and Ubuntu versions are the same - stop.
     if deb_version == cur_ver:
         print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
         sys.exit(1)
 
+    # -s flag not specified - check if we do need sponsorship.
+    if not sponsorship: sponsorship = checkNeedsSponsorship(component)
+
+    # Check for existing package reports.
     if not newsource: checkExistingReports(srcpkg)
 
-    # generate bug report
+    # Generate bug report.
     subscribe = 'ubuntu-archive'
     status = 'confirmed'
     if sponsorship:
