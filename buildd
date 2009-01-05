@@ -131,16 +131,16 @@ if len(buildstats) == 0:
         "built in a former release." % (package, release.capitalize())
     sys.exit(0)
 
+# Operations.
+if op == 'status':
+    sys.exit(0)
+
 # Check if the package in question is architecture independent, and if so; that
 # i386 has been set as the architecture.
 if len(buildstats) == 1 and options.architecture != "i386":
     print "Overriding architecture setting to i386 for architecture " \
         "independent package..."
     options.architecture = "i386"
-
-# Operations.
-if op == 'status':
-    sys.exit(0)
 
 # Operations that are remaining may only be done by Ubuntu developers (retry)
 # or buildd admins (rescore). Check if the proper permissions are in place.

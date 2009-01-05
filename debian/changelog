@@ -13,7 +13,11 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   [ Kees Cook ]
   * mk-sbuild-lv: add --skip-updates to allow building security-only chroots.
 
- -- Kees Cook <kees@ubuntu.com>  Sat, 03 Jan 2009 10:44:02 -0800
+  [ Jonathan Davies ]
+  * buildd: Don't show arch override message if operation to perform is
+    'status'. 
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Mon, 05 Jan 2009 10:00:43 +0000
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
