@@ -20,8 +20,7 @@
 
 import os
 import sys
-import urllib
-import launchpadbugs.connector as Connector
+from common import get_launchpad
 
 USAGE = "grab-attachments <bug numbers>"
 
@@ -33,17 +32,21 @@ def main():
     if sys.argv[1] in ["--help", "-h"]:
         print USAGE
         sys.exit(0)
-    Bug = Connector.ConnectBug(method="Text")
+    launchpad = get_launchpad("ubuntu-dev-tools")
     for arg in sys.argv[1:]:
         try:
             number = int(arg)
         except:
             print >> sys.stderr, "'%s' is not a valid bug number." % arg
             sys.exit(1)
-        b = Bug(number)
+        b = launchpad.bugs[number]
         for a in b.attachments:
-            filename = os.path.join(os.getcwd(), a.url.split("/")[-1])
-            urllib.urlretrieve(a.url, filename)
+            f = a.data.open()
+            filename = os.path.join(os.getcwd(), f.filename)
+            local_file = open(filename, "w")
+            local_file.write(f.read())
+            f.close()
+            local_file.close()
 
 if __name__ == '__main__':
     main()
