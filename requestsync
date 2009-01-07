@@ -105,7 +105,7 @@ def checkExistingReports(package):
         return False
 
     # Fetch the package's bug list from Launchpad.
-    pkg = launchpad.load("%subuntu/+source/%s" %(launchpad._root_uri, package))
+    pkg = launchpad.distributions["ubuntu"].getSourcePackage(name=package)
     pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
