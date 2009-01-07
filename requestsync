@@ -327,7 +327,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     return True
 
 def post_bug(source_package, subscribe, status, bugtitle, bugtext):
-    '''Use python-launchpad-bugs to submit the sync request.
+    '''Use python-launchpadlib to submit the sync request.
     Return True if successfully posted, otherwise False.'''
 
     import glob, os.path
@@ -445,7 +445,7 @@ if __name__ == '__main__':
         help = "Whether package to sync is a new package in Ubuntu.")
     optParser.add_option("--lp", action = "store_true",
         dest = "lpbugs", default = False,
-        help = "Specify whether to use the launchpadbugs module for filing " \
+        help = "Specify whether to use the launchpadlib module for filing " \
             "report.")
     optParser.add_option("-s", action = "store_true",
         dest = "sponsor", default = False,
