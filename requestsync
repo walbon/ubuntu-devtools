@@ -52,6 +52,11 @@ def checkNeedsSponsorship(component):
         The prepareLaunchpadCookie function above shall ensure that a cookie
         file exists first.
     """
+    # TODO: use launchpadlib here
+    # Once LP: #313233 has been fixed this can be implemented by either:
+    #  >>> me = launchpad.me
+    #  >>> me.inTeam(<TEAM>)  #or
+    #  >>> me in <TEAM>
     urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
 
     # Check where the package is and assign the appropriate variables.
