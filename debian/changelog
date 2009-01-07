@@ -8,7 +8,7 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   [ Nathan Handler ]
   * pull-debian-source:
     - Pass -xu arguments to dget to be consistant with pull-lp-source
-    - Add support for packages with a name beginning with "lib"
+    - Add support for packages with a name beginning with "lib" (LP: #314732)
 
   [ Kees Cook ]
   * mk-sbuild-lv: add --skip-updates to allow building security-only chroots.
@@ -17,7 +17,7 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   * buildd: Don't show arch override message if operation to perform is
     'status'. 
 
- -- Jonathan Davies <jpds@ubuntu.com>  Mon, 05 Jan 2009 10:00:43 +0000
+ -- Nathan Handler <nhandler@ubuntu.com>  Wed, 07 Jan 2009 16:04:35 -0600
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
