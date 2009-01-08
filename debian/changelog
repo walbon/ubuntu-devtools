@@ -11,13 +11,15 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
     - Add support for packages with a name beginning with "lib" (LP: #314732)
 
   [ Kees Cook ]
-  * mk-sbuild-lv: add --skip-updates to allow building security-only chroots.
+  * mk-sbuild-lv:
+    - add --skip-updates to allow building security-only chroots.
+    - add "apt-utils" as a default package for sane dist-upgrades.
 
   [ Jonathan Davies ]
   * buildd: Don't show arch override message if operation to perform is
     'status'. 
 
- -- Nathan Handler <nhandler@ubuntu.com>  Wed, 07 Jan 2009 16:04:35 -0600
+ -- Kees Cook <kees@ubuntu.com>  Wed, 07 Jan 2009 16:37:13 -0800
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 

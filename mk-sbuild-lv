@@ -291,7 +291,7 @@ cat "$TEMP_SCHROOTCONF" | sed \
         sudo bash -c "cat >> /etc/schroot/schroot.conf"
 rm -f "$TEMP_SCHROOTCONF"
 # Create image finalization script
-BUILD_PKGS="build-essential fakeroot devscripts"
+BUILD_PKGS="build-essential fakeroot devscripts apt-utils"
 # Add edgy+ buildd tools
 if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
     # Disable recommends for a smaller chroot (gutsy and later only)
