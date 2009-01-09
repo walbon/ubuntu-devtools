@@ -380,8 +380,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     # Create bug
     Bug = launchpadbugs.connector.ConnectBug()
     # Force the usage of stable Launchpad.
-    #Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
-    Bug.set_connection_mode(HTTPCONNECTION.MODE.STAGING)
+    Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
 
     # Use our cookie file for authentication.
     Bug.authentication = launchpad_cookiefile
