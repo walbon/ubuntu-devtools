@@ -18,8 +18,10 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   [ Jonathan Davies ]
   * buildd: Don't show arch override message if operation to perform is
     'status'. 
+  * requestsync: If package is new, check the Ubuntu Archive team's bug list
+    for possible duplicate requests.
 
- -- Kees Cook <kees@ubuntu.com>  Wed, 07 Jan 2009 16:37:13 -0800
+ -- Jonathan Davies <jpds@ubuntu.com>  Fri, 09 Jan 2009 14:32:37 +0000
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 

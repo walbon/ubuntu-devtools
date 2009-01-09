@@ -85,7 +85,7 @@ def checkNeedsSponsorship(component):
     # Is a team member, no sponsorship required.
     return False
 
-def checkExistingReports(package):
+def checkExistingReports(package, isNewPackage):
     """ Check existing bug reports on Launchpad for a possible sync request.
 
         If found ask for confirmation on filing a request.
@@ -93,6 +93,7 @@ def checkExistingReports(package):
     try:
         import launchpadbugs.connector as Connector
     except:
+        # Failed to import launchpadbugs - skip check.
         print >> sys.stderr, "Unable to import launchpadbugs. Is " \
             "python-launchpad-bugs installed?"
         print >> sys.stderr, "Skipping existing report check, you should "\
@@ -103,8 +104,16 @@ def checkExistingReports(package):
     # Connect to the bug list.
     bugList = Connector.ConnectBugList()
 
-    # Fetch the package's bug list from Launchpad.
-    pkgBugList = bugList("https://bugs.launchpad.net/ubuntu/+source/%s" % package)
+    if isNewPackage:
+        # Package not in Ubuntu, check Ubuntu Archive Team's bug page for
+        # possible duplicate reports.
+        bugListUrl = "https://bugs.launchpad.net/~ubuntu-archive"
+    else:
+        # Package in Ubuntu, check the package's bug list for duplicate reports.
+        bugListUrl = "https://bugs.launchpad.net/ubuntu/+source/%s" % package
+
+    # Fetch data from Launchpad.
+    pkgBugList = bugList(bugListUrl)
 
     if len(pkgBugList) == 0:
         return # No bugs found.
@@ -116,7 +125,7 @@ def checkExistingReports(package):
     if len(matchingBugs) == 0:
         return # No sync bugs found.
 
-    print "The following bugs could be possible duplicate sync bug(s) on Launchpad:"
+    print "The following bugs could possibly be duplicate sync request(s) on Launchpad:"
 
     for bug in matchingBugs:
         print " *", bug.summary
@@ -371,7 +380,8 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     # Create bug
     Bug = launchpadbugs.connector.ConnectBug()
     # Force the usage of stable Launchpad.
-    Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
+    #Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
+    Bug.set_connection_mode(HTTPCONNECTION.MODE.STAGING)
 
     # Use our cookie file for authentication.
     Bug.authentication = launchpad_cookiefile
@@ -514,8 +524,8 @@ if __name__ == '__main__':
     # -s flag not specified - check if we do need sponsorship.
     if not sponsorship: sponsorship = checkNeedsSponsorship(component)
 
-    # Check for existing package reports.
-    if not newsource: checkExistingReports(srcpkg)
+    # Check for existing sync requests.
+    checkExistingReports(srcpkg, newsource)
 
     # Generate bug report.
     subscribe = 'ubuntu-archive'
