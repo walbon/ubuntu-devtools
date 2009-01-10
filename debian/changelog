@@ -2,8 +2,20 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist.new:
-    - Add compatibility for cowbuilder. Once pbuilder-dist.new replaces
-      pbuilder-dist, we will also create a cowbuilder-dist symlink to it.
+    - Add compatibility for cowbuilder.
+    - Fix the mainonly support.
+    - Rename build.log to last_operation.log.
+  * pbuilder-dist, pbuilder-dist.new:
+    - Replace pbuilder-dist with pbuilder-dist.new.
+  * debian/links:
+    - Symlink /usr/bin/cowbuilder-dist to /usr/bin/pbuilder-dist, and the
+      same with the manpage.
+  * debian/control:
+    - Add cowdancer as alternative recommends to pbuilder.
+  * doc/pbuilder-dist.1:
+    - Update it to explain the usage for the new pbuilder-dist script.
+  * doc/mk-sbuild-lv.1:
+    - Fix an error (and get ride of a lintian warning).
 
   [ Nathan Handler ]
   * pull-debian-source:
@@ -21,7 +33,7 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   * requestsync: If package is new, check the Ubuntu Archive team's bug list
     for possible duplicate requests.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Fri, 09 Jan 2009 14:32:37 +0000
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 10 Jan 2009 14:35:14 +0100
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
