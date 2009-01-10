@@ -90,6 +90,15 @@ def checkExistingReports(package, isNewPackage):
 
         If found ask for confirmation on filing a request.
     """
+    # Determine if the package is new or not.
+    if isNewPackage:
+        # Package not in Ubuntu, check Ubuntu Archive Team's bug page for
+        # possible duplicate reports.
+        bugListUrl = "https://bugs.launchpad.net/~ubuntu-archive"
+    else:
+        # Package in Ubuntu, check the package's bug list for duplicate reports.
+        bugListUrl = "https://bugs.launchpad.net/ubuntu/+source/%s" % package
+
     try:
         import launchpadbugs.connector as Connector
     except:
@@ -98,19 +107,11 @@ def checkExistingReports(package, isNewPackage):
             "python-launchpad-bugs installed?"
         print >> sys.stderr, "Skipping existing report check, you should "\
             "manually check at:"
-        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
+        print "-", bugListUrl
         return
 
     # Connect to the bug list.
     bugList = Connector.ConnectBugList()
-
-    if isNewPackage:
-        # Package not in Ubuntu, check Ubuntu Archive Team's bug page for
-        # possible duplicate reports.
-        bugListUrl = "https://bugs.launchpad.net/~ubuntu-archive"
-    else:
-        # Package in Ubuntu, check the package's bug list for duplicate reports.
-        bugListUrl = "https://bugs.launchpad.net/ubuntu/+source/%s" % package
 
     # Fetch data from Launchpad.
     pkgBugList = bugList(bugListUrl)
