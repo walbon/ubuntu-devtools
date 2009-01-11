@@ -216,7 +216,7 @@ class pbuilder_dist:
 			components = 'main restricted'
 			if self.extra_components:
 				components += ' universe multiverse'
-		arguments.append('--components %s"' % components)
+		arguments.append('--components "%s"' % components)
 		
 		if self.build_architecture != self.system_architecture:
 			arguments.append('--debootstrapopts --arch')
