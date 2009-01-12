@@ -33,7 +33,11 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   * requestsync: If package is new, check the Ubuntu Archive team's bug list
     for possible duplicate requests.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 10 Jan 2009 14:35:14 +0100
+  [ Luca Falavigna ]
+  * requestsync:
+    - Catch AssertionError exception if rmadison returns with an error.
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Mon, 12 Jan 2009 20:28:01 +0100
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
