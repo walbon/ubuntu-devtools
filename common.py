@@ -299,12 +299,12 @@ def get_credentials(consumer, cred_file=None, level=None):
     if "LPCREDENTIALS" in os.environ:
         files.append(os.environ["LPCREDENTIALS"])
     files.extend([
-        os.path.join(os.getcwd(), "lp_credentials.txt"),
-        os.path.expanduser("~/lp_credentials.txt"),
+        os.path.join(os.getcwd(), ".lp_credentials.txt"),
+        os.path.expanduser("~/.lp_credentials.txt"),
     ])
     return find_credentials(consumer, files, level)
     
-def get_launchpad(consumer, server=STAGING_SERVICE_ROOT, cache=None,
+def get_launchpad(consumer, server=EDGE_SERVICE_ROOT, cache=None,
                   cred_file=None, level=None):
     credentials = get_credentials(consumer, cred_file, level)
     cache = cache or os.environ.get("LPCACHE", None)

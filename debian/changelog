@@ -32,6 +32,8 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
     'status'. 
   * requestsync: If package is new, check the Ubuntu Archive team's bug list
     for possible duplicate requests.
+  * doc/manage-credentials.1: Written up.
+  * doc/requestsync.1: Changed documentation to launchpadlib related-stuff.
 
   [ Luca Falavigna ]
   * requestsync:

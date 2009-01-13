@@ -15,10 +15,10 @@ The changelog entry is then downloaded from packages.debian.org.
 If the sync request is being filed per email (default), a prompt for your
 GPG passphrase follows so that it can sign the mail and send it off to
 Launchpad.
-Alternatively a sync request can be filed directly using the launchpadbugs
-python module (option \fB\-\-lp\fR).
+Alternatively a sync request can be filed directly using the launchpadlib
+Python module (option \fB\-\-lp\fR).
 \fBrequestsync\fR falls back to mail the sync request if submitting using
-the launchpadbugs module fails.
+the launchpadlib module fails.
 
 .PP
 \fBrequestsync\fR checks if you have the permissions to request the sync from
@@ -29,10 +29,8 @@ If you are not a member of the appropriate team, the script will subscribe
 the necessary team with approval rights to the bug report for you.
 
 .PP
-\fBrequestsync\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to
-authenticate with Launchpad.
-This cookie is created on run from the Mozilla Firefox cookie file at
-\fI~/.mozilla/*/*/cookies.sqlite\fR.
+\fBrequestsync\fR uses launchpadlib authentication to file its requests. Please
+see manage-credentials(1) for more information.
 
 .SH OPTIONS
 Listed below are the command line options for requestsync:
@@ -55,7 +53,7 @@ configuration (for example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
-Use the launchpadbugs python module (packaged as python\-launchpad\-bugs) to
+Use the launchpadlib Python module (packaged as python\-launchpadlib) to
 file the sync request in Launchpad.
 .TP
 .B \-s
