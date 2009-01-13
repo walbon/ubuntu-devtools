@@ -34,8 +34,10 @@ import urllib2
 import urlparse
 import urllib
 try:
+    import httplib2
     from launchpadlib.credentials import Credentials
-    from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT
+    from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT
+    from launchpadlib.errors import HTTPError
 except ImportError:
     Credentials = None
     Launchpad = None
@@ -335,7 +337,49 @@ def translate_web_api(url, launchpad):
 def translate_api_web(self_url):
     return self_url.replace("api.", "").replace("beta/", "")
     
-def approve_application():
-    """ function to create a token without using the Web UI """
-    pass
+LEVEL = {
+    0: "UNAUTHORIZED",
+    1: "READ_PUBLIC",
+    2: "WRITE_PUBLIC",
+    3: "READ_PRIVATE",
+    4: "WRITE_PRIVATE"
+}
+    
+def approve_application(credentials, email, password, level, web_root,
+        context):
+    authorization_url = credentials.get_request_token(context, web_root)
+    if level in LEVEL:
+        level = 'field.actions.%s' %LEVEL[level]
+    elif level in LEVEL.values():
+        level = 'field.actions.%s' %level
+    elif str(level).startswith("field.actions") and str(level).split(".")[-1] in LEVEL:
+        pass
+    else:
+        raise ValueError("Unknown access level '%s'" %level)
+
+    params = {level: 1,
+        "oauth_token": credentials._request_token.key,
+        "lp.context": context or ""}
+           
+    lp_creds = ":".join((email, password))
+    basic_auth = "Basic %s" %(lp_creds.encode('base64'))
+    headers = {'Authorization': basic_auth}
+    response, content = httplib2.Http().request(authorization_url,
+        method="POST", body=urllib.urlencode(params), headers=headers)
+    if int(response["status"]) != 200:
+        if not 300 <= int(response["status"]) <= 400: # this means redirection
+            raise HTTPError(response, content)
+    credentials.exchange_request_token_for_access_token(web_root)
+    return credentials
+    
+def translate_service(service):
+    _service = service.lower()
+    if _service in (STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT):
+        return _service
+    elif _service == "staging":
+        return STAGING_SERVICE_ROOT
+    elif _service == "edge":
+        return EDGE_SERVICE_ROOT
+    else:
+        raise ValueError("unknown service '%s'" %service)
     
