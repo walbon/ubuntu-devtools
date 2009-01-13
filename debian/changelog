@@ -37,6 +37,14 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   * requestsync:
     - Catch AssertionError exception if rmadison returns with an error.
 
+  [ Markus Korn ]
+  * Added manage-credentials, a tool to create (and manage) credentials
+    which are used to access launchpad via the API.
+  * Ported: hugdaylist, massfile, grab-attachment and requestsync to
+    launchpadlib.
+  * Other misc. fixes and tweaks.
+  * Install common.py to correct location with py_modules.
+
  -- Luca Falavigna <dktrkranz@ubuntu.com>  Mon, 12 Jan 2009 20:28:01 +0100
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
