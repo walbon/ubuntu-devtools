@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.53) intrepid; urgency=low
+
+  * Changes here.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 13:23:25 +0000
+
 ubuntu-dev-tools (0.52) jaunty; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
