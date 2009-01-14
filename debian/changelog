@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.52) jaunty; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist.new:
@@ -45,9 +45,10 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
   * Ported: hugdaylist, massfile, grab-attachment and requestsync to
     launchpadlib.
   * Other misc. fixes and tweaks.
-  * Install common.py to correct location with py_modules.
+  * Install common.py to correct location with py_modules and remove
+    hardcoded path from files.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Mon, 12 Jan 2009 20:28:01 +0100
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 13:21:35 +0000
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 
