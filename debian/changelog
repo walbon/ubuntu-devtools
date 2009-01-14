@@ -1,9 +1,14 @@
-ubuntu-dev-tools (0.53) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.53) jaunty; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
   * debian/copyright:
      - Add information about manage-credentials.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 14 Jan 2009 14:58:19 +0100
+  [ Daniel Holbach ]
+  * debian/control: replace 'sb-release' with lsb-release, make package 
+    installable again.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2009 16:27:34 +0100
 
 ubuntu-dev-tools (0.52) jaunty; urgency=low
 
