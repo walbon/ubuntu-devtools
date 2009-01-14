@@ -290,18 +290,25 @@ def find_credentials(consumer, files, level=None):
             continue
         if cred.consumer.key == consumer:
             return cred        
-    raise IOError("No credentials found")
+    raise IOError("No credentials found, please see the manage-credentials " \
+            "manpage for help on how to create them.")
     
 def get_credentials(consumer, cred_file=None, level=None):
     files = list()
+
     if cred_file:
         files.append(cred_file)
+
     if "LPCREDENTIALS" in os.environ:
         files.append(os.environ["LPCREDENTIALS"])
-    files.extend([
-        os.path.join(os.getcwd(), ".lp_credentials.txt"),
-        os.path.expanduser("~/.lp_credentials.txt"),
-    ])
+
+    files.append(os.path.join(os.getcwd(), "lp_credentials.txt"))
+
+    # Add all files which have our consumer name to file listing.
+    for x in glob.glob(os.path.expanduser("~/.cache/lp_credentials/%s*.txt" % \
+        consumer)):
+        files.append(x)
+
     return find_credentials(consumer, files, level)
     
 def get_launchpad(consumer, server=EDGE_SERVICE_ROOT, cache=None,
@@ -376,10 +383,10 @@ def translate_service(service):
     _service = service.lower()
     if _service in (STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT):
         return _service
-    elif _service == "staging":
-        return STAGING_SERVICE_ROOT
     elif _service == "edge":
         return EDGE_SERVICE_ROOT
+    elif _service == "staging":
+        return STAGING_SERVICE_ROOT
     else:
         raise ValueError("unknown service '%s'" %service)
     

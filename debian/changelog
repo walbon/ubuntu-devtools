@@ -1,3 +1,18 @@
+ubuntu-dev-tools (0.54) jaunty; urgency=low
+
+  * manage-credentials:
+    - Save credentials to ~/.cache/lp_credentials/ by
+      default.
+    - Set service option default to edge.
+  * doc/manage-credentials.1: Update as necessary for the above.
+  * common.py:
+    - When credentials are not found, ask user to see
+      manage-credentials manpage.
+    - Load all token files for the consumer specified in the above
+      directory as necessary. 
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 19:39:35 +0000
+
 ubuntu-dev-tools (0.53) jaunty; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
