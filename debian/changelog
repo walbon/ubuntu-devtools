@@ -1,6 +1,7 @@
-ubuntu-dev-tools (0.56) jaunty; urgency=low
+ubuntu-dev-tools (0.56) UNRELEASED; urgency=low
 
-  * Changes go here.
+  * manage-credentials: Tighted security by making credentials files and
+    folder world unreadable.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Thu, 15 Jan 2009 12:35:12 +0000
 
