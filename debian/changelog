@@ -1,9 +1,9 @@
-ubuntu-dev-tools (0.57) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.57) jaunty; urgency=low
 
   * requestsync: Skip existing bug check if no credentials are
     found (LP: #318120).
 
- -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 11:41:22 +0000
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 22:02:39 +0000
 
 ubuntu-dev-tools (0.56) jaunty; urgency=low
 
