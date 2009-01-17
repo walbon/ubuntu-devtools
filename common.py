@@ -290,6 +290,7 @@ def find_credentials(consumer, files, level=None):
             continue
         if cred.consumer.key == consumer:
             return cred        
+    
     raise IOError("No credentials found for '%s', please see the " \
             "manage-credentials manpage for help on how to create " \
             "one for this consumer." % consumer)

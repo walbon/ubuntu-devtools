@@ -104,6 +104,10 @@ def checkExistingReports(package):
             "manually check at:"
         print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
         return False
+    except IOError, msg:
+        # No credentials found.
+        print msg
+        sys.exit(1)
 
     # Fetch the package's bug list from Launchpad.
     pkg = launchpad.distributions["ubuntu"].getSourcePackage(name=package)
@@ -343,6 +347,10 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
         return False
+    except IOError, msg:
+        # No credentials found.
+        print msg
+        sys.exit(1)
 
     if source_package:
         product_url = "%subuntu/+source/%s" %(launchpad._root_uri, source_package)
