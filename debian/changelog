@@ -2,6 +2,8 @@ ubuntu-dev-tools (0.56) UNRELEASED; urgency=low
 
   * manage-credentials: Tighted security by making credentials files and
     folder world unreadable.
+  * common.py: Improved no credentials found error message to show which
+    consumer token is needed.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Thu, 15 Jan 2009 12:35:12 +0000
 
