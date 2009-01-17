@@ -95,19 +95,24 @@ def checkExistingReports(package):
         If found ask for confirmation on filing a request.
     """
 
+    launchpad = None
+
     try:
         launchpad = common.get_launchpad("ubuntu-dev-tools")
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
             'python-launchpadlib installed?'
-        print >> sys.stderr, "Skipping existing report check, you should "\
-            "manually check at:"
-        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
-        return False
     except IOError, msg:
         # No credentials found.
         print msg
-        sys.exit(1)
+
+    # Failed to get Launchpad credentials.
+    if launchpad is None:
+        print >> sys.stderr, "Skipping existing report check, you should "\
+            "manually see if there are any at:"
+        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
+        print ""
+        return False
 
     # Fetch the package's bug list from Launchpad.
     pkg = launchpad.distributions["ubuntu"].getSourcePackage(name=package)
