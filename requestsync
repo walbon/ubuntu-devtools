@@ -35,7 +35,7 @@ from debian_bundle.changelog import Version
 from optparse import OptionParser
 from time import sleep
 
-import common
+from ubuntutools import common
     
 launchpad_cookiefile = common.prepareLaunchpadCookie()
 

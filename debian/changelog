@@ -5,6 +5,8 @@ ubuntu-dev-tools (0.56) UNRELEASED; urgency=low
   * common.py: Improved no credentials found error message to show which
     consumer token is needed.
   * requestsync: Catch credentials error to hide traceback.
+  * Moved common.py to ubuntutools/ subdirectory to avoid possible conflicts
+    in Python packaging and fixed all imports as necessary.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Thu, 15 Jan 2009 12:35:12 +0000
 

@@ -35,7 +35,7 @@ import string
 import sys
 from optparse import OptionParser
 
-from common import get_launchpad, translate_web_api, translate_api_web
+from ubuntutools.common import get_launchpad, translate_web_api, translate_api_web
 
 def check_args():
     howmany = -1

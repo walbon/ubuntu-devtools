@@ -31,8 +31,7 @@ from optparse import OptionParser
 from urllib import urlencode
 
 # ubuntu-dev-tools modules.
-sys.path.append("/usr/share/ubuntu-dev-tools/")
-import common
+from ubuntutools import common
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"

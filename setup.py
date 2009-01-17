@@ -41,5 +41,4 @@ setup(name='ubuntu-dev-tools',
                'manage-credentials',
             ],
     packages=['ubuntutools'],
-    py_modules = ['common'],
 )
