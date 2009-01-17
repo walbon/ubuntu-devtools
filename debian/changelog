@@ -7,8 +7,9 @@ ubuntu-dev-tools (0.56) UNRELEASED; urgency=low
   * requestsync: Catch credentials error to hide traceback.
   * Moved common.py to ubuntutools/ subdirectory to avoid possible conflicts
     in Python packaging and fixed all imports as necessary.
+  * debian/ubuntu-dev-tools.install: Removed common.py entry. 
 
- -- Jonathan Davies <jpds@ubuntu.com>  Thu, 15 Jan 2009 12:35:12 +0000
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 11:32:33 +0000
 
 ubuntu-dev-tools (0.55) jaunty; urgency=low
 

@@ -1,2 +1,1 @@
 bash_completion/* etc/bash_completion.d/
-common.py usr/share/ubuntu-dev-tools/
