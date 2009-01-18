@@ -1,4 +1,64 @@
-ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.58) UNRELEASED; urgency=low
+
+  * Changes go here.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 21:04:55 +0000
+
+ubuntu-dev-tools (0.57) jaunty; urgency=low
+
+  * requestsync: Skip existing bug check if no credentials are
+    found (LP: #318120).
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 22:02:39 +0000
+
+ubuntu-dev-tools (0.56) jaunty; urgency=low
+
+  * manage-credentials: Tighted security by making credentials files and
+    folder world unreadable.
+  * common.py: Improved no credentials found error message to show which
+    consumer token is needed.
+  * requestsync: Catch credentials error to hide traceback.
+  * Moved common.py to ubuntutools/ subdirectory to avoid possible conflicts
+    in Python packaging and fixed all imports as necessary.
+  * debian/ubuntu-dev-tools.install: Removed common.py entry. 
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 11:32:33 +0000
+
+ubuntu-dev-tools (0.55) jaunty; urgency=low
+
+  * manage-credentials: Use common.py's mkdir function to create as many
+    subdirectories as necessary for the credentials directory (LP: #317317).
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Thu, 15 Jan 2009 12:33:31 +0000
+
+ubuntu-dev-tools (0.54) jaunty; urgency=low
+
+  * manage-credentials:
+    - Save credentials to ~/.cache/lp_credentials/ by
+      default.
+    - Set service option default to edge.
+  * doc/manage-credentials.1: Update as necessary for the above.
+  * common.py:
+    - When credentials are not found, ask user to see
+      manage-credentials manpage.
+    - Load all token files for the consumer specified in the above
+      directory as necessary. 
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 19:39:35 +0000
+
+ubuntu-dev-tools (0.53) jaunty; urgency=low
+
+  [ Siegfried-Angel Gevatter Pujals ]
+  * debian/copyright:
+     - Add information about manage-credentials.
+
+  [ Daniel Holbach ]
+  * debian/control: replace 'sb-release' with lsb-release, make package 
+    installable again.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2009 16:27:34 +0100
+
+ubuntu-dev-tools (0.52) jaunty; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist.new:
@@ -32,8 +92,23 @@ ubuntu-dev-tools (0.52) UNRELEASED; urgency=low
     'status'. 
   * requestsync: If package is new, check the Ubuntu Archive team's bug list
     for possible duplicate requests.
+  * doc/manage-credentials.1: Written up.
+  * doc/requestsync.1: Changed documentation to launchpadlib related-stuff.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 10 Jan 2009 14:35:14 +0100
+  [ Luca Falavigna ]
+  * requestsync:
+    - Catch AssertionError exception if rmadison returns with an error.
+
+  [ Markus Korn ]
+  * Added manage-credentials, a tool to create (and manage) credentials
+    which are used to access launchpad via the API.
+  * Ported: hugdaylist, massfile, grab-attachment and requestsync to
+    launchpadlib.
+  * Other misc. fixes and tweaks.
+  * Install common.py to correct location with py_modules and remove
+    hardcoded path from files.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 13:21:35 +0000
 
 ubuntu-dev-tools (0.51) jaunty; urgency=low
 

@@ -35,14 +35,7 @@ import string
 import sys
 from optparse import OptionParser
 
-try:
-    import launchpadbugs.connector as Connector
-    BugList = Connector.ConnectBugList()
-    Bug = Connector.ConnectBug(method="Text")
-except ImportError:
-    print >> sys.stderr, \
-	"python-launchpad-bugs (>= 0.2.25) needs to be installed to use hugdaylist."
-    sys.exit(1)
+from ubuntutools.common import get_launchpad, translate_web_api, translate_api_web
 
 def check_args():
     howmany = -1
@@ -74,26 +67,40 @@ def check_args():
 
     return (howmany, url)
 
-def filter_unsolved(b):
-    bug = Bug(int(b))
+def filter_unsolved(task):
+    # TODO: don't use this filter here, only check status and assignee of 
+    #   the given task
     # Filter out special types of bugs:
     # - https://wiki.ubuntu.com/Bugs/HowToTriage#Special%20types%20of%20bugs
-    return filter(lambda a: a.status != 'Fix Committed' and \
-			 (a.assignee in ['motu','desktop-bugs'] or \
-			  not a.assignee), bug.infotable) and \
-	'ubuntu-main-sponsors' not in [str(s) for s in bug.subscribers] and \
-	'ubuntu-universe-sponsors' not in [str(s) for s in bug.subscribers] and \
-	'ubuntu-archive' not in [str(s) for s in bug.subscribers]
+    subscriptions = set(s.person.name for s in task.bug.subscriptions) #this is expensive, parse name out of self_link instead?
+    if (task.status != "Fix Committed" and
+        (not task.assignee or task.assignee.name in ['motu','desktop-bugs']) and
+         'ubuntu-main-sponsors' not in subscriptions and
+         'ubuntu-universe-sponsors' not in subscriptions and
+         'ubuntu-archive' not in subscriptions):
+        return True
+    return False
 
 def main(): 
     (howmany, url) = check_args()
-   
-    try:
-        bl = BugList(url)
-    except:
-        print >> sys.stderr, "The URL at '%s' does not appear to have a bug " \
-            "list." % url
+    if len(url.split("?", 1)) == 2:
+        # search options not supported, because there is no mapping web ui options <-> API options
+        print >> sys.stderr, "Options in url are not supported, url: %s" %url
         sys.exit(1)
+    
+    launchpad = get_launchpad("ubuntu-dev-tools")
+    api_url = translate_web_api(url, launchpad)
+    try:
+        product = launchpad.load(api_url)
+    except Exception, e:
+        x = getattr(e, "response", {})
+        if response.get("status", None) == "404":
+            print >> sys.stderr, "The URL at '%s' does not appear to be a valid url to a product" %url
+            sys.exit(1)
+        else:
+            raise
+    
+    bl = product.searchTasks()
 
     l = filter(filter_unsolved, bl)
     
@@ -112,13 +119,14 @@ def main():
 || Bug || Subject || Triager ||"""
 
     for i in list(l)[:howmany]:
+        bug = i.bug
         print '||<rowbgcolor="#FFEBBB"> [%s %s] || %s || ||' % \
-            (i.url, i.bugnumber, i.summary)
+            (translate_api_web(bug.self_link), bug.id, bug.title)
 
 
 if __name__ == '__main__':
     try:
-	    main()
+        main()
     except KeyboardInterrupt:
         print >> sys.stderr, "Aborted."
         sys.exit(1)

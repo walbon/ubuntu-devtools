@@ -9,6 +9,7 @@
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <iain@orangesquash.org.uk>
 #  Jonathan Davies <jpds@ubuntu.com>
+#  Markus Korn <thekorn@gmx.de> (python-launchpadlib support)
 #
 # ##################################################################
 #
@@ -34,9 +35,7 @@ from debian_bundle.changelog import Version
 from optparse import OptionParser
 from time import sleep
 
-# Use functions from ubuntu-dev-tools to create Launchpad cookie file.
-sys.path.append('/usr/share/ubuntu-dev-tools/')
-import common
+from ubuntutools import common
     
 launchpad_cookiefile = common.prepareLaunchpadCookie()
 
@@ -54,6 +53,11 @@ def checkNeedsSponsorship(component):
         The prepareLaunchpadCookie function above shall ensure that a cookie
         file exists first.
     """
+    # TODO: use launchpadlib here
+    # Once LP: #313233 has been fixed this can be implemented by either:
+    #  >>> me = launchpad.me
+    #  >>> me.inTeam(<TEAM>)  #or
+    #  >>> me in <TEAM>
     urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
 
     # Check where the package is and assign the appropriate variables.
@@ -85,52 +89,47 @@ def checkNeedsSponsorship(component):
     # Is a team member, no sponsorship required.
     return False
 
-def checkExistingReports(package, isNewPackage):
+def checkExistingReports(package):
     """ Check existing bug reports on Launchpad for a possible sync request.
 
         If found ask for confirmation on filing a request.
     """
-    # Determine if the package is new or not.
-    if isNewPackage:
-        # Package not in Ubuntu, check Ubuntu Archive Team's bug page for
-        # possible duplicate reports.
-        bugListUrl = "https://bugs.launchpad.net/~ubuntu-archive"
-    else:
-        # Package in Ubuntu, check the package's bug list for duplicate reports.
-        bugListUrl = "https://bugs.launchpad.net/ubuntu/+source/%s" % package
+
+    launchpad = None
 
     try:
-        import launchpadbugs.connector as Connector
-    except:
-        # Failed to import launchpadbugs - skip check.
-        print >> sys.stderr, "Unable to import launchpadbugs. Is " \
-            "python-launchpad-bugs installed?"
+        launchpad = common.get_launchpad("ubuntu-dev-tools")
+    except ImportError:
+        print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
+            'python-launchpadlib installed?'
+    except IOError, msg:
+        # No credentials found.
+        print msg
+
+    # Failed to get Launchpad credentials.
+    if launchpad is None:
         print >> sys.stderr, "Skipping existing report check, you should "\
-            "manually check at:"
-        print "-", bugListUrl
-        return
+            "manually see if there are any at:"
+        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
+        print ""
+        return False
 
-    # Connect to the bug list.
-    bugList = Connector.ConnectBugList()
-
-    # Fetch data from Launchpad.
-    pkgBugList = bugList(bugListUrl)
-
-    if len(pkgBugList) == 0:
-        return # No bugs found.
+    # Fetch the package's bug list from Launchpad.
+    pkg = launchpad.distributions["ubuntu"].getSourcePackage(name=package)
+    pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
     matchingBugs = [bug for bug in pkgBugList if "Please sync %s" % 
-                        package in bug.summary]
+                        package in bug.title]
 
     if len(matchingBugs) == 0:
         return # No sync bugs found.
 
-    print "The following bugs could possibly be duplicate sync request(s) on Launchpad:"
+    print "The following bugs could be possible duplicate sync bug(s) on Launchpad:"
 
     for bug in matchingBugs:
-        print " *", bug.summary
-        print "   -", bug.url
+        print " *", bug.title
+        print "   -", common.translate_api_web(bug.self_link)
     
     print "Please check the above URLs to verify this before filing a " \
         "possible duplicate report."
@@ -317,7 +316,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
             (mailserver, mailserver_port, s[1], s[0])
         print "The port %s may be firewalled. Please try using requestsync with" \
             % mailserver_port
-        print "the '--lp' flag to file a sync request with the launchpadbugs " \
+        print "the '--lp' flag to file a sync request with the launchpadlib " \
             "module."
         return False
 
@@ -343,24 +342,27 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     return True
 
 def post_bug(source_package, subscribe, status, bugtitle, bugtext):
-    '''Use python-launchpad-bugs to submit the sync request.
+    '''Use python-launchpadlib to submit the sync request.
     Return True if successfully posted, otherwise False.'''
 
     import glob, os.path
 
     try:
-        import launchpadbugs.connector
-        from launchpadbugs.lpconstants import HTTPCONNECTION
+        launchpad = common.get_launchpad("ubuntu-dev-tools")
     except ImportError:
-        print >> sys.stderr, 'Importing launchpadbugs failed. Is python-launchpad-bugs installed?'
+        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
         return False
+    except IOError, msg:
+        # No credentials found.
+        print msg
+        sys.exit(1)
 
     if source_package:
-        product = {'name': source_package, 'target': 'ubuntu'}
+        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, source_package)
     else:
         # new source package
-        product = {'name': 'ubuntu'}
-
+        product_url = "%subuntu" %launchpad._root_uri
+        
     in_confirm_loop = True
     while in_confirm_loop:
         print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
@@ -379,32 +381,17 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
                 print "Invalid answer."
 
     # Create bug
-    Bug = launchpadbugs.connector.ConnectBug()
-    # Force the usage of stable Launchpad.
-    Bug.set_connection_mode(HTTPCONNECTION.MODE.STABLE)
-
-    # Use our cookie file for authentication.
-    Bug.authentication = launchpad_cookiefile
-    print "Using LP cookie at: %s for authentication." % launchpad_cookiefile 
-
-    # Submit bug report.
-    bug = Bug.New(product = product, summary = bugtitle, description = bugtext)
-    sleep(2) # Wait in case of slow Launchpad.
-
-    try:
-        bug.importance = 'Wishlist'
-    except IOError, s:
-        print "Warning: setting importance failed: %s" % s
+    bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
     
-    bug.status = status
-    bug.subscriptions.add(subscribe)
-    sleep(1) # Wait.
+    #newly created bugreports have one task
+    task = bug.bug_tasks[0]
+    task.transitionToImportance(importance='Wishlist')
+    task.transitionToStatus(status=status)
+    
+    subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
+    bug.subscribe(person=subscribe_url)
 
-    bug.commit()
-    sleep(1) # Wait.
-
-    print 'Sync request filed as bug #%i: https://launchpad.net/bugs/%i' % (bug.bugnumber, bug.bugnumber)
-
+    print 'Sync request filed as bug #%i: %s' % (bug.id, common.translate_api_web(bug.self_link))
     return True
 
 def edit_report(subject, body, changes_required=False):
@@ -477,7 +464,7 @@ if __name__ == '__main__':
         help = "Whether package to sync is a new package in Ubuntu.")
     optParser.add_option("--lp", action = "store_true",
         dest = "lpbugs", default = False,
-        help = "Specify whether to use the launchpadbugs module for filing " \
+        help = "Specify whether to use the launchpadlib module for filing " \
             "report.")
     optParser.add_option("-s", action = "store_true",
         dest = "sponsor", default = False,
@@ -524,8 +511,8 @@ if __name__ == '__main__':
     # -s flag not specified - check if we do need sponsorship.
     if not sponsorship: sponsorship = checkNeedsSponsorship(component)
 
-    # Check for existing sync requests.
-    checkExistingReports(srcpkg, newsource)
+    # Check for existing package reports.
+    if not newsource: checkExistingReports(srcpkg)
 
     # Generate bug report.
     subscribe = 'ubuntu-archive'

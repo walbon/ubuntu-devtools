@@ -27,12 +27,7 @@ import email
 import subprocess
 import glob
 
-import launchpadbugs.connector as Connector
-
-sys.path.append('/usr/share/ubuntu-dev-tools/')
-import common
-
-cookie = common.prepareLaunchpadCookie()
+from ubuntutools.common import get_launchpad, translate_api_web, translate_web_api
 
 def read_config():
     instructions_file = open("instructions")
@@ -56,10 +51,6 @@ def read_list():
 
     listfile.close()
     return pack_list
-
-def file_bug():
-    Bug = Connector.ConnectBug()
-    Bug.authentication = cookie
 
 def check_configfiles():
     result = True
@@ -87,43 +78,62 @@ def check_configfiles():
 
 
 def file_bug(config):
-    Bug = Connector.ConnectBug()
-
-    Bug.authentication = cookie
+    launchpad = get_launchpad("ubuntu-dev-tools")
 
     try:
         summary = config["subject"].replace("$pack", config["sourcepackage"])
         description = config["text"].replace("$pack", config["sourcepackage"])
         
-        bug = Bug.New(product={"name": config["sourcepackage"], 
-                               "target": "ubuntu"},
-                      summary=summary,
-                      description=description)
-        print "Successfully filed bug %s: https://launchpad.net/bugs/%s" % \
-            (bug.bugnumber, bug.bugnumber)
-        for sub in config["subscribers"].split(","):
-            if sub.strip("\n").strip():
-                bug.subscribers.add(sub.strip("\n").strip())
-        for tag in config["tags"].split(","):
-            if tag.strip("\n").strip():
-                bug.tags.append(tag.strip("\n").strip())
-        bug.assignee = config["assignee"]
+
+        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, config["sourcepackage"])
+        tags = filter(None, map(lambda t: t.strip("\n").strip(), config["tags"].split(",")))
+        bug = launchpad.bugs.createBug(description=description, title=summary,
+            target=product_url, tags=tags)
+        
+        print "Successfully filed bug %i: %s" %(bug.id, translate_api_web(bug.self_link))
+        
+        subscribers = filter(None, map(lambda t: t.strip("\n").strip(), config["subscribers"].split(",")))
+        for sub in subscribers:
+            subscribe_url = "%s~%s" %(launchpad._root_uri, sub)
+            bug.subscribe(person=subscribe_url)
+            
+        #newly created bugreports have one task
+        task = bug.bug_tasks[0]
+        
         if config["status"]:
-            bug.status = config["status"].capitalize()
+            status = config["status"].capitalize()
         else:
-            bug.status = "Confirmed"
-        bug.commit()
+            status = "Confirmed"
+        task.transitionToStatus(status=status)
+        
+        assignee = config["assignee"]
+        if assignee:
+            assignee_url = "%s~%s" %(launchpad._root_uri, assignee)
+            bug.transitionToAssignee(assignee=assignee_url)
     except:
         "Bug for '%s' was not filed." % config["sourcepackage"]
 
 def read_buglist(url):
-    BugList = Connector.ConnectBugList()
+    if not url:
+        return set()
+        
+    if len(url.split("?", 1)) == 2:
+        # search options not supported, because there is no mapping web ui options <-> API options
+        print >> sys.stderr, "Options in url are not supported, url: %s" %url
+        sys.exit(1)
+        
+    launchpad = get_launchpad("ubuntu-dev-tools")
     packages = set()
 
-    if url:
-        buglist = BugList(url)
-        for bug in buglist.bugs:
-            packages.add(bug.sourcepackage)
+    api_url = translate_web_api(url, launchpad)
+    # workaround LP #303414
+    # if this is fixed it should simply be: buglist = launchpad.load(api_url)
+    api_url = api_url.split("?", 1)[0]
+    project = launchpad.load(api_url)
+    buglist = project.searchTasks()
+    
+    for bug in buglist:
+        packages.add(bug.bug_target_name)
         
     return packages
 
