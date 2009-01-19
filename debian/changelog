@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.59) UNRELEASED; urgency=low
+
+  * Changes go here.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Mon, 19 Jan 2009 16:52:03 +0000
+
 ubuntu-dev-tools (0.58) jaunty; urgency=low
 
   [ Loic Minier ]
