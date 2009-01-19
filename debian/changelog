@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.58) UNRELEASED; urgency=low
     lintian).
   * New script, lp-set-dup, allows marking a bug and all its dups as a
     duplicate of a new main bug.
+   * Re-add debian/pycompat to have an idempotent clean:: as cdbs creates the
+     file during clean; Debian #512300.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 21:04:55 +0000
 
