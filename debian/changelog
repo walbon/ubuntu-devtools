@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.59) jaunty; urgency=low
+
+  * Move /etc/bash_completion.d/pbuilder-dist/pbuilder-dist created in
+    pre-0.30 versions to /etc/bash_completion.d/pbuilder-dist in the preinst.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 19 Jan 2009 17:57:23 +0100
+
 ubuntu-dev-tools (0.58) jaunty; urgency=low
 
   [ Loic Minier ]
