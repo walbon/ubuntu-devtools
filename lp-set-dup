@@ -50,7 +50,6 @@ if __name__ == '__main__':
         print "Launchpad setup complete"
     except ImportError:
         suggestion = "check whether python-launchpadlib is installed"
-        die("Couldn't setup Launchpad for the ubuntu-dev-tools consumer; check whether python-launchpadlib is installed")
     except IOError:
         suggestion = "you might want to \"manage-credentials create --consumer ubuntu-dev-tools --level 2\""
     if launchpad is None:
