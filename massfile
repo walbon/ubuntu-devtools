@@ -29,7 +29,7 @@ import email
 import subprocess
 import glob
 
-from ubuntutools.lplibsupport import get_launchpad, translate_api_web, translate_web_api
+from ubuntutools.lp.libsupport import get_launchpad, translate_api_web, translate_web_api
 
 def read_config():
     instructions_file = open("instructions")

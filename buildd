@@ -31,9 +31,9 @@ from optparse import OptionParser
 from urllib import urlencode
 
 # ubuntu-dev-tools modules.
-from ubuntutools import lpcookie
-from ubuntutools import lplibfunctions
-from ubuntutools import lpurlopener
+import ubuntutools.lp.cookie as lp_cookie
+import ubuntutools.lp.functions as lp_functions
+import ubuntutools.lp.urlopener as lp_urlopener
 from ubuntutools import packages
 
 # Usage.
@@ -96,8 +96,8 @@ else:
     oneArch = False
 
 # Prepare Launchpad cookie.
-launchpadCookie = lpcookie.prepareLaunchpadCookie()
-urlopener = lpurlopener.setupLaunchpadUrlOpener(launchpadCookie)
+launchpadCookie = lp_cookie.prepareLaunchpadCookie()
+urlopener = lp_urlopener.setupLaunchpadUrlOpener(launchpadCookie)
 
 # Check the release exists.
 packages.checkReleaseExists(release)
@@ -153,7 +153,7 @@ if op == "retry":
     else:
         teamNeeded = "ubuntu-dev"
 
-necessaryPrivs = lplibfunctions.isLPTeamMember(teamNeeded)
+necessaryPrivs = lp_functions.isLPTeamMember(teamNeeded)
 
 if not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
