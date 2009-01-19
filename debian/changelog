@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.59) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.59) jaunty; urgency=low
 
   * Move /etc/bash_completion.d/pbuilder-dist/pbuilder-dist created in
     pre-0.30 versions to /etc/bash_completion.d/pbuilder-dist in the preinst.
