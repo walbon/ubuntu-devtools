@@ -59,8 +59,14 @@ if __name__ == '__main__':
     new_main_bug = launchpad.bugs[args[0]]
     new_main_dup_of = new_main_bug.duplicate_of
     if new_main_dup_of is not None:
-        prog = os.path.basename(sys.argv[0])
-        die("New main bug %s is a duplicate of %s; try %s %s %s"  % (new_main_bug.id, new_main_dup_of.id, prog, new_main_dup_of.id, " ".join(args[1:])))
+        s = None
+        try:
+            s = raw_input("Bug %s is a duplicate of %s; would you like to use %s as the new main bug instead? [y/N]" % (new_main_bug.id, new_main_dup_of.id, new_main_dup_of.id))
+        except:
+            die("Aborted")
+        if s.lower() not in ("y", "yes"):
+            die("User aborted")
+        new_main_bug = new_main_dup_of
 
     # build list of bugs to process, first the dups then the bug
     bugs_to_process = []
