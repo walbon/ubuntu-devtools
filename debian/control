@@ -12,7 +12,6 @@ Standards-Version: 3.8.0
 
 Package: ubuntu-dev-tools
 Architecture: all
-Section: devel
 Depends: ${python:Depends}, binutils, devscripts, sudo, python-debian,
   python-launchpad-bugs (>= 0.2.25), python-launchpadlib, dctrl-tools,
   lsb-release, diffstat, dpkg-dev, ${misc:Depends}

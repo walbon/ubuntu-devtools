@@ -2,6 +2,8 @@ ubuntu-dev-tools (0.58) UNRELEASED; urgency=low
 
   [ Loic Minier ]
   * Fix a bunch of hyphen-used-as-minus-sign lintian informational tags.
+  * Don't repeat Section in the binary package's control chunk (pleases
+    lintian).
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 21:04:55 +0000
 
