@@ -27,7 +27,7 @@ What personality to use (defaults to match \-\-arch).
 Turn on script debugging.
 .TP
 .B \-\-skip\-updates
-Do not include the -updates pocket in the installed sources.list.
+Do not include the \-updates pocket in the installed sources.list.
 .TP
 .B \-\-source\-template=FILE
 Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild\-lv.sources).
@@ -48,7 +48,7 @@ Size of snapshot LVs (defaults to 4G).
 Lines to append to schroot entries.
 .TP
 .B SKIP_UPDATES
-Do not include the -updates pocket in the installed sources.list.
+Do not include the \-updates pocket in the installed sources.list.
 
 .SH FILES
 .TP
@@ -66,7 +66,7 @@ Can contain a customized configuration section to be inserted into
 See schroot.conf(5) for more details on the format.
 .SH USING THE CHROOTS
 .TP
-To UPDATE the golden image: \fBschroot \-c ${CHROOT_NAME}\-source -u root \-\- sh \-c apt\-get update && apt\-get \-y upgrade\fR
+To UPDATE the golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root \-\- sh \-c apt\-get update && apt\-get \-y upgrade\fR
 .TP
 To ENTER an image snapshot: \fBschroot \-c ${CHROOT_NAME}\fR
 .TP

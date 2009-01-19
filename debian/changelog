@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.58) UNRELEASED; urgency=low
 
-  * Changes go here.
+  [ Loic Minier ]
+  * Fix a bunch of hyphen-used-as-minus-sign lintian informational tags.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 21:04:55 +0000
 
