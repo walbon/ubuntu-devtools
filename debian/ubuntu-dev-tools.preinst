@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+if [ -e /etc/bash_completion.d/pbuilder-dist/pbuilder-dist ]; then
+    tmp_file="$(mktemp /etc/bash_completion.d/pbuilder-dist.XXXXXX)"
+    mv -fv /etc/bash_completion.d/pbuilder-dist/pbuilder-dist \
+        "$tmp_file"
+    rmdir --ignore-fail-on-non-empty /etc/bash_completion.d/pbuilder-dist
+    # dir non-empty
+    if [ -d /etc/bash_completion.d/pbuilder-dist ]; then
+        echo "W: /etc/bash_completion.d/pbuilder-dist not empty; moving /etc/bash_completion.d/pbuilder-dist out of the way"
+        mv -fv /etc/bash_completion.d/pbuilder-dist /etc/bash_completion.d/pbuilder-dist.dpkg-disabled
+
+    fi
+    mv -fv "$tmp_file" /etc/bash_completion.d/pbuilder-dist
+fi
+
+#DEBHELPER#
+
