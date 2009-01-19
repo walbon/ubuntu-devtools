@@ -2,7 +2,7 @@
 #   lplibsupport.py - functions which add launchpadlib support to the Ubuntu
 #                     Developer Tools package.
 #
-#   Copyright (C) 2008 Jonathan Davies <jpds@ubuntu.com>
+#   Copyright (C) 2009 Markus Korn <thekorn@gmx.de>
 #
 #   This program is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU General Public License
