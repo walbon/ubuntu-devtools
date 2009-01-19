@@ -25,7 +25,7 @@
 import os, sys
 from optparse import OptionParser
 
-from ubuntutools import common
+from ubuntutools import lplibsupport
 
 def die(message):
     print >> sys.stderr, "Fatal: " + message
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     launchpad = None
     try:
         print "Setting up Launchpad"
-        launchpad = common.get_launchpad("ubuntu-dev-tools")
+        launchpad = lplibsupport.get_launchpad("ubuntu-dev-tools")
         print "Launchpad setup complete"
     except ImportError:
         suggestion = "check whether python-launchpadlib is installed"

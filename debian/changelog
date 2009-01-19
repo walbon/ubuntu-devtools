@@ -1,8 +1,10 @@
 ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
 
-  * Changes go here.
+  * ubuntutools/common.py: Now split into multiple files depending on
+    function.
+  * Adjusted imports on all files as necessary for the change above.
 
- -- Loic Minier <lool@dooz.org>  Mon, 19 Jan 2009 18:13:18 +0100
+ -- Jonathan Davies <jpds@ubuntu.com>  Mon, 19 Jan 2009 18:00:15 +0000
 
 ubuntu-dev-tools (0.59) jaunty; urgency=low
 

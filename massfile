@@ -6,6 +6,8 @@
 # Modified by Iain Lane <iain@orangesquash.org.uk>, taking some code written by
 # Daniel Hahler <ubuntu@thequod.de>
 #
+# python-launchpadlib support was added by Markus Korn <thekorn@gmx.de>.
+#
 # ##################################################################
 #
 # This program is free software; you can redistribute it and/or
@@ -27,7 +29,7 @@ import email
 import subprocess
 import glob
 
-from ubuntutools.common import get_launchpad, translate_api_web, translate_web_api
+from ubuntutools.lplibsupport import get_launchpad, translate_api_web, translate_web_api
 
 def read_config():
     instructions_file = open("instructions")

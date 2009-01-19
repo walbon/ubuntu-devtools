@@ -33,7 +33,7 @@ import urllib2
 from optparse import OptionParser
 
 # Ubuntu-dev-tools modules.
-from ubuntutools import common
+from ubuntutools import packages
 
 class BackportFromLP:
 
@@ -65,10 +65,7 @@ if __name__ == '__main__':
     optParser = OptionParser(usage)
     (options, args) = optParser.parse_args()
     
-    if not args:
-        print >> sys.stderr, "Need arguments."
-        optParser.print_help()
-        sys.exit(1)
+    if not args: optParser.error("Arguments required.")
     
     package = str(args[0]).lower()
 
@@ -79,10 +76,10 @@ if __name__ == '__main__':
 
     # Correct-ish args, can proceed.
     # Check release by checking if Launchpad page exists
-    common.checkReleaseExists(release)
+    packages.checkReleaseExists(release)
 
     # Check package exists.
-    common.checkSourceExists(package, release)
+    packages.checkSourceExists(package, release)
 
     # All good - start downloading...
     try:
