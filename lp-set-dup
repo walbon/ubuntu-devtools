@@ -83,8 +83,9 @@ if __name__ == '__main__':
     print "Would set the following bugs as duplicates of %s: %s" % (new_main_bug.id, " ".join([str(b.id) for b in bugs_to_process]))
 
     if not options.force:
+        s = None
         try:
-            s = raw_input("Proceed [y/N]?")
+            s = raw_input("Proceed? [y/N]")
         except:
             die("Aborted")
         if s.lower() not in ("y", "yes"):
