@@ -133,7 +133,7 @@ def checkExistingReports(package):
 
     for bug in matchingBugs:
         print " *", bug.title
-        print "   -", common.translate_api_web(bug.self_link)
+        print "   -", lplibsupport.translate_api_web(bug.self_link)
     
     print "Please check the above URLs to verify this before filing a " \
         "possible duplicate report."
@@ -395,7 +395,8 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
     bug.subscribe(person=subscribe_url)
 
-    print 'Sync request filed as bug #%i: %s' % (bug.id, common.translate_api_web(bug.self_link))
+    print 'Sync request filed as bug #%i: %s' % (bug.id,
+        lplibsupport.translate_api_web(bug.self_link))
     return True
 
 def edit_report(subject, body, changes_required=False):
