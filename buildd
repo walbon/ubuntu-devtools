@@ -80,7 +80,7 @@ try:
     package = str(args[0]).lower()
     release = str(args[1]).lower()
     op      = str(args[2]).lower()
-except:
+except IndexError:
     optParser.print_help()
     sys.exit(0)
 
