@@ -23,7 +23,7 @@ use LWP::Simple;
 use File::Basename;
 
 my($package)=$ARGV[0] || &usage();
-&usage() if(($package=~m/\-\-help/i) || ($package=~m/\-h/i));
+&usage() if(($package=~m/^\-\-help/i) || ($package=~m/^\-h/i));
 my($release)=$ARGV[1] || 'unstable';
 &checkRelease($release);
 my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
