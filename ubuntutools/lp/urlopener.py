@@ -1,5 +1,5 @@
 #
-#   lpurlopener.py - set up a special URL opener which uses a Launchpad cookie
+#   urlopener.py - set up a special URL opener which uses a Launchpad cookie
 #                    file for authentication.
 #
 #   Copyright (C) 2008 Jonathan Davies <jpds@ubuntu.com>

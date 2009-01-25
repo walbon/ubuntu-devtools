@@ -1,5 +1,5 @@
 #
-#   lpcookie.py - functions related to the creation of Launchpad cookie files
+#   cookie.py - functions related to the creation of Launchpad cookie files
 #                 and authentication.
 #
 #   Copyright (C) 2008 Jonathan Davies <jpds@ubuntu.com>

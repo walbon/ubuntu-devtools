@@ -1,5 +1,5 @@
 #
-#   lplibsupport.py - functions which add launchpadlib support to the Ubuntu
+#   libsupport.py - functions which add launchpadlib support to the Ubuntu
 #                     Developer Tools package.
 #
 #   Copyright (C) 2009 Markus Korn <thekorn@gmx.de>
