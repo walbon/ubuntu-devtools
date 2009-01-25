@@ -31,7 +31,10 @@ from optparse import OptionParser
 from urllib import urlencode
 
 # ubuntu-dev-tools modules.
-from ubuntutools import common
+import ubuntutools.lp.cookie as lp_cookie
+import ubuntutools.lp.functions as lp_functions
+import ubuntutools.lp.urlopener as lp_urlopener
+from ubuntutools import packages
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -93,17 +96,17 @@ else:
     oneArch = False
 
 # Prepare Launchpad cookie.
-launchpadCookie = common.prepareLaunchpadCookie()
-urlopener = common.setupLaunchpadUrlOpener(launchpadCookie)
+launchpadCookie = lp_cookie.prepareLaunchpadCookie()
+urlopener = lp_urlopener.setupLaunchpadUrlOpener(launchpadCookie)
 
 # Check the release exists.
-common.checkReleaseExists(release)
+packages.checkReleaseExists(release)
 
 # Find out the version in given release.
-(page, version) = common.checkSourceExists(package, release)
+(page, version) = packages.checkSourceExists(package, release)
 
 # Get the component the package is in.
-component = common.packageComponent(package, release)
+component = packages.packageComponent(package, release)
 
 # Output details.
 print "The source version for '%s' in %s (%s) is at %s." % (package,
@@ -150,7 +153,7 @@ if op == "retry":
     else:
         teamNeeded = "ubuntu-dev"
 
-necessaryPrivs = common.isLPTeamMember(teamNeeded)
+necessaryPrivs = lp_functions.isLPTeamMember(teamNeeded)
 
 if not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \

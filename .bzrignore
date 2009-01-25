@@ -1,0 +1,8 @@
+/.shelf/
+/build/
+/python-build-stamp-*
+/debian/files
+/debian/ubuntu-dev-tools/
+/debian/ubuntu-dev-tools.debhelper.log
+/debian/ubuntu-dev-tools.*.debhelper
+/debian/ubuntu-dev-tools.substvars

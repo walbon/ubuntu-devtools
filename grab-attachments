@@ -20,7 +20,7 @@
 
 import os
 import sys
-from ubuntutools.common import get_launchpad
+from ubuntutools.lp.libsupport import get_launchpad
 
 USAGE = "grab-attachments <bug numbers>"
 
@@ -32,6 +32,7 @@ def main():
     if sys.argv[1] in ["--help", "-h"]:
         print USAGE
         sys.exit(0)
+
     launchpad = get_launchpad("ubuntu-dev-tools")
     for arg in sys.argv[1:]:
         try:
@@ -39,7 +40,9 @@ def main():
         except:
             print >> sys.stderr, "'%s' is not a valid bug number." % arg
             sys.exit(1)
+
         b = launchpad.bugs[number]
+  
         for a in b.attachments:
             f = a.data.open()
             filename = os.path.join(os.getcwd(), f.filename)

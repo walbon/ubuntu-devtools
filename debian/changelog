@@ -1,8 +1,30 @@
-ubuntu-dev-tools (0.58) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
 
-  * Changes go here.
+  * ubuntutools/common.py: Now split into multiple files depending on
+    function.
+  * Adjusted imports on all files as necessary for the change above.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 21:04:55 +0000
+ -- Jonathan Davies <jpds@ubuntu.com>  Mon, 19 Jan 2009 18:00:15 +0000
+
+ubuntu-dev-tools (0.59) jaunty; urgency=low
+
+  * Move /etc/bash_completion.d/pbuilder-dist/pbuilder-dist created in
+    pre-0.30 versions to /etc/bash_completion.d/pbuilder-dist in the preinst.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 19 Jan 2009 18:02:55 +0100
+
+ubuntu-dev-tools (0.58) jaunty; urgency=low
+
+  [ Loic Minier ]
+  * Fix a bunch of hyphen-used-as-minus-sign lintian informational tags.
+  * Don't repeat Section in the binary package's control chunk (pleases
+    lintian).
+  * New script, lp-set-dup, allows marking a bug and all its dups as a
+    duplicate of a new main bug.
+   * Re-add debian/pycompat to have an idempotent clean:: as cdbs creates the
+     file during clean; Debian #512300.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 19 Jan 2009 17:45:26 +0100
 
 ubuntu-dev-tools (0.57) jaunty; urgency=low
 

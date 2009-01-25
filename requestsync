@@ -35,9 +35,13 @@ from debian_bundle.changelog import Version
 from optparse import OptionParser
 from time import sleep
 
-from ubuntutools import common
+# ubuntu-dev-tools modules.
+import ubuntutools.lp.cookie as lp_cookie
+import ubuntutools.lp.functions as lp_functions
+import ubuntutools.lp.libsupport as lp_libsupport
+import ubuntutools.lp.urlopener as lp_urlopener
     
-launchpad_cookiefile = common.prepareLaunchpadCookie()
+launchpad_cookiefile = lp_cookie.prepareLaunchpadCookie()
 
 def checkNeedsSponsorship(component):
     """
@@ -58,7 +62,7 @@ def checkNeedsSponsorship(component):
     #  >>> me = launchpad.me
     #  >>> me.inTeam(<TEAM>)  #or
     #  >>> me in <TEAM>
-    urlopener = common.setupLaunchpadUrlOpener(launchpad_cookiefile)
+    urlopener = lp_urlopener.setupLaunchpadUrlOpener(launchpad_cookiefile)
 
     # Check where the package is and assign the appropriate variables.
     if component in ['main', 'restricted']:
@@ -69,7 +73,7 @@ def checkNeedsSponsorship(component):
         sponsor = "ubuntu-universe-sponsors"
 
     # Check if they are a member of the team.
-    teamMember = common.isLPTeamMember(team)
+    teamMember = lp_functions.isLPTeamMember(team)
     
     if not teamMember:
         print "You are not a member (direct or indirect) of the '%s' " \
@@ -98,7 +102,7 @@ def checkExistingReports(package):
     launchpad = None
 
     try:
-        launchpad = common.get_launchpad("ubuntu-dev-tools")
+        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
             'python-launchpadlib installed?'
@@ -129,7 +133,7 @@ def checkExistingReports(package):
 
     for bug in matchingBugs:
         print " *", bug.title
-        print "   -", common.translate_api_web(bug.self_link)
+        print "   -", lp_libsupport.translate_api_web(bug.self_link)
     
     print "Please check the above URLs to verify this before filing a " \
         "possible duplicate report."
@@ -348,7 +352,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     import glob, os.path
 
     try:
-        launchpad = common.get_launchpad("ubuntu-dev-tools")
+        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
         return False
@@ -391,7 +395,8 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
     bug.subscribe(person=subscribe_url)
 
-    print 'Sync request filed as bug #%i: %s' % (bug.id, common.translate_api_web(bug.self_link))
+    print 'Sync request filed as bug #%i: %s' % (bug.id,
+        lp_libsupport.translate_api_web(bug.self_link))
     return True
 
 def edit_report(subject, body, changes_required=False):
