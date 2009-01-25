@@ -64,7 +64,11 @@ optParser.add_option_group(retryRescoreOptions)
 (options, args) = optParser.parse_args()
 
 # 'help' called by itself - show our help.
-if args[0].lower() in ("help") and len(args) == 1:
+try:
+    if args[0].lower() in ("help") and len(args) == 1:
+        optParser.print_help()
+        sys.exit(0)
+except IndexError:
     optParser.print_help()
     sys.exit(0)
 
@@ -72,9 +76,13 @@ if args[0].lower() in ("help") and len(args) == 1:
 if len(args) < 3:
     optParser.error("Incorrect number of arguments.")
 
-package = str(args[0]).lower()
-release = str(args[1]).lower()
-op      = str(args[2]).lower()
+try:
+    package = str(args[0]).lower()
+    release = str(args[1]).lower()
+    op      = str(args[2]).lower()
+except:
+    optParser.print_help()
+    sys.exit(0)
 
 # Check our operation.
 if op not in ("rescore", "retry", "status"):
