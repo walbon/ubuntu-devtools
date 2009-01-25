@@ -8,8 +8,10 @@ ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
   [ Iain Lane ]
   * requestsync: Only attempt to change bug importance if in ubuntu-dev, as it
     will fail otherwise.
+  * ubuntutools/lp/functions.py: Rename urlopener import as it conflicts with
+    a variable, causing an error.
 
- -- Iain Lane <laney@ubuntu.com>  Sun, 25 Jan 2009 00:14:23 +0000
+ -- Iain Lane <laney@ubuntu.com>  Sun, 25 Jan 2009 01:04:40 +0000
 
 ubuntu-dev-tools (0.59) jaunty; urgency=low
 
