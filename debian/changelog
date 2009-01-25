@@ -1,10 +1,15 @@
 ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
 
+  [ Jonathan Davies ]
   * ubuntutools/common.py: Now split into multiple files depending on
     function.
   * Adjusted imports on all files as necessary for the change above.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Mon, 19 Jan 2009 18:00:15 +0000
+  [ Iain Lane ]
+  * requestsync: Only attempt to change bug importance if in ubuntu-dev, as it
+    will fail otherwise.
+
+ -- Iain Lane <laney@ubuntu.com>  Sun, 25 Jan 2009 00:14:23 +0000
 
 ubuntu-dev-tools (0.59) jaunty; urgency=low
 
