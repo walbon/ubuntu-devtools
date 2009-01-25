@@ -389,7 +389,9 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
-    task.transitionToImportance(importance='Wishlist')
+    # Only members of ubuntu-bugs can set importance
+    if lp_functions.isLPTeamMember('ubuntu-bugs'):
+        task.transitionToImportance(importance='Wishlist')
     task.transitionToStatus(status=status)
     
     subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)

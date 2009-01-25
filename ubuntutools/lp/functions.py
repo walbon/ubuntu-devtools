@@ -19,7 +19,7 @@
 #
 
 import cookie
-import urlopener
+import urlopener as lp_urlopener
 
 def isLPTeamMember(team):
     """ Checks if the user is a member of a certain team on Launchpad.
@@ -37,7 +37,7 @@ def isLPTeamMember(team):
     # Prepare cookie.
     cookieFile = cookie.prepareLaunchpadCookie()
     # Prepare URL opener.
-    urlopener = urlopener.setupLaunchpadUrlOpener(cookieFile)
+    urlopener = lp_urlopener.setupLaunchpadUrlOpener(cookieFile)
 
     # Try to open the Launchpad team page:
     try:
