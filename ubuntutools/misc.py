@@ -21,19 +21,6 @@
 # Modules.
 import os
 
-def mkdir(directory):
-    """
-        Create the given directory and all its parents recursively, but don't
-        raise an exception if it already exists.
-    """
-    
-    path = [x for x in directory.split('/') if x]
-    
-    for i in xrange(len(path)):
-        current_path = '/' + '/'.join(path[:i+1])
-        if not os.path.isdir(current_path):
-            os.mkdir(current_path)
-
 def readlist(filename, uniq=True):
     """ Read a list of words from the indicated file. """
     

@@ -4,6 +4,8 @@ ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
   * ubuntutools/common.py: Now split into multiple files depending on
     function.
   * Adjusted imports on all files as necessary for the change above.
+  * Removed ubuntutools/misc.py's mkdir function - superseded by
+    os.makedirs().
 
   [ Iain Lane ]
   * requestsync: Only attempt to change bug importance if in ubuntu-dev, as it
