@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
   * Adjusted imports on all files as necessary for the change above.
   * Removed ubuntutools/misc.py's mkdir function - superseded by
     os.makedirs().
+  * dgetlp: Improved error message to show that dgetlp only accepts HTTP
+    URLs (LP: #322051).
 
   [ Iain Lane ]
   * requestsync: Only attempt to change bug importance if in ubuntu-dev, as it

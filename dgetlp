@@ -134,7 +134,7 @@ fi
 
 if [ ${URL:0:30} != 'http://launchpadlibrarian.net/' ]
 then
-	echo "Error: This utility only works for files on launchpadlibrarian.net."
+	echo "Error: This utility only works for files on http://launchpadlibrarian.net."
 	exit 1
 fi
 
