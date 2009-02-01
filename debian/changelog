@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.61) UNRELEASED; urgency=low
 
-  * Changes go here.
+  [ Terence Simpson ]
+  * dgetlp: Replaced Bash version with a new Python script.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sun, 01 Feb 2009 10:57:51 +0000
 
