@@ -243,6 +243,8 @@ if __name__ == "__main__":
         default=False, help="Never print any output")
 
     (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("Missing URL")
     Debug = options.debug
     Verbose = options.verbose
     Quiet = options.quiet
