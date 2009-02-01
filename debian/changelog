@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.60) jaunty; urgency=low
 
   [ Jonathan Davies ]
   * ubuntutools/common.py: Now split into multiple files depending on
@@ -19,7 +19,7 @@ ubuntu-dev-tools (0.60) UNRELEASED; urgency=low
   * pull-debian-source: do not fail if package name contains a hypen.
   * buildd: display help message if no parameters are passed.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Sun, 25 Jan 2009 16:48:02 +0100
+ -- Jonathan Davies <jpds@ubuntu.com>  Sun, 01 Feb 2009 10:55:42 +0000
 
 ubuntu-dev-tools (0.59) jaunty; urgency=low
 
