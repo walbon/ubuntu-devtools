@@ -41,5 +41,5 @@ setup(name='ubuntu-dev-tools',
                'update-maintainer',
                'what-patch',
             ],
-    packages=['ubuntutools'],
+    packages=['ubuntutools', 'ubuntutools/lp'],
 )

@@ -3,7 +3,10 @@ ubuntu-dev-tools (0.61) UNRELEASED; urgency=low
   [ Terence Simpson ]
   * dgetlp: Replaced Bash version with a new Python script.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Sun, 01 Feb 2009 10:57:51 +0000
+  [ Luca Falavigna ]
+  * setup.py: install ubuntutools/lp files.
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Tue, 03 Feb 2009 12:42:39 +0100
 
 ubuntu-dev-tools (0.60) jaunty; urgency=low
 
