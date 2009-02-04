@@ -25,7 +25,7 @@
 import os, sys
 from optparse import OptionParser
 
-from ubuntutools.lp.libsupport as lp_libsupport
+import ubuntutools.lp.libsupport as lp_libsupport
 
 def die(message):
     print >> sys.stderr, "Fatal: " + message

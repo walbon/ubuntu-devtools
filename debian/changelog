@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.62) UNRELEASED; urgency=low
 
-  * 
+  [ Loic Minier ]
+  * Fix ubuntutools.lp.libsupport import in lp-set-dup.
 
  -- Luca Falavigna <dktrkranz@ubuntu.com>  Tue, 03 Feb 2009 13:48:27 +0100
 
