@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.63) UNRELEASED; urgency=low
+
+  * 
+
+ -- Loic Minier <lool@dooz.org>  Wed, 04 Feb 2009 12:05:55 +0100
+
 ubuntu-dev-tools (0.62) jaunty; urgency=low
 
   * Fix ubuntutools.lp.libsupport import in lp-set-dup.
