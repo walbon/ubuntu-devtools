@@ -1,6 +1,12 @@
 ubuntu-dev-tools (0.63) UNRELEASED; urgency=low
 
   * debian/links: add it (forgot to do so before).
+  * bash-completion/pbuilder-dist: recognize cowbuilder- and -jaunty.
+  * pbuilder-dist:
+     - Fixed a bug which broke pbuilder-dist when "build" was omited; just
+       giving a .dsc works now.
+     - {p,cow}builder-dist will now complain if you try to build a .changes
+       file (or anything else that isn't a .dsc).
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Thu, 05 Feb 2009 16:19:03 +0100
 
