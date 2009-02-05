@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.63) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.63) jaunty; urgency=low
 
   * debian/links: add it (forgot to do so before).
   * bash-completion/pbuilder-dist: recognize cowbuilder- and -jaunty.
