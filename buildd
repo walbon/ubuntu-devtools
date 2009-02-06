@@ -35,6 +35,8 @@ import ubuntutools.lp.cookie as lp_cookie
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.urlopener as lp_urlopener
 from ubuntutools import packages
+# https_proxy fix
+import ubuntutools.common
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
