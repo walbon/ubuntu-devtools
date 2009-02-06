@@ -20,6 +20,8 @@
 
 import cookie
 import urlopener as lp_urlopener
+import urllib2
+import sys
 
 def isLPTeamMember(team):
     """ Checks if the user is a member of a certain team on Launchpad.

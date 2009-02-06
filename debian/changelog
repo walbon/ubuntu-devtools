@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.64) UNRELEASED; urgency=low
 
-  * 
+  [ Loic Minier ]
+  * Import urllib2 and sys in lp/functions.py, fixing requestsync.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Thu, 05 Feb 2009 16:55:09 +0100
 
