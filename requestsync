@@ -521,7 +521,7 @@ if __name__ == '__main__':
     if not sponsorship: sponsorship = checkNeedsSponsorship(component)
 
     # Check for existing package reports.
-    if not newsource: checkExistingReports(srcpkg)
+    if not newsource and use_lp_bugs: checkExistingReports(srcpkg)
 
     # Generate bug report.
     subscribe = 'ubuntu-archive'
