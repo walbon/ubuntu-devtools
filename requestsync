@@ -78,6 +78,11 @@ def checkNeedsSponsorship(component):
     teamMember = lp_functions.isLPTeamMember(team)
     
     if not teamMember:
+
+        # Check if they have a per-package upload permission.
+        if lp_functions.isPerPackageUploader(args[0]):
+            return "perpackageupload"
+
         print "You are not a member (direct or indirect) of the '%s' " \
             "team on Launchpad." % team
         print "Your sync request shall require an approval by a member of " \
@@ -526,7 +531,7 @@ if __name__ == '__main__':
     # Generate bug report.
     subscribe = 'ubuntu-archive'
     status = 'confirmed'
-    if sponsorship:
+    if sponsorship == True:
         status = 'new'
         if component in ['main', 'restricted']:
             subscribe = 'ubuntu-main-sponsors'
@@ -549,6 +554,9 @@ if __name__ == '__main__':
         raw_input_exit_on_ctrlc()
         report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' + \
                   '>>> ENTER_EXPLANATION_HERE <<<\n\n'
+
+    if sponsorship == 'perpackageupload':
+        report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
     uidx = base_ver.find('build')
     if uidx > 0:

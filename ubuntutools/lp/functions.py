@@ -22,6 +22,9 @@ import cookie
 import urlopener as lp_urlopener
 import urllib2
 import sys
+import libsupport as lp_libsupport
+import launchpadlib
+from re import findall
 
 def isLPTeamMember(team):
     """ Checks if the user is a member of a certain team on Launchpad.
@@ -53,3 +56,18 @@ def isLPTeamMember(team):
         return False
 
     return True
+
+def isPerPackageUploader(package):
+    # Checks if the user has upload privileges for a certain package.
+
+    launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+    me = findall('~(\S+)', '%s' % launchpad.me)[0]
+    main_archive = launchpad.distributions["ubuntu"].main_archive
+    try:
+        perms = main_archive.getUploadersForPackage(source_package_name=package)
+    except launchpadlib.errors.HTTPError:
+        return False
+    for perm in perms:
+        if perm.person.name == me:
+            return True
+
