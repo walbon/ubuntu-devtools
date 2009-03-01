@@ -12,7 +12,11 @@ ubuntu-dev-tools (0.65) UNRELEASED; urgency=low
     - requestsync: check if submitter has per-package upload permission
       using isPerPackageUploader function and adjust report accordingly.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Thu, 19 Feb 2009 23:55:04 +0100
+  [ Iain Lane ]
+  * requestsync: Drop "please" in bug titles, per recent discussion on the
+    ubuntu-bugsquad ML.
+
+ -- Iain Lane <laney@ubuntu.com>  Sun, 01 Mar 2009 14:12:01 +0000
 
 ubuntu-dev-tools (0.64) jaunty; urgency=low
 

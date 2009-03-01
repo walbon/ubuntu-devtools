@@ -130,7 +130,7 @@ def checkExistingReports(package):
     pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
-    matchingBugs = [bug for bug in pkgBugList if "Please sync %s" % 
+    matchingBugs = [bug for bug in pkgBugList if "Sync %s" % 
                         package in bug.title]
 
     if len(matchingBugs) == 0:
