@@ -7,7 +7,7 @@
 #  Steve Kowalik <stevenk@ubuntu.com>
 #  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
 #  Daniel Hahler <ubuntu@thequod.de>
-#  Iain Lane <iain@orangesquash.org.uk>
+#  Iain Lane <laney@ubuntu.com>
 #  Jonathan Davies <jpds@ubuntu.com>
 #  Markus Korn <thekorn@gmx.de> (python-launchpadlib support)
 #
@@ -130,8 +130,9 @@ def checkExistingReports(package):
     pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
-    matchingBugs = [bug for bug in pkgBugList if "Sync %s" % 
-                        package in bug.title]
+    matchingBugs = [bug for bug in pkgBugList 
+                        if "Sync %s" % package in bug.title 
+                        or "Please sync %s" % package in bug.title]
 
     if len(matchingBugs) == 0:
         return # No sync bugs found.
@@ -538,8 +539,9 @@ if __name__ == '__main__':
         else:
             subscribe = 'ubuntu-universe-sponsors'
 
-    report = 'Please sync %s %s (%s) from Debian %s (%s).\n\n' % (srcpkg, deb_version, component, distro, debiancomponent)
-    title = report[:-2]
+    pkg_to_sync = '%s %s (%s) from Debian %s (%s).' % (srcpkg, deb_version, component, distro, debiancomponent)
+    title = "Sync %s" % pkg_to_sync
+    report = "Please sync %s\n\n" % pkg_to_sync
     
     base_ver = cur_ver
     uidx = base_ver.find('ubuntu')
@@ -569,7 +571,7 @@ if __name__ == '__main__':
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
     if need_interaction:
-        (_, report) = edit_report(title, report, changes_required=True)
+        (title, report) = edit_report(title, report, changes_required=True)
 
     # Post sync request using Launchpad interface:
     srcpkg = not newsource and srcpkg or None
