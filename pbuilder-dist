@@ -137,9 +137,14 @@ class pbuilder_dist:
 			sys.exit(1)
 		
 		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
-			answer = ask('Warning: Unknown distribution «%s». Do you want to continue [y/N]? ' % distro)
-			if answer not in ('y', 'Y'):
-				sys.exit(0)
+			if os.path.isdir('/usr/share/debootstrap/scripts/'):
+				answer = ask('Warning: Unknown distribution «%s». Do you '\
+					'want to continue [y/N]? ' % distro)
+				if answer not in ('y', 'Y'):
+					sys.exit(0)
+			else:
+				print 'Please install package "debootstrap".'
+				sys.exit(1)
 		
 		self.target_distro = distro
 	
