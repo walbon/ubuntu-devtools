@@ -180,13 +180,7 @@ def cur_deb_version(sourcepkg, distro):
         print "%s doesn't appear to exist in Debian." % sourcepkg
         sys.exit(1)
 
-    # Work-around for a bug in Debians madison.php script not returning
-    # only the source line
-    for line in out.splitlines():
-        if line.find('source') > 0:
-            out = line
-   
-    return out.split('|')[1].rstrip('[]''').strip()
+    return out.split('|')[1].strip()
 
 def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
