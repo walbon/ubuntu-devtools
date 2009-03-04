@@ -9,7 +9,14 @@ ubuntu-dev-tools (0.66) UNRELEASED; urgency=low
   [ Marco Rodrigues ]
   * Remove workaround for Debian madison, it works fine now.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Wed, 04 Mar 2009 20:45:10 +0000
+  [ Nathan Handler ]
+  * pull-debian-source:
+    - Check if 'dget' is available
+    - Update Copyright/License info
+  * debian/copyright:
+    - Update my copyright information
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Wed, 04 Mar 2009 22:35:44 +0000
 
 ubuntu-dev-tools (0.65) jaunty; urgency=low
 
