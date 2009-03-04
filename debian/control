@@ -12,9 +12,9 @@ Standards-Version: 3.8.0
 
 Package: ubuntu-dev-tools
 Architecture: all
-Depends: ${python:Depends}, binutils, devscripts, sudo, python-debian,
-  python-launchpad-bugs (>= 0.2.25), python-launchpadlib, dctrl-tools,
-  lsb-release, diffstat, dpkg-dev, ${misc:Depends}
+Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
+ python-debian, python-launchpad-bugs (>= 0.2.25), python-launchpadlib,
+ dctrl-tools, lsb-release, diffstat, dpkg-dev, debootstrap
 Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
   ca-certificates, genisoimage, perl-modules, libwww-perl
 Conflicts: devscripts (<< 2.10.7ubuntu5)
