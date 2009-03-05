@@ -16,7 +16,10 @@ ubuntu-dev-tools (0.66) UNRELEASED; urgency=low
   * debian/copyright:
     - Update my copyright information
 
- -- Nathan Handler <nhandler@ubuntu.com>  Wed, 04 Mar 2009 22:35:44 +0000
+  [ Jonathan Davies ]
+  * Added grab-merge from merges.ubuntu.com (LP: #155098).
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Thu, 05 Mar 2009 15:11:19 +0000
 
 ubuntu-dev-tools (0.65) jaunty; urgency=low
 
