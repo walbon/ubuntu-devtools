@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.67) jaunty; urgency=low
+ubuntu-dev-tools (0.67) UNRELEASED; urgency=low
 
   * mk-sbuild-lv: Changed default behaviour so that the initial build and log
     directories are not created on first run; instead read settings file and
