@@ -54,8 +54,6 @@ if [ ! -w /var/lib/sbuild ]; then
     # Add self to the sbuild group
     sudo adduser "$USER" sbuild
 
-    # Create some default build/log areas
-    mkdir -p ~/ubuntu/build ~/ubuntu/logs
     # Prepare a usable default .sbuildrc
     if [ ! -e ~/.sbuildrc ]; then
         cat > ~/.sbuildrc <<EOM
@@ -198,6 +196,19 @@ CHROOT_NAME="${name}${arch_suffix}"
 # Load customizations
 if [ -r ~/.mk-sbuild-lv.rc ]; then
     . ~/.mk-sbuild-lv.rc
+fi
+
+# Settings check.
+if [ ! -d $build_dir ]; then
+    echo "Build directory $build_dir does not exist."
+    echo "Please create it or change the setting in ~/.sbuildrc ."
+    exit 1
+fi
+
+if [ ! -d $log_dir ]; then
+    echo "Log directory $log_dir does not exist."
+    echo "Please create it or change the setting in ~/.sbuildrc ."
+    exit 1
 fi
 
 # Does the specified VG exist?  (vgdisplay doesn't set error codes...)
