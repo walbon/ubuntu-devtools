@@ -2,6 +2,7 @@
 #
 # Copyright 2006-2007 (C) Canonical Ltd.
 # Created by Kees Cook <kees@ubuntu.com>
+# Copyright 2009 (C) Ryan Kavanagh <ryanakca@kubuntu.org>
 #
 # ##################################################################
 #
@@ -108,6 +109,7 @@ function usage()
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
+    echo "  --debian                   Make a Debian schroot environment"
     echo ""
     echo "Configuration (via ~/.mk-sbuild-lv.rc)"
     echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
@@ -121,7 +123,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:,debian" -- "$@"`
 eval set -- "$OPTS"
 
 name=""
@@ -165,6 +167,10 @@ while :; do
             DEBOOTSTRAP_MIRROR="$2"
             shift 2
             ;;
+        --debian)
+            DEBIAN=True
+            shift
+            ;;
         --)
             shift
             break
@@ -199,6 +205,11 @@ if [ -r ~/.mk-sbuild-lv.rc ]; then
 fi
 
 # Settings check.
+if [ $DEBIAN ] && [ ! -x /usr/bin/cdebootstrap ]; then
+    echo "Please install the cdebootstrap package to create a Debian schroot."
+    exit 1
+fi
+
 if [ ! -d $build_dir ]; then
     echo "Build directory $build_dir does not exist."
     echo "Please create it or change the setting in ~/.sbuildrc ."
@@ -225,7 +236,7 @@ else
 fi
 
 # are we doing an lpia build?
-if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ]; then
+if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ] && [ ! $DEBIAN ]; then
     DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/"
 fi
 
@@ -236,7 +247,11 @@ sudo mkfs -t ext3 "$CHROOT_PATH"
 # Mount and debootstrap the chroot
 MNT=`mktemp -d -t schroot-XXXXXX`
 sudo mount "$CHROOT_PATH" "$MNT"
-sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+if [ $DEBIAN ]; then
+    sudo cdebootstrap -f build $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://ftp.debian.org/debian}"
+else
+    sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+fi
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
 if [ -z "$TEMPLATE_SOURCES" ]; then
@@ -245,20 +260,37 @@ fi
 if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
-    cat > "$TEMP_SOURCES" <<EOM
+    # Start DEBIAN
+    if [ $DEBIAN ]; then
+        cat > "$TEMP_SOURCES" << EOM
+deb ${DEBOOTSTRAP_MIRRORS:-http://ftp.debian.org/debian} RELEASE main non-free contrib
+deb-src ${DEBOOTSTRAP_MIRRORS:-http://ftp.debian.org/debian} RELEASE main non-free contrib
+EOM
+        if [ "$RELEASE" != "sid" ]; then
+        cat >> "$TEMP_SOURCES" << EOM
+deb http://security.debian.org/ ${RELEASE}/updates main
+deb-src http://security.debian.org/ ${RELEASE}/updates main
+EOM
+        fi
+    # End Debian
+    else
+    # Start Ubuntu
+        cat > "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
 deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
 EOM
-    if [ -z "$SKIP_UPDATES" ]; then
-        cat >> "$TEMP_SOURCES" <<EOM
+        if [ -z "$SKIP_UPDATES" ]; then
+            cat >> "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
 deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
 EOM
-    fi
-    cat >> "$TEMP_SOURCES" <<EOM
+        fi
+        cat >> "$TEMP_SOURCES" <<EOM
 deb http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 deb-src http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
 EOM
+    # End Ubuntu
+    fi
 fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
     sudo bash -c "cat > $MNT/etc/apt/sources.list"
@@ -307,7 +339,11 @@ BUILD_PKGS="build-essential fakeroot devscripts apt-utils"
 if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
     # Disable recommends for a smaller chroot (gutsy and later only)
     # Add buildd tools
-    BUILD_PKGS="--no-install-recommends $BUILD_PKGS pkg-create-dbgsym pkgbinarymangler"
+    # No need to do this for debian, --flavour=build in cdebootstrap
+    # takes care of it.
+    if [ ! $DEBIAN ]; then
+        BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
+    fi
 fi
 sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 #!/bin/bash
@@ -316,7 +352,11 @@ set -e
 # Reload package lists
 apt-get update || true
 # Pull down signature requirements
-apt-get -y --force-yes install gnupg ubuntu-keyring
+if [ ! DEBIAN_BOOL ]; then
+    # This will only be run in Ubuntu chroots. Not required with debian because
+    # cdebootstrap pulls gnupg and debian-archive-keyring.
+    apt-get -y --force-yes install gnupg ubuntu-keyring
+fi
 # Reload package lists
 apt-get update || true
 # Disable debconf questions so that automated builds won't prompt
@@ -332,6 +372,9 @@ if [ ! -r /dev/stderr ]; then ln -s /proc/self/fd/2 /dev/stderr; fi
 apt-get clean
 rm /finish.sh
 EOM
+sudo cat "$MNT"/finish.sh | sed \
+    -e "s|DEBIAN_BOOL|$DEBIAN|g" | \
+    sudo bash -c "cat > ${MNT}/finish.sh"
 sudo chmod +x "$MNT"/finish.sh
 sudo umount "$MNT"
 rmdir "$MNT"
