@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.67) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.67) jaunty; urgency=low
 
   [ Jonathan Davies ]
   * mk-sbuild-lv: Changed default behaviour so that the initial build and log
@@ -13,7 +13,7 @@ ubuntu-dev-tools (0.67) UNRELEASED; urgency=low
   [ Mitsuya Shibata ]
   * pull-debian-source: Detect existence of dget in multi-path environment.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Mon, 09 Mar 2009 16:03:09 +0000
+ -- Jonathan Davies <jpds@ubuntu.com>  Sat, 14 Mar 2009 22:40:05 +0000
 
 ubuntu-dev-tools (0.66) jaunty; urgency=low
 
