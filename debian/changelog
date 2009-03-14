@@ -1,9 +1,14 @@
 ubuntu-dev-tools (0.67) UNRELEASED; urgency=low
 
+  [ Jonathan Davies ]
   * mk-sbuild-lv: Changed default behaviour so that the initial build and log
     directories are not created on first run; instead read settings file and
     check if they exist (LP: #342154).
   * requestsync: Reverted old madison.php workaround (LP: #183346).
+
+  [ Ryan Kavanagh ]
+  * mk-sbuild-lv: Added support for Debian chroots. Updated manpage.
+    (LP: #342158)
 
  -- Jonathan Davies <jpds@ubuntu.com>  Mon, 09 Mar 2009 16:03:09 +0000
 
