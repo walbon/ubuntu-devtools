@@ -10,6 +10,9 @@ ubuntu-dev-tools (0.67) UNRELEASED; urgency=low
   * mk-sbuild-lv: Added support for Debian chroots. Updated manpage.
     (LP: #342158)
 
+  [ Mitsuya Shibata ]
+  * pull-debian-source: Detect existence of dget in multi-path environment.
+
  -- Jonathan Davies <jpds@ubuntu.com>  Mon, 09 Mar 2009 16:03:09 +0000
 
 ubuntu-dev-tools (0.66) jaunty; urgency=low
