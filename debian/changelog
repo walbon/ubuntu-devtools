@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.68) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.68) jaunty; urgency=low
 
   * debian/control: Moved debootstrap to Recommends from Depends.
 
