@@ -1,6 +1,8 @@
 ubuntu-dev-tools (0.69) UNRELEASED; urgency=low
 
-  * Changes go here.
+  [ Mitsuya Shibata ]
+  * requestsync: Added -e option for FeatureFreezeException explanations and
+    updated manpage.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sun, 15 Mar 2009 15:34:47 +0000
 

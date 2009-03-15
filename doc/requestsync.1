@@ -2,9 +2,9 @@
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync\fR [\fB\-d distro\fR] [\fB\-ns\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+.B requestsync\fR [\fB\-d distro\fR] [\fB\-nse\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 .br
-.B requestsync \-\-lp\fR [\fB\-ns\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
+.B requestsync \-\-lp\fR [\fB\-nse\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 .br
 .B requestsync \-h
 .SH DESCRIPTION
@@ -61,6 +61,11 @@ Specifies that you require sponsorship.
 You need this option if you are not a member of ubuntu-dev for universe or
 multiverse, or ubuntu-core-dev for main or restricted. This shall disable the
 Launchpad team membership checking described above. 
+.TP
+.B \-e
+Use this flag after FeatureFreeze for non-bug fix syncs. \fBrequestsync\fR will
+subscribe ubuntu-release team (for main/restricted packages) or motu-release
+team (for universe/multiverse packages) instead of sponsorship team.
 .TP
 .B <source package>
 This is the source package that you would like to be synced from Debian.

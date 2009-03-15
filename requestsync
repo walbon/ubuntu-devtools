@@ -463,8 +463,8 @@ def edit_report(subject, body, changes_required=False):
 
 if __name__ == '__main__':
     # Our usage options.
-    usage = "Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] <source "
-    usage += "package> <target release> [base version]"
+    usage = "Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] "
+    usage += "<source package> <target release> [base version]"
     optParser = OptionParser(usage)
 
     optParser.add_option("-d", type = "string",
@@ -484,6 +484,10 @@ if __name__ == '__main__':
         dest = "sponsor", default = False,
         help = "Force sponsorship requirement (shall be autodetected if not " \
             "specified).")
+    optParser.add_option("-e", action = "store_true",
+        dest = "ffe", default = False,
+        help = "Use this after FeatureFreeze for non-bug fix syncs, changes
+            "default subscription to the appropriate release team.")
 
     (options, args) = optParser.parse_args()
 
@@ -493,6 +497,7 @@ if __name__ == '__main__':
     use_lp_bugs = options.lpbugs
     need_interaction = False
     distro = options.dist
+    ffe = options.ffe
 
     if len(args) not in (2, 3):
         optParser.error("Source package / target release missing - please " \
@@ -537,9 +542,18 @@ if __name__ == '__main__':
             subscribe = 'ubuntu-main-sponsors'
         else:
             subscribe = 'ubuntu-universe-sponsors'
+    if ffe == True:
+        status = 'new'
+        if component in ['main', 'restricted']:
+            subscribe = 'ubuntu-release'
+        else:
+            subscribe = 'motu-release'
+
 
     pkg_to_sync = '%s %s (%s) from Debian %s (%s).' % (srcpkg, deb_version, component, distro, debiancomponent)
     title = "Sync %s" % pkg_to_sync
+    if ffe == True:
+        title = "FFe: " + title
     report = "Please sync %s\n\n" % pkg_to_sync
     
     base_ver = cur_ver
@@ -555,6 +569,18 @@ if __name__ == '__main__':
         raw_input_exit_on_ctrlc()
         report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' + \
                   '>>> ENTER_EXPLANATION_HERE <<<\n\n'
+
+    if ffe == True:
+        need_interaction = True
+
+        print 'To approve FeatureFreeze exception, you need to state '
+        print 'the reason why you feel it is necessary.'
+        print 'Press ENTER to start your editor. Press Control-C to abort now.'
+        print 'Not saving the report file will abort the request, too.'
+        raw_input_exit_on_ctrlc()
+        report += 'Explanation of FeatureFreeze exception:\n' + \
+                  '>>> ENTER_EXPLANATION_HERE <<<\n\n'
+
 
     if sponsorship == 'perpackageupload':
         report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
