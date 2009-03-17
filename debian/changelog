@@ -1,10 +1,19 @@
-ubuntu-dev-tools (0.69) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.70) UNRELEASED; urgency=low
 
   [ Mitsuya Shibata ]
   * requestsync: Added -e option for FeatureFreezeException explanations and
     updated manpage.
 
- -- Jonathan Davies <jpds@ubuntu.com>  Sun, 15 Mar 2009 15:34:47 +0000
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 17 Mar 2009 11:51:55 -0500
+
+ubuntu-dev-tools (0.69) jaunty; urgency=low
+
+  * mk-sbuild-lv: add --force-yes when installing $BUILD_PKGS (needed for
+    Dapper at least)
+  * mk-sbuild-lv: update sed command to use '-i' instead of redirecting
+    output to the opened file
+
+ -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 17 Mar 2009 11:28:38 -0500
 
 ubuntu-dev-tools (0.68) jaunty; urgency=low
 
