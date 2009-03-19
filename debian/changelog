@@ -1,10 +1,10 @@
-ubuntu-dev-tools (0.70) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.70) jaunty; urgency=low
 
   [ Mitsuya Shibata ]
   * requestsync: Added -e option for FeatureFreezeException explanations and
     updated manpage.
 
- -- Jamie Strandboge <jamie@ubuntu.com>  Tue, 17 Mar 2009 11:51:55 -0500
+ -- Jonathan Davies <jpds@ubuntu.com>  Thu, 19 Mar 2009 19:54:13 +0000
 
 ubuntu-dev-tools (0.69) jaunty; urgency=low
 
