@@ -1,6 +1,6 @@
 ubuntu-dev-tools (0.71) UNRELEASED; urgency=low
 
-  * requestsync: Fix unclosed string literal
+  * requestsync: Fix unclosed string literal (LP: #346794)
 
  -- Iain Lane <laney@ubuntu.com>  Sun, 22 Mar 2009 14:40:19 +0000
 
