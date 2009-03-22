@@ -486,7 +486,7 @@ if __name__ == '__main__':
             "specified).")
     optParser.add_option("-e", action = "store_true",
         dest = "ffe", default = False,
-        help = "Use this after FeatureFreeze for non-bug fix syncs, changes
+        help = "Use this after FeatureFreeze for non-bug fix syncs, changes " \
             "default subscription to the appropriate release team.")
 
     (options, args) = optParser.parse_args()
