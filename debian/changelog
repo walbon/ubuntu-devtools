@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.71) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.71) jaunty; urgency=low
 
   * requestsync: Fix unclosed string literal (LP: #346794)
 
