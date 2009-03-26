@@ -1,7 +1,7 @@
 ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
 
   * README.updates: Added - lists steps to take when updating this package.
-  * grab-merge: Added --help option.
+  * grab-merge: Added --help option and manpage (LP: #349109).
 
  -- Jonathan Davies <jpds@ubuntu.com>  Thu, 26 Mar 2009 00:22:01 +0000
 
