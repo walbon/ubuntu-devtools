@@ -1,0 +1,51 @@
+Updating the ubuntu-dev-tools package in Ubuntu
+-----------------------------------------------
+
+Here are the steps that are recommended to take when updating the
+ubuntu-dev-tools package in Ubuntu.
+
+1) Make sure that there are no new revisions to the package's trunk in Bazaar:
+
+    bzr pull lp:ubuntu-dev-tools
+
+2) Check to make sure that all approved merges have been merged:
+
+    https://code.launchpad.net/ubuntu-dev-tools/+approvedmerges
+
+3) Make sure that there is no low lying fruit that can be fixed at:
+
+    https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools
+
+4) Before uploading the package change the UNRELEASED field in the
+   debian/changelog file to the current development release.
+
+   If there is no UNRELEASED entry, make sure that the version for the current
+   one has not been uploaded by someone else already:
+
+    https://launchpad.net/ubuntu/+source/ubuntu-dev-tools/+publishinghistory
+
+   Using: dch -r UNRELEASED - will also set the release to the development
+   version.
+
+5) Once the target release has been changed, commit it to Bazaar (where X.YY is
+   the new package version):
+
+    bzr commit -m "Uploaded X.YY to RELEASE."
+
+6) Tag the new release in Bazaar:
+
+    bzr tag X.YY
+
+   For a full list of tags, please see: 'bzr tags'. This is so we can track
+   which Bazaar revision is in which release and makes bug triaging easier.
+
+7) Create the new source package, without the .bzr directory (this is too
+   reduce the size of the tarball):
+
+    debuild -S -sa -I.bzr
+
+8) Upload the package to Ubuntu with dput as normal:
+
+    dput ubuntu ubuntu-dev-tools_X.YY_source.changes
+
+9) Create a new blank entry with with dch -i and mark it as UNRELEASED.

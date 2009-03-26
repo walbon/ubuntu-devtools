@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
+
+  * README.updates: Added - lists steps to take when updating this package.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Thu, 26 Mar 2009 00:22:01 +0000
+
 ubuntu-dev-tools (0.71) jaunty; urgency=low
 
   * requestsync: Fix unclosed string literal (LP: #346794)
