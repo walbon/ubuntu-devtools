@@ -29,6 +29,16 @@ set -e
 
 MERGE=$1
 
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: $0 <package name>"
+    echo ""
+    echo "grab-merge downloads a merge's packaging files and report from"
+    echo "merges.ubuntu.com, placing them into a new subdirectory for working"
+    echo "from."
+
+    exit 0
+fi
+
 if [ "$SUBDIR" = "y" ]; then
     [ -d "$MERGE" ] || mkdir $MERGE
     cd $MERGE
