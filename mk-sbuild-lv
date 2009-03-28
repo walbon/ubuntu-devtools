@@ -250,7 +250,7 @@ sudo mount "$CHROOT_PATH" "$MNT"
 if [ $DEBIAN ]; then
     sudo cdebootstrap -f build $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://ftp.debian.org/debian}"
 else
-    sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+    sudo debootstrap --variant=buildd $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 fi
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
@@ -263,8 +263,8 @@ else
     # Start DEBIAN
     if [ $DEBIAN ]; then
         cat > "$TEMP_SOURCES" << EOM
-deb ${DEBOOTSTRAP_MIRRORS:-http://ftp.debian.org/debian} RELEASE main non-free contrib
-deb-src ${DEBOOTSTRAP_MIRRORS:-http://ftp.debian.org/debian} RELEASE main non-free contrib
+deb ${DEBOOTSTRAP_MIRROR:-http://ftp.debian.org/debian} RELEASE main non-free contrib
+deb-src ${DEBOOTSTRAP_MIRROR:-http://ftp.debian.org/debian} RELEASE main non-free contrib
 EOM
         if [ "$RELEASE" != "sid" ]; then
         cat >> "$TEMP_SOURCES" << EOM
