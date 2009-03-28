@@ -7,8 +7,12 @@ ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist:
      - Add squeeze as a Debian distribution. Thanks to Marco Rodrigues.
+  [ Nathan Handler ]
+  * pull-debian-source:
+    - Add support for etch/oldstable
+    - Make script work for codenames (etch, lenny, squeeze, sid)
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 28 Mar 2009 15:19:26 +0100
+ -- Nathan Handler <nhandler@ubuntu.com>  Sat, 28 Mar 2009 15:19:26 +0100
 
 ubuntu-dev-tools (0.71) jaunty; urgency=low
 

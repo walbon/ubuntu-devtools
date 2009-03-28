@@ -27,21 +27,37 @@ die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PAT
 my($package)=$ARGV[0] || &usage();
 &usage() if(($package=~m/^\-\-help/i) || ($package=~m/^\-h/i));
 my($release)=$ARGV[1] || 'unstable';
+$release=&convertCodeName($release);
 &checkRelease($release);
 my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
 print "$dsc\n";
 exec("dget -xu $dsc");
+sub convertCodeName {
+	my($release)=shift || die("No Release Passed To convertCodeName!\n");
+	chomp $release;
+	if($release=~m/^lenny$/i) {
+		return "stable";
+	}
+	elsif($release=~m/^squeeze$/i) {
+		return "testing";
+	}
+	elsif($release=~m/^sid$/i) {
+		return "unstable";
+	}
+	elsif($release=~m/^etch$/i) {
+		return "oldstable";
+	}
+	return $release;
+}
 sub checkRelease {
 	my($release)=shift || die("No Release Passed To checkRelease!\n");
 	chomp $release;
 	my %releases=(
-		'etch' => 1,
 		'stable' => 1,
-		'lenny' => 1,
 		'testing' => 1,
-		'sid' => 1,
 		'unstable' => 1,
-		'experimental' => 1
+		'experimental' => 1,
+		'oldstable' => 1
 	);
 	&invalidRelease(\%releases) unless $releases{$release}
 }
