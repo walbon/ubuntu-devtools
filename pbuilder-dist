@@ -31,7 +31,8 @@
 import sys
 import os
 
-debian_distros = ['etch', 'lenny', 'sid', 'stable', 'testing', 'unstable', 'experimental']
+debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', \
+	'testing', 'unstable', 'experimental']
 
 class pbuilder_dist:
 	
