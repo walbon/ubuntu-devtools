@@ -1,7 +1,13 @@
 ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
 
+  [ Jonathan Davies ]
   * README.updates: Added - lists steps to take when updating this package.
   * grab-merge: Added --help option and manpage (LP: #349109).
+
+  [ Ryan Kavanagh ]
+  * Fixed mk-sbuild-lv (s/DEBOOTSTRAP_MIRRORS/DEBOOTSTRAP_MIRROR/).
+  * Ported devscripts' build-rdeps to Ubuntu and named it ubuild-rdeps.
+    Dropped reverse-build-depends. (LP: #272273)
 
  -- Jonathan Davies <jpds@ubuntu.com>  Thu, 26 Mar 2009 00:22:01 +0000
 
