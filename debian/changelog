@@ -15,9 +15,9 @@ ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
   
   [ Ryan Kavanagh ]
   * Fixed mk-sbuild-lv (s/DEBOOTSTRAP_MIRRORS/DEBOOTSTRAP_MIRROR/).
-  * Ported devscripts' build-rdeps to Ubuntu and named it ubuild-rdeps.
-    Dropped reverse-build-depends. (LP: #272273)
-
+  * Ported devscripts' build-rdeps to Ubuntu and replaced
+    reverse-build-depends. Updated it's manpage. (LP: #272273)
+ 
  -- Nathan Handler <nhandler@ubuntu.com>  Sat, 28 Mar 2009 15:19:26 +0100
 
 ubuntu-dev-tools (0.71) jaunty; urgency=low
