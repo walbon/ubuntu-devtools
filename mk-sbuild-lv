@@ -78,6 +78,14 @@ if [ ! -w /var/lib/sbuild ]; then
 1;
 EOM
         sensible-editor ~/.sbuildrc
+        # Create target directories, if needed
+        eval $(egrep '^\$(build|log)_dir[ 	]*=' ~/.sbuildrc | cut -c2-)
+        if [ -n "$log_dir" ]; then
+            mkdir -p "$log_dir"
+        fi
+        if [ -n "$build_dir" ]; then
+            mkdir -p "$build_dir"
+        fi
     else
         echo "Your ~/.sbuildrc already exists -- leaving it as-is."
     fi
@@ -207,18 +215,6 @@ fi
 # Settings check.
 if [ $DEBIAN ] && [ ! -x /usr/bin/cdebootstrap ]; then
     echo "Please install the cdebootstrap package to create a Debian schroot."
-    exit 1
-fi
-
-if [ ! -d $build_dir ]; then
-    echo "Build directory $build_dir does not exist."
-    echo "Please create it or change the setting in ~/.sbuildrc ."
-    exit 1
-fi
-
-if [ ! -d $log_dir ]; then
-    echo "Log directory $log_dir does not exist."
-    echo "Please create it or change the setting in ~/.sbuildrc ."
     exit 1
 fi
 
