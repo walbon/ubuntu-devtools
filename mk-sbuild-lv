@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Copyright 2006-2007 (C) Canonical Ltd.
-# Created by Kees Cook <kees@ubuntu.com>
+# Copyright 2006-2009 (C) Canonical Ltd.
+# Author: Kees Cook <kees@ubuntu.com>
 #
 # ##################################################################
 #
@@ -9,7 +9,7 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -23,19 +23,7 @@
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
-# It assumes that sbuild has not be installed and configured before.
-#
-# If using schroot earlier than 1.1.4-1, it's a good idea to apply the
-# process-cleaning patch to /etc/schroot/setup.d/10mount.  Without this, any
-# processes left running from the build (like cron, dbus, etc) will stop
-# schroot from umounting and shutting down cleanly:
-#   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=391319
-#
-# If using sbuild 0.50 or earlier, and you intend to use the "arch" argument
-# to do i386 builds on amd64, you will need to patch "sbuild" to correctly
-# detect the chroot architecture:
-#   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=392992
-
+# It will deal with sbuild having not be installed and configured before.
 set -e
 
 # Make sure we've got a regular user
@@ -116,12 +104,15 @@ function usage()
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
+    echo "  --distro=DISTRO            Install specific distro (defaults to 'ubuntu')"
     echo ""
     echo "Configuration (via ~/.mk-sbuild-lv.rc)"
     echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
     echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
+    echo "  TEMPLATE_SOURCES           A template for sources.list"
+    echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
     exit 1
 }
 
@@ -129,9 +120,10 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:,distro:" -- "$@"`
 eval set -- "$OPTS"
 
+DISTRO="ubuntu"
 name=""
 while :; do
     case "$1" in
@@ -173,6 +165,10 @@ while :; do
             DEBOOTSTRAP_MIRROR="$2"
             shift 2
             ;;
+        --distro)
+            DISTRO="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -206,12 +202,6 @@ if [ -r ~/.mk-sbuild-lv.rc ]; then
     . ~/.mk-sbuild-lv.rc
 fi
 
-# Settings check.
-if [ $DEBIAN ] && [ ! -x /usr/bin/cdebootstrap ]; then
-    echo "Please install the cdebootstrap package to create a Debian schroot."
-    exit 1
-fi
-
 # Does the specified VG exist?  (vgdisplay doesn't set error codes...)
 if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
     exit 1 
@@ -225,10 +215,47 @@ else
     variant_opt="--variant=buildd"
 fi
 
-# are we doing an lpia build?
-if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ]; then
-    DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/"
-fi
+# Handle distro-specific logic, unknown to debootstrap
+case "$DISTRO" in
+ubuntu)
+    # are we doing an lpia build?
+    if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ]; then
+        DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/"
+    fi
+    if [ -z "$DEBOOTSTRAP_MIRROR" ]; then
+        DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
+    fi
+    if [ -z "$COMPONENTS" ]; then
+        COMPONENTS="main restricted universe multiverse"
+    fi
+    if [ -z "$SOURCES_SECURITY_SUITE" ]; then
+        SOURCES_SECURITY_SUITE="RELEASE-updates"
+    fi
+    if [ -z "$SOURCES_SECURITY_URL" ]; then
+        SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
+    fi
+    ;;
+debian)
+    if [ -z "$DEBOOTSTRAP_MIRROR" ]; then
+        DEBOOTSTRAP_MIRROR="http://ftp.debian.org/debian"
+    fi
+    if [ -z "$COMPONENTS" ]; then
+        COMPONENTS="main non-free contrib"
+    fi
+    # Debian only performs security updates
+    SKIP_UPDATES=1
+    if [ -z "$SOURCES_SECURITY_SUITE" ]; then
+        SOURCES_SECURITY_SUITE="RELEASE/updates"
+    fi
+    if [ -z "$SOURCES_SECURITY_URL" ]; then
+        SOURCES_SECURITY_URL="http://security.debian.org/"
+    fi
+    ;;
+*)
+    echo "Unknown --distro '$DISTRO': aborting" >&2
+    exit 1
+    ;;
+esac
 
 # Allocate the "golden" chroot LV
 sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
@@ -247,18 +274,18 @@ if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
     cat > "$TEMP_SOURCES" <<EOM
-deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
-deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE main restricted universe multiverse
+deb ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
+deb-src ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 EOM
     if [ -z "$SKIP_UPDATES" ]; then
         cat >> "$TEMP_SOURCES" <<EOM
-deb ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
-deb-src ${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu} RELEASE-updates main restricted universe multiverse
+deb ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
+deb-src ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
 EOM
     fi
     cat >> "$TEMP_SOURCES" <<EOM
-deb http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
-deb-src http://security.ubuntu.com/ubuntu RELEASE-security main restricted universe multiverse
+deb ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
+deb-src ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
 EOM
 fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
@@ -317,7 +344,7 @@ set -e
 # Reload package lists
 apt-get update || true
 # Pull down signature requirements
-apt-get -y --force-yes install gnupg ubuntu-keyring
+apt-get -y --force-yes install gnupg ${DISTRO}-keyring
 # Reload package lists
 apt-get update || true
 # Disable debconf questions so that automated builds won't prompt

@@ -36,8 +36,9 @@ Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild\-lv.sources
 Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
 official Ubuntu repositories for the supported architectures).
 .TP
-.B \-\-debian
-Make a Debian schroot environment.
+.B \-\-distro
+Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
+and "debian".
 
 .SH ENVIRONMENT VARIABLES
 .TP

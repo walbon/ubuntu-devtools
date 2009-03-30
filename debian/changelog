@@ -7,17 +7,21 @@ ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist:
      - Add squeeze as a Debian distribution. Thanks to Marco Rodrigues.
-  
+
   [ Nathan Handler ]
   * pull-debian-source:
     - Add support for etch/oldstable
     - Make script work for codenames (etch, lenny, squeeze, sid)
-  
+
   [ Ryan Kavanagh ]
-  * Fixed mk-sbuild-lv (s/DEBOOTSTRAP_MIRRORS/DEBOOTSTRAP_MIRROR/).
   * Ported devscripts' build-rdeps to Ubuntu and replaced
     reverse-build-depends. Updated it's manpage. (LP: #272273)
- 
+
+  [ Kees Cook ]
+  * mk-sbuild-lv:
+    - Fully handle missing build log directories (LP: #342154).
+    - More generalized approach to Distro-specific logic (LP: #342158).
+
  -- Nathan Handler <nhandler@ubuntu.com>  Sat, 28 Mar 2009 15:19:26 +0100
 
 ubuntu-dev-tools (0.71) jaunty; urgency=low
