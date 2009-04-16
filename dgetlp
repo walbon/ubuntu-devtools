@@ -30,7 +30,7 @@
 import sys, os
 from optparse import OptionParser
 import urllib2
-import md5
+import hashlib 
 import subprocess
 import GnuPGInterface
 from cStringIO import StringIO
@@ -131,7 +131,7 @@ class DscParse(object):
         """
         chunk_size = 1073741824
         fd = open(name, 'rb')
-        res = md5.new()
+        res = hashlib.md5()
         if not sum:
             assert self.files, "I have no files"
             sum = [x[0] for x in self.files if x[2] == name][0]

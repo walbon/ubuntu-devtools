@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.72) jaunty; urgency=low
 
   [ Jonathan Davies ]
   * README.updates: Added - lists steps to take when updating this package.
@@ -22,7 +22,12 @@ ubuntu-dev-tools (0.72) UNRELEASED; urgency=low
     - Fully handle missing build log directories (LP: #342154).
     - More generalized approach to Distro-specific logic (LP: #342158).
 
- -- Nathan Handler <nhandler@ubuntu.com>  Sat, 28 Mar 2009 15:19:26 +0100
+  [ Scott Kitterman ]
+  * dgetlp:
+    - Port to hashlib module instead of md5 (deprecated in Python 2.6)
+  * Bump minimum python-all-dev version to 2.5
+
+ -- Scott Kitterman <scott@kitterman.com>  Wed, 15 Apr 2009 22:51:14 -0400
 
 ubuntu-dev-tools (0.71) jaunty; urgency=low
 
