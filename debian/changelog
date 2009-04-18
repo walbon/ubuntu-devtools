@@ -1,8 +1,10 @@
 ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
 
-  * 
+  * pbuilder-dist:
+     - Fallback to calling lsb_release if /etc/lsb-release doesn't
+       exist; this makes it possible to run pbuilder-dist on Debian.
 
- -- Scott Kitterman <scott@kitterman.com>  Wed, 15 Apr 2009 23:06:54 -0400
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 18 Apr 2009 23:37:55 +0200
 
 ubuntu-dev-tools (0.72) jaunty; urgency=low
 

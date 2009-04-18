@@ -101,15 +101,20 @@ class pbuilder_dist:
 		if not self.system_architecture or 'not found' in self.system_architecture:
 			print 'Error: Not running on a Debian based system; could not detect its architecture.'
 		
-		if not os.path.isfile('/etc/lsb-release'):
-			print 'Error: Not running on a Debian based system; could not find /etc/lsb-release.'
-			exit(1)
-		
-		for line in open('/etc/lsb-release'):
-			line = line.strip()
-			if line.startswith('DISTRIB_CODENAME'):
-				self.system_distro = line[17:]
-				break
+		if os.path.isfile('/etc/lsb-release'):
+			for line in open('/etc/lsb-release'):
+				line = line.strip()
+				if line.startswith('DISTRIB_CODENAME'):
+					self.system_distro = line[17:]
+					break
+		else:
+			import commands
+			output = commands.getoutput('lsb_release -c').split()
+			if len(output) == 2:
+				self.system_distro = output[1]
+			else:
+				print 'Error: Not running on a Debian based system; could not find lsb_release.'
+				exit(1)
 		
 		if not self.system_distro:
 			print 'Error: Could not determine what distribution you are running.'
