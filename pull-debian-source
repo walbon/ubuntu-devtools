@@ -21,11 +21,14 @@ use warnings;
 use strict;
 use LWP::Simple;
 use File::Basename;
+use Getopt::Long;
 
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
 my($package)=$ARGV[0] || &usage();
-&usage() if(($package=~m/^\-\-help/i) || ($package=~m/^\-h/i));
+my($help)=0;
+GetOptions('help' => \$help);
+&usage() if($help);
 my($release)=$ARGV[1] || 'unstable';
 $release=&convertCodeName($release);
 &checkRelease($release);
