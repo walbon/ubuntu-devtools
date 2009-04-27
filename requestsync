@@ -289,7 +289,13 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         assert gpg.returncode == 0
 
         # generate email
-        mail = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (myemailaddr, to, bugtitle, signed_report)
+        mail = '''\
+From: %s
+To: %s
+Subject: %s
+Content-Type: text/plain; charset=UTF-8
+
+%s''' % (myemailaddr, to, bugtitle, signed_report)
 
         # ask for confirmation and allow to edit:
         print mail

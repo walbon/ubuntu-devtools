@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
   * bash_completion/pbuilder-dist:
     - Add karmic.
     - Add squeeze.
+  * requestsync:
+    - Send a "Content-Type: text/plain; charset=UTF-8" header (LP: #246307).
 
  -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
 
