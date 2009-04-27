@@ -39,7 +39,7 @@ ubuntu-dev-tools package in Ubuntu.
    For a full list of tags, please see: 'bzr tags'. This is so we can track
    which Bazaar revision is in which release and makes bug triaging easier.
 
-7) Create the new source package, without the .bzr directory (this is too
+7) Create the new source package, without the .bzr directory (this is to
    reduce the size of the tarball):
 
     debuild -S -sa -I.bzr
@@ -48,4 +48,4 @@ ubuntu-dev-tools package in Ubuntu.
 
     dput ubuntu ubuntu-dev-tools_X.YY_source.changes
 
-9) Create a new blank entry with with dch -i and mark it as UNRELEASED.
+9) Create a new blank entry with dch -i and mark it as UNRELEASED.
