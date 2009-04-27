@@ -12,6 +12,8 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
   [ Colin Watson ]
   * submittodebian:
     - New release cycle; use "karmic" usertag.
+  * dch-repeat:
+    - Drop EOLed gutsy and add karmic.
 
  -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
 
