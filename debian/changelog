@@ -18,6 +18,8 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
     - Set default release to karmic.
   * reverse-build-depends:
     - Set default release to karmic.
+  * bash_completion/pbuilder-dist:
+    - Add karmic.
 
  -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
 
