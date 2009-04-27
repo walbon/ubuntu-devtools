@@ -58,7 +58,7 @@ class BackportFromLP:
                 'Ensure that the package specified is a valid source ' +\
                 'package name and that Launchpad is not down.'
 
-default_release = 'jaunty'
+default_release = 'karmic'
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
