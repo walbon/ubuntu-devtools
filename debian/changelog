@@ -4,9 +4,14 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
   * pbuilder-dist:
     - Fallback to calling lsb_release if /etc/lsb-release doesn't
        exist; this makes it possible to run pbuilder-dist on Debian.
+
   [ Nathan Handler ]
   * pull-debian-source:
     - Use Getopt::Long
+
+  [ Colin Watson ]
+  * submittodebian:
+    - New release cycle; use "karmic" usertag.
 
  -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
 
