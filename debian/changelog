@@ -16,6 +16,8 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
     - Drop EOLed gutsy and add karmic.
   * pull-lp-source:
     - Set default release to karmic.
+  * reverse-build-depends:
+    - Set default release to karmic.
 
  -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
 
