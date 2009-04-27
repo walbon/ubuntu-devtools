@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.73) karmic; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist:
@@ -24,7 +24,7 @@ ubuntu-dev-tools (0.73) UNRELEASED; urgency=low
   * requestsync:
     - Send a "Content-Type: text/plain; charset=UTF-8" header (LP: #246307).
 
- -- Nathan Handler <nhandler@ubuntu.com>  Mon, 20 Apr 2009 22:32:13 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 27 Apr 2009 21:39:15 +0100
 
 ubuntu-dev-tools (0.72) jaunty; urgency=low
 
