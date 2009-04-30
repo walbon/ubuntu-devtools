@@ -57,15 +57,17 @@ else
 fi
 
 if [ "$RSYNC" = "y" ]; then
+    URL="merges.ubuntu.com:/srv/patches.ubuntu.com/merges/$HASH/$MERGE/"
     rsync --verbose --archive --progress --compress --delete \
-	merges.ubuntu.com:/srv/patches.ubuntu.com/merges/$HASH/$MERGE/ .
+	"$URL" . || { echo "Error while rsyncing $URL"; exit 1; }
 else
     rm -rf  *
     wget -q https://merges.ubuntu.com/$HASH/$MERGE/REPORT
 
     for NAME in $(sed -n -e "/^    /p" REPORT); do
 	echo "Getting $NAME..."
-	[ -f $NAME ] || wget -q https://merges.ubuntu.com/$HASH/$MERGE/$NAME
+	URL="https://merges.ubuntu.com/$HASH/$MERGE/$NAME/foo"
+	wget -q "$URL" || { echo "Error downloading $URL"; exit 1; }
     done
 fi
 echo
