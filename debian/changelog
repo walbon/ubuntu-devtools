@@ -1,7 +1,9 @@
 ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
 
-  * mk-sbuild-lv: skip security repo for Debian unstable, thanks to
-    Ryan Niebur (LP: #371569).
+  * mk-sbuild-lv:
+    - skip security repo for Debian unstable, thanks to Ryan Niebur
+      (LP: #371569).
+    - change directory out of the way of schroot problems.
 
  -- Kees Cook <kees@ubuntu.com>  Mon, 04 May 2009 09:11:42 -0700
 

@@ -26,6 +26,10 @@
 # It will deal with sbuild having not be installed and configured before.
 set -e
 
+# For when schroot enters the chroot, we cannot be in a directory that
+# will not exist in the chroot.
+cd /
+
 # Make sure we've got a regular user
 if [ -w /etc/passwd ]; then
     echo "Please run this script as a regular user, not root." >&2
