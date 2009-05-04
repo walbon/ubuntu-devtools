@@ -258,6 +258,10 @@ debian)
     if [ -z "$SOURCES_SECURITY_URL" ]; then
         SOURCES_SECURITY_URL="http://security.debian.org/"
     fi
+    # Unstable (aka "sid") does not have a security repository
+    if [ "$RELEASE" = 'unstable' ] || [ "$RELEASE" = 'sid' ]; then
+        SKIP_SECURITY=1
+    fi
     ;;
 *)
     echo "Unknown --distro '$DISTRO': aborting" >&2
@@ -291,10 +295,12 @@ deb ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
 EOM
     fi
-    cat >> "$TEMP_SOURCES" <<EOM
+    if [ -z "$SKIP_SECURITY" ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
 deb ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
 deb-src ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
 EOM
+    fi
 fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
     sudo bash -c "cat > $MNT/etc/apt/sources.list"
