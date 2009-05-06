@@ -1,11 +1,19 @@
 ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
 
+  [ Kees Cook ]
   * mk-sbuild-lv:
-    - skip security repo for Debian unstable, thanks to Ryan Niebur
+    - Skip security repo for Debian unstable, thanks to Ryan Niebur
       (LP: #371569).
-    - change directory out of the way of schroot problems.
+    - Change directory out of the way of schroot problems.
 
- -- Kees Cook <kees@ubuntu.com>  Mon, 04 May 2009 09:11:42 -0700
+  [ Siegfried-Angel Gevatter Pujals ]
+  * grab-merge:
+     - Show an error message if the package doesn't exist.
+     - Be paraonic and add "--one-file-system" to the rm call.
+     - Delete the directory just after creating it if the package
+       doesn't exist.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 06 May 2009 23:14:33 +0200
 
 ubuntu-dev-tools (0.73) karmic; urgency=low
 

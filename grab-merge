@@ -40,14 +40,14 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 fi
 
 if [ "$SUBDIR" = "y" ]; then
-    [ -d "$MERGE" ] || mkdir $MERGE
+    [ -d "$MERGE" ] || { mkdir $MERGE; CREATED_DIR=1; }
     cd $MERGE
 fi
 
 if [ "$EXPERT" != "y" ] && [ -n "$(ls)" ]; then
-    echo -n "Sure you want to delete all the files in $(pwd) [yn]? "
+    echo -n "Are you sure you want to delete all the files in $(pwd) [yN]? "
     read ANSWER
-    [ $ANSWER = y ]
+    [ "$ANSWER" = "y" ] || exit 1
 fi
 
 if [ "${MERGE#lib}" != "${MERGE}" ]; then
@@ -61,8 +61,12 @@ if [ "$RSYNC" = "y" ]; then
     rsync --verbose --archive --progress --compress --delete \
 	"$URL" . || { echo "Error while rsyncing $URL"; exit 1; }
 else
-    rm -rf  *
-    wget -q https://merges.ubuntu.com/$HASH/$MERGE/REPORT
+    rm -rf  --one-file-system *
+    wget -q https://merges.ubuntu.com/$HASH/$MERGE/REPORT || {
+            echo "Package not found on merges.ubuntu.com."
+            [ "$CREATED_DIR" != "1" ] || { cd ..; rmdir $MERGE; }
+            exit 1
+        }
 
     for NAME in $(sed -n -e "/^    /p" REPORT); do
 	echo "Getting $NAME..."
