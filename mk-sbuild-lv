@@ -381,7 +381,7 @@ schroot -c "$CHROOT_NAME"-source -u root /finish.sh
 echo ""
 echo "Done building $CHROOT_NAME."
 echo ""
-echo " To UPDATE the golden image: schroot -c ${CHROOT_NAME}-source -u root -- sh -c 'apt-get update && apt-get -y upgrade'"
+echo " To CHANGE the golden image: schroot -c ${CHROOT_NAME}-source -u root"
 echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
 echo " To BUILD within a snapshot: sbuild -d ${CHROOT_NAME} PACKAGE*.dsc"
 echo ""

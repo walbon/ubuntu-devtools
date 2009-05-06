@@ -70,11 +70,13 @@ Can contain a customized configuration section to be inserted into
 See schroot.conf(5) for more details on the format.
 .SH USING THE CHROOTS
 .TP
-To UPDATE the golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root \-\- sh \-c \(aqapt\-get update && apt\-get \-y upgrade\(aq\fR
+To CHANGE the golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root\fR
 .TP
 To ENTER an image snapshot: \fBschroot \-c ${CHROOT_NAME}\fR
 .TP
 To BUILD within a snapshot: \fBsbuild \-d ${SCHROOT_NAME} PACKAGE*.dsc\fR
+.TP
+for example, to update the packages in a golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root -- sh -c "apt-get -qq update && apt-get -qy upgrade && apt-get clean" </dev/null\fR
 
 .SH SEE ALSO
 sbuild\-setup (7), sources.list (5), schroot.conf (5),
