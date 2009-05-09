@@ -40,12 +40,13 @@ import ubuntutools.lp.cookie as lp_cookie
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.urlopener as lp_urlopener
+import ubuntutools.lp.udtexceptions as udtexceptions
 # https_proxy fix
 import ubuntutools.common
 
 launchpad_cookiefile = lp_cookie.prepareLaunchpadCookie()
 
-def checkNeedsSponsorship(component):
+def checkNeedsSponsorship(srcpkg):
     """
         Check that the user has the appropriate permissions by checking what
         Launchpad returns while authenticating with their cookie.
@@ -59,25 +60,14 @@ def checkNeedsSponsorship(component):
         The prepareLaunchpadCookie function above shall ensure that a cookie
         file exists first.
     """
-    # TODO: use launchpadlib here
-    # Once LP: #313233 has been fixed this can be implemented by either:
-    #  >>> me = launchpad.me
-    #  >>> me.inTeam(<TEAM>)  #or
-    #  >>> me in <TEAM>
-    urlopener = lp_urlopener.setupLaunchpadUrlOpener(launchpad_cookiefile)
-
-    # Check where the package is and assign the appropriate variables.
     if component in ['main', 'restricted']:
         team = "ubuntu-core-dev"
         sponsor = "ubuntu-main-sponsors"
     else:
-        team = "ubuntu-dev"
+        team = "motu"
         sponsor = "ubuntu-universe-sponsors"
 
-    # Check if they are a member of the team.
-    teamMember = lp_functions.isLPTeamMember(team)
-    
-    if not teamMember:
+    if not lp_functions.canUploadPackage(srcpkg):
 
         # Check if they have a per-package upload permission.
         if lp_functions.isPerPackageUploader(args[0]):
@@ -89,11 +79,7 @@ def checkNeedsSponsorship(component):
             "the '%s'\nteam, who shall be subscribed to this bug report." % sponsor
         print "This must be done before it can be processed by a member of " \
             "the Ubuntu Archive team."
-        print "If the above is correct please press Enter, otherwise please " \
-            "press Ctrl-C to stop this script now\nand check the cookie file " \
-            "at:", launchpad_cookiefile
-        print "Logging into Launchpad, deleting the above and rerunning this " \
-            "script should be enough to generate the cookie."
+        print "If the above is correct please press Enter."
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
 
@@ -150,21 +136,17 @@ def checkExistingReports(package):
     raw_input_exit_on_ctrlc()
             
 def cur_version_component(sourcepkg, release):
-    '''Determine current package version in ubuntu.'''
-    madison = subprocess.Popen(['rmadison', '-u', 'ubuntu', '-a', 'source', \
-                                '-s', release, sourcepkg], stdout=subprocess.PIPE)
-    out = madison.communicate()[0]
-    assert (madison.returncode == 0)
+    
+    try:
+        version = lp_functions.packageVersion(sourcepkg, release)
+        component = lp_functions.packageComponent(sourcepkg, release)
         
-    for l in out.splitlines():
-        (pkg, version, rel, builds) = l.split('|')
-        component = 'main'
-        if rel.find('/') != -1:
-            component = rel.split('/')[1]
-        return (version.strip(), component.strip())
-           
-    print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
-    sys.exit(1)
+        return (version, component)
+     
+    except udtexceptions.PackageNotFoundException:
+        
+        print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
+        sys.exit(1)
 
 def cur_deb_version(sourcepkg, distro):
     '''Return the current debian version of a package in a Debian distro.'''
@@ -505,15 +487,17 @@ if __name__ == '__main__':
     distro = options.dist
     ffe = options.ffe
 
-    if len(args) not in (2, 3):
-        optParser.error("Source package / target release missing - please " \
-            "specify.")
+    if len(args) not in (2, 3): # no release specified, assume development release
+        release = lp_functions.ubuntuDevelopmentSeries()
+        print >> sys.stderr, ("Source package / target release missing - assuming %s " %
+            release)
+    else:
+        release = args[1]
 
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
 
     srcpkg = args[0]
-    release = args[1]
     force_base_ver = None
 
     # Base version specified.
@@ -534,7 +518,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # -s flag not specified - check if we do need sponsorship.
-    if not sponsorship: sponsorship = checkNeedsSponsorship(component)
+    if not sponsorship: sponsorship = checkNeedsSponsorship(srcpkg)
 
     # Check for existing package reports.
     if not newsource and use_lp_bugs: checkExistingReports(srcpkg)

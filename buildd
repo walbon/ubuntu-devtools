@@ -116,7 +116,7 @@ packages.checkReleaseExists(release)
 (page, version) = packages.checkSourceExists(package, release)
 
 # Get the component the package is in.
-component = packages.packageComponent(package, release)
+component = lp_functions.packageComponent(package, release)
 
 # Output details.
 print "The source version for '%s' in %s (%s) is at %s." % (package,
@@ -156,14 +156,9 @@ if len(buildstats) == 1 and options.architecture != "i386":
 
 # Operations that are remaining may only be done by Ubuntu developers (retry)
 # or buildd admins (rescore). Check if the proper permissions are in place.
-if op == "rescore": teamNeeded = "launchpad-buildd-admins"
+if op == "rescore": necessaryPrivs = lp_functions.isLPTeamMember('launchpad-buildd-admins')
 if op == "retry":
-    if component in ("main", "restricted"):
-        teamNeeded = "ubuntu-core-dev"
-    else:
-        teamNeeded = "ubuntu-dev"
-
-necessaryPrivs = lp_functions.isLPTeamMember(teamNeeded)
+    necessaryPrivs = lp_functions.canUploadPackage(package, release)
 
 if not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \

@@ -13,7 +13,21 @@ ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
      - Delete the directory just after creating it if the package
        doesn't exist.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 06 May 2009 23:14:33 +0200
+  [ Iain Lane ]
+  * ubuntutools/lp/lp_functions.py,
+    ubuntutools/lp/udtexceptions.py:
+    - Add new public functions that expose features from LP API
+    - Modify isLPTeamMember to use LP API
+  * requestsync
+    - Use new functions to check if user can upload requested package directly
+      instead of checking team membership
+    - Default to current development release if no release is specified on
+      commandline
+  * buildd
+    - Check if user has upload privileges instead of checking for team
+      membership when seeing if operations are permitted 
+
+ -- Iain Lane <laney@ubuntu.com>  Sat, 09 May 2009 20:09:28 +0100
 
 ubuntu-dev-tools (0.73) karmic; urgency=low
 

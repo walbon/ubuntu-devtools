@@ -22,45 +22,148 @@ import cookie
 import urlopener as lp_urlopener
 import urllib2
 import sys
+from udtexceptions import PackageNotFoundException, TeamNotFoundException, SeriesNotFoundException
 import libsupport as lp_libsupport
 import launchpadlib
 from re import findall
 
+# Takes time to initialise - move to top level so we only pay the penalty
+# once. Should probably make this a proper class so we can instansiate
+# singleton-style (lazily).
+launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+
+def ubuntuDevelopmentSeries():
+    """ Get the string repr of the current Ubuntu development series """
+    
+    ubuntu = launchpad.distributions['ubuntu']
+    return ubuntu.current_series.name
+    
+def _ubuntuSeries(name):
+    """ Get the LP representation of a series
+    
+        returns the LP API repr of a series passed by name (e.g. 'karmic')
+        If the series is not found: raise SeriesNotFoundException
+    """
+    
+    ubuntu = launchpad.distributions['ubuntu']
+    try:
+        
+        return ubuntu.getSeries(name_or_version=name)
+        
+    except launchpadlib.errors.HTTPError:
+        
+        raise SeriesNotFoundException('The series %s was not found' % name)
+
+def _ubuntuSourcePackage(package, series):
+    """ Finds an Ubuntu source package on LP
+    
+        returns LP API repr of the source package
+        If the package does not exist: raise PackageNotFoundException
+    """
+    
+    try:
+        
+        lpseries = _ubuntuSeries(series)
+        
+        ubuntu = launchpad.distributions['ubuntu']
+        u_archive = ubuntu.main_archive
+    
+        component = u_archive.getPublishedSources(source_name=package, status="Published",
+            exact_match=True, distro_series=lpseries)[0]
+            
+        return component
+                            
+    except IndexError:
+        
+        raise PackageNotFoundException("The package %s does not exist in the Ubuntu main archive" %
+                package)
+    
+def packageVersion(package, series=ubuntuDevelopmentSeries()):
+    """ Retrieves the version of a given source package in the current
+        development distroseries
+        
+        returns unicode string repr of source package version
+        If the package does not exist: raise PackageNotFoundException
+    """
+    
+    return _ubuntuSourcePackage(package, series).source_package_version
+
+def packageComponent(package, series=ubuntuDevelopmentSeries()):
+    """ Retrieves the component for a given source package
+    
+        returns unicode string representation of component
+        If the package does not exist: raise PackageNotFoundException
+    """
+    
+    return _ubuntuSourcePackage(package, series).component_name
+        
+def canUploadPackage(package, series=ubuntuDevelopmentSeries()):
+    """ Checks whether the user can upload package to Ubuntu's main archive
+    
+        Uses LP API to do this.
+        
+        If the user can upload the package: return True.
+        If the user cannot upload the package: return False.
+        If the package does not exist: raise PackageNotFoundException
+    """
+
+    ubuntu = launchpad.distributions['ubuntu']
+    u_archive = ubuntu.main_archive
+        
+    uploaders = u_archive.getUploadersForComponent(component_name=packageComponent(package, series))
+
+    for permission in uploaders:
+        current_uploader = permission.person
+        if _findMember(current_uploader, launchpad.me):
+            return True
+    
+    return False
+
+def _findMember(haystack, needle):
+    """ Find a person in a haystack. A haystack can consist of either people or teams.
+    
+        If the needle is in the haystack: return True
+        If the needle is not in the haystack: return False
+    """
+    
+    if not haystack.is_team:
+        return (str(haystack) == str(needle))
+    else: # is a team
+        members = haystack.members
+        for m in members:
+            if _findMember(m, needle):
+                return True
+                
+    return False
+
 def isLPTeamMember(team):
     """ Checks if the user is a member of a certain team on Launchpad.
 
-        We do this by opening the team page on Launchpad and checking if the
-        text "You are not a member of this team" is present using the
-        user's cookie file for authentication.
+        Uses the LP API.
 
         If the user is a member of the team: return True.
         If the user is not a member of the team: return False.
+        
+        If the team is not found: raise a TeamNotFoundException.
     """
 
-    # TODO: Check if launchpadlib may be a better way of doing this.
-
-    # Prepare cookie.
-    cookieFile = cookie.prepareLaunchpadCookie()
-    # Prepare URL opener.
-    urlopener = lp_urlopener.setupLaunchpadUrlOpener(cookieFile)
-
-    # Try to open the Launchpad team page:
     try:
-        lpTeamPage = urlopener.open("https://launchpad.net/~%s" % team).read()
-    except urllib2.HTTPError, error:
-        print >> sys.stderr, "Unable to connect to Launchpad. Received a %s." % error.code
-        sys.exit(1)
 
-    # Check if text is present in page.
-    if ("You are not a member of this team") in lpTeamPage:
-        return False
-
-    return True
+        lpteam = launchpad.people[team]
+        
+        if not lpteam.is_team:
+            raise KeyError
+            
+        return _findMember(lpteam, launchpad.me)
+    
+    except KeyError:
+        
+        raise TeamNotFoundException("The team %s does not exist on Launchpad" %
+            team)
 
 def isPerPackageUploader(package):
     # Checks if the user has upload privileges for a certain package.
 
-    launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
     me = findall('~(\S+)', '%s' % launchpad.me)[0]
     main_archive = launchpad.distributions["ubuntu"].main_archive
     try:
