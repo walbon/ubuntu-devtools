@@ -60,25 +60,14 @@ def checkNeedsSponsorship(srcpkg):
         The prepareLaunchpadCookie function above shall ensure that a cookie
         file exists first.
     """
-    if component in ['main', 'restricted']:
-        team = "ubuntu-core-dev"
-        sponsor = "ubuntu-main-sponsors"
-    else:
-        team = "motu"
-        sponsor = "ubuntu-universe-sponsors"
-
     if not lp_functions.canUploadPackage(srcpkg):
 
-        # Check if they have a per-package upload permission.
-        if lp_functions.isPerPackageUploader(args[0]):
-            return "perpackageupload"
-
-        print "You are not a member (direct or indirect) of the '%s' " \
-            "team on Launchpad." % team
-        print "Your sync request shall require an approval by a member of " \
-            "the '%s'\nteam, who shall be subscribed to this bug report." % sponsor
-        print "This must be done before it can be processed by a member of " \
-            "the Ubuntu Archive team."
+        print "You are not able to upload this package directly to Ubuntu.\n" \
+              "Your sync request shall require an approval by a member of " \
+              "the appropriate sponsorship team, who shall be subscribed to " \
+			  "this bug report.\n" \
+              "This must be done before it can be processed by a member of " \
+              "the Ubuntu Archive team."
         print "If the above is correct please press Enter."
         raw_input_exit_on_ctrlc() # Abort if necessary.
         return True # Sponsorship required.
@@ -384,8 +373,8 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
-    # Only members of ubuntu-bugs can set importance
-    if lp_functions.isLPTeamMember('ubuntu-bugs'):
+    # Only members of ubuntu-bugcontrol can set importance
+    if lp_functions.isLPTeamMember('ubuntu-bugcontrol'):
         task.transitionToImportance(importance='Wishlist')
     task.transitionToStatus(status=status)
     
@@ -572,8 +561,9 @@ if __name__ == '__main__':
                   '>>> ENTER_EXPLANATION_HERE <<<\n\n'
 
 
-    if sponsorship == 'perpackageupload':
-        report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
+        # Check if they have a per-package upload permission.
+        if lp_functions.isPerPackageUploader(srcpkg):
+	        report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
     uidx = base_ver.find('build')
     if uidx > 0:

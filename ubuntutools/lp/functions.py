@@ -128,7 +128,7 @@ def _findMember(haystack, needle):
     
     if not haystack.is_team:
         return (str(haystack) == str(needle))
-    else: # is a team
+    elif haystack.is_valid: # is a team
         members = haystack.members
         for m in members:
             if _findMember(m, needle):
