@@ -23,14 +23,14 @@ ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
       instead of checking team membership
     - Default to current development release if no release is specified on
       commandline
-    - Correct bug supervisor team to ubuntu-bugcontrol
+    - Correct bug supervisor team to ubuntu-bugcontrol (LP: #374563)
     - Remove team names from sponsorship message - makes the function much
       simpler
   * buildd
     - Check if user has upload privileges instead of checking for team
       membership when seeing if operations are permitted 
 
- -- Iain Lane <laney@ubuntu.com>  Sat, 09 May 2009 21:06:52 +0100
+ -- Iain Lane <laney@ubuntu.com>  Sun, 10 May 2009 19:13:34 +0100
 
 ubuntu-dev-tools (0.73) karmic; urgency=low
 
