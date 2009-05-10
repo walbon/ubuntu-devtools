@@ -143,23 +143,9 @@ def isLPTeamMember(team):
 
         If the user is a member of the team: return True.
         If the user is not a member of the team: return False.
-        
-        If the team is not found: raise a TeamNotFoundException.
     """
 
-    try:
-
-        lpteam = launchpad.people[team]
-        
-        if not lpteam.is_team:
-            raise KeyError
-            
-        return _findMember(lpteam, launchpad.me)
-    
-    except KeyError:
-        
-        raise TeamNotFoundException("The team %s does not exist on Launchpad" %
-            team)
+    return any(t.name == team for t in launchpad.me.super_teams)
 
 def isPerPackageUploader(package):
     # Checks if the user has upload privileges for a certain package.
