@@ -29,29 +29,34 @@ Usage: $0 [--path=PATH] [--section=SECTION]
 EOF
 }
 
-for argv in "$@"; do
-    param=${argv%=*}
-    value=${argv#*=}
-    case $param in
-        "--path")
-            path="$value"
-        ;;
-        "--section")
-            [ "$value" != "main" ] &&
-            [ "$value" != "restricted" ] &&
-            [ "$value" != "universe" ] &&
-            [ "$value" != "multiverse" ] && echo "Invalid section. Valid sections: main restricted universe multiverse" >&2 && exit 1
-            section=$value
-        ;;
-        "--help")
+eval set -- "$(getopt -o '' -l path:,section:,help -- "$@")" || { usage >&2; exit 1; }
+while :; do
+    case $1 in
+        --path)
+            path="$2"
+            shift 2
+            ;;
+        --section)
+            [ "$2" != "main" ] &&
+            [ "$2" != "restricted" ] &&
+            [ "$2" != "universe" ] &&
+            [ "$2" != "multiverse" ] && echo "Invalid section. Valid sections: main restricted universe multiverse" >&2 && exit 1
+            section="$2"
+            shift 2
+            ;;
+        --help)
             usage
             exit 0
-        ;;
+            ;;
+        --)
+            shift
+            break
+            ;;
         *)
             echo "Bad parameter."
-            usage
+            usage >&2
             exit 1
-        ;;
+            ;;
     esac
 done
 
