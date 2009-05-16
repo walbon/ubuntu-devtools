@@ -86,7 +86,7 @@ for file in control control.in control.real; do
     fi
 done
 
-if ! head -1 $DEBIANDIR/changelog | grep -q '(*ubuntu.*)'
+if ! head -1 $DEBIANDIR/changelog | egrep -q '(*ubuntu.*|*build.*)'
 then
 	echo "Latest changelog entry has no Ubuntu version number." >&2
 	exit 1
