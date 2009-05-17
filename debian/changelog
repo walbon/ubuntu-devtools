@@ -41,6 +41,10 @@ ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
       versions that end in buildX as valid Ubuntu versions, and thus allow it
       to work with fakesyncs. (LP: #376623)
 
+  [ Anders Kaseorg ]
+  * ubuntutools/lp/functions.py:
+    - Simplify isLPTeamMember.
+
  -- Nathan Handler <nhandler@ubuntu.com>  Sat, 16 May 2009 19:09:21 +0000
 
 ubuntu-dev-tools (0.73) karmic; urgency=low
