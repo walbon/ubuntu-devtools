@@ -22,7 +22,7 @@ import cookie
 import urlopener as lp_urlopener
 import urllib2
 import sys
-from udtexceptions import PackageNotFoundException, TeamNotFoundException, SeriesNotFoundException
+from udtexceptions import PackageNotFoundException, SeriesNotFoundException
 import libsupport as lp_libsupport
 import launchpadlib
 from re import findall
@@ -114,12 +114,12 @@ def canUploadPackage(package, series=ubuntuDevelopmentSeries()):
 
     for permission in uploaders:
         current_uploader = permission.person
-        if _findMember(current_uploader, launchpad.me):
+        if _findMember(current_uploader):
             return True
     
     return False
 
-def _findMember(haystack, needle):
+def _findMember(haystack):
     """ Find a person in a haystack. A haystack can consist of either people or teams.
     
         If the needle is in the haystack: return True
@@ -127,12 +127,9 @@ def _findMember(haystack, needle):
     """
     
     if not haystack.is_team:
-        return (str(haystack) == str(needle))
+        return (str(haystack) == str(launchpad.me))
     elif haystack.is_valid: # is a team
-        members = haystack.members
-        for m in members:
-            if _findMember(m, needle):
-                return True
+		return isLPTeamMember(haystack.name)
                 
     return False
 
