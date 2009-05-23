@@ -88,7 +88,8 @@ sub getDSC {
 	if($madison=~m/^[WE]:/i) {
 		die("$madison");
 	}
-	my($baseURL)='http://ftp.debian.org/debian/pool/main/';
+	my($baseURL)='http://ftp.debian.org/debian/pool/';
+	my($url)=$baseURL;
 	my(@madison)=split(/\n/,$madison);
 	foreach my $line (@madison) {
 		my($package,$version,$release,$archs)=split(/\|/,$line,4);
@@ -106,7 +107,16 @@ sub getDSC {
 			else {
 				$firstLetter=substr($package,0,1);
 			}
-			my($url)=$baseURL . $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
+			if($release=~m/contrib/) {
+				$url .= 'contrib/';
+			}
+			elsif($release=~m/non\-free/) {
+				$url .= 'non-free/';
+			}
+			else {
+				$url .= 'main/';
+			}
+			$url .= $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
 			return $url;
 		}
 	}

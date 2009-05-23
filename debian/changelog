@@ -39,7 +39,10 @@ ubuntu-dev-tools (0.74) UNRELEASED; urgency=low
   * ubuntutools/lp/functions.py:
     - Simplify isLPTeamMember.
 
- -- Nathan Handler <nhandler@ubuntu.com>  Thu, 21 May 2009 03:09:42 +0000
+  [ Nathan Handler ]
+  * pull-debian-source: Modify to work for packages not in main (LP: #379822)
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Sat, 23 May 2009 20:34:35 +0000
 
 ubuntu-dev-tools (0.73) karmic; urgency=low
 
