@@ -153,7 +153,7 @@ if op == 'status':
 
 # Check if the package in question is architecture independent, and if so; that
 # i386 has been set as the architecture.
-if len(buildstats) == 1 and options.architecture != "i386":
+if len(buildstats) == 1 and options.architecture != "i386" and oneArch:
     print "Overriding architecture setting to i386 for architecture " \
         "independent package..."
     options.architecture = "i386"
@@ -166,8 +166,7 @@ if op == "retry":
 
 if not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
-        "as you are not member of the '%s' team on Launchpad." % (op, component,
-            teamNeeded)
+        "as you do not have the permissions to do this action." % (op, component)
     print "Should this be incorrect, please log in to Launchpad using Firefox, " \
         "delete the ~/.lpcookie.txt file and rerun this script."
     sys.exit(1)
