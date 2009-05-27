@@ -21,14 +21,19 @@
 # Modules.
 import glob
 import os
+import sys
 import urllib
 import urlparse
+import httplib2
+
 try:
-    import httplib2
     from launchpadlib.credentials import Credentials
     from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT
     from launchpadlib.errors import HTTPError
 except ImportError:
+    print "Unable to import launchpadlib module, is python-launchpadlib installed?"
+    sys.exit(1)
+except:
     Credentials = None
     Launchpad = None
 
