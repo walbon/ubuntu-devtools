@@ -30,6 +30,9 @@ from re import findall
 # Takes time to initialise - move to top level so we only pay the penalty
 # once. Should probably make this a proper class so we can instansiate
 # singleton-style (lazily).
+#
+# TODO: FIXME: Kill the below - massive overhead.
+#
 launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
 
 def ubuntuDevelopmentSeries():
@@ -38,6 +41,10 @@ def ubuntuDevelopmentSeries():
     ubuntu = launchpad.distributions['ubuntu']
     return ubuntu.current_series.name
     
+def doesUbuntuReleaseExist(name):
+    """ Prettier name to use for _ubuntuSeries() """
+    _ubuntuSeries(name)
+
 def _ubuntuSeries(name):
     """ Get the LP representation of a series
     
@@ -52,7 +59,7 @@ def _ubuntuSeries(name):
         
     except launchpadlib.errors.HTTPError:
         
-        raise SeriesNotFoundException('The series %s was not found' % name)
+        raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)
 
 def _ubuntuSourcePackage(package, series):
     """ Finds an Ubuntu source package on LP
