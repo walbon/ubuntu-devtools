@@ -30,9 +30,6 @@ from re import findall
 # Takes time to initialise - move to top level so we only pay the penalty
 # once. Should probably make this a proper class so we can instansiate
 # singleton-style (lazily).
-#
-# TODO: FIXME: Kill the below - massive overhead.
-#
 launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
 
 def ubuntuDevelopmentSeries():
