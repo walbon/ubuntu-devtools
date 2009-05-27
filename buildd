@@ -110,7 +110,11 @@ launchpadCookie = lp_cookie.prepareLaunchpadCookie()
 urlopener = lp_urlopener.setupLaunchpadUrlOpener(launchpadCookie)
 
 # Check the release exists.
-packages.checkReleaseExists(release)
+try:
+    lp_functions.doesUbuntuReleaseExist(release)
+except ubuntutools.lp.udtexceptions.SeriesNotFoundException, e:
+    print e
+    sys.exit(1)
 
 # Find out the version in given release.
 (page, version) = packages.checkSourceExists(package, release)
