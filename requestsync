@@ -39,7 +39,6 @@ from time import sleep
 import ubuntutools.lp.cookie as lp_cookie
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.libsupport as lp_libsupport
-import ubuntutools.lp.urlopener as lp_urlopener
 import ubuntutools.lp.udtexceptions as udtexceptions
 # https_proxy fix
 import ubuntutools.common
