@@ -30,14 +30,6 @@ from optparse import OptionGroup
 from optparse import OptionParser
 from urllib import urlencode
 
-# ubuntu-dev-tools modules.
-import ubuntutools.lp.cookie as lp_cookie
-import ubuntutools.lp.functions as lp_functions
-import ubuntutools.lp.urlopener as lp_urlopener
-from ubuntutools import packages
-# https_proxy fix
-import ubuntutools.common
-
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
 usage += "Where operation may be one of: rescore, retry, or status.\n"
@@ -104,6 +96,14 @@ elif op in ("retry", "rescore") and options.architecture:
         oneArch = True
 else:
     oneArch = False
+
+# ubuntu-dev-tools modules.
+import ubuntutools.lp.cookie as lp_cookie
+import ubuntutools.lp.functions as lp_functions
+import ubuntutools.lp.urlopener as lp_urlopener
+from ubuntutools import packages
+# https_proxy fix
+import ubuntutools.common
 
 # Prepare Launchpad cookie.
 launchpadCookie = lp_cookie.prepareLaunchpadCookie()
