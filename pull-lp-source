@@ -90,3 +90,5 @@ if __name__ == '__main__':
     except ValueError, e:
         print 'Error when downloading package %s from release %s: %s.' % \
             (package, release, e)
+    except OSError, e:
+        print "Failed to start child process of dget: %s." % e
