@@ -32,7 +32,8 @@ import sys
 import urllib2
 from optparse import OptionParser
 
-# Ubuntu-dev-tools modules.
+# ubuntu-dev-tools modules.
+import ubuntutools.lp.functions as lp_functions
 from ubuntutools import packages
 
 class BackportFromLP:
@@ -58,7 +59,7 @@ class BackportFromLP:
                 'Ensure that the package specified is a valid source ' +\
                 'package name and that Launchpad is not down.'
 
-default_release = 'karmic'
+default_release = lp_functions.ubuntuDevelopmentSeries()
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
@@ -74,9 +75,9 @@ if __name__ == '__main__':
     else:
         release = os.getenv('DIST') or default_release
 
-    # Correct-ish args, can proceed.
-    # Check release by checking if Launchpad page exists
-    packages.checkReleaseExists(release)
+    # Arguments are correct, proceed.
+    # Check that the Ubuntu release specified exists.
+    lp_functions.doesUbuntuReleaseExist(release)
 
     # Check package exists.
     packages.checkSourceExists(package, release)
