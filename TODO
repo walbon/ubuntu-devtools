@@ -10,5 +10,3 @@ TODO for the ubuntu-dev-tools package
 
 - Ask all authors who have used GPL if they are happy with using "or any later"
   versions of the license.
-
-- pull-lp-source: determine the current development distro programatically.
