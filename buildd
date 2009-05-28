@@ -97,7 +97,8 @@ elif op in ("retry", "rescore") and options.architecture:
 else:
     oneArch = False
 
-# ubuntu-dev-tools modules.
+# ubuntu-dev-tools modules
+# Import here to improve speed perception parsing options for user.
 import ubuntutools.lp.cookie as lp_cookie
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.urlopener as lp_urlopener
