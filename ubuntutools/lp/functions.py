@@ -31,10 +31,15 @@ from re import findall
 # singleton-style (lazily).
 launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
 
+def getUbuntuDistribution():
+    ubuntu = launchpad.distributions['ubuntu']
+
+    return ubuntu
+
 def ubuntuDevelopmentSeries():
     """ Get the string repr of the current Ubuntu development series """
     
-    ubuntu = launchpad.distributions['ubuntu']
+    ubuntu = getUbuntuDistribution()
     return ubuntu.current_series.name
     
 def doesUbuntuReleaseExist(name):
@@ -48,14 +53,14 @@ def _ubuntuSeries(name):
         If the series is not found: raise SeriesNotFoundException
     """
     
-    ubuntu = launchpad.distributions['ubuntu']
+    ubuntu = getUbuntuDistribution()
     try:
         
         return ubuntu.getSeries(name_or_version=name)
         
     except launchpadlib.errors.HTTPError:
         
-        raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)
+        raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)    
 
 def _ubuntuSourcePackage(package, series):
     """ Finds an Ubuntu source package on LP

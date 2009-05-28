@@ -117,6 +117,16 @@ except ubuntutools.lp.udtexceptions.SeriesNotFoundException, e:
     print e
     sys.exit(1)
 
+# Initialize ubuntu distribution collection.
+ubuntuDist = lp_functions.getUbuntuDistribution()
+# Get main Ubuntu archive.
+archive = ubuntuDist.main_archive
+# Get list of published sources for package in question.
+sources = archive.getPublishedSources(source_name = package,
+    status = 'Published')
+# Get list of builds for that package.
+builds = sources[0].getBuilds()
+
 # Find out the version in given release.
 (page, version) = packages.checkSourceExists(package, release)
 
@@ -136,10 +146,13 @@ release = release.split('-')[0] # strip off pocket
 
 print "Current build status for this package:"
 
+# Output list of arches for package and their status.
+for build in builds:
+     print "%s: %s." % (build.arch_tag, build.buildstate)
+
 for m in re.finditer('"/ubuntu/\+source/%s/%s(/\+build/\d+)"[^\n]+\n\s*(\w+).*?<span>(\w+)</span>.*?</a>\s*([^\n]+)\n' %
     (package.replace('+', '\+'), version.replace('+', '\+')), page, re.S):
     if m.group(2) == release:
-        print '%s: %s.' % (m.group(3), m.group(4))
         buildstats[url + m.group(1)] = [m.group(3).strip(), m.group(4).strip()]
 
 # Check that there actually are builds for that release.
