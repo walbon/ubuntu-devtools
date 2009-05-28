@@ -36,6 +36,11 @@ from optparse import OptionParser
 import ubuntutools.lp.functions as lp_functions
 from ubuntutools import packages
 
+if not os.path.exists("/usr/bin/dget"):
+    print "dget is not installed - please install the 'devscripts' package" \
+        " and rerun this script again."
+    sys.exit(1)
+
 class BackportFromLP:
 
     def __getitem__(self, name):
@@ -90,5 +95,3 @@ if __name__ == '__main__':
     except ValueError, e:
         print 'Error when downloading package %s from release %s: %s.' % \
             (package, release, e)
-    except OSError, e:
-        print "Failed to start child process of dget: %s." % e
