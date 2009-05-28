@@ -19,7 +19,6 @@
 #
 
 import cookie
-import urlopener as lp_urlopener
 import urllib2
 import sys
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException
