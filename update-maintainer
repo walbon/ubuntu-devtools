@@ -1,120 +1,95 @@
-#!/bin/sh
-#
-# Copyright 2007 (C) Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
-#
-# ##################################################################
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; version 2.
+#! /usr/bin/python
 # 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# See file /usr/share/common-licenses/GPL-2 for more details.
+#   update-maintainer - this script is used to update the Maintainer field of an
+#                       Ubuntu package, as approved by the Ubuntu Technical
+#                       Board at:
 #
-# ##################################################################
+#       https://lists.ubuntu.com/archives/ubuntu-devel/2009-May/028213.html
 #
-# This script is used to update the Maintainer field of an Ubuntu package
-# to match the DebianMaintainerField specification.
+#   Copyright (C) 2009 Jonathan Davies <jpds@ubuntu.com>
+#
+#   Original shell script was:
+#
+#   Copyright 2007 (C) Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
-usage() {
-cat <<EOF
-Usage: $0 [--path=PATH] [--section=SECTION]
---path=PATH 		Specify the path of the source directory.
---section=SECTION 	Specify the section of the package (if the package is
-			not yet in the archive.
-EOF
-}
+import os
+import re
+import sys
+import ubuntutools.packages
 
-eval set -- "$(getopt -o '' -l path:,section:,help -- "$@")" || { usage >&2; exit 1; }
-while :; do
-    case $1 in
-        --path)
-            path="$2"
-            shift 2
-            ;;
-        --section)
-            [ "$2" != "main" ] &&
-            [ "$2" != "restricted" ] &&
-            [ "$2" != "universe" ] &&
-            [ "$2" != "multiverse" ] && echo "Invalid section. Valid sections: main restricted universe multiverse" >&2 && exit 1
-            section="$2"
-            shift 2
-            ;;
-        --help)
-            usage
-            exit 0
-            ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            echo "Bad parameter."
-            usage >&2
-            exit 1
-            ;;
-    esac
-done
+valid_locations = ["debian/control", "control"]
+control_file_found = False
 
-cd ${path-.}
+# Check changelog file exists.
+for location in valid_locations:
+    if os.path.exists(location):
+         control_file_found = True
+         control_file = location
+         break # Stop looking.
 
-# look for the debian directory
-if [ -f debian/control ] && [ -f debian/changelog ]; then
-    DEBIANDIR=debian
-elif [ -f control ] && [ -f changelog ]; then
-    DEBIANDIR=.
-else
-    echo "Please execute «$0» in the source folder." >&2
-    exit 1
-fi
+# Check if we've found a control file.
+if not control_file_found:
+   sys.stderr.write("Unable to find debian/control file.\n")
+   sys.exit(1)
 
-if [ ! -r $DEBIANDIR/changelog ]
-then
-    echo "Make sure that the changelog file is readable." >&2 && exit 1
-fi
+# Read found file contents.
+debian_control_file = open(control_file, "r")
+file_contents = debian_control_file.read()
+debian_control_file.close()
 
-for file in control control.in control.real; do
-    if [ -f $DEBIANDIR/$file ]; then
-        if [ ! -r $DEBIANDIR/$file ] || [ ! -w $DEBIANDIR/$file ]; then
-            echo "Make sure that the control file(s) is (are) readable and writable." >&2 && exit 1
-        fi
-        controls="$controls $file"
-    fi
-done
+# Check if there is a Maintainer field in file found.
+if not 'Maintainer' in file_contents:
+    sys.stderr.write("Unable to find Maintainer field in %s.\n" % control_file)
+    sys.exit(1)
 
-if ! head -1 $DEBIANDIR/changelog | grep -q '(*ubuntu.*)'
-then
-	echo "Latest changelog entry has no Ubuntu version number." >&2
-	exit 1
-fi
+package_field = re.findall('(Source:) (.*)', file_contents)
+package_name = package_field[0][1]
 
-if grep -E "^Maintainer: .*@.*ubuntu.*>" $DEBIANDIR/control >/dev/null
-then
-	echo "Package already maintained by the Ubuntu team." >&2
-	exit 1
-fi
+# Get maintainer field information.
+maintainer_field = re.findall('(Maintainer:) (.*) (<.*>)', file_contents)
 
-if [ -z "$section" ]; then
-    DISTRO=$(sed -r '1!d;s/.*\) (.*);.*/\1/' $DEBIANDIR/changelog | cut -d'-' -f1)
-    pkgline=$(rmadison -u ubuntu -a source -s $DISTRO $(head -1 $DEBIANDIR/changelog | cut -d' ' -f1))
-    if [ -z "$pkgline" ]; then
-        echo "The package doesn't exist in the $DISTRO archive. You may have to use the" >&2
-        echo "--section argument. Run $0 --help for more information." >&2
-        exit 1
-    fi
-    section=$(echo $pkgline | grep -Eo "main|universe|multiverse|restricted") || section=main
-fi
+# Split out maintainer name and email address.
+maintainer_name = maintainer_field[0][1]
+maintainer_mail = maintainer_field[0][2]
 
-case $section in
-    "main"|"restricted")        email="Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"  ;;
-    "universe"|"multiverse")    email="Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>"           ;;
-    *)      echo "No section found for this package; aborting" >&2; exit 1 ;;
-esac
+# Check if Maintainer field is as approved in TB decision.
+if 'Ubuntu Developers' in maintainer_name and \
+    '<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
+    print "Ubuntu Developers is already set as maintainer."
+    sys.exit(0)
 
-for file in $controls; do
-    sed -ri "s/(^Maintainer:) (.*)/\1 $email\nXSBC-Original-\1 \2/" $DEBIANDIR/$file
-done
+if not ubuntutools.packages.checkIsInDebian(package_name, 'unstable'):
+    user_email_address = os.getenv('DEBEMAIL')
+    if not user_email_address:
+        sys.stderr.write('The environment variable DEBEMAIL needs to be ' +\
+            'set to make proper use of this script.\n')
+    	sys.exit(1)
+    target_maintainer = user_email_address
+else:
+    target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+
+# Set original maintainer field in a string.
+original_maintainer = maintainer_name + " " + maintainer_mail
+final_addition = target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
+
+print "The original maintainer for this package is: " + original_maintainer
+print "Resetting as: " + target_maintainer
+
+# Replace text.
+debian_control_file = open(control_file, "w")
+debian_control_file.write(re.sub(original_maintainer, final_addition, file_contents))
+debian_control_file.close()

@@ -101,3 +101,17 @@ def packageComponent(package, release):
             component = rel.split('/')[1]
 
     return component.strip()
+
+def checkIsInDebian(package, distro):
+    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', \
+                                '-s', distro, package], \
+                               stdout=subprocess.PIPE)
+    out = madison.communicate()[0]
+    assert (madison.returncode == 0)
+
+    try:
+        assert out
+    except AssertionError:
+        out = False
+    
+    return out

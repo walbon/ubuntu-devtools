@@ -42,6 +42,7 @@ import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
 # https_proxy fix
 import ubuntutools.common
+import ubuntutools.packages
 
 launchpad_cookiefile = lp_cookie.prepareLaunchpadCookie()
 
@@ -138,17 +139,10 @@ def cur_version_component(sourcepkg, release):
 
 def cur_deb_version(sourcepkg, distro):
     '''Return the current debian version of a package in a Debian distro.'''
-    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', \
-                                '-s', distro, sourcepkg], \
-                               stdout=subprocess.PIPE)
-    out = madison.communicate()[0]
-    assert (madison.returncode == 0)
-
-    try:
-        assert out
-    except AssertionError:
+    if not ubuntutools.packages.checkIsInDebian(sourcepkg, distro):
         print "%s doesn't appear to exist in Debian." % sourcepkg
-        sys.exit(1)
+        sys.exit(0)
+    
     # Work-around for a bug in Debians madison.php script not returning 
     # only the source line 
     for line in out.splitlines():
