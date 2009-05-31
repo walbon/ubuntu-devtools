@@ -66,6 +66,10 @@ maintainer_field = re.findall('(Maintainer:) (.*) (<.*>)', file_contents)
 maintainer_name = maintainer_field[0][1]
 maintainer_mail = maintainer_field[0][2]
 
+if maintainer_mail.find("@ubuntu.com") != -1:
+    print "Maintainer email is set to an @ubuntu.com address - doing nothing."
+    sys.exit(0)
+
 # Check if Maintainer field is as approved in TB decision.
 if 'Ubuntu Developers' in maintainer_name and \
     '<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
