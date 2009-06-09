@@ -62,7 +62,7 @@ def _ubuntuSeries(name):
         
         raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)    
 
-def _ubuntuSourcePackage(package, series):
+def _ubuntuSourcePackage(package, series, pocket = 'Release'):
     """ Finds an Ubuntu source package on LP
     
         returns LP API repr of the source package
@@ -77,7 +77,7 @@ def _ubuntuSourcePackage(package, series):
         u_archive = ubuntu.main_archive
     
         component = u_archive.getPublishedSources(source_name=package, status="Published",
-            exact_match=True, distro_series=lpseries)[0]
+            exact_match=True, distro_series=lpseries, pocket = pocket)[0]
             
         return component
                             
