@@ -3,6 +3,7 @@
 #
 # Copyright 2006-2007 (C) Pete Savage <petesavage@ubuntu.com>
 # Copyright 2007 (C) Siegfried-A. Gevatter <rainct@ubuntu.com>
+# Copyright 2009 (C) Canonical Ltd. (by Colin Watson <cjwatson@ubuntu.com>)
 #
 # ##################################################################
 #
@@ -26,49 +27,82 @@
 import subprocess
 import sys
 
-def process_deps(deps):
+import apt_pkg
+import apt
+
+def process_deps(cache, deps):
 	"""Takes a list of (build) dependencies and processes it."""
 	
-	for package in [ package.split('|')[0] for package in deps ]:
-		
-		# Cut package name (from something like "name ( >= version)")
-		name = package.split(' ')[0]
-		
-		if not packages.has_key(name) and name != '':
+	for basedep in [d.or_dependencies[0] for d in deps]:
+		if not packages.has_key(basedep.name) and basedep.name != '':
 			# Check the (build) dependencies recursively
-			find_main(name)
+			find_main(cache, basedep.name)
 
 
-def find_main(pack):
+def get_package_version(cache, distro, pack):
+	if pack not in cache:
+		return None
+	for version in (cache[pack].candidate, cache[pack].installed):
+		if not version:
+			continue
+		for origin in version.origins:
+			if origin.archive == distro:
+				return version
+	return None
+
+
+# Cache::CompTypeDeb isn't exposed via python-apt
+def comp_type_deb(op):
+	ops = ("", "<=", ">=", "<<", ">>", "=", "!=")
+	if (op & 15) < 7:
+		return ops[op & 15]
+	return ""
+
+
+def find_main(cache, pack):
 	"""Searches the dependencies and build dependencies of a package recursively
 	to determine if they are all in the 'main' component or not."""
 	
 	global packages
 	
+	if pack in packages:
+		return
+
 	# Retrieve information about the package
-	out = subprocess.Popen('apt-cache madison ' + pack + '  | grep ' + distro + ' | grep -m 1 Packages', shell=True, stdout=subprocess.PIPE).stdout.read()
+	version = get_package_version(cache, distro, pack)
 	
-	if out.find("/main") != -1:
+	if not version:
+		packages[pack] = False
+		return
+	elif [origin for origin in version.origins if origin.component == 'main']:
 		packages[pack] = True
-		return 1
+		return
 	else:
 		if not packages.has_key(pack):
 			packages[pack] = False
 		
-		# Retrive package dependencies
-		deps = subprocess.Popen('apt-cache show ' + pack + ' | grep -m 1 ^Depends', shell=True, stdout=subprocess.PIPE).stdout.read().split('\n')[0].replace('Depends: ', '').split(', ')
+		# Retrieve package dependencies
+		process_deps(cache, version.dependencies)
 		
-		process_deps(deps)
-		
-		# Retrieve package build dependencies
-		deps1 = subprocess.Popen('apt-cache showsrc ' + pack + ' | grep -m 1 ^Build-Depends', shell=True, stdout=subprocess.PIPE).stdout.readlines()
+		# Retrieve package build dependencies. There's no handy
+		# attribute on version for this, so unfortunately we have to
+		# do a lot of messing about with apt.
 		deps = []
+		src_records = apt_pkg.GetPkgSrcRecords()
+		got_src = False
+		while src_records.Lookup(version.source_name):
+			if pack in src_records.Binaries:
+				got_src = True
+				break
+		if got_src:
+			base_deps = []
+			for (name, ver, op, deptype) in src_records.BuildDepends:
+				base_deps.append(apt.package.BaseDependency(name, comp_type_deb(op), ver, False))
+				if (op & 16) != 16:
+					deps.append(apt.package.Dependency(base_deps))
+					base_deps = []
 		
-		for builddep in deps1:
-			if builddep.startswith('Build-Depends'):
-				deps += builddep.strip('\n').replace('Build-Depends: ', '').replace('Build-Depends-Indep: ',  '').split(', ')
-		
-		process_deps(deps)
+		process_deps(cache, deps)
 
 
 def main():
@@ -80,22 +114,24 @@ def main():
 		print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
 		sys.exit(1)
 	
+        cache = apt.cache.Cache()
+
 	if len(sys.argv) == 3 and sys.argv[2]:
 		distro = sys.argv[2]
-		if not subprocess.Popen('apt-cache madison bash | grep ' + distro, shell=True, stdout=subprocess.PIPE).stdout.read():
+		if not get_package_version(cache, distro, 'bash'):
 			print '«%s» is not a valid distribution.' % distro
 			print 'Remember that for 404main to work with a certain distribution it must be in your /etc/apt/sources.list file.'
 			sys.exit(1)
 	else:
 		distro = subprocess.Popen('lsb_release -cs', shell=True, stdout=subprocess.PIPE).stdout.read().strip('\n')
 	
-	if not subprocess.Popen('apt-cache madison ' + sys.argv[1] + ' | grep ' + distro, shell=True, stdout=subprocess.PIPE).stdout.read():
+	if not get_package_version(cache, distro, sys.argv[1]):
 		print 'Can\'t find package «%s» in distribution «%s».' % (sys.argv[1], distro)
 		sys.exit(1)
 	
 	print 'Checking package «%s» in distribution «%s»...' % (sys.argv[1], distro)
 	
-	find_main(sys.argv[1])
+	find_main(cache, sys.argv[1])
 	
 	# True if everything checked until the point is in main
 	all_in_main = True

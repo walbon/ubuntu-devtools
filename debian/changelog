@@ -35,6 +35,10 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
     - Fix permissions warning message and do not mention teams as we check on
       a per package basis.
 
+  [ Colin Watson ]
+  * Rewrite 404main using python-apt. Note that this requires python-apt
+    0.7.9, not in jaunty.
+
  -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low

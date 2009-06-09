@@ -6,7 +6,5 @@ TODO for the ubuntu-dev-tools package
 
 - Create missing and improve existing manpages (for all commands).
 
-- Modify 404main to use the more robust python-apt module.
-
 - Ask all authors who have used GPL if they are happy with using "or any later"
   versions of the license.
