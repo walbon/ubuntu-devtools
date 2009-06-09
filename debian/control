@@ -1,7 +1,7 @@
 Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
-Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
 Build-Depends: cdbs (>= 0.4.49), debhelper (>= 6), python-all-dev (>= 2.5)
