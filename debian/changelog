@@ -4,6 +4,35 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * buildd:
     + Use the LP API for retrying or rescoring builds.
 
+  [ Jonathan Davies ]
+  * update-maintainer:
+    - Rewrote in Python and adapted to use Maintainer field spec approved by
+      the Technical Board at:
+      - https://lists.ubuntu.com/archives/ubuntu-devel/2009-May/028213.html
+    - Do not make changes if maintainer email is set to an
+      @ubuntu.com email address.
+  * requestsync:
+    - Adapt to use new checkIsInDebian() function in ubuntutools/packages.py.
+    - urlopener module is no longer required here.
+  * pull-lp-source:
+    - Return an error message if dget is not installed.
+    - Use os.path.exists() instead of catching an error message
+      to check if dget is installed.
+  * TODO: pull-lp-source task done.
+  * ubuntutools/packages.py: Created checkIsInDebian() function.
+  * ubuntutools/lp/functions.py: Improved error messages, and made prettier
+    functions.
+  * ubuntutools/lp/libsupport.py: Fail if we're unable to import launchpadlib
+    (we need it to run stuff).
+  * ubuntutools/lp/urlopener.py: Removed - module no longer needed.
+  * buildd:
+    - Use launchpadlib to check the Ubuntu release is valid.
+    - Moved Launchpad module imports here - speed up usage parsing to improve
+      user experience.
+    - Do not display override message if --arch is not used.
+    - Fix permissions warning message and do not mention teams as we check on
+      a per package basis.
+
  -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
