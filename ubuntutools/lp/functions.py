@@ -18,7 +18,6 @@
 #   the GNU General Public License license.
 #
 
-import cookie
 import urllib2
 import sys
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException

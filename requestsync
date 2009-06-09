@@ -36,7 +36,6 @@ from optparse import OptionParser
 from time import sleep
 
 # ubuntu-dev-tools modules.
-import ubuntutools.lp.cookie as lp_cookie
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
@@ -44,21 +43,16 @@ import ubuntutools.lp.udtexceptions as udtexceptions
 import ubuntutools.common
 import ubuntutools.packages
 
-launchpad_cookiefile = lp_cookie.prepareLaunchpadCookie()
-
 def checkNeedsSponsorship(srcpkg):
     """
         Check that the user has the appropriate permissions by checking what
-        Launchpad returns while authenticating with their cookie.
+        Launchpad returns when we check if someone can upload a package or not.
 
         If they are an indirect or direct member of the ~ubuntu-dev team on
         Launchpad - sponsorship is not required if the package is in the
         universe / multiverse component.
 
         If they are in the ~ubuntu-core-dev team, no sponsorship required.
-
-        The prepareLaunchpadCookie function above shall ensure that a cookie
-        file exists first.
     """
     if not lp_functions.canUploadPackage(srcpkg):
 

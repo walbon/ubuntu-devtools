@@ -25,6 +25,8 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * ubuntutools/lp/libsupport.py: Fail if we're unable to import launchpadlib
     (we need it to run stuff).
   * ubuntutools/lp/urlopener.py: Removed - module no longer needed.
+  * ubuntutools/lp/cookie.py: Removed - module no longer needed - we use
+    Launchpad API support now.
   * buildd:
     - Use launchpadlib to check the Ubuntu release is valid.
     - Moved Launchpad module imports here - speed up usage parsing to improve
