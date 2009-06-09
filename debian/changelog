@@ -38,6 +38,8 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   [ Colin Watson ]
   * Rewrite 404main using python-apt. Note that this requires python-apt
     0.7.9, not in jaunty.
+  * Get rid of the last remaining use of subprocess.Popen(shell=True) in
+    404main.
 
  -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
 

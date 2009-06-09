@@ -123,7 +123,7 @@ def main():
 			print 'Remember that for 404main to work with a certain distribution it must be in your /etc/apt/sources.list file.'
 			sys.exit(1)
 	else:
-		distro = subprocess.Popen('lsb_release -cs', shell=True, stdout=subprocess.PIPE).stdout.read().strip('\n')
+		distro = subprocess.Popen(['lsb_release', '-cs'], stdout=subprocess.PIPE).stdout.read().strip('\n')
 	
 	if not get_package_version(cache, distro, sys.argv[1]):
 		print 'Can\'t find package «%s» in distribution «%s».' % (sys.argv[1], distro)
