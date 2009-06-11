@@ -43,19 +43,6 @@ def deprecated(func):
 # Singleton to access LP API
 launchpad = Launchpad
 
-@deprecated
-def ubuntuDevelopmentSeries():
-    """ Get the string repr of the current Ubuntu development series """
-    return LpApiWrapper.getUbuntuDevelopmentSeries().name
-    
-def _ubuntuSeries(name):
-    """ Get the LP representation of a series
-    
-        returns the LP API repr of a series passed by name (e.g. 'karmic')
-        If the series is not found: raise SeriesNotFoundException
-    """
-    return LpApiWrapper.getUbuntuSeries(name)
-
 def _ubuntuSourcePackage(package, series, pocket = 'Release'):
     """ Finds an Ubuntu source package on LP
     
