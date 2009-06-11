@@ -21,14 +21,12 @@
 import urllib2
 import sys
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException
-import libsupport as lp_libsupport
+from lpapiwrapper import Launchpad
 import launchpadlib
 from re import findall
 
-# Takes time to initialise - move to top level so we only pay the penalty
-# once. Should probably make this a proper class so we can instansiate
-# singleton-style (lazily).
-launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+# Singleton to access LP API
+launchpad = Launchpad
 
 def getUbuntuDistribution():
     ubuntu = launchpad.distributions['ubuntu']
