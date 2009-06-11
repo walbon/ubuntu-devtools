@@ -73,26 +73,30 @@ def _ubuntuSourcePackage(package, series, pocket = 'Release'):
     lpapiwrapper = LpApiWrapper()
     return lpapiwrapper.getUbuntuSourcePackage(package, series, pocket)
     
-def packageVersion(package, series=ubuntuDevelopmentSeries()):
+def packageVersion(package, series=None):
     """ Retrieves the version of a given source package in the current
         development distroseries
         
         returns unicode string repr of source package version
         If the package does not exist: raise PackageNotFoundException
     """
+    if not series:
+        series = LpApiWrapper.getUbuntuDevelopmentSeries()
     
     return _ubuntuSourcePackage(package, series).source_package_version
 
-def packageComponent(package, series=ubuntuDevelopmentSeries()):
+def packageComponent(package, series=None):
     """ Retrieves the component for a given source package
     
         returns unicode string representation of component
         If the package does not exist: raise PackageNotFoundException
     """
+    if not series:
+        series = LpApiWrapper.getUbuntuDevelopmentSeries()
     
     return _ubuntuSourcePackage(package, series).component_name
         
-def canUploadPackage(package, series=ubuntuDevelopmentSeries()):
+def canUploadPackage(package, series=None):
     """ Checks whether the user can upload package to Ubuntu's main archive
     
         Uses LP API to do this.
@@ -101,6 +105,8 @@ def canUploadPackage(package, series=ubuntuDevelopmentSeries()):
         If the user cannot upload the package: return False.
         If the package does not exist: raise PackageNotFoundException
     """
+    if not series:
+        series = LpApiWrapper.getUbuntuDevelopmentSeries()
 
     u_archive = LpApiWrapper.getUbuntuArchive()
         

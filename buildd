@@ -27,6 +27,7 @@ from optparse import OptionGroup
 from optparse import OptionParser
 import ubuntutools.lp.udtexceptions
 from ubuntutools.lp.lpapiwrapper import LpApiWrapper
+import ubuntutools.lp.functions as lp_functions
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -94,10 +95,6 @@ elif op in ("retry", "rescore") and options.architecture:
         oneArch = True
 else:
     oneArch = False
-
-# ubuntu-dev-tools modules
-# Import here to improve speed perception parsing options for user.
-import ubuntutools.lp.functions as lp_functions
 
 # split release and pocket
 if '-' in release:
