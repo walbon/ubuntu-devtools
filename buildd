@@ -22,13 +22,9 @@
 #
 
 # Our modules to import.
-import os
-import re
 import sys
-import urllib2
 from optparse import OptionGroup
 from optparse import OptionParser
-from urllib import urlencode
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
