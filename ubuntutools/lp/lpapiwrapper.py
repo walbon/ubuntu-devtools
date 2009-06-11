@@ -33,9 +33,16 @@ class Launchpad(object):
 	''' Singleton for LP API access. '''
 	__lp = None
 
-	def __getattr__(self, attr):
+	def login(self):
+		'''
+		Enforce a login through the LP API.
+		'''
 		if not self.__lp:
 			self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+
+	def __getattr__(self, attr):
+		if not self.__lp:
+			self.login()
 		return getattr(self.__lp, attr)
 
 	def __call__(self):
