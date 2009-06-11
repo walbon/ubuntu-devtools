@@ -121,8 +121,7 @@ except ubuntutools.lp.udtexceptions.SeriesNotFoundException, e:
     print e
     sys.exit(1)
 # Get list of published sources for package in question.
-#sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
-sources = lp_functions._ubuntuSourcePackage(package, release, pocket)
+sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
 # Get list of builds for that package.
 builds = sources.getBuilds()
 
