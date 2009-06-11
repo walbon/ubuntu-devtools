@@ -50,14 +50,26 @@ class LpApiWrapper(object):
 	It also caches LP API objects either as class variables or as
 	instance variables depending on the expected change of its value.
 	'''
-	_ubuntu = None
 	_archive = None
 	_devel_series = None
+	_me = None
+	_ubuntu = None
 	_series = dict()
 	_src_pkg = dict()
+	_upload_comp = dict()
+	_upload_pkg = dict()
 
 	def __init__(self):
 		pass
+
+	@classmethod
+	def getMe(cls):
+		'''
+		Returns the LP representations of the currently authenticated LP user.
+		'''
+		if not cls._me:
+			cls._me = Launchpad.me
+		return cls._me
 
 	@classmethod
 	def getUbuntuDistribution(cls):
@@ -147,3 +159,42 @@ class LpApiWrapper(object):
 				raise PackageNotFoundException(msg)
 
 		return cls._src_pkg[(name, series, pocket)]
+
+	@classmethod
+	def canUploadPackage(cls, package, series = None):
+		'''
+		Check if the currently authenticated LP user has upload rights
+		for package either through component upload rights or
+		per-package upload rights.
+
+		'package' can either be a LP representation of a source package
+		or a string and an Ubuntu series.
+		'''
+
+		if isinstance(package, Entry):
+			component = package.component_name
+			package = package.source_package_name
+		else:
+			if not series:
+				# Fall-back to current Ubuntu development series
+				series = cls.getUbuntuDevelopmentSeries()
+
+			component = cls.getUbuntuSourcePackage(package, series).component_name
+
+		if component not in cls._upload_comp and package not in cls._upload_pkg:
+			me = cls.getMe()
+			archive = cls.getUbuntuArchive()
+			for perm in archive.getPermissionsForPerson(person = me):
+				if perm.permission != 'Archive Upload Rights':
+					continue
+				if perm.component_name == component:
+					cls._upload_comp[component] = True
+					return True
+				if perm.source_package_name == package:
+					cls._upload_pkg[package] = True
+					return True
+			return False
+		elif component in cls._upload_comp:
+			return cls._upload_comp[component]
+		else:
+			return cls._upload_pkg[package]

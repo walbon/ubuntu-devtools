@@ -126,7 +126,7 @@ component = sources.component_name
 # Operations that are remaining may only be done by Ubuntu developers (retry)
 # or buildd admins (rescore). Check if the proper permissions are in place.
 if op == "rescore": necessaryPrivs = lp_functions.isLPTeamMember('launchpad-buildd-admins')
-if op == "retry": necessaryPrivs = lp_functions.canUploadPackage(package, release)
+if op == "retry": necessaryPrivs = lpapiwrapper.canUploadPackage(package, release)
 
 if op in ('rescore', 'retry') and not necessaryPrivs:
     print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
