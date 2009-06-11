@@ -39,6 +39,7 @@ from time import sleep
 import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
+from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper
 # https_proxy fix
 import ubuntutools.common
 import ubuntutools.packages
@@ -78,7 +79,7 @@ def checkExistingReports(package):
     launchpad = None
 
     try:
-        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+        launchpad = Launchpad.login()
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
             'python-launchpadlib installed?'
@@ -95,7 +96,7 @@ def checkExistingReports(package):
         return False
 
     # Fetch the package's bug list from Launchpad.
-    pkg = launchpad.distributions["ubuntu"].getSourcePackage(name=package)
+    pkg = launchpad.getUbuntuDistribution().getSourcePackage(name=package)
     pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
@@ -323,7 +324,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     import glob, os.path
 
     try:
-        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+        launchpad = Launchpad.login()
     except ImportError:
         print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
         return False
@@ -362,8 +363,9 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     task = bug.bug_tasks[0]
     # Only members of ubuntu-bugcontrol can set importance
     if lp_functions.isLPTeamMember('ubuntu-bugcontrol'):
-        task.transitionToImportance(importance='Wishlist')
-    task.transitionToStatus(status=status)
+        task.importance = 'Wishlist'
+    task.status = status
+    task.lp_save()
     
     subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
     bug.subscribe(person=subscribe_url)
@@ -463,15 +465,15 @@ if __name__ == '__main__':
     distro = options.dist
     ffe = options.ffe
 
+    if not use_lp_bugs and not get_email_address():
+        sys.exit(1)
+
     if len(args) not in (2, 3): # no release specified, assume development release
-        release = lp_functions.ubuntuDevelopmentSeries()
+        release = LpApiWrapper.getUbuntuDevelopmentSeries().name
         print >> sys.stderr, ("Source package / target release missing - assuming %s " %
             release)
     else:
         release = args[1]
-
-    if not use_lp_bugs and not get_email_address():
-        sys.exit(1)
 
     srcpkg = args[0]
     force_base_ver = None
