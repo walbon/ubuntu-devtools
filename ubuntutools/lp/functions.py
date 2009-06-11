@@ -44,18 +44,10 @@ def deprecated(func):
 launchpad = Launchpad
 
 @deprecated
-def getUbuntuDistribution():
-    return LpApiWrapper.getUbuntuDistribution()
-
-@deprecated
 def ubuntuDevelopmentSeries():
     """ Get the string repr of the current Ubuntu development series """
     return LpApiWrapper.getUbuntuDevelopmentSeries().name
     
-def doesUbuntuReleaseExist(name):
-    """ Prettier name to use for _ubuntuSeries() """
-    _ubuntuSeries(name)
-
 def _ubuntuSeries(name):
     """ Get the LP representation of a series
     

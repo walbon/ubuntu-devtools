@@ -33,8 +33,8 @@ import urllib2
 from optparse import OptionParser
 
 # ubuntu-dev-tools modules.
-import ubuntutools.lp.functions as lp_functions
-from ubuntutools import packages
+from ubuntutools.lp.lpapiwrapper import LpApiWrapper
+from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
 
 if not os.path.exists("/usr/bin/dget"):
     print "dget is not installed - please install the 'devscripts' package" \
@@ -64,8 +64,6 @@ class BackportFromLP:
                 'Ensure that the package specified is a valid source ' +\
                 'package name and that Launchpad is not down.'
 
-default_release = lp_functions.ubuntuDevelopmentSeries()
-
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
@@ -78,14 +76,15 @@ if __name__ == '__main__':
     if len(args) == 2: # Custom distribution specified.
         release = str(args[1]).lower()
     else:
-        release = os.getenv('DIST') or default_release
+        release = os.getenv('DIST') or LpApiWrapper.getUbuntuDevelopmentSeries().name
 
     # Arguments are correct, proceed.
-    # Check that the Ubuntu release specified exists.
-    lp_functions.doesUbuntuReleaseExist(release)
-
-    # Check package exists.
-    packages.checkSourceExists(package, release)
+    # Check that the Ubuntu release and package specified exists.
+    try:
+        LpApiWrapper.getUbuntuSourcePackage(package, release)
+    except (SeriesNotFoundException, PackageNotFoundException), e:
+        print e
+        sys.exit(1)
 
     # All good - start downloading...
     try:
