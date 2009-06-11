@@ -52,11 +52,12 @@ class LpApiWrapper(object):
 	'''
 	_ubuntu = None
 	_archive = None
-	_series = dict()
 	_devel_series = None
+	_series = dict()
+	_src_pkg = dict()
 
 	def __init__(self):
-		self._src_pkg = dict()
+		pass
 
 	@classmethod
 	def getUbuntuDistribution(cls):
@@ -91,7 +92,7 @@ class LpApiWrapper(object):
 				cls._series[series.name] = series
 				cls._series[series.version] = series
 			except HTTPError:
-				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)
+				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name_or_version)
 
 		return cls._series[name_or_version]
 
@@ -112,12 +113,13 @@ class LpApiWrapper(object):
 
 		return cls._devel_series
 
-	def getUbuntuSourcePackage(self, name, series, pocket = 'Release'):
+	@classmethod
+	def getUbuntuSourcePackage(cls, name, series, pocket = 'Release'):
 		'''
 		Finds an Ubuntu source package on LP.
 
 		Returns LP representation of the source package.
-        If the package does not exist: raise PackageNotFoundException
+		If the package does not exist: raise PackageNotFoundException
 		'''
 
 		# Check if pocket has a valid value
@@ -126,14 +128,14 @@ class LpApiWrapper(object):
 
 		# Check if we have already a LP representation of an Ubuntu series or not
 		if not isinstance(series, Entry):
-			series = self.getUbuntuSeries(str(series))
+			series = cls.getUbuntuSeries(str(series))
 
-		if (name, series, pocket) not in self._src_pkg:
+		if (name, series, pocket) not in cls._src_pkg:
 			try:
-				srcpkg = self.getUbuntuArchive().getPublishedSources(
+				srcpkg = cls.getUbuntuArchive().getPublishedSources(
 					source_name = name, distro_series = series, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
-				self._src_pkg[(name, series, pocket)] = srcpkg
+				cls._src_pkg[(name, series, pocket)] = srcpkg
 			except IndexError:
 				if pocket == 'Release':
 					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
@@ -144,4 +146,4 @@ class LpApiWrapper(object):
 
 				raise PackageNotFoundException(msg)
 
-		return self._src_pkg[(name, series, pocket)]
+		return cls._src_pkg[(name, series, pocket)]

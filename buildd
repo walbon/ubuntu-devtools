@@ -25,7 +25,7 @@
 import sys
 from optparse import OptionGroup
 from optparse import OptionParser
-import ubuntutools.lp.udtexceptions
+from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
 from ubuntutools.lp.lpapiwrapper import LpApiWrapper
 import ubuntutools.lp.functions as lp_functions
 
@@ -106,19 +106,14 @@ if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
 	print 'Unknown pocket: %s' % pocket
 	sys.exit(1)
 
-# Initialize ubuntu distribution collection.
+# Get an instance of the LP API wrapper
 lpapiwrapper = LpApiWrapper()
-ubuntuDist = lpapiwrapper.getUbuntuDistribution()
-# Get main Ubuntu archive.
-archive = lpapiwrapper.getUbuntuArchive()
-# Check the release exists.
+# Get list of published sources for package in question.
 try:
-	release_series = lpapiwrapper.getUbuntuSeries(release)
-except ubuntutools.lp.udtexceptions.SeriesNotFoundException, e:
+	sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
+except (SeriesNotFoundException, PackageNotFoundException), e:
     print e
     sys.exit(1)
-# Get list of published sources for package in question.
-sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
 # Get list of builds for that package.
 builds = sources.getBuilds()
 
