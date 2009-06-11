@@ -25,9 +25,12 @@
 #httplib2.debuglevel = 1
 
 import libsupport
+from launchpadlib.errors import HTTPError
+from launchpadlib.resource import Entry
+from udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExist
 
-# Singleton for Launchpad API access
 class Launchpad(object):
+	''' Singleton for LP API access. '''
 	__lp = None
 
 	def __getattr__(self, attr):
@@ -38,3 +41,107 @@ class Launchpad(object):
 	def __call__(self):
 		return self
 Launchpad = Launchpad()
+
+class LpApiWrapper(object):
+	'''
+	Wrapper around some common used LP API functions used in
+	ubuntu-dev-tools.
+
+	It also caches LP API objects either as class variables or as
+	instance variables depending on the expected change of its value.
+	'''
+	_ubuntu = None
+	_archive = None
+	_series = dict()
+	_devel_series = None
+
+	def __init__(self):
+		self._src_pkg = dict()
+
+	@classmethod
+	def getUbuntuDistribution(cls):
+		'''
+		Returns the LP representation for Ubuntu.
+		'''
+		if not cls._ubuntu:
+			cls._ubuntu = Launchpad.distributions['ubuntu']
+		return cls._ubuntu
+
+	@classmethod
+	def getUbuntuArchive(cls):
+		'''
+		Returns the LP representation for the Ubuntu main archive.
+		'''
+		if not cls._archive:
+			cls._archive = cls.getUbuntuDistribution().main_archive
+		return cls._archive
+
+	@classmethod
+	def getUbuntuSeries(cls, name_or_version):
+		'''
+		Returns the LP representation of a series passed by name (e.g.
+		'karmic') or version (e.g. '9.10').
+		If the series is not found: raise SeriesNotFoundException
+		'''
+		name_or_version = str(name_or_version)
+		if name_or_version not in cls._series:
+			try:
+				series = cls.getUbuntuDistribution().getSeries(name_or_version = name_or_version)
+				# Cache with name and version
+				cls._series[series.name] = series
+				cls._series[series.version] = series
+			except HTTPError:
+				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)
+
+		return cls._series[name_or_version]
+
+	@classmethod
+	def getUbuntuDevelopmentSeries(cls):
+		'''
+		Returns the LP representation of the current development series of
+		Ubuntu.
+		'''
+		
+		if not cls._devel_series:
+			dev = cls.getUbuntuDistribution().current_series
+			cls._devel_series = dev
+			# Cache it in _series if not already done
+			if dev.name not in cls._series:
+				cls._series[dev.name] = dev
+				cls._series[dev.version] = dev
+
+		return cls._devel_series
+
+	def getUbuntuSourcePackage(self, name, series, pocket = 'Release'):
+		'''
+		Finds an Ubuntu source package on LP.
+
+		Returns LP representation of the source package.
+        If the package does not exist: raise PackageNotFoundException
+		'''
+
+		# Check if pocket has a valid value
+		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
+
+		# Check if we have already a LP representation of an Ubuntu series or not
+		if not isinstance(series, Entry):
+			series = self.getUbuntuSeries(str(series))
+
+		if (name, series, pocket) not in self._src_pkg:
+			try:
+				srcpkg = self.getUbuntuArchive().getPublishedSources(
+					source_name = name, distro_series = series, pocket = pocket,
+					status = 'Published', exact_match = True)[0]
+				self._src_pkg[(name, series, pocket)] = srcpkg
+			except IndexError:
+				if pocket == 'Release':
+					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
+						(name, series.name)
+				else:
+					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s-%s'" % \
+							(name, series.name, pocket.lower())
+
+				raise PackageNotFoundException(msg)
+
+		return self._src_pkg[(name, series, pocket)]

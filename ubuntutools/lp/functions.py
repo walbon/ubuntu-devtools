@@ -21,23 +21,36 @@
 import urllib2
 import sys
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException
-from lpapiwrapper import Launchpad
+from lpapiwrapper import Launchpad, LpApiWrapper
 import launchpadlib
 from re import findall
+import warnings
+
+# http://wiki.python.org/moin/PythonDecoratorLibrary#GeneratingDeprecationWarnings
+def deprecated(func):
+     """This is a decorator which can be used to mark functions
+     as deprecated. It will result in a warning being emitted
+     when the function is used."""
+     def new_func(*args, **kwargs):
+         warnings.warn("Call to deprecated function %s." % func.__name__, DeprecationWarning, 2)
+         return func(*args, **kwargs)
+     new_func.__name__ = func.__name__
+     new_func.__doc__ = func.__doc__
+     new_func.__dict__.update(func.__dict__)
+     return new_func
+
 
 # Singleton to access LP API
 launchpad = Launchpad
 
+@deprecated
 def getUbuntuDistribution():
-    ubuntu = launchpad.distributions['ubuntu']
+    return LpApiWrapper.getUbuntuDistribution()
 
-    return ubuntu
-
+@deprecated
 def ubuntuDevelopmentSeries():
     """ Get the string repr of the current Ubuntu development series """
-    
-    ubuntu = getUbuntuDistribution()
-    return ubuntu.current_series.name
+    return LpApiWrapper.getUbuntuDevelopmentSeries().name
     
 def doesUbuntuReleaseExist(name):
     """ Prettier name to use for _ubuntuSeries() """
@@ -49,15 +62,7 @@ def _ubuntuSeries(name):
         returns the LP API repr of a series passed by name (e.g. 'karmic')
         If the series is not found: raise SeriesNotFoundException
     """
-    
-    ubuntu = getUbuntuDistribution()
-    try:
-        
-        return ubuntu.getSeries(name_or_version=name)
-        
-    except launchpadlib.errors.HTTPError:
-        
-        raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name)    
+    return LpApiWrapper.getUbuntuSeries(name)
 
 def _ubuntuSourcePackage(package, series, pocket = 'Release'):
     """ Finds an Ubuntu source package on LP
@@ -65,23 +70,8 @@ def _ubuntuSourcePackage(package, series, pocket = 'Release'):
         returns LP API repr of the source package
         If the package does not exist: raise PackageNotFoundException
     """
-    
-    try:
-        
-        lpseries = _ubuntuSeries(series)
-        
-        ubuntu = launchpad.distributions['ubuntu']
-        u_archive = ubuntu.main_archive
-    
-        component = u_archive.getPublishedSources(source_name=package, status="Published",
-            exact_match=True, distro_series=lpseries, pocket = pocket)[0]
-            
-        return component
-                            
-    except IndexError:
-        
-        raise PackageNotFoundException("The package %s does not exist in the Ubuntu main archive" %
-                package)
+    lpapiwrapper = LpApiWrapper()
+    return lpapiwrapper.getUbuntuSourcePackage(package, series, pocket)
     
 def packageVersion(package, series=ubuntuDevelopmentSeries()):
     """ Retrieves the version of a given source package in the current
@@ -112,8 +102,7 @@ def canUploadPackage(package, series=ubuntuDevelopmentSeries()):
         If the package does not exist: raise PackageNotFoundException
     """
 
-    ubuntu = launchpad.distributions['ubuntu']
-    u_archive = ubuntu.main_archive
+    u_archive = LpApiWrapper.getUbuntuArchive()
         
     uploaders = u_archive.getUploadersForComponent(component_name=packageComponent(package, series))
 
@@ -153,7 +142,7 @@ def isPerPackageUploader(package):
     # Checks if the user has upload privileges for a certain package.
 
     me = findall('~(\S+)', '%s' % launchpad.me)[0]
-    main_archive = launchpad.distributions["ubuntu"].main_archive
+    main_archive = LpApiWrapper.getUbuntuArchive()
     try:
         perms = main_archive.getUploadersForPackage(source_package_name=package)
     except launchpadlib.errors.HTTPError:

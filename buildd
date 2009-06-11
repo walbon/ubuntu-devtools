@@ -25,6 +25,8 @@
 import sys
 from optparse import OptionGroup
 from optparse import OptionParser
+import ubuntutools.lp.udtexceptions
+from ubuntutools.lp.lpapiwrapper import LpApiWrapper
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -96,7 +98,6 @@ else:
 # ubuntu-dev-tools modules
 # Import here to improve speed perception parsing options for user.
 import ubuntutools.lp.functions as lp_functions
-import ubuntutools.lp.udtexceptions
 
 # split release and pocket
 if '-' in release:
@@ -109,16 +110,18 @@ if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
 	sys.exit(1)
 
 # Initialize ubuntu distribution collection.
-ubuntuDist = lp_functions.getUbuntuDistribution()
+lpapiwrapper = LpApiWrapper()
+ubuntuDist = lpapiwrapper.getUbuntuDistribution()
 # Get main Ubuntu archive.
-archive = ubuntuDist.main_archive
+archive = lpapiwrapper.getUbuntuArchive()
 # Check the release exists.
 try:
-	release_series = lp_functions.doesUbuntuReleaseExist(release)
+	release_series = lpapiwrapper.getUbuntuSeries(release)
 except ubuntutools.lp.udtexceptions.SeriesNotFoundException, e:
     print e
     sys.exit(1)
 # Get list of published sources for package in question.
+#sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
 sources = lp_functions._ubuntuSourcePackage(package, release, pocket)
 # Get list of builds for that package.
 builds = sources.getBuilds()

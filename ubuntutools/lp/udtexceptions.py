@@ -5,3 +5,7 @@ class PackageNotFoundException(BaseException):
 class SeriesNotFoundException(BaseException):
 	""" Thrown when a distroseries is not found """
 	pass
+
+class PocketDoesNotExist(BaseException):
+	""" Thrown when a invalid pocket is passed """
+	pass
