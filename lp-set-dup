@@ -53,7 +53,7 @@ if __name__ == '__main__':
     except IOError:
         suggestion = "you might want to \"manage-credentials create --consumer ubuntu-dev-tools --level 2\""
     if launchpad is None:
-        die("Couldn't setup Launchpad for the ubuntu-dev-tools consumer; %s" (suggestion, ))
+        die("Couldn't setup Launchpad for the ubuntu-dev-tools consumer; %s" % (suggestion, ))
 
     # check that the new main bug isn't a duplicate
     new_main_bug = launchpad.bugs[args[0]]

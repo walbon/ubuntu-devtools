@@ -41,6 +41,9 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * Get rid of the last remaining use of subprocess.Popen(shell=True) in
     404main.
 
+  [ Luke Yelavich ]
+  * lp-set-dup: Add missing % needed for string substitution.
+
  -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
