@@ -42,7 +42,8 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
     404main.
 
   [ Luke Yelavich ]
-  * lp-set-dup: Add missing % needed for string substitution.
+  * lp-set-dup: Add missing % needed for string substitution. Thanks to
+    Robert Ancell for the fix.
 
  -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
 
