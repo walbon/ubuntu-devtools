@@ -45,7 +45,11 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * lp-set-dup: Add missing % needed for string substitution. Thanks to
     Robert Ancell for the fix.
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 09 Jun 2009 10:31:03 +0200
+  [ Iain Lane ]
+  * requestsync: We need to use the output from madison, not just throw it
+    away.
+
+ -- Iain Lane <laney@ubuntu.com>  Mon, 15 Jun 2009 19:17:51 +0100
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
 

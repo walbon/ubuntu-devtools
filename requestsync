@@ -134,7 +134,8 @@ def cur_version_component(sourcepkg, release):
 
 def cur_deb_version(sourcepkg, distro):
     '''Return the current debian version of a package in a Debian distro.'''
-    if not ubuntutools.packages.checkIsInDebian(sourcepkg, distro):
+    out = ubuntutools.packages.checkIsInDebian(sourcepkg, distro)
+    if not out:
         print "%s doesn't appear to exist in Debian." % sourcepkg
         sys.exit(0)
     
