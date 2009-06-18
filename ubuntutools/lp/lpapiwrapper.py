@@ -39,6 +39,7 @@ class Launchpad(object):
 		'''
 		if not self.__lp:
 			self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+		return self
 
 	def __getattr__(self, attr):
 		if not self.__lp:
