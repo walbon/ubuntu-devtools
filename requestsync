@@ -55,7 +55,7 @@ def checkNeedsSponsorship(srcpkg):
 
         If they are in the ~ubuntu-core-dev team, no sponsorship required.
     """
-    if not lp_functions.canUploadPackage(srcpkg):
+    if not LpApiWrapper.canUploadPackage(srcpkg):
 
         print "You are not able to upload this package directly to Ubuntu.\n" \
               "Your sync request shall require an approval by a member of " \

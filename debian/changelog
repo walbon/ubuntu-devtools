@@ -2,7 +2,9 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * buildd:
-    + Use the LP API for retrying or rescoring builds.
+    - Use the LP API for retrying or rescoring builds.
+  * requestsync:
+    - Fix check for sponsorship when a new package should get synced.
 
   [ Jonathan Davies ]
   * update-maintainer:
@@ -49,7 +51,7 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * requestsync: We need to use the output from madison, not just throw it
     away.
 
- -- Iain Lane <laney@ubuntu.com>  Mon, 15 Jun 2009 19:17:51 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 27 Jun 2009 11:56:08 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
 

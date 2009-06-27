@@ -176,7 +176,8 @@ class LpApiWrapper(object):
 		per-package upload rights.
 
 		'package' can either be a LP representation of a source package
-		or a string and an Ubuntu series.
+		or a string and an Ubuntu series. If 'package' doesn't exist
+		yet in Ubuntu assume 'universe' for component.
 		'''
 
 		if isinstance(package, Entry):
@@ -187,7 +188,11 @@ class LpApiWrapper(object):
 				# Fall-back to current Ubuntu development series
 				series = cls.getUbuntuDevelopmentSeries()
 
-			component = cls.getUbuntuSourcePackage(package, series).component_name
+			try:
+				component = cls.getUbuntuSourcePackage(package, series).component_name
+			except PackageNotFoundException:
+				# Probably a new package, assume "universe" as component
+				component = 'universe'
 
 		if component not in cls._upload_comp and package not in cls._upload_pkg:
 			me = cls.getMe()
