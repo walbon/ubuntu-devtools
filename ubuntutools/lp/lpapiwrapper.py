@@ -29,6 +29,8 @@ from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExist
 
+__all__ = ['Launchpad', 'LpApiWrapper']
+
 class Launchpad(object):
 	''' Singleton for LP API access. '''
 	__lp = None
@@ -153,7 +155,7 @@ class LpApiWrapper(object):
 		if (name, series, pocket) not in cls._src_pkg:
 			try:
 				srcpkg = cls.getUbuntuArchive().getPublishedSources(
-					source_name = name, distro_series = series, pocket = pocket,
+					source_name = name, distro_series = series._series, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
 				cls._src_pkg[(name, series, pocket)] = _SourcePackage(srcpkg)
 			except IndexError:
