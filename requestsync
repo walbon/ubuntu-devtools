@@ -226,7 +226,7 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
         mailbody += ' affects ubuntu/%s\n' % source_package
     else:
         mailbody += ' affects ubuntu\n'
-    mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n\n%s' % (status, subscribe, bugtext)
+    mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n done\n\n%s' % (status, subscribe, bugtext)
 
     # prepare sign_command
     sign_command = 'gpg'

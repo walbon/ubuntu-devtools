@@ -5,6 +5,9 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
     - Use the LP API for retrying or rescoring builds.
   * requestsync:
     - Fix check for sponsorship when a new package should get synced.
+    - Add "done" as last email command when emailing the sync request
+      to stop parsing of the email body for further email commands 
+      (lp: #372555)
 
   [ Jonathan Davies ]
   * update-maintainer:
@@ -51,7 +54,7 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * requestsync: We need to use the output from madison, not just throw it
     away.
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 27 Jun 2009 11:56:08 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 02 Jul 2009 19:55:55 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
 
