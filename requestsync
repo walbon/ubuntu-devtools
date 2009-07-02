@@ -36,7 +36,6 @@ from optparse import OptionParser
 from time import sleep
 
 # ubuntu-dev-tools modules.
-import ubuntutools.lp.functions as lp_functions
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
 from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper
@@ -122,10 +121,8 @@ def checkExistingReports(package):
 def cur_version_component(sourcepkg, release):
     
     try:
-        version = lp_functions.packageVersion(sourcepkg, release)
-        component = lp_functions.packageComponent(sourcepkg, release)
-        
-        return (version, component)
+	src = LpApiWrapper.getUbuntuSourcePackage(sourcepkg, release)
+        return (src.getVersion(), src.getComponent())
      
     except udtexceptions.PackageNotFoundException:
         
@@ -363,7 +360,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
     # Only members of ubuntu-bugcontrol can set importance
-    if lp_functions.isLPTeamMember('ubuntu-bugcontrol'):
+    if LpApiWrapper.isLpTeamMember('ubuntu-bugcontrol'):
         task.importance = 'Wishlist'
     task.status = status
     task.lp_save()
@@ -552,7 +549,7 @@ if __name__ == '__main__':
 
 
         # Check if they have a per-package upload permission.
-        if lp_functions.isPerPackageUploader(srcpkg):
+        if LpApiWrapper.isPerPackageUploader(srcpkg):
 	        report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
     uidx = base_ver.find('build')

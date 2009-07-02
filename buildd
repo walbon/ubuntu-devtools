@@ -27,7 +27,6 @@ from optparse import OptionGroup
 from optparse import OptionParser
 from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
 from ubuntutools.lp.lpapiwrapper import LpApiWrapper
-import ubuntutools.lp.functions as lp_functions
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -117,15 +116,13 @@ except (SeriesNotFoundException, PackageNotFoundException), e:
 # Get list of builds for that package.
 builds = sources.getBuilds()
 
-# Find out the version in given release.
-version = sources.source_package_version
-
-# Get the component the package is in.
-component = sources.component_name
+# Find out the version and component in given release.
+version = sources.getVersion()
+component = sources.getComponent()
 
 # Operations that are remaining may only be done by Ubuntu developers (retry)
 # or buildd admins (rescore). Check if the proper permissions are in place.
-if op == "rescore": necessaryPrivs = lp_functions.isLPTeamMember('launchpad-buildd-admins')
+if op == "rescore": necessaryPrivs = lpapiwrapper.isLpTeamMember('launchpad-buildd-admins')
 if op == "retry": necessaryPrivs = lpapiwrapper.canUploadPackage(package, release)
 
 if op in ('rescore', 'retry') and not necessaryPrivs:

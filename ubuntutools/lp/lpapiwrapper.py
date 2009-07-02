@@ -109,8 +109,8 @@ class LpApiWrapper(object):
 			try:
 				series = cls.getUbuntuDistribution().getSeries(name_or_version = name_or_version)
 				# Cache with name and version
-				cls._series[series.name] = series
-				cls._series[series.version] = series
+				cls._series[series.name] = _UbuntuSeries(series)
+				cls._series[series.version] = _UbuntuSeries(series)
 			except HTTPError:
 				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name_or_version)
 
@@ -125,11 +125,11 @@ class LpApiWrapper(object):
 		
 		if not cls._devel_series:
 			dev = cls.getUbuntuDistribution().current_series
-			cls._devel_series = dev
+			cls._devel_series = _UbuntuSeries(dev)
 			# Cache it in _series if not already done
 			if dev.name not in cls._series:
-				cls._series[dev.name] = dev
-				cls._series[dev.version] = dev
+				cls._series[dev.name] = cls._devel_series
+				cls._series[dev.version] = cls._devel_series
 
 		return cls._devel_series
 
@@ -138,7 +138,7 @@ class LpApiWrapper(object):
 		'''
 		Finds an Ubuntu source package on LP.
 
-		Returns LP representation of the source package.
+		Returns a wrapped LP representation of the source package.
 		If the package does not exist: raise PackageNotFoundException
 		'''
 
@@ -147,7 +147,7 @@ class LpApiWrapper(object):
 			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
 
 		# Check if we have already a LP representation of an Ubuntu series or not
-		if not isinstance(series, Entry):
+		if not isinstance(series, _UbuntuSeries):
 			series = cls.getUbuntuSeries(str(series))
 
 		if (name, series, pocket) not in cls._src_pkg:
@@ -155,7 +155,7 @@ class LpApiWrapper(object):
 				srcpkg = cls.getUbuntuArchive().getPublishedSources(
 					source_name = name, distro_series = series, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
-				cls._src_pkg[(name, series, pocket)] = srcpkg
+				cls._src_pkg[(name, series, pocket)] = _SourcePackage(srcpkg)
 			except IndexError:
 				if pocket == 'Release':
 					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
@@ -175,21 +175,21 @@ class LpApiWrapper(object):
 		for package either through component upload rights or
 		per-package upload rights.
 
-		'package' can either be a LP representation of a source package
-		or a string and an Ubuntu series. If 'package' doesn't exist
-		yet in Ubuntu assume 'universe' for component.
+		'package' can either be a wrapped LP representation of a source
+		package or a string and an Ubuntu series. If 'package' doesn't
+		exist yet in Ubuntu assume 'universe' for component.
 		'''
 
-		if isinstance(package, Entry):
-			component = package.component_name
-			package = package.source_package_name
+		if isinstance(package, _SourcePackage):
+			component = package.getComponent()
+			package = package.getPackageName()
 		else:
 			if not series:
 				# Fall-back to current Ubuntu development series
 				series = cls.getUbuntuDevelopmentSeries()
 
 			try:
-				component = cls.getUbuntuSourcePackage(package, series).component_name
+				component = cls.getUbuntuSourcePackage(package, series).getComponent()
 			except PackageNotFoundException:
 				# Probably a new package, assume "universe" as component
 				component = 'universe'
@@ -211,3 +211,69 @@ class LpApiWrapper(object):
 			return cls._upload_comp[component]
 		else:
 			return cls._upload_pkg[package]
+
+	# TODO: check if this is still needed after ArchiveReorg (or at all)
+	@classmethod
+	def isPerPackageUploader(cls, package, series = None):
+		'''
+		Check if the user has PerPackageUpload rights for package.
+		'''
+		if isinstance(package, _SourcePackage):
+			pkg = package.getPackageName()
+		else:
+			pkg = package
+
+		return cls.canUploadPackage(package, series) and pkg in cls._upload_pkg
+
+	@classmethod
+	def isLpTeamMember(cls, team):
+		'''
+		Checks if the user is a member of a certain team on Launchpad.
+		
+		Returns True if the user is a member of the team otherwise False.
+		'''
+		return any(t.name == team for t in cls.getMe().super_teams)
+
+class _UbuntuSeries(object):
+	'''
+	Wrapper class around a LP Ubuntu series object.
+	'''
+	def __init__(self, series):
+		if isinstance(series, Entry) and series.resource_type_link == 'https://api.edge.launchpad.net/beta/#distro_series':
+			self._series = series
+		else:
+			raise TypeError('A LP API Ubuntu series representation expected.')
+
+	def __getattr__(self, attr):
+		return getattr(self._series, attr)
+
+class _SourcePackage(object):
+	'''
+	Wrapper class around a LP source package object.
+	'''
+	def __init__(self, srcpkg):
+		if isinstance(srcpkg, Entry) and srcpkg.resource_type_link == 'https://api.edge.launchpad.net/beta/#source_package_publishing_history':
+			self._srcpkg = srcpkg
+		else:
+			raise TypeError('A LP API source package representation expected.')
+
+	def getPackageName(self):
+		'''
+		Returns the source package name.
+		'''
+		return self._srcpkg.source_package_name
+
+	def getVersion(self):
+		'''
+		Returns the version of the source package.
+		'''
+		return self._srcpkg.source_package_version
+
+	def getComponent(self):
+		'''
+		Returns the component of the source package.
+		'''
+		return self._srcpkg.component_name
+
+	def __getattr__(self, attr):
+		return getattr(self._srcpkg, attr)
