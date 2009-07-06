@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.75) karmic; urgency=low
 
   [ Michael Bienia ]
   * buildd:
@@ -54,7 +54,7 @@ ubuntu-dev-tools (0.75) UNRELEASED; urgency=low
   * requestsync: We need to use the output from madison, not just throw it
     away.
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 02 Jul 2009 19:55:55 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 06 Jul 2009 17:46:21 +0200
 
 ubuntu-dev-tools (0.74) karmic; urgency=low
 
