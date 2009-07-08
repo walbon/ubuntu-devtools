@@ -95,5 +95,5 @@ print "Resetting as: " + target_maintainer
 
 # Replace text.
 debian_control_file = open(control_file, "w")
-debian_control_file.write(re.sub(original_maintainer, final_addition, file_contents))
+debian_control_file.write(re.sub(re.escape(original_maintainer), final_addition, file_contents))
 debian_control_file.close()

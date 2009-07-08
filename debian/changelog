@@ -1,8 +1,11 @@
 ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
 
-  * 
+  [ Andreas Moog ]
+  * update-maintainer:
+    - Don't silently fail when Maintainer-Field contains a comment
+      in brackets. (LP: #397144)
 
- -- Michael Bienia <geser@ubuntu.com>  Mon, 06 Jul 2009 17:54:24 +0200
+ -- Andreas Moog <amoog@ubuntu.com>  Wed, 08 Jul 2009 21:23:24 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
