@@ -4,8 +4,10 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
   * update-maintainer:
     - Don't silently fail when Maintainer-Field contains a comment
       in brackets. (LP: #397144)
+    - Don't add second XSBC-Original-Maintainer if Maintainer was set
+      to Motu or Core-Dev.
 
- -- Andreas Moog <amoog@ubuntu.com>  Wed, 08 Jul 2009 21:23:24 +0200
+ -- Andreas Moog <amoog@ubuntu.com>  Wed, 08 Jul 2009 23:07:05 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 

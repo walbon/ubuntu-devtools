@@ -88,7 +88,14 @@ else:
 
 # Set original maintainer field in a string.
 original_maintainer = maintainer_name + " " + maintainer_mail
-final_addition = target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
+
+# If maintainer-field contained the pre-archive-reorganisation entries, don't add a new
+# XSBC-Original maintainer field
+
+if not "lists.ubuntu.com" in original_maintainer:
+	final_addition = target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
+else:
+	final_addition = target_maintainer
 
 print "The original maintainer for this package is: " + original_maintainer
 print "Resetting as: " + target_maintainer
