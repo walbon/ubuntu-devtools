@@ -78,7 +78,7 @@ class LpApiWrapper(object):
 		Returns the LP representations of the currently authenticated LP user.
 		'''
 		if not cls._me:
-			cls._me = Launchpad.me
+			cls._me = _PersonTeam(Launchpad.me)
 		return cls._me
 
 	@classmethod
@@ -279,3 +279,46 @@ class _SourcePackage(object):
 
 	def __getattr__(self, attr):
 		return getattr(self._srcpkg, attr)
+
+class _PersonTeam(object):
+	'''
+	Wrapper class around a LP person or team object.
+	'''
+
+	_cache = dict() # Key is the LP API person/team URL
+
+	def __init__(self, personteam):
+		if isinstance(personteam, Entry) and personteam.resource_type_link in \
+				('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team'):
+			self._personteam = personteam
+			# Add ourself to the cache
+			if str(personteam) not in self._cache:
+				self._cache[str(personteam)] = self
+		else:
+			raise TypeError('A LP API person or team representation expected.')
+
+	def __str__(self):
+		return '%s (%s)' % (self._personteam.display_name, self._personteam.name)
+
+	def __getattr__(self, attr):
+		return getattr(self._personteam, attr)
+
+	@classmethod
+	def getPersonTeam(cls, name):
+		'''
+		Return a _PersonTeam object for the LP user 'name'.
+
+		'name' can be a LP id or a LP API URL for that person or team.
+		'''
+
+		if name in cls._cache:
+			# 'name' is a LP API URL
+			return cls._cache[name]
+		else:
+			if not name.startswith('http'):
+				# Check if we've cached the 'name' already
+				for personteam in cls._cache.values():
+					if personteam.name == name:
+						return personteam
+
+			return _PersonTeam(Launchpad.people[name])
