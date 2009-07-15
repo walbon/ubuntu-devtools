@@ -431,7 +431,7 @@ def edit_report(subject, body, changes_required=False):
 if __name__ == '__main__':
     # Our usage options.
     usage = "Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] "
-    usage += "<source package> <target release> [base version]"
+    usage += "<source package> [<target release> [base version]]"
     optParser = OptionParser(usage)
 
     optParser.add_option("-d", type = "string",
