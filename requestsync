@@ -469,6 +469,10 @@ if __name__ == '__main__':
     if not use_lp_bugs and not get_email_address():
         sys.exit(1)
 
+    if len(args) == 0:
+        optParser.print_help()
+        sys.exit(1)
+
     if len(args) not in (2, 3): # no release specified, assume development release
         release = LpApiWrapper.getUbuntuDevelopmentSeries().name
         print >> sys.stderr, ("Source package / target release missing - assuming %s " %
