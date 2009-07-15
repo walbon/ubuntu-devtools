@@ -203,8 +203,11 @@ def get_email_address():
     '''Get the DEBEMAIL environment variable or give an error.'''
     myemailaddr = os.getenv('DEBEMAIL')
     if not myemailaddr:
-        print >> sys.stderr, 'The environment variable DEBEMAIL needs to be ' +\
-            ' set to make use of this script, unless you use option --lp.'
+        myemailaddr = os.getenv('EMAIL')
+        if not myemailaddr:
+            print >> sys.stderr, 'The environment variable DEBEMAIL or ' +\
+                'EMAIL needs to be set to make use of this script, unless ' +\
+                'you use option --lp.'
     return myemailaddr
 
 def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):

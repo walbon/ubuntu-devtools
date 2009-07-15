@@ -79,9 +79,11 @@ if 'Ubuntu Developers' in maintainer_name and \
 if not ubuntutools.packages.checkIsInDebian(package_name, 'unstable'):
     user_email_address = os.getenv('DEBEMAIL')
     if not user_email_address:
-        sys.stderr.write('The environment variable DEBEMAIL needs to be ' +\
-            'set to make proper use of this script.\n')
-    	sys.exit(1)
+        user_email_address = os.getenv('EMAIL')
+        if not user_email_address:
+            sys.stderr.write('The environment variable DEBEMAIL or EMAIL ' +\
+                'needs to be set to make proper use of this script.\n')
+            sys.exit(1)
     target_maintainer = user_email_address
 else:
     target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
