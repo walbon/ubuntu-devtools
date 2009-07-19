@@ -111,8 +111,8 @@ class LpApiWrapper(object):
 			try:
 				series = cls.getUbuntuDistribution().getSeries(name_or_version = name_or_version)
 				# Cache with name and version
-				cls._series[series.name] = _UbuntuSeries(series)
-				cls._series[series.version] = _UbuntuSeries(series)
+				cls._series[series.name] = DistroSeries(series)
+				cls._series[series.version] = DistroSeries(series)
 			except HTTPError:
 				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name_or_version)
 
@@ -127,7 +127,7 @@ class LpApiWrapper(object):
 		
 		if not cls._devel_series:
 			dev = cls.getUbuntuDistribution().current_series
-			cls._devel_series = _UbuntuSeries(dev)
+			cls._devel_series = DistroSeries(dev)
 			# Cache it in _series if not already done
 			if dev.name not in cls._series:
 				cls._series[dev.name] = cls._devel_series
@@ -149,13 +149,13 @@ class LpApiWrapper(object):
 			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
 
 		# Check if we have already a LP representation of an Ubuntu series or not
-		if not isinstance(series, _UbuntuSeries):
+		if not isinstance(series, DistroSeries):
 			series = cls.getUbuntuSeries(str(series))
 
 		if (name, series, pocket) not in cls._src_pkg:
 			try:
 				srcpkg = cls.getUbuntuArchive().getPublishedSources(
-					source_name = name, distro_series = series._series, pocket = pocket,
+					source_name = name, distro_series = series._lpobject, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
 				cls._src_pkg[(name, series, pocket)] = _SourcePackage(srcpkg)
 			except IndexError:
@@ -289,19 +289,6 @@ class BaseWrapper(object):
 	def __getattr__(self, attr):
 		return getattr(self._entry, attr)
 
-
-class _UbuntuSeries(object):
-	'''
-	Wrapper class around a LP Ubuntu series object.
-	'''
-	def __init__(self, series):
-		if isinstance(series, Entry) and series.resource_type_link == 'https://api.edge.launchpad.net/beta/#distro_series':
-			self._series = series
-		else:
-			raise TypeError('A LP API Ubuntu series representation expected.')
-
-	def __getattr__(self, attr):
-		return getattr(self._series, attr)
 
 class DistroSeries(BaseWrapper):
 	'''
