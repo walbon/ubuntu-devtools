@@ -236,6 +236,60 @@ class LpApiWrapper(object):
 		'''
 		return any(t.name == team for t in cls.getMe().super_teams)
 
+
+class MetaWrapper(type):
+	'''
+	A meta class used for wrapping LP API objects.
+	'''
+	def __init__(cls, name, bases, attrd):
+		super(MetaWrapper, cls).__init__(name, bases, attrd)
+		if 'resource_type' not in attrd:
+			raise TypeError('Class needs an associated resource type')
+		cls._cache = dict()
+
+
+class BaseWrapper(object):
+	'''
+	A base class from which other wrapper classes are derived.
+	'''
+	__metaclass__ = MetaWrapper
+	resource_type = None # it's a base class after all
+
+	def __new__(cls, lpobject):
+		if isinstance(lpobject, str):
+			if lpobject.startswith('http'):
+				# might be an LP API URL
+				# look it up in our cache
+				data = cls._cache.get(lpobject)
+				if data:
+					return data
+				else:
+					# try to fetch it from LP
+					fetch = getattr(cls, 'fetch', None)
+					if fetch and callable(fetch):
+						lpobject = fetch(lpobject)
+					else:
+						raise NotImplementedError("Don't know how to fetch '%s' from LP" % lpobject)
+			else:
+				raise TypeError("'%s' doesn't look like a LP API URL" % lpobject)
+
+		if isinstance(lpobject, Entry) and lpobject.resource_type_link in cls.resource_type:
+			# check if it's already cached
+			data = cls._cache.get(lpobject.self_link)
+			if not data:
+				# create a new instance
+				data = object.__new__(cls)
+				data._lpobject = lpobject
+				# and add it to our cache
+				cls._cache[lpobject.self_link] = data
+			return data
+		else:
+			raise TypeError("'%s' is not a '%s' object" % (str(lpobject), str(cls.resource_type)))
+
+	def __getattr__(self, attr):
+		return getattr(self._entry, attr)
+
+
 class _UbuntuSeries(object):
 	'''
 	Wrapper class around a LP Ubuntu series object.
@@ -248,6 +302,12 @@ class _UbuntuSeries(object):
 
 	def __getattr__(self, attr):
 		return getattr(self._series, attr)
+
+class DistroSeries(BaseWrapper):
+	'''
+	Wrapper class around a LP distro series object.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#distro_series'
 
 class _SourcePackage(object):
 	'''
