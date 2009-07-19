@@ -157,7 +157,7 @@ class LpApiWrapper(object):
 				srcpkg = cls.getUbuntuArchive().getPublishedSources(
 					source_name = name, distro_series = series._lpobject, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
-				cls._src_pkg[(name, series, pocket)] = _SourcePackage(srcpkg)
+				cls._src_pkg[(name, series, pocket)] = SourcePackage(srcpkg)
 			except IndexError:
 				if pocket == 'Release':
 					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
@@ -182,7 +182,7 @@ class LpApiWrapper(object):
 		exist yet in Ubuntu assume 'universe' for component.
 		'''
 
-		if isinstance(package, _SourcePackage):
+		if isinstance(package, SourcePackage):
 			component = package.getComponent()
 			package = package.getPackageName()
 		else:
@@ -220,7 +220,7 @@ class LpApiWrapper(object):
 		'''
 		Check if the user has PerPackageUpload rights for package.
 		'''
-		if isinstance(package, _SourcePackage):
+		if isinstance(package, SourcePackage):
 			pkg = package.getPackageName()
 		else:
 			pkg = package
@@ -287,7 +287,7 @@ class BaseWrapper(object):
 			raise TypeError("'%s' is not a '%s' object" % (str(lpobject), str(cls.resource_type)))
 
 	def __getattr__(self, attr):
-		return getattr(self._entry, attr)
+		return getattr(self._lpobject, attr)
 
 
 class DistroSeries(BaseWrapper):
@@ -296,36 +296,31 @@ class DistroSeries(BaseWrapper):
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#distro_series'
 
-class _SourcePackage(object):
+
+class SourcePackage(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
-	def __init__(self, srcpkg):
-		if isinstance(srcpkg, Entry) and srcpkg.resource_type_link == 'https://api.edge.launchpad.net/beta/#source_package_publishing_history':
-			self._srcpkg = srcpkg
-		else:
-			raise TypeError('A LP API source package representation expected.')
+	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
 
 	def getPackageName(self):
 		'''
 		Returns the source package name.
 		'''
-		return self._srcpkg.source_package_name
+		return self._lpobject.source_package_name
 
 	def getVersion(self):
 		'''
 		Returns the version of the source package.
 		'''
-		return self._srcpkg.source_package_version
+		return self._lpobject.source_package_version
 
 	def getComponent(self):
 		'''
 		Returns the component of the source package.
 		'''
-		return self._srcpkg.component_name
+		return self._lpobject.component_name
 
-	def __getattr__(self, attr):
-		return getattr(self._srcpkg, attr)
 
 class _PersonTeam(object):
 	'''
