@@ -57,16 +57,10 @@ class LpApiWrapper(object):
 	Wrapper around some common used LP API functions used in
 	ubuntu-dev-tools.
 	'''
-	_archive = None
-	_devel_series = None
 	_me = None
-	_series = dict()
 	_src_pkg = dict()
 	_upload_comp = dict()
 	_upload_pkg = dict()
-
-	def __init__(self):
-		pass
 
 	@classmethod
 	def getMe(cls):
@@ -85,42 +79,6 @@ class LpApiWrapper(object):
 		return Distribution('ubuntu')
 
 	@classmethod
-	def getUbuntuSeries(cls, name_or_version):
-		'''
-		Returns the LP representation of a series passed by name (e.g.
-		'karmic') or version (e.g. '9.10').
-		If the series is not found: raise SeriesNotFoundException
-		'''
-		name_or_version = str(name_or_version)
-		if name_or_version not in cls._series:
-			try:
-				series = cls.getUbuntuDistribution().getSeries(name_or_version = name_or_version)
-				# Cache with name and version
-				cls._series[series.name] = DistroSeries(series)
-				cls._series[series.version] = DistroSeries(series)
-			except HTTPError:
-				raise SeriesNotFoundException("Error: Unknown Ubuntu release: '%s'." % name_or_version)
-
-		return cls._series[name_or_version]
-
-	@classmethod
-	def getUbuntuDevelopmentSeries(cls):
-		'''
-		Returns the LP representation of the current development series of
-		Ubuntu.
-		'''
-		
-		if not cls._devel_series:
-			dev = cls.getUbuntuDistribution().current_series
-			cls._devel_series = DistroSeries(dev)
-			# Cache it in _series if not already done
-			if dev.name not in cls._series:
-				cls._series[dev.name] = cls._devel_series
-				cls._series[dev.version] = cls._devel_series
-
-		return cls._devel_series
-
-	@classmethod
 	def getUbuntuSourcePackage(cls, name, series, pocket = 'Release'):
 		'''
 		Finds an Ubuntu source package on LP.
@@ -135,12 +93,12 @@ class LpApiWrapper(object):
 
 		# Check if we have already a LP representation of an Ubuntu series or not
 		if not isinstance(series, DistroSeries):
-			series = cls.getUbuntuSeries(str(series))
+			series = cls.getUbuntuDistribution().getSeries(series)
 
 		if (name, series, pocket) not in cls._src_pkg:
 			try:
 				srcpkg = cls.getUbuntuDistribution().getMainArchive().getPublishedSources(
-					source_name = name, distro_series = series._lpobject, pocket = pocket,
+					source_name = name, distro_series = series(), pocket = pocket,
 					status = 'Published', exact_match = True)[0]
 				cls._src_pkg[(name, series, pocket)] = SourcePackage(srcpkg)
 			except IndexError:
@@ -173,7 +131,7 @@ class LpApiWrapper(object):
 		else:
 			if not series:
 				# Fall-back to current Ubuntu development series
-				series = cls.getUbuntuDevelopmentSeries()
+				series = cls.getUbuntuDistribution().getDevelopmentSeries()
 
 			try:
 				component = cls.getUbuntuSourcePackage(package, series).getComponent()
@@ -284,6 +242,11 @@ class Distribution(BaseWrapper):
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
 
+	def __init__(self, *args):
+		# Don't share _series between different Distributions
+		if '_series' not in self.__dict__:
+			self._series = dict()
+
 	def cache(self):
 		self._cache[self.name] = self
 
@@ -306,6 +269,33 @@ class Distribution(BaseWrapper):
 		if not '_archive' in self.__dict__:
 			self._archive = self.main_archive
 		return self._archive
+
+	def getSeries(self, name_or_version):
+		'''
+		Returns a DistroSeries object for a series passed by name
+		(e.g. 'karmic') or version (e.g. '9.10').
+		If the series is not found: raise SeriesNotFoundException
+		'''
+		if name_or_version not in self._series:
+			try:
+				series = DistroSeries(self().getSeries(name_or_version = name_or_version))
+				# Cache with name and version
+				self._series[series.name] = series
+				self._series[series.version] = series
+			except HTTPError:
+				raise SeriesNotFoundException("Error: Release '%s' is unknown in '%s'." % (name_or_version, self.display_name))
+		return self._series[name_or_version]
+
+	def getDevelopmentSeries(self):
+		'''
+		Returns a DistroSeries object of the current development series.
+		'''
+		dev = DistroSeries(self.current_series_link)
+		# Cache it in _series if not already done
+		if dev.name not in self._series:
+			self._series[dev.name] = dev
+			self._series[dev.version] = dev
+		return dev
 
 
 class DistroSeries(BaseWrapper):
