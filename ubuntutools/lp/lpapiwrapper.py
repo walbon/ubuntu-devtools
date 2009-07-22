@@ -29,7 +29,7 @@ from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
 from udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExist
 
-__all__ = ['Launchpad', 'LpApiWrapper']
+__all__ = ['LpApiWrapper']
 
 class Launchpad(object):
 	''' Singleton for LP API access. '''
@@ -56,9 +56,6 @@ class LpApiWrapper(object):
 	'''
 	Wrapper around some common used LP API functions used in
 	ubuntu-dev-tools.
-
-	It also caches LP API objects either as class variables or as
-	instance variables depending on the expected change of its value.
 	'''
 	_archive = None
 	_devel_series = None
@@ -74,7 +71,7 @@ class LpApiWrapper(object):
 	@classmethod
 	def getMe(cls):
 		'''
-		Returns the LP representations of the currently authenticated LP user.
+		Returns a PersonTeam object of the currently authenticated LP user.
 		'''
 		if not cls._me:
 			cls._me = PersonTeam(Launchpad.me)
@@ -354,31 +351,19 @@ class PersonTeam(BaseWrapper):
 	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
 
 	def __str__(self):
-		return '%s (%s)' % (self._lpobject.display_name, self._lpobject.name)
+		return '%s (%s)' % (self.display_name, self.name)
+
+	def cache(self):
+		self._cache[self.name] = self
 
 	@classmethod
-	def fetch(cls, url):
+	def fetch(cls, person_or_team):
 		'''
 		Fetch the person or team object identified by 'url' from LP.
 		'''
-		return Launchpad.people[url]
-
-	@classmethod
-	def getPersonTeam(cls, name):
-		'''
-		Return a PersonTeam object for the LP user 'name'.
-
-		'name' can be a LP id or a LP API URL for that person or team.
-		'''
-
-		if name in cls._cache:
-			# 'name' is a LP API URL
-			return cls._cache[name]
-		else:
-			if not name.startswith('http'):
-				# Check if we've cached the 'name' already
-				for personteam in cls._cache.values():
-					if personteam.name == name:
-						return personteam
-
-			return PersonTeam(Launchpad.people[name])
+		if not isinstance(person_or_team, str):
+			raise TypeError("Don't know what do with '%r'" % person_or_team)
+		cached = cls._cache.get(person_or_team)
+		if not cached:
+			cached = PersonTeam(Launchpad.people[person_or_team])
+		return cached
