@@ -253,7 +253,7 @@ class Distribution(BaseWrapper):
 	@classmethod
 	def fetch(cls, dist):
 		'''
-		Fetch the distribution object identified by 'url' from LP.
+		Fetch the distribution object identified by 'dist' from LP.
 		'''
 		if not isinstance(dist, str):
 			raise TypeError("Don't know what do with '%r'" % dist)
@@ -267,7 +267,7 @@ class Distribution(BaseWrapper):
 		Returns the LP representation for the Ubuntu main archive.
 		'''
 		if not '_archive' in self.__dict__:
-			self._archive = self.main_archive
+			self._archive = Archive(self.main_archive_link)
 		return self._archive
 
 	def getSeries(self, name_or_version):
@@ -303,6 +303,13 @@ class DistroSeries(BaseWrapper):
 	Wrapper class around a LP distro series object.
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#distro_series'
+
+
+class Archive(BaseWrapper):
+	'''
+	Wrapper class around a LP archive object.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#archive'
 
 
 class SourcePackage(BaseWrapper):
