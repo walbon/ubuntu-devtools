@@ -85,15 +85,6 @@ class LpApiWrapper(object):
 		return Distribution('ubuntu')
 
 	@classmethod
-	def getUbuntuArchive(cls):
-		'''
-		Returns the LP representation for the Ubuntu main archive.
-		'''
-		if not cls._archive:
-			cls._archive = cls.getUbuntuDistribution().main_archive
-		return cls._archive
-
-	@classmethod
 	def getUbuntuSeries(cls, name_or_version):
 		'''
 		Returns the LP representation of a series passed by name (e.g.
@@ -148,7 +139,7 @@ class LpApiWrapper(object):
 
 		if (name, series, pocket) not in cls._src_pkg:
 			try:
-				srcpkg = cls.getUbuntuArchive().getPublishedSources(
+				srcpkg = cls.getUbuntuDistribution().getMainArchive().getPublishedSources(
 					source_name = name, distro_series = series._lpobject, pocket = pocket,
 					status = 'Published', exact_match = True)[0]
 				cls._src_pkg[(name, series, pocket)] = SourcePackage(srcpkg)
@@ -192,7 +183,7 @@ class LpApiWrapper(object):
 
 		if component not in cls._upload_comp and package not in cls._upload_pkg:
 			me = cls.getMe()
-			archive = cls.getUbuntuArchive()
+			archive = cls.getUbuntuDistribution().getMainArchive()
 			for perm in archive.getPermissionsForPerson(person = me()):
 				if perm.permission != 'Archive Upload Rights':
 					continue
@@ -288,25 +279,33 @@ class BaseWrapper(object):
 
 
 class Distribution(BaseWrapper):
-    '''
-    Wrapper class around a LP distribution object.
-    '''
-    resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
-
-    def cache(self):
-        self._cache[self.name] = self
-
-    @classmethod
-    def fetch(cls, dist):
-        '''
-	Fetch the distribution object identified by 'url' from LP.
 	'''
-	if not isinstance(dist, str):
-		raise TypeError("Don't know what do with '%r'" % dist)
-	cached = cls._cache.get(dist)
-	if not cached:
-		cached = Distribution(Launchpad.distributions[dist])
-	return cached
+	Wrapper class around a LP distribution object.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
+
+	def cache(self):
+		self._cache[self.name] = self
+
+	@classmethod
+	def fetch(cls, dist):
+		'''
+		Fetch the distribution object identified by 'url' from LP.
+		'''
+		if not isinstance(dist, str):
+			raise TypeError("Don't know what do with '%r'" % dist)
+		cached = cls._cache.get(dist)
+		if not cached:
+			cached = Distribution(Launchpad.distributions[dist])
+		return cached
+
+	def getMainArchive(self):
+		'''
+		Returns the LP representation for the Ubuntu main archive.
+		'''
+		if not '_archive' in self.__dict__:
+			self._archive = self.main_archive
+		return self._archive
 
 
 class DistroSeries(BaseWrapper):
