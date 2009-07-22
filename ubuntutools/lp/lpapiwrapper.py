@@ -251,7 +251,13 @@ class BaseWrapper(object):
 
 	def __new__(cls, data):
 		if isinstance(data, str) and data.startswith('https://api.edge.launchpad.net/beta/'):
-			# looks like a LP API URL, try to get it
+			# looks like a LP API URL
+			# check if it's already cached
+			cached = cls._cache.get(data)
+			if cached:
+				return cached
+
+			# not cached, so try to get it
 			try:
 				data = Launchpad.load(data)
 			except HTTPError:
