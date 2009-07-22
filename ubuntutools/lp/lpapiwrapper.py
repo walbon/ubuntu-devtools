@@ -63,7 +63,6 @@ class LpApiWrapper(object):
 	_archive = None
 	_devel_series = None
 	_me = None
-	_ubuntu = None
 	_series = dict()
 	_src_pkg = dict()
 	_upload_comp = dict()
@@ -84,11 +83,9 @@ class LpApiWrapper(object):
 	@classmethod
 	def getUbuntuDistribution(cls):
 		'''
-		Returns the LP representation for Ubuntu.
+		Returns a Distibution object for Ubuntu.
 		'''
-		if not cls._ubuntu:
-			cls._ubuntu = Launchpad.distributions['ubuntu']
-		return cls._ubuntu
+		return Distribution('ubuntu')
 
 	@classmethod
 	def getUbuntuArchive(cls):
@@ -199,7 +196,7 @@ class LpApiWrapper(object):
 		if component not in cls._upload_comp and package not in cls._upload_pkg:
 			me = cls.getMe()
 			archive = cls.getUbuntuArchive()
-			for perm in archive.getPermissionsForPerson(person = me):
+			for perm in archive.getPermissionsForPerson(person = me()):
 				if perm.permission != 'Archive Upload Rights':
 					continue
 				if perm.component_name == component:
@@ -255,39 +252,67 @@ class BaseWrapper(object):
 	__metaclass__ = MetaWrapper
 	resource_type = None # it's a base class after all
 
-	def __new__(cls, lpobject):
-		if isinstance(lpobject, str):
-			if lpobject.startswith('http'):
-				# might be an LP API URL
-				# look it up in our cache
-				data = cls._cache.get(lpobject)
-				if data:
-					return data
-				else:
-					# try to fetch it from LP
-					fetch = getattr(cls, 'fetch', None)
-					if fetch and callable(fetch):
-						lpobject = fetch(lpobject)
-					else:
-						raise NotImplementedError("Don't know how to fetch '%s' from LP" % lpobject)
-			else:
-				raise TypeError("'%s' doesn't look like a LP API URL" % lpobject)
+	def __new__(cls, data):
+		if isinstance(data, str) and data.startswith('https://api.edge.launchpad.net/beta/'):
+			# looks like a LP API URL, try to get it
+			try:
+				data = Launchpad.load(data)
+			except HTTPError:
+				# didn't work
+				pass
 
-		if isinstance(lpobject, Entry) and lpobject.resource_type_link in cls.resource_type:
-			# check if it's already cached
-			data = cls._cache.get(lpobject.self_link)
-			if not data:
-				# create a new instance
-				data = object.__new__(cls)
-				data._lpobject = lpobject
-				# and add it to our cache
-				cls._cache[lpobject.self_link] = data
-			return data
+		if isinstance(data, Entry):
+			if data.resource_type_link in cls.resource_type:
+				# check if it's already cached
+				cached = cls._cache.get(data.self_link)
+				if not cached:
+					# create a new instance
+					cached = object.__new__(cls)
+					cached._lpobject = data
+					# and add it to our cache
+					cls._cache[data.self_link] = cached
+					# add additional class specific caching (if available)
+					cache = getattr(cls, 'cache', None)
+					if callable(cache):
+						cache(cached)
+				return cached
+			else:
+				raise TypeError("'%s' is not a '%s' object" % (str(data), str(cls.resource_type)))
 		else:
-			raise TypeError("'%s' is not a '%s' object" % (str(lpobject), str(cls.resource_type)))
+			# not a LP API representation, let the specific class handle it
+			fetch = getattr(cls, 'fetch', None)
+			if callable(fetch):
+				return fetch(data)
+			else:
+				raise NotImplementedError("Don't know how to fetch '%s' from LP" % str(data))
+	
+	def __call__(self):
+		return self._lpobject
 
 	def __getattr__(self, attr):
 		return getattr(self._lpobject, attr)
+
+
+class Distribution(BaseWrapper):
+    '''
+    Wrapper class around a LP distribution object.
+    '''
+    resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
+
+    def cache(self):
+        self._cache[self.name] = self
+
+    @classmethod
+    def fetch(cls, dist):
+        '''
+	Fetch the distribution object identified by 'url' from LP.
+	'''
+	if not isinstance(dist, str):
+		raise TypeError("Don't know what do with '%r'" % dist)
+	cached = cls._cache.get(dist)
+	if not cached:
+		cached = Distribution(Launchpad.distributions[dist])
+	return cached
 
 
 class DistroSeries(BaseWrapper):
