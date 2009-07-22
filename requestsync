@@ -363,7 +363,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
     # Only members of ubuntu-bugcontrol can set importance
-    if LpApiWrapper.isLpTeamMember('ubuntu-bugcontrol'):
+    if LpApiWrapper.getMe().isLpTeamMember('ubuntu-bugcontrol'):
         task.importance = 'Wishlist'
     task.status = status
     task.lp_save()

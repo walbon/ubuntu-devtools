@@ -221,15 +221,6 @@ class LpApiWrapper(object):
 
 		return cls.canUploadPackage(package, series) and pkg in cls._upload_pkg
 
-	@classmethod
-	def isLpTeamMember(cls, team):
-		'''
-		Checks if the user is a member of a certain team on Launchpad.
-		
-		Returns True if the user is a member of the team otherwise False.
-		'''
-		return any(t.name == team for t in cls.getMe().super_teams)
-
 
 class MetaWrapper(type):
 	'''
@@ -373,3 +364,11 @@ class PersonTeam(BaseWrapper):
 		if not cached:
 			cached = PersonTeam(Launchpad.people[person_or_team])
 		return cached
+
+	def isLpTeamMember(self, team):
+		'''
+		Checks if the user is a member of a certain team on Launchpad.
+		
+		Returns True if the user is a member of the team otherwise False.
+		'''
+		return any(t.name == team for t in self.super_teams)
