@@ -27,7 +27,7 @@
 import libsupport
 from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
-from udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExist
+from udtexceptions import *
 
 __all__ = ['LpApiWrapper']
 
@@ -85,7 +85,7 @@ class LpApiWrapper(object):
 		Returns a wrapped LP representation of the source package.
 		If the package does not exist: raise PackageNotFoundException
 		'''
-		return cls.getUbuntuDistribution().getMainArchive().getSourcePackage(name, series, pocket)
+		return cls.getUbuntuDistribution().getArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
 	def canUploadPackage(cls, package, series = None):
@@ -115,7 +115,7 @@ class LpApiWrapper(object):
 
 		if component not in cls._upload_comp and package not in cls._upload_pkg:
 			me = cls.getMe()
-			archive = cls.getUbuntuDistribution().getMainArchive()
+			archive = cls.getUbuntuDistribution().getArchive()
 			for perm in archive.getPermissionsForPerson(person = me()):
 				if perm.permission != 'Archive Upload Rights':
 					continue
@@ -217,9 +217,11 @@ class Distribution(BaseWrapper):
 	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
 
 	def __init__(self, *args):
-		# Don't share _series between different Distributions
+		# Don't share _series and _archives between different Distributions
 		if '_series' not in self.__dict__:
 			self._series = dict()
+		if '_archives' not in self.__dict__:
+			self._archives = dict()
 
 	def cache(self):
 		self._cache[self.name] = self
@@ -236,13 +238,31 @@ class Distribution(BaseWrapper):
 			cached = Distribution(Launchpad.distributions[dist])
 		return cached
 
-	def getMainArchive(self):
+	def getArchive(self, archive = None):
 		'''
-		Returns the LP representation for the Ubuntu main archive.
+		Returns an Archive object for the requested archive.
+		Raises a ArchiveNotFoundException if the archive doesn't exist.
+
+		If 'archive' is None, return the main archive.
 		'''
-		if not '_archive' in self.__dict__:
-			self._archive = Archive(self.main_archive_link)
-		return self._archive
+		if archive:
+			res = self._archives.get(archive)
+
+			if not res:
+				for a in self.archives:
+					if a.name == archive:
+						res = Archive(a)
+						self._archives[res.name] = res
+						break
+
+			if res:
+				return res
+			else:
+				raise ArchiveNotFoundException("The Archive '%s' doesn't exist in %s" % (archive, self.display_name))
+		else:
+			if not '_main_archive' in self.__dict__:
+				self._main_archive = Archive(self.main_archive_link)
+			return self._main_archive
 
 	def getSeries(self, name_or_version):
 		'''

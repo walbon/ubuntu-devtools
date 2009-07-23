@@ -9,3 +9,7 @@ class SeriesNotFoundException(BaseException):
 class PocketDoesNotExist(BaseException):
 	""" Thrown when a invalid pocket is passed """
 	pass
+
+class ArchiveNotFoundException(BaseException):
+	""" Thrown when an archive for a distibution is not found """
+	pass
