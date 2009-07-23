@@ -58,7 +58,6 @@ class LpApiWrapper(object):
 	ubuntu-dev-tools.
 	'''
 	_me = None
-	_src_pkg = dict()
 	_upload_comp = dict()
 	_upload_pkg = dict()
 
@@ -86,32 +85,7 @@ class LpApiWrapper(object):
 		Returns a wrapped LP representation of the source package.
 		If the package does not exist: raise PackageNotFoundException
 		'''
-
-		# Check if pocket has a valid value
-		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
-			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
-
-		# Check if we have already a LP representation of an Ubuntu series or not
-		if not isinstance(series, DistroSeries):
-			series = cls.getUbuntuDistribution().getSeries(series)
-
-		if (name, series, pocket) not in cls._src_pkg:
-			try:
-				srcpkg = cls.getUbuntuDistribution().getMainArchive().getPublishedSources(
-					source_name = name, distro_series = series(), pocket = pocket,
-					status = 'Published', exact_match = True)[0]
-				cls._src_pkg[(name, series, pocket)] = SourcePackage(srcpkg)
-			except IndexError:
-				if pocket == 'Release':
-					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
-						(name, series.name)
-				else:
-					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s-%s'" % \
-							(name, series.name, pocket.lower())
-
-				raise PackageNotFoundException(msg)
-
-		return cls._src_pkg[(name, series, pocket)]
+		return cls.getUbuntuDistribution().getMainArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
 	def canUploadPackage(cls, package, series = None):
@@ -310,6 +284,59 @@ class Archive(BaseWrapper):
 	Wrapper class around a LP archive object.
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#archive'
+
+	def __init__(self, *args):
+		# Don't share _srcpkgs between different Archives
+		if '_srcpkgs' not in self.__dict__:
+			self._srcpkgs = dict()
+
+	def getSourcePackage(self, name, series = None, pocket = 'Release'):
+		'''
+		Returns a SourcePackage object for the most recent source package
+		in the distribution 'dist', series and pocket.
+
+		series defaults to the current development series if not specified.
+
+		If the requested source package doesn't exist a
+		PackageNotFoundException is raised.
+		'''
+		# Check if pocket has a valid value
+		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
+
+		dist = Distribution(self.distribution_link)
+		# Check if series is already a DistoSeries object or not
+		if not isinstance(series, DistroSeries):
+			if series:
+				series = dist.getSeries(series)
+			else:
+				series = dist.getDevelopmentSeries()
+
+		# NOTE:
+		# For Debian all source publication are in the state 'Pending' so filter on this
+		# instead of 'Published'. As the result is sorted also by date the first result
+		# will be the most recent one (i.e. the one we are interested in).
+		if dist.name in ('debian',):
+			state = 'Pending'
+		else:
+			state = 'Published'
+
+		if (name, series.name, pocket) not in self._srcpkgs:
+			try:
+				srcpkg = self.getPublishedSources(
+						source_name = name, distro_series = series(), pocket = pocket,
+						status = state, exact_match = True)[0]
+				self._srcpkgs[(name, series.name, pocket)] = SourcePackage(srcpkg)
+			except IndexError:
+				if pocket == 'Release':
+					msg = "The package '%s' does not exist in the %s %s archive in '%s'" % \
+						(name, dist.display_name, self.name, series.name)
+				else:
+					msg = "The package '%s' does not exist in the %s %s archive in '%s-%s'" % \
+						(name, dist.display_name, self.name, series.name, pocket.lower())
+				raise PackageNotFoundException(msg)
+
+		return self._srcpkgs[(name, series.name, pocket)]
 
 
 class SourcePackage(BaseWrapper):
