@@ -58,8 +58,6 @@ class LpApiWrapper(object):
 	ubuntu-dev-tools.
 	'''
 	_me = None
-	_upload_comp = dict()
-	_upload_pkg = dict()
 
 	@classmethod
 	def getMe(cls):
@@ -88,48 +86,33 @@ class LpApiWrapper(object):
 		return cls.getUbuntuDistribution().getArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
-	def canUploadPackage(cls, package, series = None):
+	def canUploadPackage(cls, srcpkg, series = None):
 		'''
 		Check if the currently authenticated LP user has upload rights
 		for package either through component upload rights or
 		per-package upload rights.
 
-		'package' can either be a wrapped LP representation of a source
-		package or a string and an Ubuntu series. If 'package' doesn't
-		exist yet in Ubuntu assume 'universe' for component.
+		'package' can either be a SourcePackage object or a string and
+		an Ubuntu series. If 'package' doesn't exist yet in Ubuntu
+		assume 'universe' for component.
 		'''
+		component = 'universe'
+		archive = cls.getUbuntuDistribution().getArchive()
 
-		if isinstance(package, SourcePackage):
-			component = package.getComponent()
-			package = package.getPackageName()
+		if isinstance(srcpkg, SourcePackage):
+			package = srcpkg.getPackageName()
+			component = srcpkg.getComponent()
 		else:
 			if not series:
-				# Fall-back to current Ubuntu development series
 				series = cls.getUbuntuDistribution().getDevelopmentSeries()
-
 			try:
-				component = cls.getUbuntuSourcePackage(package, series).getComponent()
+				srcpkg = archive.getSourcePackage(srcpkg, series)
+				package = srcpkg.getPackageName()
+				component = srcpkg.getComponent()
 			except PackageNotFoundException:
-				# Probably a new package, assume "universe" as component
-				component = 'universe'
+				package = None
 
-		if component not in cls._upload_comp and package not in cls._upload_pkg:
-			me = cls.getMe()
-			archive = cls.getUbuntuDistribution().getArchive()
-			for perm in archive.getPermissionsForPerson(person = me()):
-				if perm.permission != 'Archive Upload Rights':
-					continue
-				if perm.component_name == component:
-					cls._upload_comp[component] = True
-					return True
-				if perm.source_package_name == package:
-					cls._upload_pkg[package] = True
-					return True
-			return False
-		elif component in cls._upload_comp:
-			return cls._upload_comp[component]
-		else:
-			return cls._upload_pkg[package]
+		return cls.getMe().canUploadPackage(archive, package, component)
 
 	# TODO: check if this is still needed after ArchiveReorg (or at all)
 	@classmethod
@@ -138,11 +121,11 @@ class LpApiWrapper(object):
 		Check if the user has PerPackageUpload rights for package.
 		'''
 		if isinstance(package, SourcePackage):
-			pkg = package.getPackageName()
-		else:
-			pkg = package
+			package = package.getPackageName()
 
-		return cls.canUploadPackage(package, series) and pkg in cls._upload_pkg
+		archive = cls.getUbuntuDistribution().getArchive()
+
+		return cls.getMe().canUploadPackage(archive, package, None)
 
 
 class MetaWrapper(type):
@@ -390,6 +373,13 @@ class PersonTeam(BaseWrapper):
 	'''
 	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
 
+	def __init__(self, *args):
+		# Don't share _upload_{pkg,comp} between different PersonTeams
+		if '_upload_pkg' not in self.__dict__:
+			self._upload_pkg = dict()
+		if '_upload_comp' not in self.__dict__:
+			self._upload_comp = dict()
+
 	def __str__(self):
 		return '%s (%s)' % (self.display_name, self.name)
 
@@ -415,3 +405,57 @@ class PersonTeam(BaseWrapper):
 		Returns True if the user is a member of the team otherwise False.
 		'''
 		return any(t.name == team for t in self.super_teams)
+
+	def canUploadPackage(self, archive, package, component):
+		'''
+		Check if the person or team has upload rights for the source package
+		to the specified 'archive' either through component upload
+		rights or per-package upload rights.
+		Either a source package name or a component has the specified.
+
+		'archive' has to be a Archive object.
+		'''
+		if not isinstance(archive, Archive):
+			raise TypeError("'%r' is not an Archive object." % archive)
+		if not isinstance(package, (str, None)):
+			raise TypeError('A source package name expected.')
+		if not isinstance(component, (str, None)):
+			raise TypeError('A component name expected.')
+		if not package and not component:
+			raise ValueError('Either a source package name or a component has to be specified.')
+
+		upload_comp = self._upload_comp.get((archive, component))
+		upload_pkg = self._upload_pkg.get((archive, package))
+
+		if upload_comp == None and upload_pkg == None:
+			for perm in archive.getPermissionsForPerson(person = self()):
+				if perm.permission != 'Archive Upload Rights':
+					continue
+				if component and perm.component_name == component:
+					self._upload_comp[(archive, component)] = True
+					return True
+				if package and perm.source_package_name == package:
+					self._upload_pkg[(archive, package)] = True
+					return True
+			# don't have upload rights
+			if package:
+				self._upload_pkg[(archive, package)] = False
+			if component:
+				self._upload_comp[(archive, component)] = False
+			return False
+		else:
+			return upload_comp or upload_pkg
+
+	# TODO: check if this is still needed after ArchiveReorg (or at all)
+	def isPerPackageUploader(self, archive, package):
+		'''
+		Check if the user has PerPackageUpload rights for package.
+		'''
+		if isinstance(package, SourcePackage):
+			pkg = package.getPackageName()
+			comp = package.getComponent()
+		else:
+			pkg = package
+			compon
+
+		return self.canUploadPackage(archive, pkg, None)
