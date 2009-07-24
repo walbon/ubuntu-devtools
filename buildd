@@ -139,7 +139,7 @@ print "Current build status for this package:"
 # Output list of arches for package and their status.
 done = False
 for build in builds:
-    if oneArch and build.arch_tag != options.archictecture:
+    if oneArch and build.arch_tag != options.architecture:
         # Skip this architecture.
 	continue
 
