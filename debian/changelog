@@ -11,7 +11,10 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
     - Don't add second XSBC-Original-Maintainer if Maintainer was set
       to Motu or Core-Dev.
 
- -- Nicolas Valcárcel Scerpella (Canonical) <nvalcarcel@canonical.com>  Mon, 20 Jul 2009 15:07:53 -0500
+  [ Michael Bienia ]
+  * Drop python-launchpad-bugs from Depends.
+
+ -- Michael Bienia <geser@ubuntu.com>  Fri, 24 Jul 2009 09:19:45 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
