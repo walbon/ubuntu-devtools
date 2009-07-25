@@ -420,7 +420,7 @@ class SourcePackage(BaseWrapper):
 				else:
 					res.append('  %s: failed' % arch)
 		return "Retrying builds of '%s':\n%s" % (
-			self.PackageName(), '\n'.join(res))
+			self.getPackageName(), '\n'.join(res))
 
 
 class PersonTeam(BaseWrapper):
@@ -527,12 +527,12 @@ class Build(BaseWrapper):
 
 	def rescore(self, score):
 		if self.can_be_rescored:
-			self.rescore(score = score)
+			self().rescore(score = score)
 			return True
 		return False
 
 	def retry(self):
-		if self.can_be_tried:
-			self.retry()
+		if self.can_be_retried:
+			self().retry()
 			return True
 		return False
