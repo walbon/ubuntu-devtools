@@ -381,7 +381,7 @@ class PersonTeam(BaseWrapper):
 			self._upload_comp = dict()
 
 	def __str__(self):
-		return '%s (%s)' % (self.display_name, self.name)
+		return u'%s (%s)' % (self.display_name, self.name)
 
 	def cache(self):
 		self._cache[self.name] = self
