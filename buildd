@@ -50,26 +50,32 @@ retryRescoreOptions.add_option("-a", "--arch", type = "string",
         "Valid architectures include: " \
         "%s." % ", ".join(valid_archs))
 
-# A new calling interface (v2)
-v2options = OptionGroup(optParser, "Extended calling convention",
-	"These options and parameter ordering is only available in the --v2 mode.\n"
-	"Usage: buildd --v2 [options] <package>...")
-v2options.add_option('--v2', action = 'store_true', dest = 'v2mode', default = False,
-	help = 'Enable the new (v2) mode')
-v2options.add_option('--series', action = 'store', dest = 'series', type = 'string',
+# Batch processing options
+batch_options = OptionGroup(
+	optParser, "Batch processing",
+	"These options and parameter ordering is only available in --batch mode.\n"
+	"Usage: buildd --batch [options] <package>...")
+batch_options.add_option(
+	'--batch', action = 'store_true', dest = 'batch', default = False,
+	help = 'Enable batch mode')
+batch_options.add_option(
+	'--series', action = 'store', dest = 'series', type = 'string',
 	help = 'Selects the Ubuntu series to operate on (default: current development series)')
-v2options.add_option('--retry', action = 'store_true', dest = 'retry', default = False,
+batch_options.add_option(
+	'--retry', action = 'store_true', dest = 'retry', default = False,
 	help = 'Retry builds (give-back).')
-v2options.add_option('--rescore', action = 'store', dest = 'priority', type = 'int',
+batch_options.add_option(
+	'--rescore', action = 'store', dest = 'priority', type = 'int',
 	help = 'Rescore builds to <priority>.')
-v2options.add_option('--arch2', action = 'append', dest = 'architecture', type = 'string',
+batch_options.add_option(
+	'--arch2', action = 'append', dest = 'architecture', type = 'string',
 	help = "Affect only 'architecture' (can be used several times). "
         "Valid architectures are: %s." % ', '.join(valid_archs))
 
 # Add the retry options to the main group.
 optParser.add_option_group(retryRescoreOptions)
-# Add the new v2 mode to the main group.
-optParser.add_option_group(v2options)
+# Add the batch mode to the main group.
+optParser.add_option_group(batch_options)
 
 # Parse our options.
 (options, args) = optParser.parse_args()
@@ -78,7 +84,7 @@ if not len(args):
 	optParser.print_help()
 	sys.exit(1)
 
-if not options.v2mode:
+if not options.batch:
 	# Check we have the correct number of arguments.
 	if len(args) < 3:
 	    optParser.error("Incorrect number of arguments.")
@@ -182,7 +188,7 @@ if not options.v2mode:
 	      "built in a former release." % (package, release.capitalize())
 	sys.exit(0)
 
-# V2 mode
+# Batch mode
 
 if not options.architecture:
 	# no specific architectures specified, assume all valid ones
