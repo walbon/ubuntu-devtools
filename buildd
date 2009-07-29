@@ -53,11 +53,11 @@ retryRescoreOptions.add_option("-a", "--arch", type = "string",
 # A new calling interface (v2)
 v2options = OptionGroup(optParser, "Extended calling convention",
 	"These options and parameter ordering is only available in the --v2 mode.\n"
-	"Usage: buildd --v2 [options] --series=SERIES <package>...")
+	"Usage: buildd --v2 [options] <package>...")
 v2options.add_option('--v2', action = 'store_true', dest = 'v2mode', default = False,
 	help = 'Enable the new (v2) mode')
 v2options.add_option('--series', action = 'store', dest = 'series', type = 'string',
-	help = 'Selects the Ubuntu series to operate on.')
+	help = 'Selects the Ubuntu series to operate on (default: current development series)')
 v2options.add_option('--retry', action = 'store_true', dest = 'retry', default = False,
 	help = 'Retry builds (give-back).')
 v2options.add_option('--rescore', action = 'store', dest = 'priority', type = 'int',
@@ -117,11 +117,11 @@ if not options.v2mode:
 		print 'Unknown pocket: %s' % pocket
 		sys.exit(1)
 
-	# Get an instance of the LP API wrapper
-	lpapiwrapper = LpApiWrapper()
+	# Get the ubuntu archive
+	ubuntu_archive = LpApiWrapper.getUbuntuDistribution().getArchive()
 	# Get list of published sources for package in question.
 	try:
-		sources = lpapiwrapper.getUbuntuDistribution().getArchive().getSourcePackage(package, release, pocket)
+		sources = ubuntu_archive.getSourcePackage(package, release, pocket)
 	except (SeriesNotFoundException, PackageNotFoundException), e:
 	    print e
 	    sys.exit(1)
@@ -134,8 +134,10 @@ if not options.v2mode:
 
 	# Operations that are remaining may only be done by Ubuntu developers (retry)
 	# or buildd admins (rescore). Check if the proper permissions are in place.
-	if op == "rescore": necessaryPrivs = lpapiwrapper.getMe().isLpTeamMember('launchpad-buildd-admins')
-	if op == "retry": necessaryPrivs = lpapiwrapper.canUploadPackage(package, release)
+	me = LpApiWrapper.getMe()
+	if op == "rescore": necessaryPrivs = me.isLpTeamMember('launchpad-buildd-admins')
+	if op == "retry": necessaryPrivs = me.canUploadPackage(
+		ubuntu_archive, sources.getPackageName(), sources.getComponent())
 
 	if op in ('rescore', 'retry') and not necessaryPrivs:
 	    print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
