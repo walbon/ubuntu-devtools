@@ -35,8 +35,8 @@ usage += "Where operation may be one of: rescore, retry, or status.\n"
 usage += "Only Launchpad Buildd Admins may rescore package builds."
 
 # Valid architectures.
-validArchs =  ["armel", "amd64", "hppa", "i386",
-                "ia64", "lpia", "powerpc", "sparc"]
+valid_archs =  set(["armel", "amd64", "hppa", "i386",
+                "ia64", "lpia", "powerpc", "sparc"])
 
 # Prepare our option parser.
 optParser = OptionParser(usage)
@@ -48,7 +48,7 @@ retryRescoreOptions.add_option("-a", "--arch", type = "string",
     action = "store", dest = "architecture",
     help = "Rebuild or rescore a specific architecture. " \
         "Valid architectures include: " \
-        "%s." % ", ".join(validArchs))
+        "%s." % ", ".join(valid_archs))
 
 # A new calling interface (v2)
 v2options = OptionGroup(optParser, "Extended calling convention",
@@ -64,7 +64,7 @@ v2options.add_option('--rescore', action = 'store', dest = 'priority', type = 'i
 	help = 'Rescore builds to <priority>.')
 v2options.add_option('--arch2', action = 'append', dest = 'architecture', type = 'string',
 	help = "Affect only 'architecture' (can be used several times). "
-        "Valid architectures include: %s." % ', '.join(validArchs))
+        "Valid architectures include: %s." % ', '.join(valid_archs))
 
 # Add the retry options to the main group.
 optParser.add_option_group(retryRescoreOptions)
@@ -102,7 +102,7 @@ if not options.v2mode:
 	    print >> sys.stderr, "Operation %s does not use the --arch option." % op
 	    sys.exit(1)
 	elif op in ("retry", "rescore") and options.architecture:
-	    if options.architecture not in validArchs:
+	    if options.architecture not in valid_archs:
 		print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
 		sys.exit(1)
 	    else:
@@ -124,7 +124,7 @@ if not options.v2mode:
 	lpapiwrapper = LpApiWrapper()
 	# Get list of published sources for package in question.
 	try:
-		sources = lpapiwrapper.getUbuntuSourcePackage(package, release, pocket)
+		sources = lpapiwrapper.getUbuntuDistribution().getArchive().getSourcePackage(package, release, pocket)
 	except (SeriesNotFoundException, PackageNotFoundException), e:
 	    print e
 	    sys.exit(1)
@@ -184,4 +184,57 @@ if not options.v2mode:
 	sys.exit(0)
 
 # V2 mode
-sys.exit(0)
+
+if not options.architecture:
+	# no specific architectures specified, assume all valid ones
+	archs = valid_archs
+else:
+	archs = set(options.architecture)
+
+# filter out duplicate and invalid architectures
+archs.intersection_update(valid_archs)
+
+release = options.series # if None it falls back to the current development series
+pocket = 'Release'
+if release and '-' in release:
+	# split release and pocket
+	(release, pocket) = options.series.split('-')
+	pocket = pocket.capitalize()
+
+	if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+		print 'Unknown pocket: %s' % pocket
+		sys.exit(1)
+
+ubuntu_archive = LpApiWrapper.getUbuntuDistribution().getArchive()
+me = LpApiWrapper.getMe()
+
+# Check permisions (part 1): Rescoring can only be done by buildd admins
+can_rescore = options.priority and me.isLpTeamMember('launchpad-buildd-admins') or False
+if options.priority and not can_rescore:
+	print >> sys.stderr, "You don't have the permissions to rescore builds. Ignoring your rescore request."
+
+for pkg in args:
+	try:
+		pkg = ubuntu_archive.getSourcePackage(pkg, release, pocket)
+	except SeriesNotFoundException, e:
+		print e
+		sys.exit(1)
+	except PackageNotFoundException, e:
+		print e
+		continue
+
+	# Check permissions (part 2): check upload permissions for the source package
+	can_retry = options.retry and me.canUploadPackage(ubuntu_archive, pkg.getPackageName(), pkg.getComponent())
+	if options.retry and not can_retry:
+		print >> sys.stderr, "You don't have the permissions to retry the build of '%s'. Ignoring your request." % pkg.getPackageName()
+
+	print "The source version for '%s' in '%s' (%s) is: %s" % (
+			pkg.getPackageName(), release, pocket, pkg.getVersion())
+
+	print pkg.getBuildStates(archs)
+	if can_retry:
+		print pkg.retryBuilds(archs)
+	if options.priority and can_rescore:
+		print pkg.rescoreBuilds(archs, options.priority)
+
+	print ''
