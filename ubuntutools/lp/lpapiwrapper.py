@@ -348,6 +348,11 @@ class SourcePackage(BaseWrapper):
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
 
+	def __init__(self, *args):
+		# Don't share _builds between different SourcePackages
+		if '_builds' not in self.__dict__:
+			self._builds = dict()
+
 	def getPackageName(self):
 		'''
 		Returns the source package name.
@@ -365,6 +370,57 @@ class SourcePackage(BaseWrapper):
 		Returns the component of the source package.
 		'''
 		return self._lpobject.component_name
+
+	def _fetch_builds(self):
+		'''Populate self._builds with the build records.'''
+		builds = self.getBuilds()
+		for build in builds:
+			self._builds[build.arch_tag] = Build(build)
+
+	def getBuildStates(self, archs):
+		res = list()
+		
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				res.append('  %s' % build)
+		return "Build state(s) for '%s':\n%s" % (
+			self.getPackageName(), '\n'.join(res))
+
+	def rescoreBuilds(self, archs, score):
+		res = list()
+
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				if build.rescore(score):
+					res.append('  %s: done' % arch)
+				else:
+					res.append('  %s: failed' % arch)
+		return "Rescoring builds of '%s' to %i:\n%s" % (
+			self.getPackageName(), score, '\n'.join(res))
+
+	def retryBuilds(self, archs):
+		res = list()
+
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				if build.retry():
+					res.append('  %s: done' % arch)
+				else:
+					res.append('  %s: failed' % arch)
+		return "Retrying builds of '%s':\n%s" % (
+			self.getPackageName(), '\n'.join(res))
 
 
 class PersonTeam(BaseWrapper):
@@ -459,3 +515,24 @@ class PersonTeam(BaseWrapper):
 			compon
 
 		return self.canUploadPackage(archive, pkg, None)
+
+class Build(BaseWrapper):
+	'''
+	Wrapper class around a build object.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#build'
+
+	def __str__(self):
+		return u'%s: %s' % (self.arch_tag, self.buildstate)
+
+	def rescore(self, score):
+		if self.can_be_rescored:
+			self().rescore(score = score)
+			return True
+		return False
+
+	def retry(self):
+		if self.can_be_retried:
+			self().retry()
+			return True
+		return False
