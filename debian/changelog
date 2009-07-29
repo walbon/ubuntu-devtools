@@ -13,8 +13,9 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * Drop python-launchpad-bugs from Depends.
+  * buildd: Add a --batch mode for batch retrying/rescoring of packages.
 
- -- Michael Bienia <geser@ubuntu.com>  Fri, 24 Jul 2009 09:19:45 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Wed, 29 Jul 2009 23:14:22 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
