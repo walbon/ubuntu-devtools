@@ -45,7 +45,7 @@ optParser = OptionParser(usage)
 retryRescoreOptions = OptionGroup(optParser, "Retry and rescore options",
     "These options may only be used with the 'retry' and 'rescore' operations.")
 retryRescoreOptions.add_option("-a", "--arch", type = "string",
-    action = "store", dest = "architecture",
+    action = "append", dest = "architecture",
     help = "Rebuild or rescore a specific architecture. " \
         "Valid architectures include: " \
         "%s." % ", ".join(valid_archs))
@@ -64,7 +64,7 @@ v2options.add_option('--rescore', action = 'store', dest = 'priority', type = 'i
 	help = 'Rescore builds to <priority>.')
 v2options.add_option('--arch2', action = 'append', dest = 'architecture', type = 'string',
 	help = "Affect only 'architecture' (can be used several times). "
-        "Valid architectures include: %s." % ', '.join(valid_archs))
+        "Valid architectures are: %s." % ', '.join(valid_archs))
 
 # Add the retry options to the main group.
 optParser.add_option_group(retryRescoreOptions)
@@ -98,12 +98,9 @@ if not options.v2mode:
 
 	# If the user has specified an architecture to build, we only wish to rebuild it
 	# and nothing else.
-	if op not in ("retry", 'rescore') and options.architecture:
-	    print >> sys.stderr, "Operation %s does not use the --arch option." % op
-	    sys.exit(1)
-	elif op in ("retry", "rescore") and options.architecture:
-	    if options.architecture not in valid_archs:
-		print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture
+	if options.architecture:
+	    if options.architecture[0] not in valid_archs:
+		print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture[0]
 		sys.exit(1)
 	    else:
 		oneArch = True
@@ -154,7 +151,7 @@ if not options.v2mode:
 	# Output list of arches for package and their status.
 	done = False
 	for build in builds:
-	    if oneArch and build.arch_tag != options.architecture:
+	    if oneArch and build.arch_tag != options.architecture[0]:
 		# Skip this architecture.
 		continue
 
