@@ -27,7 +27,7 @@
 import libsupport
 from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
-from udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExist
+from udtexceptions import *
 
 __all__ = ['LpApiWrapper']
 
@@ -58,9 +58,6 @@ class LpApiWrapper(object):
 	ubuntu-dev-tools.
 	'''
 	_me = None
-	_src_pkg = dict()
-	_upload_comp = dict()
-	_upload_pkg = dict()
 
 	@classmethod
 	def getMe(cls):
@@ -86,76 +83,36 @@ class LpApiWrapper(object):
 		Returns a wrapped LP representation of the source package.
 		If the package does not exist: raise PackageNotFoundException
 		'''
-
-		# Check if pocket has a valid value
-		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
-			raise PocketDoesNotExist("Pocket '%s' does not exist." % pocket)
-
-		# Check if we have already a LP representation of an Ubuntu series or not
-		if not isinstance(series, DistroSeries):
-			series = cls.getUbuntuDistribution().getSeries(series)
-
-		if (name, series, pocket) not in cls._src_pkg:
-			try:
-				srcpkg = cls.getUbuntuDistribution().getMainArchive().getPublishedSources(
-					source_name = name, distro_series = series(), pocket = pocket,
-					status = 'Published', exact_match = True)[0]
-				cls._src_pkg[(name, series, pocket)] = SourcePackage(srcpkg)
-			except IndexError:
-				if pocket == 'Release':
-					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s'" % \
-						(name, series.name)
-				else:
-					msg = "The package '%s' does not exist in the Ubuntu main archive in '%s-%s'" % \
-							(name, series.name, pocket.lower())
-
-				raise PackageNotFoundException(msg)
-
-		return cls._src_pkg[(name, series, pocket)]
+		return cls.getUbuntuDistribution().getArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
-	def canUploadPackage(cls, package, series = None):
+	def canUploadPackage(cls, srcpkg, series = None):
 		'''
 		Check if the currently authenticated LP user has upload rights
 		for package either through component upload rights or
 		per-package upload rights.
 
-		'package' can either be a wrapped LP representation of a source
-		package or a string and an Ubuntu series. If 'package' doesn't
-		exist yet in Ubuntu assume 'universe' for component.
+		'package' can either be a SourcePackage object or a string and
+		an Ubuntu series. If 'package' doesn't exist yet in Ubuntu
+		assume 'universe' for component.
 		'''
+		component = 'universe'
+		archive = cls.getUbuntuDistribution().getArchive()
 
-		if isinstance(package, SourcePackage):
-			component = package.getComponent()
-			package = package.getPackageName()
+		if isinstance(srcpkg, SourcePackage):
+			package = srcpkg.getPackageName()
+			component = srcpkg.getComponent()
 		else:
 			if not series:
-				# Fall-back to current Ubuntu development series
 				series = cls.getUbuntuDistribution().getDevelopmentSeries()
-
 			try:
-				component = cls.getUbuntuSourcePackage(package, series).getComponent()
+				srcpkg = archive.getSourcePackage(srcpkg, series)
+				package = srcpkg.getPackageName()
+				component = srcpkg.getComponent()
 			except PackageNotFoundException:
-				# Probably a new package, assume "universe" as component
-				component = 'universe'
+				package = None
 
-		if component not in cls._upload_comp and package not in cls._upload_pkg:
-			me = cls.getMe()
-			archive = cls.getUbuntuDistribution().getMainArchive()
-			for perm in archive.getPermissionsForPerson(person = me()):
-				if perm.permission != 'Archive Upload Rights':
-					continue
-				if perm.component_name == component:
-					cls._upload_comp[component] = True
-					return True
-				if perm.source_package_name == package:
-					cls._upload_pkg[package] = True
-					return True
-			return False
-		elif component in cls._upload_comp:
-			return cls._upload_comp[component]
-		else:
-			return cls._upload_pkg[package]
+		return cls.getMe().canUploadPackage(archive, package, component)
 
 	# TODO: check if this is still needed after ArchiveReorg (or at all)
 	@classmethod
@@ -164,11 +121,11 @@ class LpApiWrapper(object):
 		Check if the user has PerPackageUpload rights for package.
 		'''
 		if isinstance(package, SourcePackage):
-			pkg = package.getPackageName()
-		else:
-			pkg = package
+			package = package.getPackageName()
 
-		return cls.canUploadPackage(package, series) and pkg in cls._upload_pkg
+		archive = cls.getUbuntuDistribution().getArchive()
+
+		return cls.getMe().canUploadPackage(archive, package, None)
 
 
 class MetaWrapper(type):
@@ -243,9 +200,11 @@ class Distribution(BaseWrapper):
 	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
 
 	def __init__(self, *args):
-		# Don't share _series between different Distributions
+		# Don't share _series and _archives between different Distributions
 		if '_series' not in self.__dict__:
 			self._series = dict()
+		if '_archives' not in self.__dict__:
+			self._archives = dict()
 
 	def cache(self):
 		self._cache[self.name] = self
@@ -262,13 +221,31 @@ class Distribution(BaseWrapper):
 			cached = Distribution(Launchpad.distributions[dist])
 		return cached
 
-	def getMainArchive(self):
+	def getArchive(self, archive = None):
 		'''
-		Returns the LP representation for the Ubuntu main archive.
+		Returns an Archive object for the requested archive.
+		Raises a ArchiveNotFoundException if the archive doesn't exist.
+
+		If 'archive' is None, return the main archive.
 		'''
-		if not '_archive' in self.__dict__:
-			self._archive = Archive(self.main_archive_link)
-		return self._archive
+		if archive:
+			res = self._archives.get(archive)
+
+			if not res:
+				for a in self.archives:
+					if a.name == archive:
+						res = Archive(a)
+						self._archives[res.name] = res
+						break
+
+			if res:
+				return res
+			else:
+				raise ArchiveNotFoundException("The Archive '%s' doesn't exist in %s" % (archive, self.display_name))
+		else:
+			if not '_main_archive' in self.__dict__:
+				self._main_archive = Archive(self.main_archive_link)
+			return self._main_archive
 
 	def getSeries(self, name_or_version):
 		'''
@@ -311,12 +288,70 @@ class Archive(BaseWrapper):
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#archive'
 
+	def __init__(self, *args):
+		# Don't share _srcpkgs between different Archives
+		if '_srcpkgs' not in self.__dict__:
+			self._srcpkgs = dict()
+
+	def getSourcePackage(self, name, series = None, pocket = 'Release'):
+		'''
+		Returns a SourcePackage object for the most recent source package
+		in the distribution 'dist', series and pocket.
+
+		series defaults to the current development series if not specified.
+
+		If the requested source package doesn't exist a
+		PackageNotFoundException is raised.
+		'''
+		# Check if pocket has a valid value
+		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+			raise PocketDoesNotExistException("Pocket '%s' does not exist." % pocket)
+
+		dist = Distribution(self.distribution_link)
+		# Check if series is already a DistoSeries object or not
+		if not isinstance(series, DistroSeries):
+			if series:
+				series = dist.getSeries(series)
+			else:
+				series = dist.getDevelopmentSeries()
+
+		# NOTE:
+		# For Debian all source publication are in the state 'Pending' so filter on this
+		# instead of 'Published'. As the result is sorted also by date the first result
+		# will be the most recent one (i.e. the one we are interested in).
+		if dist.name in ('debian',):
+			state = 'Pending'
+		else:
+			state = 'Published'
+
+		if (name, series.name, pocket) not in self._srcpkgs:
+			try:
+				srcpkg = self.getPublishedSources(
+						source_name = name, distro_series = series(), pocket = pocket,
+						status = state, exact_match = True)[0]
+				self._srcpkgs[(name, series.name, pocket)] = SourcePackage(srcpkg)
+			except IndexError:
+				if pocket == 'Release':
+					msg = "The package '%s' does not exist in the %s %s archive in '%s'" % \
+						(name, dist.display_name, self.name, series.name)
+				else:
+					msg = "The package '%s' does not exist in the %s %s archive in '%s-%s'" % \
+						(name, dist.display_name, self.name, series.name, pocket.lower())
+				raise PackageNotFoundException(msg)
+
+		return self._srcpkgs[(name, series.name, pocket)]
+
 
 class SourcePackage(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
+
+	def __init__(self, *args):
+		# Don't share _builds between different SourcePackages
+		if '_builds' not in self.__dict__:
+			self._builds = dict()
 
 	def getPackageName(self):
 		'''
@@ -336,6 +371,57 @@ class SourcePackage(BaseWrapper):
 		'''
 		return self._lpobject.component_name
 
+	def _fetch_builds(self):
+		'''Populate self._builds with the build records.'''
+		builds = self.getBuilds()
+		for build in builds:
+			self._builds[build.arch_tag] = Build(build)
+
+	def getBuildStates(self, archs):
+		res = list()
+		
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				res.append('  %s' % build)
+		return "Build state(s) for '%s':\n%s" % (
+			self.getPackageName(), '\n'.join(res))
+
+	def rescoreBuilds(self, archs, score):
+		res = list()
+
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				if build.rescore(score):
+					res.append('  %s: done' % arch)
+				else:
+					res.append('  %s: failed' % arch)
+		return "Rescoring builds of '%s' to %i:\n%s" % (
+			self.getPackageName(), score, '\n'.join(res))
+
+	def retryBuilds(self, archs):
+		res = list()
+
+		if not self._builds:
+			self._fetch_builds()
+
+		for arch in archs:
+			build = self._builds.get(arch)
+			if build:
+				if build.retry():
+					res.append('  %s: done' % arch)
+				else:
+					res.append('  %s: failed' % arch)
+		return "Retrying builds of '%s':\n%s" % (
+			self.getPackageName(), '\n'.join(res))
+
 
 class PersonTeam(BaseWrapper):
 	'''
@@ -343,8 +429,15 @@ class PersonTeam(BaseWrapper):
 	'''
 	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
 
+	def __init__(self, *args):
+		# Don't share _upload_{pkg,comp} between different PersonTeams
+		if '_upload_pkg' not in self.__dict__:
+			self._upload_pkg = dict()
+		if '_upload_comp' not in self.__dict__:
+			self._upload_comp = dict()
+
 	def __str__(self):
-		return '%s (%s)' % (self.display_name, self.name)
+		return u'%s (%s)' % (self.display_name, self.name)
 
 	def cache(self):
 		self._cache[self.name] = self
@@ -368,3 +461,78 @@ class PersonTeam(BaseWrapper):
 		Returns True if the user is a member of the team otherwise False.
 		'''
 		return any(t.name == team for t in self.super_teams)
+
+	def canUploadPackage(self, archive, package, component):
+		'''
+		Check if the person or team has upload rights for the source package
+		to the specified 'archive' either through component upload
+		rights or per-package upload rights.
+		Either a source package name or a component has the specified.
+
+		'archive' has to be a Archive object.
+		'''
+		if not isinstance(archive, Archive):
+			raise TypeError("'%r' is not an Archive object." % archive)
+		if not isinstance(package, (str, None)):
+			raise TypeError('A source package name expected.')
+		if not isinstance(component, (str, None)):
+			raise TypeError('A component name expected.')
+		if not package and not component:
+			raise ValueError('Either a source package name or a component has to be specified.')
+
+		upload_comp = self._upload_comp.get((archive, component))
+		upload_pkg = self._upload_pkg.get((archive, package))
+
+		if upload_comp == None and upload_pkg == None:
+			for perm in archive.getPermissionsForPerson(person = self()):
+				if perm.permission != 'Archive Upload Rights':
+					continue
+				if component and perm.component_name == component:
+					self._upload_comp[(archive, component)] = True
+					return True
+				if package and perm.source_package_name == package:
+					self._upload_pkg[(archive, package)] = True
+					return True
+			# don't have upload rights
+			if package:
+				self._upload_pkg[(archive, package)] = False
+			if component:
+				self._upload_comp[(archive, component)] = False
+			return False
+		else:
+			return upload_comp or upload_pkg
+
+	# TODO: check if this is still needed after ArchiveReorg (or at all)
+	def isPerPackageUploader(self, archive, package):
+		'''
+		Check if the user has PerPackageUpload rights for package.
+		'''
+		if isinstance(package, SourcePackage):
+			pkg = package.getPackageName()
+			comp = package.getComponent()
+		else:
+			pkg = package
+			compon
+
+		return self.canUploadPackage(archive, pkg, None)
+
+class Build(BaseWrapper):
+	'''
+	Wrapper class around a build object.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#build'
+
+	def __str__(self):
+		return u'%s: %s' % (self.arch_tag, self.buildstate)
+
+	def rescore(self, score):
+		if self.can_be_rescored:
+			self().rescore(score = score)
+			return True
+		return False
+
+	def retry(self):
+		if self.can_be_retried:
+			self().retry()
+			return True
+		return False
