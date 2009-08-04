@@ -5,7 +5,7 @@
 # Authors:
 #  Martin Pitt <martin.pitt@ubuntu.com>
 #  Steve Kowalik <stevenk@ubuntu.com>
-#  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
+#  Michael Bienia <geser@ubuntu.com>
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <laney@ubuntu.com>
 #  Jonathan Davies <jpds@ubuntu.com>
@@ -35,7 +35,7 @@ from optparse import OptionParser
 # ubuntu-dev-tools modules.
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
-from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper
+from ubuntutools.lp.lpapicache import Launchpad, LpApiWrapper, Distribution, PersonTeam
 # https_proxy fix
 import ubuntutools.common
 import ubuntutools.packages
@@ -95,7 +95,7 @@ def checkExistingReports(package):
         return False
 
     # Fetch the package's bug list from Launchpad.
-    pkg = LpApiWrapper.getUbuntuDistribution().getSourcePackage(name=package)
+    pkg = Distribution('ubuntu').getSourcePackage(name=package)
     pkgBugList = pkg.searchTasks()
 
     # Search bug list for other sync requests.
@@ -121,7 +121,7 @@ def checkExistingReports(package):
 def cur_version_component(sourcepkg, release):
     
     try:
-	src = LpApiWrapper.getUbuntuSourcePackage(sourcepkg, release)
+	src = Distribution('ubuntu').getArchive().getSourcePackage(sourcepkg, release)
         return (src.getVersion(), src.getComponent())
      
     except udtexceptions.PackageNotFoundException:
@@ -301,7 +301,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
     # Only members of ubuntu-bugcontrol can set importance
-    if LpApiWrapper.getMe().isLpTeamMember('ubuntu-bugcontrol'):
+    if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
         task.importance = 'Wishlist'
     task.status = status
     task.lp_save()
@@ -412,7 +412,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if len(args) not in (2, 3): # no release specified, assume development release
-        release = LpApiWrapper.getUbuntuDistribution().getDevelopmentSeries().name
+        release = Distribution('ubuntu').getDevelopmentSeries().name
         print >> sys.stderr, ("Source package / target release missing - assuming %s " %
             release)
     else:
