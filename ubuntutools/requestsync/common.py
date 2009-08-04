@@ -21,7 +21,7 @@ import sys
 import urllib2
 from debian_bundle.changelog import Changelog
 
-def debian_changelog(srcpkg, version):
+def getDebianChangelog(srcpkg, version):
 	'''
 	Return the new changelog entries upto 'version'.
 	'''

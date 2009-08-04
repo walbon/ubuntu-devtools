@@ -29,7 +29,6 @@
 import os
 import subprocess
 import sys
-import urllib2
 from debian_bundle.changelog import Version
 from optparse import OptionParser
 
@@ -42,6 +41,7 @@ import ubuntutools.common
 import ubuntutools.packages
 
 from ubuntutools.requestsync.mail import getDebianSrcPkg
+from ubuntutools.requestsync.common import getDebianChangelog
 
 def checkNeedsSponsorship(srcpkg):
     """
@@ -128,35 +128,6 @@ def cur_version_component(sourcepkg, release):
         
         print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
         sys.exit(1)
-
-def debian_changelog(sourcepkg, component, version):
-    '''Return the Debian changelog from the latest up to the given version
-    (exclusive).'''
-
-    base_version = Version(version)
-
-    ch = ''
-    subdir = sourcepkg[0]
-
-    if sourcepkg.startswith('lib'):
-        subdir = 'lib%s' % sourcepkg[3]
-
-    # Get the debian/changelog file from packages.debian.org.
-    try:
-        debianChangelogPage = urllib2.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg))
-    except urllib2.HTTPError, error:
-        print >> sys.stderr, "Unable to connect to packages.debian.org. " \
-            "Received a %s." % error.code
-        sys.exit(1)
-
-    for l in debianChangelogPage:
-        if l.startswith(sourcepkg):
-            ch_version = l[ l.find("(")+1 : l.find(")") ]
-            if Version(ch_version) <= base_version:
-                break
-        ch += l
-
-    return ch
 
 def raw_input_exit_on_ctrlc(*args, **kwargs):
     """A wrapper around raw_input() to exit with a normalized message on Control-C"""
@@ -535,7 +506,10 @@ if __name__ == '__main__':
         base_ver = force_base_ver
 
     report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
-    report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
+    changelog = getDebianChangelog(debsrcpkg, Version(base_ver))
+    if not changelog:
+	    sys.exit(1)
+    report += changelog + '\n'
 
     if need_interaction:
         (title, report) = edit_report(title, report, changes_required=True)
