@@ -27,7 +27,7 @@ import sys
 from optparse import OptionGroup
 from optparse import OptionParser
 from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
-from ubuntutools.lp.lpapiwrapper import LpApiWrapper, PersonTeam
+from ubuntutools.lp.lpapicache import LpApiWrapper, PersonTeam
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"

@@ -33,7 +33,7 @@ import urllib2
 from optparse import OptionParser
 
 # ubuntu-dev-tools modules.
-from ubuntutools.lp.lpapiwrapper import LpApiWrapper
+from ubuntutools.lp.lpapicache import LpApiWrapper
 from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
 
 if not os.path.exists("/usr/bin/dget"):

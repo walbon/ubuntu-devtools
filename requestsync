@@ -38,7 +38,7 @@ from time import sleep
 # ubuntu-dev-tools modules.
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
-from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper, PersonTeam
+from ubuntutools.lp.lpapicache import Launchpad, LpApiWrapper, PersonTeam
 # https_proxy fix
 import ubuntutools.common
 import ubuntutools.packages

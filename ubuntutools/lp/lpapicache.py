@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-#   lpapiwrapper.py - wrapper class around the LP API for use in the
-#   ubuntu-dev-tools package
+#   lpapicache.py - wrapper classes around the LP API implementing caching
+#                   for usage in the ubuntu-dev-tools package
 #
 #   Copyright © 2009 Michael Bienia <geser@ubuntu.com>
 #
@@ -50,6 +50,8 @@ class Launchpad(object):
 		return self
 Launchpad = Launchpad()
 
+# Almost deprecated, better use the specific classes like Distribution
+# or PersonTeam directly
 class LpApiWrapper(object):
 	'''
 	Wrapper around some common used LP API functions used in
