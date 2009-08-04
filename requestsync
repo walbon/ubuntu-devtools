@@ -29,11 +29,9 @@
 import os
 import subprocess
 import sys
-import urllib
 import urllib2
 from debian_bundle.changelog import Version
 from optparse import OptionParser
-from time import sleep
 
 # ubuntu-dev-tools modules.
 import ubuntutools.lp.libsupport as lp_libsupport
