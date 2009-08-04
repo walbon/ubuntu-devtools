@@ -41,6 +41,8 @@ from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper
 import ubuntutools.common
 import ubuntutools.packages
 
+from ubuntutools.requestsync.mail import getDebianSrcPkg
+
 def checkNeedsSponsorship(srcpkg):
     """
         Check that the user has the appropriate permissions by checking what
@@ -127,21 +129,6 @@ def cur_version_component(sourcepkg, release):
         print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
         sys.exit(1)
 
-def cur_deb_version(sourcepkg, distro):
-    '''Return the current debian version of a package in a Debian distro.'''
-    out = ubuntutools.packages.checkIsInDebian(sourcepkg, distro)
-    if not out:
-        print "%s doesn't appear to exist in Debian." % sourcepkg
-        sys.exit(0)
-    
-    # Work-around for a bug in Debians madison.php script not returning 
-    # only the source line 
-    for line in out.splitlines():
-        if line.find('source') > 0:
-            out = line
-    
-    return out.split('|')[1].rstrip('[]''').strip()
-
 def debian_changelog(sourcepkg, component, version):
     '''Return the Debian changelog from the latest up to the given version
     (exclusive).'''
@@ -170,24 +157,6 @@ def debian_changelog(sourcepkg, component, version):
         ch += l
 
     return ch
-
-def debian_component(sourcepkg, distro):
-    '''Return the Debian component for the source package.'''
-    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', '-s', distro, \
-                                sourcepkg], stdout=subprocess.PIPE)
-    out = madison.communicate()[0]
-    assert (madison.returncode == 0)
-
-    try:
-        assert out
-    except AssertionError:
-        print "%s doesn't appear to exist in Debian." % sourcepkg
-        sys.exit(1)
-    raw_comp = out.split('|')[2].split('/')
-    component = 'main'
-    if len(raw_comp) == 2:
-        component = raw_comp[1].strip()
-    return component
 
 def raw_input_exit_on_ctrlc(*args, **kwargs):
     """A wrapper around raw_input() to exit with a normalized message on Control-C"""
@@ -489,9 +458,10 @@ if __name__ == '__main__':
     # Find Ubuntu release's package version.
     if not newsource: (cur_ver, component) = cur_version_component(srcpkg, release)
 
-    debiancomponent = debian_component(srcpkg, distro)
+    debsrcpkg = getDebianSrcPkg(srcpkg, distro)
+    debiancomponent = debsrcpkg.getComponent()
     # Find Debian release's package version.
-    deb_version = cur_deb_version(srcpkg, distro)
+    deb_version = debsrcpkg.getVersion()
 
     # Debian and Ubuntu versions are the same - stop.
     if deb_version == cur_ver:
