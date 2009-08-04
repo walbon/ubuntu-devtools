@@ -121,7 +121,7 @@ def checkExistingReports(package):
 def cur_version_component(sourcepkg, release):
     
     try:
-	src = LpApiWrapper.getUbuntuSourcePackage(sourcepkg, release)
+	src = Distribution('ubuntu').getArchive().getSourcePackage(sourcepkg, release)
         return (src.getVersion(), src.getComponent())
      
     except udtexceptions.PackageNotFoundException:

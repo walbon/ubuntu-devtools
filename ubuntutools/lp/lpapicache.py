@@ -59,16 +59,6 @@ class LpApiWrapper(object):
 	'''
 
 	@classmethod
-	def getUbuntuSourcePackage(cls, name, series, pocket = 'Release'):
-		'''
-		Finds an Ubuntu source package on LP.
-
-		Returns a wrapped LP representation of the source package.
-		If the package does not exist: raise PackageNotFoundException
-		'''
-		return Distribution('ubuntu').getArchive().getSourcePackage(name, series, pocket)
-
-	@classmethod
 	def canUploadPackage(cls, srcpkg, series = None):
 		'''
 		Check if the currently authenticated LP user has upload rights
