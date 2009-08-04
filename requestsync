@@ -5,7 +5,7 @@
 # Authors:
 #  Martin Pitt <martin.pitt@ubuntu.com>
 #  Steve Kowalik <stevenk@ubuntu.com>
-#  Michael Bienia <geser@ubuntu.com> (python-launchpad-bugs support)
+#  Michael Bienia <geser@ubuntu.com>
 #  Daniel Hahler <ubuntu@thequod.de>
 #  Iain Lane <laney@ubuntu.com>
 #  Jonathan Davies <jpds@ubuntu.com>
@@ -38,7 +38,7 @@ from time import sleep
 # ubuntu-dev-tools modules.
 import ubuntutools.lp.libsupport as lp_libsupport
 import ubuntutools.lp.udtexceptions as udtexceptions
-from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper
+from ubuntutools.lp.lpapiwrapper import Launchpad, LpApiWrapper, PersonTeam
 # https_proxy fix
 import ubuntutools.common
 import ubuntutools.packages
@@ -363,7 +363,7 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
     #newly created bugreports have one task
     task = bug.bug_tasks[0]
     # Only members of ubuntu-bugcontrol can set importance
-    if LpApiWrapper.getMe().isLpTeamMember('ubuntu-bugcontrol'):
+    if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
         task.importance = 'Wishlist'
     task.status = status
     task.lp_save()

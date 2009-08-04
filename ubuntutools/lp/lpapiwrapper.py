@@ -29,8 +29,6 @@ from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
 from udtexceptions import *
 
-__all__ = ['LpApiWrapper']
-
 class Launchpad(object):
 	''' Singleton for LP API access. '''
 	__lp = None
@@ -57,16 +55,6 @@ class LpApiWrapper(object):
 	Wrapper around some common used LP API functions used in
 	ubuntu-dev-tools.
 	'''
-	_me = None
-
-	@classmethod
-	def getMe(cls):
-		'''
-		Returns a PersonTeam object of the currently authenticated LP user.
-		'''
-		if not cls._me:
-			cls._me = PersonTeam(Launchpad.me)
-		return cls._me
 
 	@classmethod
 	def getUbuntuDistribution(cls):
@@ -112,7 +100,7 @@ class LpApiWrapper(object):
 			except PackageNotFoundException:
 				package = None
 
-		return cls.getMe().canUploadPackage(archive, package, component)
+		return PersonTeam.getMe().canUploadPackage(archive, package, component)
 
 	# TODO: check if this is still needed after ArchiveReorg (or at all)
 	@classmethod
@@ -125,7 +113,7 @@ class LpApiWrapper(object):
 
 		archive = cls.getUbuntuDistribution().getArchive()
 
-		return cls.getMe().canUploadPackage(archive, package, None)
+		return PersonTeam.getMe().canUploadPackage(archive, package, None)
 
 
 class MetaWrapper(type):
@@ -429,6 +417,8 @@ class PersonTeam(BaseWrapper):
 	'''
 	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
 
+	_me = None # the PersonTeam object of the currently authenticated LP user
+
 	def __init__(self, *args):
 		# Don't share _upload_{pkg,comp} between different PersonTeams
 		if '_upload_pkg' not in self.__dict__:
@@ -453,6 +443,15 @@ class PersonTeam(BaseWrapper):
 		if not cached:
 			cached = PersonTeam(Launchpad.people[person_or_team])
 		return cached
+
+	@classmethod
+	def getMe(cls):
+		'''
+		Returns a PersonTeam object of the currently authenticated LP user.
+		'''
+		if not cls._me:
+			cls._me = PersonTeam(Launchpad.me)
+		return cls._me
 
 	def isLpTeamMember(self, team):
 		'''
