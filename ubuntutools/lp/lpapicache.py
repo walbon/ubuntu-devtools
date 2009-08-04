@@ -59,13 +59,6 @@ class LpApiWrapper(object):
 	'''
 
 	@classmethod
-	def getUbuntuDistribution(cls):
-		'''
-		Returns a Distibution object for Ubuntu.
-		'''
-		return Distribution('ubuntu')
-
-	@classmethod
 	def getUbuntuSourcePackage(cls, name, series, pocket = 'Release'):
 		'''
 		Finds an Ubuntu source package on LP.
@@ -73,7 +66,7 @@ class LpApiWrapper(object):
 		Returns a wrapped LP representation of the source package.
 		If the package does not exist: raise PackageNotFoundException
 		'''
-		return cls.getUbuntuDistribution().getArchive().getSourcePackage(name, series, pocket)
+		return Distribution('ubuntu').getArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
 	def canUploadPackage(cls, srcpkg, series = None):
@@ -87,14 +80,14 @@ class LpApiWrapper(object):
 		assume 'universe' for component.
 		'''
 		component = 'universe'
-		archive = cls.getUbuntuDistribution().getArchive()
+		archive = Distribution('ubuntu').getArchive()
 
 		if isinstance(srcpkg, SourcePackage):
 			package = srcpkg.getPackageName()
 			component = srcpkg.getComponent()
 		else:
 			if not series:
-				series = cls.getUbuntuDistribution().getDevelopmentSeries()
+				series = Distribution('ubuntu').getDevelopmentSeries()
 			try:
 				srcpkg = archive.getSourcePackage(srcpkg, series)
 				package = srcpkg.getPackageName()
@@ -113,7 +106,7 @@ class LpApiWrapper(object):
 		if isinstance(package, SourcePackage):
 			package = package.getPackageName()
 
-		archive = cls.getUbuntuDistribution().getArchive()
+		archive = Distribution('ubuntu').getArchive()
 
 		return PersonTeam.getMe().canUploadPackage(archive, package, None)
 

@@ -27,7 +27,7 @@ import sys
 from optparse import OptionGroup
 from optparse import OptionParser
 from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
-from ubuntutools.lp.lpapicache import LpApiWrapper, PersonTeam
+from ubuntutools.lp.lpapicache import Distribution, PersonTeam
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -124,7 +124,7 @@ if not options.batch:
 		sys.exit(1)
 
 	# Get the ubuntu archive
-	ubuntu_archive = LpApiWrapper.getUbuntuDistribution().getArchive()
+	ubuntu_archive = Distribution('ubuntu').getArchive()
 	# Get list of published sources for package in question.
 	try:
 		sources = ubuntu_archive.getSourcePackage(package, release, pocket)
@@ -210,7 +210,7 @@ if release and '-' in release:
 		print 'Unknown pocket: %s' % pocket
 		sys.exit(1)
 
-ubuntu_archive = LpApiWrapper.getUbuntuDistribution().getArchive()
+ubuntu_archive = Distribution('ubuntu').getArchive()
 me = PersonTeam.getMe()
 
 # Check permisions (part 1): Rescoring can only be done by buildd admins

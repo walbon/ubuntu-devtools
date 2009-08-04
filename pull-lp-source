@@ -33,7 +33,7 @@ import urllib2
 from optparse import OptionParser
 
 # ubuntu-dev-tools modules.
-from ubuntutools.lp.lpapicache import LpApiWrapper
+from ubuntutools.lp.lpapicache import LpApiWrapper, Distribution
 from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
 
 if not os.path.exists("/usr/bin/dget"):
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     if len(args) == 2: # Custom distribution specified.
         release = str(args[1]).lower()
     else:
-        release = os.getenv('DIST') or LpApiWrapper.getUbuntuDistribution().getDevelopmentSeries().name
+        release = os.getenv('DIST') or Distribution('ubuntu').getDevelopmentSeries().name
 
     # Arguments are correct, proceed.
     # Check that the Ubuntu release and package specified exists.
