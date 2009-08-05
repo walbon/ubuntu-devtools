@@ -40,8 +40,8 @@ from ubuntutools.lp.lpapicache import Launchpad, LpApiWrapper, Distribution, Per
 import ubuntutools.common
 import ubuntutools.packages
 
-from ubuntutools.requestsync.mail import getDebianSrcPkg
-from ubuntutools.requestsync.common import getDebianChangelog
+from ubuntutools.requestsync.mail import *
+from ubuntutools.requestsync.common import *
 
 def checkNeedsSponsorship(srcpkg):
     """
@@ -121,20 +121,12 @@ def checkExistingReports(package):
 def cur_version_component(sourcepkg, release):
     
     try:
-	src = Distribution('ubuntu').getArchive().getSourcePackage(sourcepkg, release)
+	src = getUbuntuSrcPkg(sourcepkg, release)
         return (src.getVersion(), src.getComponent())
      
     except udtexceptions.PackageNotFoundException:
         
         print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
-        sys.exit(1)
-
-def raw_input_exit_on_ctrlc(*args, **kwargs):
-    """A wrapper around raw_input() to exit with a normalized message on Control-C"""
-    try:
-        return raw_input(*args, **kwargs)
-    except KeyboardInterrupt:
-        print 'Abort requested. No sync request filed.'
         sys.exit(1)
 
 def get_email_address():

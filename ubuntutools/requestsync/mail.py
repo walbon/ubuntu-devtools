@@ -19,8 +19,10 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
-from ..packages import checkIsInDebian
+import subprocess
 from ..lp.udtexceptions import PackageNotFoundException
+
+__all__ = ['getDebianSrcPkg', 'getUbuntuSrcPkg']
 
 # Simulate the SourcePackage class from lpapiwrapper
 class SourcePackage(object):
@@ -41,23 +43,39 @@ class SourcePackage(object):
 	def getComponent(self):
 		return self.component
 
-def getDebianSrcPkg(name, release):
-	out = checkIsInDebian(name, release)
-	if not out:
-		raise PackageNotFoundException(
-			"'%s' doesn't appear to exist in Debian '%s'" % \
-			(name, release))
+def rmadison(distro, package, release):
+	rmadison_cmd = subprocess.Popen(
+		['rmadison', '-u', distro, '-a', 'source', '-s', release, package],
+		stdout = subprocess.PIPE)
+
+	rmadison_out = rmadison_cmd.communicate()[0]
+	assert (rmadison_cmd.returncode == 0)
 
 	# Work-around for a bug in Debians madison.php script not returning 
 	# only the source line 
-	for line in out.splitlines():
+	for line in rmadison_out.splitlines():
 		if line.find('source') > 0:
-			out = line.split('|')
+			return map(lambda x: x.strip(), line.split('|'))
 
-	version = out[1].strip()
+	return None
+
+def getSrcPkg(distro, name, release):
+	out = rmadison(distro, name, release)
+	if not out:
+		raise PackageNotFoundException(
+			"'%s' doesn't appear to exist in %s '%s'" % \
+			(name, distro.capitalize(), release))
+
+	version = out[1]
 	component = 'main'
 	raw_comp = out[2].split('/')
 	if len(raw_comp) == 2:
-		component = raw_comp[1].strip()
-	
+		component = raw_comp[1]
+
 	return SourcePackage(name, version, component)
+
+def getDebianSrcPkg(name, release):
+	return getSrcPkg('debian', name, release)
+
+def getUbuntuSrcPkg(name, release):
+	return getSrcPkg('ubuntu', name, release)

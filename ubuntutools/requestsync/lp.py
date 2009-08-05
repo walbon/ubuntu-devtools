@@ -32,3 +32,9 @@ def getDebianSrcPkg(name, release):
 		release = 'sid'
 
 	return debian_archive.getSourcePackage(name, release)
+
+def getUbuntuSrcPkg(name, release):
+	ubuntu = Distribution('ubuntu')
+	ubuntu_archive = ubuntu.getArchive()
+
+	return ubuntu_archive.getSourcePackage(name, release)

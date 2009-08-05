@@ -23,6 +23,16 @@ import sys
 import urllib2
 from debian_bundle.changelog import Changelog
 
+def raw_input_exit_on_ctrlc(*args, **kwargs):
+	'''
+	A wrapper around raw_input() to exit with a normalized message on Control-C
+	'''
+	try:
+		return raw_input(*args, **kwargs)
+	except KeyboardInterrupt:
+		print 'Abort requested. No sync request filed.'
+		sys.exit(1)
+
 def getDebianChangelog(srcpkg, version):
 	'''
 	Return the new changelog entries upto 'version'.
