@@ -501,6 +501,7 @@ class PersonTeam(BaseWrapper):
 
 		return self.canUploadPackage(archive, pkg, None)
 
+
 class Build(BaseWrapper):
 	'''
 	Wrapper class around a build object.
@@ -521,3 +522,10 @@ class Build(BaseWrapper):
 			self().retry()
 			return True
 		return False
+
+
+class DistributionSourcePackage(BaseWrapper):
+	'''
+	Caching class for distribution_source_package objects.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#distribution_source_package'
