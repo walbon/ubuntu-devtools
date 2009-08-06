@@ -65,14 +65,14 @@ class LpApiWrapper(object):
 		for package either through component upload rights or
 		per-package upload rights.
 
-		'package' can either be a SourcePackage object or a string and
-		an Ubuntu series. If 'package' doesn't exist yet in Ubuntu
-		assume 'universe' for component.
+		'package' can either be a SourcePackagePublishingHistory object
+		or a string and an Ubuntu series. If 'package' doesn't exist
+		yet in Ubuntu assume 'universe' for component.
 		'''
 		component = 'universe'
 		archive = Distribution('ubuntu').getArchive()
 
-		if isinstance(srcpkg, SourcePackage):
+		if isinstance(srcpkg, SourcePackagePublishingHistory):
 			package = srcpkg.getPackageName()
 			component = srcpkg.getComponent()
 		else:
@@ -93,7 +93,7 @@ class LpApiWrapper(object):
 		'''
 		Check if the user has PerPackageUpload rights for package.
 		'''
-		if isinstance(package, SourcePackage):
+		if isinstance(package, SourcePackagePublishingHistory):
 			package = package.getPackageName()
 
 		archive = Distribution('ubuntu').getArchive()
@@ -268,8 +268,9 @@ class Archive(BaseWrapper):
 
 	def getSourcePackage(self, name, series = None, pocket = 'Release'):
 		'''
-		Returns a SourcePackage object for the most recent source package
-		in the distribution 'dist', series and pocket.
+		Returns a SourcePackagePublishingHistory object for the most
+		recent source package in the distribution 'dist', series and
+		pocket.
 
 		series defaults to the current development series if not specified.
 
@@ -302,7 +303,7 @@ class Archive(BaseWrapper):
 				srcpkg = self.getPublishedSources(
 						source_name = name, distro_series = series(), pocket = pocket,
 						status = state, exact_match = True)[0]
-				self._srcpkgs[(name, series.name, pocket)] = SourcePackage(srcpkg)
+				self._srcpkgs[(name, series.name, pocket)] = SourcePackagePublishingHistory(srcpkg)
 			except IndexError:
 				if pocket == 'Release':
 					msg = "The package '%s' does not exist in the %s %s archive in '%s'" % \
@@ -315,14 +316,14 @@ class Archive(BaseWrapper):
 		return self._srcpkgs[(name, series.name, pocket)]
 
 
-class SourcePackage(BaseWrapper):
+class SourcePackagePublishingHistory(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
 
 	def __init__(self, *args):
-		# Don't share _builds between different SourcePackages
+		# Don't share _builds between different SourcePackagePublishingHistory objects
 		if '_builds' not in self.__dict__:
 			self._builds = dict()
 
@@ -491,7 +492,7 @@ class PersonTeam(BaseWrapper):
 		'''
 		Check if the user has PerPackageUpload rights for package.
 		'''
-		if isinstance(package, SourcePackage):
+		if isinstance(package, SourcePackagePublishingHistory):
 			pkg = package.getPackageName()
 			comp = package.getComponent()
 		else:
