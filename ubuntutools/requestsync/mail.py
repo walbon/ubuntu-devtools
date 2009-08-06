@@ -24,10 +24,10 @@ from ..lp.udtexceptions import PackageNotFoundException
 
 __all__ = ['getDebianSrcPkg', 'getUbuntuSrcPkg']
 
-# Simulate the SourcePackage class from lpapiwrapper
-class SourcePackage(object):
+class SourcePackagePublishingHistory(object):
 	'''
-	Simulate a SourcePackage class from the LP API wrapper module.
+	Simulate a SourcePackagePublishingHistory class from the LP API caching
+	module.
 	'''
 	def __init__(self, name, version, component):
 		self.name = name
@@ -72,7 +72,7 @@ def getSrcPkg(distro, name, release):
 	if len(raw_comp) == 2:
 		component = raw_comp[1]
 
-	return SourcePackage(name, version, component)
+	return SourcePackagePublishingHistory(name, version, component)
 
 def getDebianSrcPkg(name, release):
 	return getSrcPkg('debian', name, release)
