@@ -19,6 +19,8 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
+import os
+import sys
 import subprocess
 from ..lp.udtexceptions import PackageNotFoundException
 
@@ -79,3 +81,15 @@ def getDebianSrcPkg(name, release):
 
 def getUbuntuSrcPkg(name, release):
 	return getSrcPkg('ubuntu', name, release)
+
+def get_email_address():
+	'''
+	Get the From email address from the DEBEMAIL or EMAIL environment
+	variable or give an error.
+	'''
+	myemailaddr = os.getenv('DEBEMAIL') or os.getenv('EMAIL')
+	if not myemailaddr:
+		print >> sys.stderr, 'The environment variable DEBEMAIL or ' \
+			'EMAIL needs to be set to let this script mail the ' \
+			'sync request.'
+	return myemailaddr

@@ -129,17 +129,6 @@ def cur_version_component(sourcepkg, release):
         print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
         sys.exit(1)
 
-def get_email_address():
-    '''Get the DEBEMAIL environment variable or give an error.'''
-    myemailaddr = os.getenv('DEBEMAIL')
-    if not myemailaddr:
-        myemailaddr = os.getenv('EMAIL')
-        if not myemailaddr:
-            print >> sys.stderr, 'The environment variable DEBEMAIL or ' +\
-                'EMAIL needs to be set to make use of this script, unless ' +\
-                'you use option --lp.'
-    return myemailaddr
-
 def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
     '''Submit the sync request per email.
     Return True if email successfully send, otherwise False.'''
