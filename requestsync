@@ -42,32 +42,6 @@ import ubuntutools.common
 from ubuntutools.requestsync.mail import *
 from ubuntutools.requestsync.common import *
 
-def checkNeedsSponsorship(srcpkg):
-    """
-        Check that the user has the appropriate permissions by checking what
-        Launchpad returns when we check if someone can upload a package or not.
-
-        If they are an indirect or direct member of the ~ubuntu-dev team on
-        Launchpad - sponsorship is not required if the package is in the
-        universe / multiverse component.
-
-        If they are in the ~ubuntu-core-dev team, no sponsorship required.
-    """
-    if not LpApiWrapper.canUploadPackage(srcpkg):
-
-        print "You are not able to upload this package directly to Ubuntu.\n" \
-              "Your sync request shall require an approval by a member of " \
-              "the appropriate sponsorship team, who shall be subscribed to " \
-			  "this bug report.\n" \
-              "This must be done before it can be processed by a member of " \
-              "the Ubuntu Archive team."
-        print "If the above is correct please press Enter."
-        raw_input_exit_on_ctrlc() # Abort if necessary.
-        return True # Sponsorship required.
-
-    # Is a team member, no sponsorship required.
-    return False
-
 def checkExistingReports(package):
     """ Check existing bug reports on Launchpad for a possible sync request.
 
@@ -371,7 +345,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # -s flag not specified - check if we do need sponsorship.
-    if not sponsorship: sponsorship = checkNeedsSponsorship(srcpkg)
+    if not sponsorship: sponsorship = needSponsorship(srcpkg, component)
 
     # Check for existing package reports.
     if not newsource and use_lp_bugs: checkExistingReports(srcpkg)

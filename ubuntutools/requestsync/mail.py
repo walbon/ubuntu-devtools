@@ -22,6 +22,7 @@
 import os
 import sys
 import subprocess
+from .common import raw_input_exit_on_ctrlc
 from ..lp.udtexceptions import PackageNotFoundException
 
 __all__ = ['getDebianSrcPkg', 'getUbuntuSrcPkg']
@@ -93,3 +94,20 @@ def get_email_address():
 			'EMAIL needs to be set to let this script mail the ' \
 			'sync request.'
 	return myemailaddr
+
+def needSponsorship(name, component):
+	'''
+	Ask the user if he has upload permissions for the package or the
+	component.
+	'''
+	
+	while 1:
+		print "Do you have upload permissions for the '%s' component " \
+			"or the package '%s'?" % (component, name)
+		val = raw_input_exit_on_ctrlc("If in doubt answer 'no'. [y/N]? ")
+		if val.lower() in ('y', 'yes'):
+			return False
+		elif val.lower() in ('n', 'no', ''):
+			return True
+		else:
+			print 'Invalid answer'

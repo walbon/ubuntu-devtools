@@ -20,7 +20,8 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
-from ..lp.lpapiwrapper import Distribution
+from .common import raw_input_exit_on_ctrlc
+from ..lp.lpapiwrapper import Distribution, PersonTeam
 from ..lp.udtexceptions import *
 
 def getDebianSrcPkg(name, release):
@@ -38,3 +39,21 @@ def getUbuntuSrcPkg(name, release):
 	ubuntu_archive = ubuntu.getArchive()
 
 	return ubuntu_archive.getSourcePackage(name, release)
+
+def needSponsorship(name, component):
+	'''
+	Check if the user has upload permissions for either the package
+	itself or the component
+	'''
+	archive = Distribution('ubuntu').getArchive()
+
+	need_sponsor = not PersonTeam.getMe().canUploadPackage(archive, name, component)
+	if need_sponsor:
+		print '''You are not able to upload this package directly to Ubuntu.
+Your sync request shall require an approval by a member of the appropriate
+sponsorship team, who shall be subscribed to this bug report.
+This must be done before it can be processed by a member of the Ubuntu Archive
+team.'''
+		raw_input_exit_on_ctrlc('If the above is correct please press [Enter]: '
+
+	return need_sponsor
