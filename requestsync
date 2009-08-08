@@ -501,7 +501,11 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # -s flag not specified - check if we do need sponsorship.
-    if not sponsorship: sponsorship = checkNeedsSponsorship(srcpkg)
+    if (not newsource):
+		if (not sponsorship):
+			sponsorship = checkNeedsSponsorship(srcpkg)
+		else:
+			sponsorship = LpApiWrapper.isLpTeamMember('motu') # assume going to universe
 
     # Check for existing package reports.
     if not newsource and use_lp_bugs: checkExistingReports(srcpkg)
@@ -566,7 +570,7 @@ if __name__ == '__main__':
     if force_base_ver:
         base_ver = force_base_ver
 
-    report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
+    if not newsource: report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
     report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
 
     if need_interaction:
