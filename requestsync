@@ -505,7 +505,7 @@ if __name__ == '__main__':
 		if (not sponsorship):
 			sponsorship = checkNeedsSponsorship(srcpkg)
 		else:
-			sponsorship = LpApiWrapper.isLpTeamMember('motu') # assume going to universe
+			sponsorship = PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
 
     # Check for existing package reports.
     if not newsource and use_lp_bugs: checkExistingReports(srcpkg)
