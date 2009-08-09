@@ -26,9 +26,9 @@ FILES="*.h *.c *.cc *.cpp *.py *.sh *.txt *.text *.3 *.m4 *.xml *.html *.php \
        depcomp *.docbook  *.desktop *.menu AUTHORS INSTALL NEWS README TODO \
        COPYING LICENSE ChangeLog *.ui *.glade *.gladep *.po *.pot *.ts *.pro \
        *.svg *.png *.bmp *.gif *.xpm *.hh *.in *.cs *.1 *.2 *.3 *.4 *.5 *.6 \
-       *.7 *.8 *.9"
+       *.7 *.8 *.9 *.hs *.el *.css"
 
-IGNORE=".bzr CVS .svn debian"
+IGNORE=".bzr CVS .svn debian .git"
 
 
 COMMAND=(find ! \( )
