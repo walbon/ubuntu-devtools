@@ -501,14 +501,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # -s flag not specified - check if we do need sponsorship.
-    if (not newsource):
-		if (not sponsorship):
-			sponsorship = checkNeedsSponsorship(srcpkg)
-		else:
-			sponsorship = PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
+    if (not sponsorship):
+        if (not newsource):
+            sponsorship = checkNeedsSponsorship(srcpkg)
+        else:
+            sponsorship = not PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
 
     # Check for existing package reports.
-    if not newsource and use_lp_bugs: checkExistingReports(srcpkg)
+    if (not newsource) and use_lp_bugs: checkExistingReports(srcpkg)
 
     # Generate bug report.
     subscribe = 'ubuntu-archive'
