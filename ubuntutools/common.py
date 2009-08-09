@@ -24,23 +24,11 @@
 #
 # ##################################################################
 
-import cookielib
-import glob
-import os.path
-import re
-import subprocess
+import os
 import sys
-import urllib2
-import urlparse
-import urllib
 
 # Clear https_proxy env var as it's not supported in urllib/urllib2; see
 # LP #122551
 if os.environ.has_key('https_proxy'):
     print >> sys.stderr, "Ignoring https_proxy (no support in urllib/urllib2; see LP #122551)"
     del os.environ['https_proxy']
-
-
-
-
-
