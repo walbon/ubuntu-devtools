@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-#   lpapiwrapper.py - wrapper class around the LP API for use in the
-#   ubuntu-dev-tools package
+#   lpapicache.py - wrapper classes around the LP API implementing caching
+#                   for usage in the ubuntu-dev-tools package
 #
 #   Copyright © 2009 Michael Bienia <geser@ubuntu.com>
 #
@@ -29,8 +29,6 @@ from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
 from udtexceptions import *
 
-__all__ = ['LpApiWrapper']
-
 class Launchpad(object):
 	''' Singleton for LP API access. '''
 	__lp = None
@@ -52,38 +50,13 @@ class Launchpad(object):
 		return self
 Launchpad = Launchpad()
 
+# Almost deprecated, better use the specific classes like Distribution
+# or PersonTeam directly
 class LpApiWrapper(object):
 	'''
 	Wrapper around some common used LP API functions used in
 	ubuntu-dev-tools.
 	'''
-	_me = None
-
-	@classmethod
-	def getMe(cls):
-		'''
-		Returns a PersonTeam object of the currently authenticated LP user.
-		'''
-		if not cls._me:
-			cls._me = PersonTeam(Launchpad.me)
-		return cls._me
-
-	@classmethod
-	def getUbuntuDistribution(cls):
-		'''
-		Returns a Distibution object for Ubuntu.
-		'''
-		return Distribution('ubuntu')
-
-	@classmethod
-	def getUbuntuSourcePackage(cls, name, series, pocket = 'Release'):
-		'''
-		Finds an Ubuntu source package on LP.
-
-		Returns a wrapped LP representation of the source package.
-		If the package does not exist: raise PackageNotFoundException
-		'''
-		return cls.getUbuntuDistribution().getArchive().getSourcePackage(name, series, pocket)
 
 	@classmethod
 	def canUploadPackage(cls, srcpkg, series = None):
@@ -92,19 +65,19 @@ class LpApiWrapper(object):
 		for package either through component upload rights or
 		per-package upload rights.
 
-		'package' can either be a SourcePackage object or a string and
-		an Ubuntu series. If 'package' doesn't exist yet in Ubuntu
-		assume 'universe' for component.
+		'package' can either be a SourcePackagePublishingHistory object
+		or a string and an Ubuntu series. If 'package' doesn't exist
+		yet in Ubuntu assume 'universe' for component.
 		'''
 		component = 'universe'
-		archive = cls.getUbuntuDistribution().getArchive()
+		archive = Distribution('ubuntu').getArchive()
 
-		if isinstance(srcpkg, SourcePackage):
+		if isinstance(srcpkg, SourcePackagePublishingHistory):
 			package = srcpkg.getPackageName()
 			component = srcpkg.getComponent()
 		else:
 			if not series:
-				series = cls.getUbuntuDistribution().getDevelopmentSeries()
+				series = Distribution('ubuntu').getDevelopmentSeries()
 			try:
 				srcpkg = archive.getSourcePackage(srcpkg, series)
 				package = srcpkg.getPackageName()
@@ -112,7 +85,7 @@ class LpApiWrapper(object):
 			except PackageNotFoundException:
 				package = None
 
-		return cls.getMe().canUploadPackage(archive, package, component)
+		return PersonTeam.getMe().canUploadPackage(archive, package, component)
 
 	# TODO: check if this is still needed after ArchiveReorg (or at all)
 	@classmethod
@@ -120,12 +93,12 @@ class LpApiWrapper(object):
 		'''
 		Check if the user has PerPackageUpload rights for package.
 		'''
-		if isinstance(package, SourcePackage):
+		if isinstance(package, SourcePackagePublishingHistory):
 			package = package.getPackageName()
 
-		archive = cls.getUbuntuDistribution().getArchive()
+		archive = Distribution('ubuntu').getArchive()
 
-		return cls.getMe().canUploadPackage(archive, package, None)
+		return PersonTeam.getMe().canUploadPackage(archive, package, None)
 
 
 class MetaWrapper(type):
@@ -295,8 +268,9 @@ class Archive(BaseWrapper):
 
 	def getSourcePackage(self, name, series = None, pocket = 'Release'):
 		'''
-		Returns a SourcePackage object for the most recent source package
-		in the distribution 'dist', series and pocket.
+		Returns a SourcePackagePublishingHistory object for the most
+		recent source package in the distribution 'dist', series and
+		pocket.
 
 		series defaults to the current development series if not specified.
 
@@ -329,7 +303,7 @@ class Archive(BaseWrapper):
 				srcpkg = self.getPublishedSources(
 						source_name = name, distro_series = series(), pocket = pocket,
 						status = state, exact_match = True)[0]
-				self._srcpkgs[(name, series.name, pocket)] = SourcePackage(srcpkg)
+				self._srcpkgs[(name, series.name, pocket)] = SourcePackagePublishingHistory(srcpkg)
 			except IndexError:
 				if pocket == 'Release':
 					msg = "The package '%s' does not exist in the %s %s archive in '%s'" % \
@@ -342,14 +316,14 @@ class Archive(BaseWrapper):
 		return self._srcpkgs[(name, series.name, pocket)]
 
 
-class SourcePackage(BaseWrapper):
+class SourcePackagePublishingHistory(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
 	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
 
 	def __init__(self, *args):
-		# Don't share _builds between different SourcePackages
+		# Don't share _builds between different SourcePackagePublishingHistory objects
 		if '_builds' not in self.__dict__:
 			self._builds = dict()
 
@@ -429,6 +403,8 @@ class PersonTeam(BaseWrapper):
 	'''
 	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
 
+	_me = None # the PersonTeam object of the currently authenticated LP user
+
 	def __init__(self, *args):
 		# Don't share _upload_{pkg,comp} between different PersonTeams
 		if '_upload_pkg' not in self.__dict__:
@@ -453,6 +429,15 @@ class PersonTeam(BaseWrapper):
 		if not cached:
 			cached = PersonTeam(Launchpad.people[person_or_team])
 		return cached
+
+	@classmethod
+	def getMe(cls):
+		'''
+		Returns a PersonTeam object of the currently authenticated LP user.
+		'''
+		if not cls._me:
+			cls._me = PersonTeam(Launchpad.me)
+		return cls._me
 
 	def isLpTeamMember(self, team):
 		'''
@@ -507,7 +492,7 @@ class PersonTeam(BaseWrapper):
 		'''
 		Check if the user has PerPackageUpload rights for package.
 		'''
-		if isinstance(package, SourcePackage):
+		if isinstance(package, SourcePackagePublishingHistory):
 			pkg = package.getPackageName()
 			comp = package.getComponent()
 		else:
@@ -515,6 +500,7 @@ class PersonTeam(BaseWrapper):
 			compon
 
 		return self.canUploadPackage(archive, pkg, None)
+
 
 class Build(BaseWrapper):
 	'''
@@ -536,3 +522,10 @@ class Build(BaseWrapper):
 			self().retry()
 			return True
 		return False
+
+
+class DistributionSourcePackage(BaseWrapper):
+	'''
+	Caching class for distribution_source_package objects.
+	'''
+	resource_type = 'https://api.edge.launchpad.net/beta/#distribution_source_package'
