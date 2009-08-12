@@ -21,8 +21,9 @@
 #   of the GNU General Public License license.
 
 from .common import raw_input_exit_on_ctrlc
-from ..lp.lpapiwrapper import Distribution, PersonTeam
+from ..lp.lpapiwrapper import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
 from ..lp.udtexceptions import *
+from ..lp.lp_libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
 	debian = Distribution('debian')
@@ -54,6 +55,37 @@ Your sync request shall require an approval by a member of the appropriate
 sponsorship team, who shall be subscribed to this bug report.
 This must be done before it can be processed by a member of the Ubuntu Archive
 team.'''
-		raw_input_exit_on_ctrlc('If the above is correct please press [Enter]: '
+		raw_input_exit_on_ctrlc('If the above is correct please press [Enter]: ')
 
 	return need_sponsor
+
+def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
+	'''
+	Use the LP API to file the sync request.
+	'''
+
+	print 'The final report is:\nSummary: %s\nDescription:\n%s\n' % (bugtitle, bugtext)
+	raw_input_exit_on_ctrlc('Press [Enter] to continue and [Ctrl-C] to abort. ')
+
+	if srcpkg:
+		bug_target = DistributionSourcePackage(
+			'%subuntu/+source/%s' % (Launchpad._root_uri, srcpkg))
+	else:
+		# new source package
+		bug_target = Distribution('ubuntu')
+
+	# create bug
+	bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target)
+
+	# newly created bugreports have only one task
+	task = bug.bug_tasks[0]
+	# only members of ubuntu-bugcontrol can set importance
+	if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
+		task.importance = 'Wishlist'
+	task.status = status
+	task.lp_save()
+
+	bug.subscribe(person = PersonTeam(subscribe))
+
+	print 'Sync request filed as bug #%i: %s' % (bug.id,
+		translate_api_web(bug.self_link))

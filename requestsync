@@ -41,6 +41,7 @@ import ubuntutools.common
 
 from ubuntutools.requestsync.mail import *
 from ubuntutools.requestsync.common import *
+from ubuntutools.requestsync.lp import postBug
 
 def checkExistingReports(package):
     """ Check existing bug reports on Launchpad for a possible sync request.
@@ -199,51 +200,6 @@ Content-Type: text/plain; charset=UTF-8
 
     return True
 
-def post_bug(source_package, subscribe, status, bugtitle, bugtext):
-    '''Use python-launchpadlib to submit the sync request.
-    Return True if successfully posted, otherwise False.'''
-
-    import glob, os.path
-
-    try:
-        launchpad = Launchpad.login()
-    except ImportError:
-        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
-        return False
-    except IOError, msg:
-        # No credentials found.
-        print msg
-        sys.exit(1)
-
-    if source_package:
-        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, source_package)
-    else:
-        # new source package
-        product_url = "%subuntu" %launchpad._root_uri
-        
-    print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
-
-    # ask for confirmation and allow to edit:
-    print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-    raw_input_exit_on_ctrlc()
-
-    # Create bug
-    bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
-    
-    #newly created bugreports have one task
-    task = bug.bug_tasks[0]
-    # Only members of ubuntu-bugcontrol can set importance
-    if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
-        task.importance = 'Wishlist'
-    task.status = status
-    task.lp_save()
-    
-    subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
-    bug.subscribe(person=subscribe_url)
-
-    print 'Sync request filed as bug #%i: %s' % (bug.id,
-        lp_libsupport.translate_api_web(bug.self_link))
-    return True
 
 #
 # entry point
@@ -405,7 +361,7 @@ if __name__ == '__main__':
     if use_lp_bugs:
         # Map status to the values expected by lp-bugs
         mapping = {'new': 'New', 'confirmed': 'Confirmed'}
-        if post_bug(srcpkg, subscribe, mapping[status], title, report):
+        if postBug(srcpkg, subscribe, mapping[status], title, report):
             sys.exit(0)
         # Abort on error:
         print 'Something went wrong. No sync request filed.'
