@@ -101,7 +101,7 @@ def needSponsorship(name, component):
 	component.
 	'''
 	
-	while 1:
+	while True:
 		print "Do you have upload permissions for the '%s' component " \
 			"or the package '%s'?" % (component, name)
 		val = raw_input_exit_on_ctrlc("If in doubt answer 'no'. [y/N]? ")

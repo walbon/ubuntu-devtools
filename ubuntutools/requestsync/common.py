@@ -66,46 +66,60 @@ def getDebianChangelog(srcpkg, version):
 	return new_entries
 
 def edit_report(subject, body, changes_required = False):
-	'''Edit a report (consisting of subject and body) in sensible-editor.
+	'''
+	Ask if the user wants to edit a report (consisting of subject and body)
+	in sensible-editor.
 
-	subject and body get decorated, before they are written to the
-	temporary file and undecorated after editing again.
-	If changes_required is True and the file has not been edited (according
-	to its mtime), an error is written to STDERR and the program exits.
+	If changes_required is True then the file has to be edited before we
+	can proceed.
 
 	Returns (new_subject, new_body).
 	'''
 
-	report = 'Summary (one line):\n%s\n\nDescription:\n%s' % (subject, body)
+	editing_finished = False
+	while not editing_finished:
+		report = 'Summary (one line):\n%s\n\nDescription:\n%s' % (subject, body)
 
-	# Create tempfile and remember mtime
-	report_file = tempfile.NamedTemporaryFile(prefix='requestsync_')
-	report_file.file.write(report)
-	report_file.file.flush()
-	mtime_before = os.stat(report_file.name).st_mtime
+		if not changes_required:
+			print 'Currently the report looks as follows:\n%s' % report
+			while True:
+				val = raw_input_exit_on_ctrlc('Do you want to edit the report [y/N]? ')
+				if val.lower() in ('y', 'yes'):
+					break
+				elif val.lower() in ('n', 'no', ''):
+					editing_finished = True
+					break
+				else:
+					print 'Invalid answer.'
 
-	# Launch editor
-	try:
-		editor = subprocess.check_call(['sensible-editor', report_file.name])
-	except subprocess.CalledProcessError, e:
-		print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
-		sys.exit(1)
+		if not editing_finished:
+			# Create tempfile and remember mtime
+			report_file = tempfile.NamedTemporaryFile(prefix='requestsync_')
+			report_file.write(report)
+			report_file.flush()
+			mtime_before = os.stat(report_file.name).st_mtime
 
-	# Check if the tempfile has been changed
-	if changes_required:
-		report_file_info = os.stat(report_file.name)
-		if mtime_before == os.stat(report_file.name).st_mtime:
-			print >> sys.stderr, 'The temporary file %s has not been changed, but you have\nto explain why the Ubuntu changes can be dropped. Aborting. [Press ENTER]' % (report_file.name,)
-			raw_input()
-			sys.exit(1)
+			# Launch editor
+			try:
+				editor = subprocess.check_call(['sensible-editor', report_file.name])
+			except subprocess.CalledProcessError, e:
+				print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % e
+				sys.exit(1)
 
-	report_file.file.seek(0)
-	report = report_file.file.read()
-	report_file.file.close()
-	
-	# Undecorate report again
-	(new_subject, new_body) = report.split("\nDescription:\n", 1)
-	# Remove prefix and whitespace from subject
-	new_subject = re.sub('^Summary \(one line\):\s*', '', new_subject, 1).strip()
+			# Check if the tempfile has been changed
+			if changes_required:
+				if mtime_before == os.stat(report_file.name).st_mtime:
+					print 'The report has not been changed, but you have to explain why ' \
+						'the Ubuntu changes can be dropped.'
+					raw_input_exit_on_ctrlc('Press [Enter] to retry or [Control-C] to abort. ')
 
-	return (new_subject, new_body)
+			report_file.seek(0)
+			report = report_file.read()
+			report_file.close()
+
+			# Undecorate report again
+			(subject, body) = report.split("\nDescription:\n", 1)
+			# Remove prefix and whitespace from subject
+			subject = re.sub('^Summary \(one line\):\s*', '', subject, 1).strip()
+
+	return (subject, body)

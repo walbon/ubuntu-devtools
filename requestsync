@@ -133,15 +133,13 @@ def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None)
     if keyid:
         gpg_command.extend(('-u', keyid))
 
-    in_confirm_loop = True
-    while in_confirm_loop:
-        # sign it
-        gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-        signed_report = gpg.communicate(mailbody)[0]
-        assert gpg.returncode == 0
+    # sign it
+    gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    signed_report = gpg.communicate(mailbody)[0]
+    assert gpg.returncode == 0
 
-        # generate email
-        mail = '''\
+    # generate email
+    mail = '''\
 From: %s
 To: %s
 Subject: %s
@@ -149,19 +147,10 @@ Content-Type: text/plain; charset=UTF-8
 
 %s''' % (myemailaddr, to, bugtitle, signed_report)
 
-        # ask for confirmation and allow to edit:
-        print mail
-        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-        while 1:
-            val = raw_input_exit_on_ctrlc()
-            if val.lower() in ('y', 'yes'):
-                (bugtitle, mailbody) = edit_report(bugtitle, mailbody)
-                break
-            elif val.lower() in ('n', 'no', ''):
-                in_confirm_loop = False
-                break
-            else:
-                print "Invalid answer"
+    # ask for confirmation and allow to edit:
+    print mail
+    print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
+    raw_input_exit_on_ctrlc()
 
     # get server address
     mailserver = os.getenv('DEBSMTP')
@@ -232,22 +221,11 @@ def post_bug(source_package, subscribe, status, bugtitle, bugtext):
         # new source package
         product_url = "%subuntu" %launchpad._root_uri
         
-    in_confirm_loop = True
-    while in_confirm_loop:
-        print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
+    print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
 
-        # ask for confirmation and allow to edit:
-        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-        while 1:
-            val = raw_input_exit_on_ctrlc()
-            if val.lower() in ('y', 'yes'):
-                (bugtitle, bugtext) = edit_report(bugtitle, bugtext)
-                break
-            elif val.lower() in ('n', 'no', ''):
-                in_confirm_loop = False
-                break
-            else:
-                print "Invalid answer."
+    # ask for confirmation and allow to edit:
+    print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
+    raw_input_exit_on_ctrlc()
 
     # Create bug
     bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
@@ -420,8 +398,7 @@ if __name__ == '__main__':
 	    sys.exit(1)
     report += changelog + '\n'
 
-    if need_interaction:
-        (title, report) = edit_report(title, report, changes_required=True)
+    (title, report) = edit_report(title, report, changes_required = need_interaction)
 
     # Post sync request using Launchpad interface:
     srcpkg = not newsource and srcpkg or None
