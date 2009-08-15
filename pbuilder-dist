@@ -85,10 +85,7 @@ class pbuilder_dist:
 		
 		##############################################################
 		
-		if 'PBUILDFOLDER' in os.environ:
-			self.base = os.environ['PBUILDFOLDER']
-		else:
-			self.base = os.path.expanduser('~/pbuilder/')
+		self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER', '~/pbuilder/'))
 
 		if not os.path.exists(self.base):
 			os.makedirs(self.base)
