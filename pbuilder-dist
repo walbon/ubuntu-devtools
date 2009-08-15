@@ -21,7 +21,7 @@
 #
 # ##################################################################
 #
-# This script is a wrapper to be able to easily use pbuilder for
+# This script is a wrapper to be able to easily use pbuilder/cowbuilder for
 # different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
 #
 # You can create symlinks to a pbuilder-dist executable to get different
