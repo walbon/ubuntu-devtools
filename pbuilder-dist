@@ -245,7 +245,9 @@ class pbuilder_dist:
 			arguments.append('--debootstrapopts --arch')
 			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
 		
-		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
+		apt_conf_dir = os.path.join(self.base, 'etc/%(target_distro)s/apt.conf' % self)
+		if os.path.exists(apt_conf_dir):
+			arguments.append('--aptconfdir "%s"' % apt_conf_dir)
 		
 		# Append remaining arguments
 		if remaining_arguments:

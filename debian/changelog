@@ -22,6 +22,9 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist:
      - Expand "~" in PBUILDFOLDER to the user's home directory.
+     - If there's a "etc/<distro>/apt.conf" file inside the build result
+       directory, pass it to pbuilder as --aptconfdir. Thanks to Paul Novotny
+       and Ryan Pavlik (LP: #363043).
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 16 Aug 2009 00:11:09 +0200
 
