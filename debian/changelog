@@ -16,7 +16,13 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
   * buildd: Add a --batch mode for batch retrying/rescoring of packages.
 
   [ Iain Lane ]
-  * requestsync: Guard some calls when -n is specified
+  * requestsync:
+    - Guard some calls when -n is specified
+    - Fetch changelog of specified version, not current version. If an
+      experimenal upload happened after the unstable one we're syncing, this
+      is considered to be current by p.d.o and we would get those changelog
+      entries in the sync request
+    - Remove trailing fullstop from sync bug title
   * suspicious-source: Add *.hs *.el *.css to whitelist
 
   [ Siegfried-Angel Gevatter Pujals ]
@@ -26,7 +32,8 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
        directory, pass it to pbuilder as --aptconfdir. Thanks to Paul Novotny
        and Ryan Pavlik (LP: #363043).
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 16 Aug 2009 00:11:09 +0200
+
+ -- Iain Lane <laney@ubuntu.com>  Mon, 17 Aug 2009 12:00:33 +0100
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 

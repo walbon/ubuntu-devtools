@@ -144,7 +144,7 @@ def cur_deb_version(sourcepkg, distro):
     
     return out.split('|')[1].rstrip('[]''').strip()
 
-def debian_changelog(sourcepkg, component, version):
+def debian_changelog(sourcepkg, component, version, debver):
     '''Return the Debian changelog from the latest up to the given version
     (exclusive).'''
 
@@ -158,7 +158,8 @@ def debian_changelog(sourcepkg, component, version):
 
     # Get the debian/changelog file from packages.debian.org.
     try:
-        debianChangelogPage = urllib2.urlopen('http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % (component, subdir, sourcepkg))
+        pkgurl = 'http://packages.debian.org/changelogs/pool/%s/%s/%s/%s_%s/changelog.txt' % (component, subdir, sourcepkg, sourcepkg, debver)
+        debianChangelogPage = urllib2.urlopen(pkgurl)
     except urllib2.HTTPError, error:
         print >> sys.stderr, "Unable to connect to packages.debian.org. " \
             "Received a %s." % error.code
@@ -527,7 +528,7 @@ if __name__ == '__main__':
             subscribe = 'motu-release'
 
 
-    pkg_to_sync = '%s %s (%s) from Debian %s (%s).' % (srcpkg, deb_version, component, distro, debiancomponent)
+    pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % (srcpkg, deb_version, component, distro, debiancomponent)
     title = "Sync %s" % pkg_to_sync
     if ffe == True:
         title = "FFe: " + title
@@ -571,7 +572,7 @@ if __name__ == '__main__':
         base_ver = force_base_ver
 
     if not newsource: report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
-    report += debian_changelog(srcpkg, debiancomponent, base_ver) + '\n'
+    report += debian_changelog(srcpkg, debiancomponent, base_ver, deb_version) + '\n'
 
     if need_interaction:
         (title, report) = edit_report(title, report, changes_required=True)
