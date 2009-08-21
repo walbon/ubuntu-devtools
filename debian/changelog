@@ -32,8 +32,14 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
        directory, pass it to pbuilder as --aptconfdir. Thanks to Paul Novotny
        and Ryan Pavlik (LP: #363043).
 
+  [ Luca Falavigna ]
+  * Switch to python-support to ease initial import into Debian:
+    - debian/control: build-depend on python-support instead of pycentral,
+      also remove unneeded XB-Python-Version field from binary stanza.
+    - debian/rules: set DEB_PYTHON_SYSTEM to pysupport.
+    - ubuntu-dev-tools.preinst: remove stale pycentral files on upgrades.
 
- -- Iain Lane <laney@ubuntu.com>  Mon, 17 Aug 2009 12:00:33 +0100
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Fri, 21 Aug 2009 17:30:05 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
