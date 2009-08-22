@@ -16,5 +16,14 @@ if [ -e /etc/bash_completion.d/pbuilder-dist/pbuilder-dist ]; then
     mv -fv "$tmp_file" /etc/bash_completion.d/pbuilder-dist
 fi
 
+# Remove stale pycentral files on upgrades.
+# This can be removed after the next LTS (likely 10.04) is released.
+if [ "$1" = upgrade ]
+then
+       if dpkg --compare-versions "$2" lt "0.76" ; then
+               pycentral pkgremove ubuntu-dev-tools
+       fi
+fi
+
 #DEBHELPER#
 

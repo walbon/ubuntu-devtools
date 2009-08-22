@@ -279,14 +279,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # -s flag not specified - check if we do need sponsorship.
-    if (not newsource):
-		if (not sponsorship):
+    if (not sponsorship):
+		if (not newsource):
 			sponsorship = needsSponsorship(srcpkg, component)
 		else:
-			sponsorship = PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
+			sponsorship = not PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
 
     # Check for existing package reports.
-    if not newsource and use_lp_bugs: checkExistingReports(srcpkg)
+    if (not newsource) and use_lp_bugs: checkExistingReports(srcpkg)
 
     # Generate bug report.
     subscribe = 'ubuntu-archive'
@@ -305,7 +305,7 @@ if __name__ == '__main__':
             subscribe = 'motu-release'
 
 
-    pkg_to_sync = '%s %s (%s) from Debian %s (%s).' % (srcpkg, deb_version, component, distro, debiancomponent)
+    pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % (srcpkg, deb_version, component, distro, debiancomponent)
     title = "Sync %s" % pkg_to_sync
     if ffe == True:
         title = "FFe: " + title

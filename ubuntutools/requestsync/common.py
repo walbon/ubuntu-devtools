@@ -42,6 +42,7 @@ def getDebianChangelog(srcpkg, version):
 	Return the new changelog entries upto 'version'.
 	'''
 	pkgname = srcpkg.getPackageName()
+	pkgversion = srcpkg.getVersion()
 	component = srcpkg.getComponent()
 	if pkgname.startswith('lib'):
 		subdir = 'lib%s' % pkgname[3]
@@ -51,8 +52,8 @@ def getDebianChangelog(srcpkg, version):
 	# Get the debian changelog file from packages.debian.org
 	try:
 		changelog = urllib2.urlopen(
-			'http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog.txt' % \
-			(component, subdir, pkgname))
+			'http://packages.debian.org/changelogs/pool/%s/%s/%s/%s_%s/changelog.txt' % \
+			(component, subdir, pkgname, pkgname, pkgversion))
 	except urllib2.HTTPError, error:
 		print >> sys.stderr, 'Unable to connect to packages.debian.org: %s' % error
 		return None
