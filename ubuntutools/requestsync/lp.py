@@ -21,9 +21,9 @@
 #   of the GNU General Public License license.
 
 from .common import raw_input_exit_on_ctrlc
-from ..lp.lpapiwrapper import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
+from ..lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
 from ..lp.udtexceptions import *
-from ..lp.lp_libsupport import translate_api_web
+from ..lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
 	debian = Distribution('debian')
