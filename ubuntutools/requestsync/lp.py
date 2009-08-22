@@ -59,6 +59,27 @@ team.'''
 
 	return need_sponsor
 
+def checkExistingReports(srcpkg):
+	'''
+	Check existing bug reports on Launchpad for a possible sync request.
+
+	If found ask for confirmation on filing a request.
+	'''
+
+	# Fetch the package's bug list from Launchpad
+	pkg = Distribution('ubuntu').getSourcePackage(name = srcpkg.getPackageName())
+	pkgBugList = pkg.getBugTasks()
+
+	# Search bug list for other sync requests.
+	for bug in pkgBugList:
+		# check for Sync or sync and the package name
+		if 'ync %s' % package in bug.title:
+			print 'The following bug could be a possible duplicate sync bug on Launchpad:'
+			print ' * Bug #%i: %s (%s)' % \
+				(bug.id, bug.title, translate_api_web(bug.self_link))
+			print 'Please check the above URL to verify this before continuing.'
+			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+
 def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 	'''
 	Use the LP API to file the sync request.

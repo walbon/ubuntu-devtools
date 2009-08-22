@@ -27,7 +27,12 @@ import socket
 from .common import raw_input_exit_on_ctrlc
 from ..lp.udtexceptions import PackageNotFoundException
 
-__all__ = ['getDebianSrcPkg', 'getUbuntuSrcPkg']
+__all__ = [
+	'getDebianSrcPkg',
+	'getUbuntuSrcPkg',
+	'getEmailAddress',
+	'postBug',
+	]
 
 class SourcePackagePublishingHistory(object):
 	'''
@@ -113,6 +118,13 @@ def needSponsorship(name, component):
 			return True
 		else:
 			print 'Invalid answer'
+
+def checkExistingReports(srcpkg):
+	'''
+	Point the user to the URL to manually check for duplicate bug reports.
+	'''
+	print 'Please check on https://bugs.launchpad.net/ubuntu/+source/%s/+bugs for duplicate sync requests before continuing.'
+	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
 	'''
