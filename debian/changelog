@@ -16,10 +16,30 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
   * buildd: Add a --batch mode for batch retrying/rescoring of packages.
 
   [ Iain Lane ]
-  * requestsync: Guard some calls when -n is specified
+  * requestsync:
+    - Guard some calls when -n is specified
+    - Fetch changelog of specified version, not current version. If an
+      experimenal upload happened after the unstable one we're syncing, this
+      is considered to be current by p.d.o and we would get those changelog
+      entries in the sync request
+    - Remove trailing fullstop from sync bug title
   * suspicious-source: Add *.hs *.el *.css to whitelist
 
- -- Iain Lane <laney@ubuntu.com>  Sat, 08 Aug 2009 16:02:25 +0100
+  [ Siegfried-Angel Gevatter Pujals ]
+  * pbuilder-dist:
+     - Expand "~" in PBUILDFOLDER to the user's home directory.
+     - If there's a "etc/<distro>/apt.conf" file inside the build result
+       directory, pass it to pbuilder as --aptconfdir. Thanks to Paul Novotny
+       and Ryan Pavlik (LP: #363043).
+
+  [ Luca Falavigna ]
+  * Switch to python-support to ease initial import into Debian:
+    - debian/control: build-depend on python-support instead of pycentral,
+      also remove unneeded XB-Python-Version field from binary stanza.
+    - debian/rules: set DEB_PYTHON_SYSTEM to pysupport.
+    - ubuntu-dev-tools.preinst: remove stale pycentral files on upgrades.
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Fri, 21 Aug 2009 17:30:05 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 

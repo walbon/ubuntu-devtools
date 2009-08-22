@@ -21,7 +21,7 @@
 #
 # ##################################################################
 #
-# This script is a wrapper to be able to easily use pbuilder for
+# This script is a wrapper to be able to easily use pbuilder/cowbuilder for
 # different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
 #
 # You can create symlinks to a pbuilder-dist executable to get different
@@ -85,10 +85,7 @@ class pbuilder_dist:
 		
 		##############################################################
 		
-		if 'PBUILDFOLDER' in os.environ:
-			self.base = os.environ['PBUILDFOLDER']
-		else:
-			self.base = os.path.expanduser('~/pbuilder/')
+		self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER', '~/pbuilder/'))
 
 		if not os.path.exists(self.base):
 			os.makedirs(self.base)
@@ -248,7 +245,9 @@ class pbuilder_dist:
 			arguments.append('--debootstrapopts --arch')
 			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
 		
-		### $( [ $ISDEBIAN != "False" ] || echo "--aptconfdir \"${BASE_DIR}/etc/${DISTRIBUTION}/apt.conf/\"" ) \
+		apt_conf_dir = os.path.join(self.base, 'etc/%(target_distro)s/apt.conf' % self)
+		if os.path.exists(apt_conf_dir):
+			arguments.append('--aptconfdir "%s"' % apt_conf_dir)
 		
 		# Append remaining arguments
 		if remaining_arguments:
