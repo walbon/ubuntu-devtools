@@ -65,7 +65,7 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 	'''
 
 	print 'The final report is:\nSummary: %s\nDescription:\n%s\n' % (bugtitle, bugtext)
-	raw_input_exit_on_ctrlc('Press [Enter] to continue and [Ctrl-C] to abort. ')
+	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 	if srcpkg:
 		bug_target = DistributionSourcePackage(

@@ -92,17 +92,6 @@ def checkExistingReports(package):
          "please press enter."
     raw_input_exit_on_ctrlc()
             
-def cur_version_component(sourcepkg, release):
-    
-    try:
-	src = getUbuntuSrcPkg(sourcepkg, release)
-        return (src.getVersion(), src.getComponent())
-     
-    except udtexceptions.PackageNotFoundException:
-        
-        print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
-        sys.exit(1)
-
 def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
     '''Submit the sync request per email.
     Return True if email successfully send, otherwise False.'''
@@ -265,8 +254,17 @@ if __name__ == '__main__':
 
     (cur_ver, component) = ('0', 'universe') # Let's assume universe
     
-    # Find Ubuntu release's package version.
-    if not newsource: (cur_ver, component) = cur_version_component(srcpkg, release)
+	# Find Ubuntu release's package version.
+	try:
+		ubuntusrcpkg = getUbuntuSrcPkg(srcpkg, release)
+		cur_ver = ubuntusrcpkg.getVersion()
+		component = ubuntusrcpkg.getComponent()
+	except udtexceptions.PackageNotFoundException:
+		if not newsource:
+			print "'%s' doesn't exist in 'Ubuntu %s'.\nDo you want to sync a new package?" % \
+				(srcpkg, release)
+			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+			newsource = True # TODO: set it for now, but check code if it's needed
 
     debsrcpkg = getDebianSrcPkg(srcpkg, distro)
     debiancomponent = debsrcpkg.getComponent()
