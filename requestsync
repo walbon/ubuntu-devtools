@@ -92,103 +92,6 @@ def checkExistingReports(package):
          "please press enter."
     raw_input_exit_on_ctrlc()
             
-def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
-    '''Submit the sync request per email.
-    Return True if email successfully send, otherwise False.'''
-    
-    import smtplib
-    import socket
-
-    to = 'new@bugs.launchpad.net'
-
-    myemailaddr = get_email_address()
-    if not myemailaddr:
-        return False
-
-    # generate initial mailbody
-    mailbody = ''
-    if source_package:
-        mailbody += ' affects ubuntu/%s\n' % source_package
-    else:
-        mailbody += ' affects ubuntu\n'
-    mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n done\n\n%s' % (status, subscribe, bugtext)
-
-    # prepare sign_command
-    sign_command = 'gpg'
-    for cmd in ('gpg2', 'gnome-gpg'):
-        if os.access('/usr/bin/%s' % cmd, os.X_OK):
-            sign_command = cmd
-
-    gpg_command = [sign_command, '--clearsign']
-    if keyid:
-        gpg_command.extend(('-u', keyid))
-
-    # sign it
-    gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-    signed_report = gpg.communicate(mailbody)[0]
-    assert gpg.returncode == 0
-
-    # generate email
-    mail = '''\
-From: %s
-To: %s
-Subject: %s
-Content-Type: text/plain; charset=UTF-8
-
-%s''' % (myemailaddr, to, bugtitle, signed_report)
-
-    # ask for confirmation and allow to edit:
-    print mail
-    print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-    raw_input_exit_on_ctrlc()
-
-    # get server address
-    mailserver = os.getenv('DEBSMTP')
-    if mailserver:
-        print 'Using custom SMTP server:', mailserver
-    else:
-        mailserver = 'fiordland.ubuntu.com'
-
-    # get server port
-    mailserver_port = os.getenv('DEBSMTP_PORT')
-    if mailserver_port:
-        print 'Using custom SMTP port:', mailserver_port
-    else:
-        mailserver_port = 25
-
-    # connect to the server
-    try:
-        s = smtplib.SMTP(mailserver, mailserver_port)
-    except socket.error, s:
-        print >> sys.stderr, "Could not connect to mailserver %s at port %s: %s (%i)" % \
-            (mailserver, mailserver_port, s[1], s[0])
-        print "The port %s may be firewalled. Please try using requestsync with" \
-            % mailserver_port
-        print "the '--lp' flag to file a sync request with the launchpadlib " \
-            "module."
-        return False
-
-    # authenticate to the server
-    mailserver_user = os.getenv('DEBSMTP_USER')
-    mailserver_pass = os.getenv('DEBSMTP_PASS')
-    if mailserver_user and mailserver_pass:
-        try:
-            s.login(mailserver_user, mailserver_pass)
-        except smtplib.SMTPAuthenticationError:
-            print 'Error authenticating to the server: invalid username and password.'
-            s.quit()
-            return False
-        except:
-            print 'Unknown SMTP error.'
-            s.quit()
-            return False
-
-    s.sendmail(myemailaddr, to, mail)
-    s.quit()
-    print 'Sync request mailed.'
-
-    return True
-
 
 #
 # entry point
@@ -232,7 +135,7 @@ if __name__ == '__main__':
     distro = options.dist
     ffe = options.ffe
 
-    if not use_lp_bugs and not get_email_address():
+    if not use_lp_bugs and not getEmailAddress():
         sys.exit(1)
 
     if len(args) == 0:
@@ -366,7 +269,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # Mail sync request:
-    if mail_bug(srcpkg, subscribe, status, title, report, keyid):
+    if mailBug(srcpkg, subscribe, status, title, report, keyid):
         sys.exit(0)
 
     print 'Something went wrong. No sync request filed.'

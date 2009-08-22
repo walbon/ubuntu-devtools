@@ -22,6 +22,8 @@
 import os
 import sys
 import subprocess
+import smtplib
+import socket
 from .common import raw_input_exit_on_ctrlc
 from ..lp.udtexceptions import PackageNotFoundException
 
@@ -83,12 +85,12 @@ def getDebianSrcPkg(name, release):
 def getUbuntuSrcPkg(name, release):
 	return getSrcPkg('ubuntu', name, release)
 
-def get_email_address():
+def getEmailAddress():
 	'''
-	Get the From email address from the DEBEMAIL or EMAIL environment
-	variable or give an error.
+	Get the From email address from the UBUMAIL, DEBEMAIL or EMAIL
+	environment variable or give an error.
 	'''
-	myemailaddr = os.getenv('DEBEMAIL') or os.getenv('EMAIL')
+	myemailaddr = os.getenv('UBUMAIL') or os.getenv('DEBEMAIL') or os.getenv('EMAIL')
 	if not myemailaddr:
 		print >> sys.stderr, 'The environment variable DEBEMAIL or ' \
 			'EMAIL needs to be set to let this script mail the ' \
@@ -111,3 +113,87 @@ def needSponsorship(name, component):
 			return True
 		else:
 			print 'Invalid answer'
+
+def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
+	'''
+	Submit the sync request per email.
+	'''
+
+	to = 'new@bugs.launchpad.net'
+
+	# getEmailAddress() can't fail here as the main code in requestsync
+	# already checks its return value
+	myemailaddr = getEmailAddress()
+
+	# generate mailbody
+	if srcpkg:
+		mailbody = ' affects ubuntu/%s\n' % srcpkg.getPackageName()
+	else:
+		mailbody = ' affects ubuntu\n'
+	mailbody += '''\
+ status %s
+ importance wishlist
+ subscribe %s
+ done
+
+%s''' % (status, subscribe, bugtext)
+	
+	# prepare sign command
+	gpg_command = None
+	for cmd in ('gpg', 'gpg2', 'gnome-gpg'):
+		if os.access('/usr/bin/%s' % cmd, os.X_OK):
+			gpg_command = [cmd]
+	assert gpg_command # TODO: catch exception and produce error message
+
+	gpg_command.append('--clearsign')
+	if keyid:
+		gpg_command.extend(('-u', keyid))
+
+	# sign the mail body
+	gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+	signed_report = gpg.communicate(mailbody)[0]
+	assert gpg.returncode == 0
+
+	# generate email
+	mail = '''\
+From: %s
+To: %s
+Subject: %s
+Content-Type: text/plain; charset=UTF-8
+
+%s''' % (myemailaddr, to, bugtitle, signed_report)
+
+	print 'The final report is:\n%s' % mail
+	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+
+	# get server address and port
+	mailserver_host = os.getenv('UBUSMTP') or os.getenv('DEBSMTP') or 'fiordland.ubuntu.com'
+	mailserver_port = os.getenv('UBUSMTP_PORT') or os.getenv('DEBSMTP_PORT') or 25
+
+	# connect to the server
+	try:
+		print 'Connecting to %s:%s ...' % (mailserver_host, mailserver_port)
+		s = smtplib.SMTP(mailserver_host, mailserver_port)
+	except socket.error, s:
+		print >> sys.stderr, "Could not connect to %s:%s: %s (%i)" % \
+			(mailserver_host, mailserver_port, s[1], s[0])
+		return
+
+	# authenticate to the server
+	mailserver_user = os.getenv('UBUSMTP_USER') or os.getenv('DEBSMTP_USER')
+	mailserver_pass = os.getenv('UBUSMTP_PASS') or os.getenv('DEBSMTP_PASS')
+	if mailserver_user and mailserver_pass:
+		try:
+			s.login(mailserver_user, mailserver_pass)
+		except smtplib.SMTPAuthenticationError:
+			print 'Error authenticating to the server: invalid username and password.'
+			s.quit()
+			return
+		except:
+			print 'Unknown SMTP error.'
+			s.quit()
+			return
+
+	s.sendmail(myemailaddr, to, mail)
+	s.quit()
+	print 'Sync request mailed.'
