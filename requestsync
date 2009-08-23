@@ -57,9 +57,9 @@ if __name__ == '__main__':
 		help = 'Whether package to sync is a new package in Ubuntu.')
 	optParser.add_option('--lp', action = 'store_true',
 		dest = 'lpapi', default = False,
-		help = 'Specify whether to use the LP API for filing the sync request.')
+		help = 'Specify whether to use the LP API for filing the sync request (recommended).')
 	optParser.add_option('-s', action = 'store_true',
-		dest = 'sponsor', default = False,
+		dest = 'sponsorship', default = False,
 		help = 'Force sponsorship')
 	optParser.add_option('-e', action = 'store_true',
 		dest = 'ffe', default = False,
@@ -75,142 +75,143 @@ if __name__ == '__main__':
 	# import the needed requestsync module
 	if options.lpapi:
 		from ubuntutools.requestsync.lp import *
-		from ubuntutools.lp.lpapicache import Distribution
+		from ubuntutools.lp.lpapicache import Distribution, PersonTeam
 	else:
 		from ubuntutools.requestsync.mail import *
 		if not getEmailAddress():
 			sys.exit(1)
 
 	newsource = options.newpkg
-	sponsorship = options.sponsor
-	keyid = options.keyid
-	lpapi = options.lpapi
-	need_interaction = False
+	sponsorship = options.sponsorship
 	distro = options.dist
 	ffe = options.ffe
+	lpapi = options.lpapi
+	need_interaction = False
+	force_base_version = None
+	srcpkg = args[0]
 
-	if len(args) not in (2, 3): # no release specified, assume development release
-		if options.lpapi:
+	if len(args) == 1:
+		if lpapi:
 			release = Distribution('ubuntu').getDevelopmentSeries().name
 			print >> sys.stderr, 'W: Target release missing - assuming %s' % release
 		else:
 			print >> sys.stderr, 'E: Source package or target release missing. Exiting.'
 			sys.exit(1)
-	else:
+	elif len(args) == 2:
 		release = args[1]
+	elif len(args) == 3:
+		release = args[1]
+		force_base_version = Version(args[2])
+	else:
+		print >> sys.stderr, 'E: Too many arguments.'
+		optParser.print_help()
+		sys.exit(1)
 
-	srcpkg = args[0]
-	force_base_ver = None
-	
-	# Base version specified.
-	if len(args) == 3: force_base_ver = args[2]
-
-	(cur_ver, component) = ('0', 'universe') # Let's assume universe
-
-	# Find Ubuntu release's package version.
+	# Get the current Ubuntu source package
 	try:
-		ubuntusrcpkg = getUbuntuSrcPkg(srcpkg, release)
-		cur_ver = ubuntusrcpkg.getVersion()
-		component = ubuntusrcpkg.getComponent()
+		ubuntu_srcpkg = getUbuntuSrcPkg(srcpkg, release)
+		ubuntu_version = Version(ubuntu_srcpkg.getVersion())
+		ubuntu_component = ubuntu_srcpkg.getComponent()
+		newsource = False # override the -n flag
 	except udtexceptions.PackageNotFoundException:
+		ubuntu_srcpkg = None
+		ubuntu_version = Version(0)
+		ubuntu_component = 'universe' # let's assume universe
 		if not newsource:
 			print "'%s' doesn't exist in 'Ubuntu %s'.\nDo you want to sync a new package?" % \
 				(srcpkg, release)
 			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
-			newsource = True # TODO: set it for now, but check code if it's needed
+			newsource = True
 
-	debsrcpkg = getDebianSrcPkg(srcpkg, distro)
-	debiancomponent = debsrcpkg.getComponent()
-	# Find Debian release's package version.
-	deb_version = debsrcpkg.getVersion()
+	# Get the requested Debian source package
+	debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
+	debian_version = Version(debian_srcpkg.getVersion())
+	debian_component = debian_srcpkg.getComponent()
 
-	# Debian and Ubuntu versions are the same - stop.
-	if deb_version == cur_ver:
-		print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
+	# Debian and Ubuntu versions are the same - stop
+	if ubuntu_version == debian_version:
+		print  >> sys.stderr, \
+			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
 		sys.exit(1)
 
-	# -s flag not specified - check if we do need sponsorship.
-	if (not sponsorship):
-		if (not newsource):
-			sponsorship = needsSponsorship(srcpkg, component)
-		else:
-			sponsorship = not PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
+	# -s flag not specified - check if we do need sponsorship
+	if not sponsorship:
+		sponsorship = needsSponsorship(srcpkg, ubuntu_component)
 
-	# Check for existing package reports.
-	if (not newsource) and use_lp_bugs: checkExistingReports(srcpkg)
+	# Check for existing package reports
+	if not newsource:
+		checkExistingReports(srcpkg)
 
-	# Generate bug report.
-	subscribe = 'ubuntu-archive'
-	status = 'confirmed'
-	if sponsorship == True:
-		status = 'new'
-	if component in ['main', 'restricted']:
-		subscribe = 'ubuntu-main-sponsors'
+	# Generate bug report
+	pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % \
+		(srcpkg, debian_version, ubuntu_component, distro, debian_component)
+	title = "Sync %s" % pkg_to_sync
+	if ffe:
+		title = "FFe: " + title
+	report = "Please sync %s\n\n" % pkg_to_sync
+
+	if 'ubuntu' in str(ubuntu_version):
+		need_interaction = True
+
+		print 'Changes have been made to the package in Ubuntu.\n' \
+			'Please edit the report and give an explanation.\n' \
+			'Not saving the report file will abort the request.'
+		report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' \
+			'>>> ENTER_EXPLANATION_HERE <<<\n\n'
+
+	if ffe:
+		need_interaction = True
+
+		print 'To approve FeatureFreeze exception, you need to state\n' \
+			'the reason why you feel it is necessary.\n' \
+			'Not saving the report file will abort the request.'
+		report += 'Explanation of FeatureFreeze exception:\n' \
+			'>>> ENTER_EXPLANATION_HERE <<<\n\n'
+
+	if need_interaction:
+		raw_input_exit_on_ctrlc('Press [Enter] to continue. Press [Ctrl-C] to abort now. ')
+
+	# Check if they have a per-package upload permission.
+	if lpapi:
+		ubuntu_archive = Distribution('ubuntu').getArchive()
+		if PersonTeam.getMe().isPerPackageUploader(ubuntu_archive, srcpkg):
+			report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
+
+	base_version = force_base_version or ubuntu_version
+
+	if newsource:
+		report += 'All changelog entries:\n\n'
 	else:
-		subscribe = 'ubuntu-universe-sponsors'
-	if ffe == True:
+		report += 'Changelog entries since current %s version %s:\n\n' % (release, ubuntu_version)
+	changelog = getDebianChangelog(debian_srcpkg, base_version)
+	if not changelog:
+		sys.exit(1)
+	report += changelog
+
+	(title, report) = edit_report(title, report, changes_required = need_interaction)
+
+	# bug status and bug subscriber
+	status = 'confirmed'
+	subscribe = 'ubuntu-archive'
+	if sponsorship:
 		status = 'new'
-		if component in ['main', 'restricted']:
+		if ubuntu_component in ('main', 'restricted'):
+			subscribe = 'ubuntu-main-sponsors'
+		else:
+			subscribe = 'ubuntu-universe-sponsors'
+	if ffe:
+		status = 'new'
+		if ubuntu_component in ('main', 'restricted'):
 			subscribe = 'ubuntu-release'
 		else:
 			subscribe = 'motu-release'
 
-	pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % (srcpkg, deb_version, component, distro, debiancomponent)
-	title = "Sync %s" % pkg_to_sync
-	if ffe == True:
-		title = "FFe: " + title
-	report = "Please sync %s\n\n" % pkg_to_sync
-
-	base_ver = cur_ver
-	uidx = base_ver.find('ubuntu')
-	if uidx > 0:
-		base_ver = base_ver[:uidx]
-		need_interaction = True
-
-	print 'Changes have been made to the package in Ubuntu.'
-	print 'Please edit the report and give an explanation.'
-	print 'Press ENTER to start your editor. Press Control-C to abort now.'
-	print 'Not saving the report file will abort the request, too.'
-	raw_input_exit_on_ctrlc()
-	report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' + \
-		'>>> ENTER_EXPLANATION_HERE <<<\n\n'
-
-	if ffe == True:
-		need_interaction = True
-
-	print 'To approve FeatureFreeze exception, you need to state '
-	print 'the reason why you feel it is necessary.'
-	print 'Press ENTER to start your editor. Press Control-C to abort now.'
-	print 'Not saving the report file will abort the request, too.'
-	raw_input_exit_on_ctrlc()
-	report += 'Explanation of FeatureFreeze exception:\n' + \
-		'>>> ENTER_EXPLANATION_HERE <<<\n\n'
-
-	# Check if they have a per-package upload permission.
-	if LpApiWrapper.isPerPackageUploader(srcpkg):
-		report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
-
-	uidx = base_ver.find('build')
-	if uidx > 0:
-		base_ver = base_ver[:uidx]
-
-	if force_base_ver:
-		base_ver = force_base_ver
-
-	if not newsource: report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
-	changelog = getDebianChangelog(debsrcpkg, Version(base_ver))
-	if not changelog:
-		sys.exit(1)
-	report += changelog + '\n'
-
-	(title, report) = edit_report(title, report, changes_required = need_interaction)
-
-	# Post sync request using Launchpad interface:
 	srcpkg = not newsource and srcpkg or None
-	if options.lpapi:
-		# Map status to the values expected by lp-bugs
+	if lpapi:
+		# Map status to the values expected by LP API
 		mapping = {'new': 'New', 'confirmed': 'Confirmed'}
+		# Post sync request using LP API
 		postBug(srcpkg, subscribe, mapping[status], title, report)
 	else:
-		# Mail sync request:
-		mailBug(srcpkg, subscribe, status, title, report, keyid)
+		# Mail sync request
+		mailBug(srcpkg, subscribe, status, title, report, options.keyid)

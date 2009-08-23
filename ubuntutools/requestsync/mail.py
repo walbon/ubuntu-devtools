@@ -31,7 +31,7 @@ __all__ = [
 	'getDebianSrcPkg',
 	'getUbuntuSrcPkg',
 	'getEmailAddress',
-	'postBug',
+	'mailBug',
 	]
 
 class SourcePackagePublishingHistory(object):
@@ -97,9 +97,9 @@ def getEmailAddress():
 	'''
 	myemailaddr = os.getenv('UBUMAIL') or os.getenv('DEBEMAIL') or os.getenv('EMAIL')
 	if not myemailaddr:
-		print >> sys.stderr, 'The environment variable DEBEMAIL or ' \
-			'EMAIL needs to be set to let this script mail the ' \
-			'sync request.'
+		print >> sys.stderr, 'E: The environment variable UBUMAIL, ' \
+			'DEBEMAIL or EMAIL needs to be set to let this script ' \
+			'mail the sync request.'
 	return myemailaddr
 
 def needSponsorship(name, component):
@@ -139,7 +139,7 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
 
 	# generate mailbody
 	if srcpkg:
-		mailbody = ' affects ubuntu/%s\n' % srcpkg.getPackageName()
+		mailbody = ' affects ubuntu/%s\n' % srcpkg
 	else:
 		mailbody = ' affects ubuntu\n'
 	mailbody += '''\
@@ -187,7 +187,7 @@ Content-Type: text/plain; charset=UTF-8
 		print 'Connecting to %s:%s ...' % (mailserver_host, mailserver_port)
 		s = smtplib.SMTP(mailserver_host, mailserver_port)
 	except socket.error, s:
-		print >> sys.stderr, "Could not connect to %s:%s: %s (%i)" % \
+		print >> sys.stderr, 'E: Could not connect to %s:%s: %s (%i)' % \
 			(mailserver_host, mailserver_port, s[1], s[0])
 		return
 
@@ -198,11 +198,11 @@ Content-Type: text/plain; charset=UTF-8
 		try:
 			s.login(mailserver_user, mailserver_pass)
 		except smtplib.SMTPAuthenticationError:
-			print 'Error authenticating to the server: invalid username and password.'
+			print >> sys.stderr, 'E: Error authenticating to the server: invalid username and password.'
 			s.quit()
 			return
 		except:
-			print 'Unknown SMTP error.'
+			print >> sys.stderr, 'E: Unknown SMTP error.'
 			s.quit()
 			return
 
