@@ -24,6 +24,7 @@
 #import httplib2
 #httplib2.debuglevel = 1
 
+import sys
 import libsupport
 from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
@@ -38,7 +39,11 @@ class Launchpad(object):
 		Enforce a login through the LP API.
 		'''
 		if not self.__lp:
-			self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+			try:
+				self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+			except IOError, error:
+				print >> sys.stderr, 'E: %s' % error
+				sys.exit(1)
 		return self
 
 	def __getattr__(self, attr):
@@ -458,9 +463,9 @@ class PersonTeam(BaseWrapper):
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-		if not isinstance(package, (str, None)):
+		if package and not isinstance(package, str):
 			raise TypeError('A source package name expected.')
-		if not isinstance(component, (str, None)):
+		if component and not isinstance(component, str):
 			raise TypeError('A component name expected.')
 		if not package and not component:
 			raise ValueError('Either a source package name or a component has to be specified.')
@@ -494,10 +499,8 @@ class PersonTeam(BaseWrapper):
 		'''
 		if isinstance(package, SourcePackagePublishingHistory):
 			pkg = package.getPackageName()
-			comp = package.getComponent()
 		else:
 			pkg = package
-			compon
 
 		return self.canUploadPackage(archive, pkg, None)
 
