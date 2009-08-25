@@ -14,6 +14,12 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * Drop python-launchpad-bugs from Depends.
   * buildd: Add a --batch mode for batch retrying/rescoring of packages.
+  * requestsync:
+    - Use UBU* environment variables before the DEB* ones (lp: #400133)
+    - Split requestsync into a "mail" module and a "lpapi" module and use
+      the LP API only when --lp was used. In "mail" mode requestsync has
+      to ask some more questions for parts it can't find out without LP API.
+      (lp: #406659, #416955)
 
   [ Iain Lane ]
   * requestsync:
@@ -39,7 +45,7 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
     - debian/rules: set DEB_PYTHON_SYSTEM to pysupport.
     - ubuntu-dev-tools.preinst: remove stale pycentral files on upgrades.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Fri, 21 Aug 2009 17:30:05 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Tue, 25 Aug 2009 13:03:50 +0200
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
