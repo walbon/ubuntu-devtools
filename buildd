@@ -199,7 +199,7 @@ else:
 # filter out duplicate and invalid architectures
 archs.intersection_update(valid_archs)
 
-release = options.series # if None it falls back to the current development series
+release = options.series or Distribution('ubuntu').getDevelopmentSeries().name
 pocket = 'Release'
 if release and '-' in release:
 	# split release and pocket

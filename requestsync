@@ -26,571 +26,196 @@
 #
 # ##################################################################
 
-import os
-import subprocess
 import sys
-import urllib
-import urllib2
-from debian_bundle.changelog import Version
 from optparse import OptionParser
-from time import sleep
+from debian_bundle.changelog import Version
 
-# ubuntu-dev-tools modules.
-import ubuntutools.lp.libsupport as lp_libsupport
-import ubuntutools.lp.udtexceptions as udtexceptions
-from ubuntutools.lp.lpapicache import Launchpad, LpApiWrapper, Distribution, PersonTeam
+# ubuntu-dev-tools modules
+from ubuntutools.lp import udtexceptions
+from ubuntutools.requestsync.common import *
 # https_proxy fix
 import ubuntutools.common
-import ubuntutools.packages
-
-def checkNeedsSponsorship(srcpkg):
-    """
-        Check that the user has the appropriate permissions by checking what
-        Launchpad returns when we check if someone can upload a package or not.
-
-        If they are an indirect or direct member of the ~ubuntu-dev team on
-        Launchpad - sponsorship is not required if the package is in the
-        universe / multiverse component.
-
-        If they are in the ~ubuntu-core-dev team, no sponsorship required.
-    """
-    if not LpApiWrapper.canUploadPackage(srcpkg):
-
-        print "You are not able to upload this package directly to Ubuntu.\n" \
-              "Your sync request shall require an approval by a member of " \
-              "the appropriate sponsorship team, who shall be subscribed to " \
-			  "this bug report.\n" \
-              "This must be done before it can be processed by a member of " \
-              "the Ubuntu Archive team."
-        print "If the above is correct please press Enter."
-        raw_input_exit_on_ctrlc() # Abort if necessary.
-        return True # Sponsorship required.
-
-    # Is a team member, no sponsorship required.
-    return False
-
-def checkExistingReports(package):
-    """ Check existing bug reports on Launchpad for a possible sync request.
-
-        If found ask for confirmation on filing a request.
-    """
-
-    launchpad = None
-
-    try:
-        launchpad = Launchpad.login()
-    except ImportError:
-        print >> sys.stderr, 'Importing launchpadlib failed. Is ' \
-            'python-launchpadlib installed?'
-    except IOError, msg:
-        # No credentials found.
-        print msg
-
-    # Failed to get Launchpad credentials.
-    if launchpad is None:
-        print >> sys.stderr, "Skipping existing report check, you should "\
-            "manually see if there are any at:"
-        print "- https://bugs.launchpad.net/ubuntu/+source/%s" % package
-        print ""
-        return False
-
-    # Fetch the package's bug list from Launchpad.
-    pkg = Distribution('ubuntu').getSourcePackage(name=package)
-    pkgBugList = pkg.searchTasks()
-
-    # Search bug list for other sync requests.
-    matchingBugs = [bug for bug in pkgBugList 
-                        if "Sync %s" % package in bug.title 
-                        or "Please sync %s" % package in bug.title]
-
-    if len(matchingBugs) == 0:
-        return # No sync bugs found.
-
-    print "The following bugs could be possible duplicate sync bug(s) on Launchpad:"
-
-    for bug in matchingBugs:
-        print " *", bug.title
-        print "   -", lp_libsupport.translate_api_web(bug.self_link)
-    
-    print "Please check the above URLs to verify this before filing a " \
-        "possible duplicate report."
-    print "Press Ctrl-C to stop filing the bug report now, otherwise " \
-         "please press enter."
-    raw_input_exit_on_ctrlc()
-            
-def cur_version_component(sourcepkg, release):
-    
-    try:
-	src = Distribution('ubuntu').getArchive().getSourcePackage(sourcepkg, release)
-        return (src.getVersion(), src.getComponent())
-     
-    except udtexceptions.PackageNotFoundException:
-        
-        print "%s doesn't appear to exist in %s, specify -n for a package not in Ubuntu." % (sourcepkg, release)
-        sys.exit(1)
-
-def cur_deb_version(sourcepkg, distro):
-    '''Return the current debian version of a package in a Debian distro.'''
-    out = ubuntutools.packages.checkIsInDebian(sourcepkg, distro)
-    if not out:
-        print "%s doesn't appear to exist in Debian." % sourcepkg
-        sys.exit(0)
-    
-    # Work-around for a bug in Debians madison.php script not returning 
-    # only the source line 
-    for line in out.splitlines():
-        if line.find('source') > 0:
-            out = line
-    
-    return out.split('|')[1].rstrip('[]''').strip()
-
-def debian_changelog(sourcepkg, component, version, debver):
-    '''Return the Debian changelog from the latest up to the given version
-    (exclusive).'''
-
-    base_version = Version(version)
-
-    ch = ''
-    subdir = sourcepkg[0]
-
-    if sourcepkg.startswith('lib'):
-        subdir = 'lib%s' % sourcepkg[3]
-
-    # Get the debian/changelog file from packages.debian.org.
-    try:
-        pkgurl = 'http://packages.debian.org/changelogs/pool/%s/%s/%s/%s_%s/changelog.txt' % (component, subdir, sourcepkg, sourcepkg, debver)
-        debianChangelogPage = urllib2.urlopen(pkgurl)
-    except urllib2.HTTPError, error:
-        print >> sys.stderr, "Unable to connect to packages.debian.org. " \
-            "Received a %s." % error.code
-        sys.exit(1)
-
-    for l in debianChangelogPage:
-        if l.startswith(sourcepkg):
-            ch_version = l[ l.find("(")+1 : l.find(")") ]
-            if Version(ch_version) <= base_version:
-                break
-        ch += l
-
-    return ch
-
-def debian_component(sourcepkg, distro):
-    '''Return the Debian component for the source package.'''
-    madison = subprocess.Popen(['rmadison', '-u', 'debian', '-a', 'source', '-s', distro, \
-                                sourcepkg], stdout=subprocess.PIPE)
-    out = madison.communicate()[0]
-    assert (madison.returncode == 0)
-
-    try:
-        assert out
-    except AssertionError:
-        print "%s doesn't appear to exist in Debian." % sourcepkg
-        sys.exit(1)
-    raw_comp = out.split('|')[2].split('/')
-    component = 'main'
-    if len(raw_comp) == 2:
-        component = raw_comp[1].strip()
-    return component
-
-def raw_input_exit_on_ctrlc(*args, **kwargs):
-    """A wrapper around raw_input() to exit with a normalized message on Control-C"""
-    try:
-        return raw_input(*args, **kwargs)
-    except KeyboardInterrupt:
-        print 'Abort requested. No sync request filed.'
-        sys.exit(1)
-
-def get_email_address():
-    '''Get the DEBEMAIL environment variable or give an error.'''
-    myemailaddr = os.getenv('DEBEMAIL')
-    if not myemailaddr:
-        myemailaddr = os.getenv('EMAIL')
-        if not myemailaddr:
-            print >> sys.stderr, 'The environment variable DEBEMAIL or ' +\
-                'EMAIL needs to be set to make use of this script, unless ' +\
-                'you use option --lp.'
-    return myemailaddr
-
-def mail_bug(source_package, subscribe, status, bugtitle, bugtext, keyid = None):
-    '''Submit the sync request per email.
-    Return True if email successfully send, otherwise False.'''
-    
-    import smtplib
-    import socket
-
-    to = 'new@bugs.launchpad.net'
-
-    myemailaddr = get_email_address()
-    if not myemailaddr:
-        return False
-
-    # generate initial mailbody
-    mailbody = ''
-    if source_package:
-        mailbody += ' affects ubuntu/%s\n' % source_package
-    else:
-        mailbody += ' affects ubuntu\n'
-    mailbody = mailbody + ' status %s\n importance wishlist\n subscribe %s\n done\n\n%s' % (status, subscribe, bugtext)
-
-    # prepare sign_command
-    sign_command = 'gpg'
-    for cmd in ('gpg2', 'gnome-gpg'):
-        if os.access('/usr/bin/%s' % cmd, os.X_OK):
-            sign_command = cmd
-
-    gpg_command = [sign_command, '--clearsign']
-    if keyid:
-        gpg_command.extend(('-u', keyid))
-
-    in_confirm_loop = True
-    while in_confirm_loop:
-        # sign it
-        gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-        signed_report = gpg.communicate(mailbody)[0]
-        assert gpg.returncode == 0
-
-        # generate email
-        mail = '''\
-From: %s
-To: %s
-Subject: %s
-Content-Type: text/plain; charset=UTF-8
-
-%s''' % (myemailaddr, to, bugtitle, signed_report)
-
-        # ask for confirmation and allow to edit:
-        print mail
-        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-        while 1:
-            val = raw_input_exit_on_ctrlc()
-            if val.lower() in ('y', 'yes'):
-                (bugtitle, mailbody) = edit_report(bugtitle, mailbody)
-                break
-            elif val.lower() in ('n', 'no', ''):
-                in_confirm_loop = False
-                break
-            else:
-                print "Invalid answer"
-
-    # get server address
-    mailserver = os.getenv('DEBSMTP')
-    if mailserver:
-        print 'Using custom SMTP server:', mailserver
-    else:
-        mailserver = 'fiordland.ubuntu.com'
-
-    # get server port
-    mailserver_port = os.getenv('DEBSMTP_PORT')
-    if mailserver_port:
-        print 'Using custom SMTP port:', mailserver_port
-    else:
-        mailserver_port = 25
-
-    # connect to the server
-    try:
-        s = smtplib.SMTP(mailserver, mailserver_port)
-    except socket.error, s:
-        print >> sys.stderr, "Could not connect to mailserver %s at port %s: %s (%i)" % \
-            (mailserver, mailserver_port, s[1], s[0])
-        print "The port %s may be firewalled. Please try using requestsync with" \
-            % mailserver_port
-        print "the '--lp' flag to file a sync request with the launchpadlib " \
-            "module."
-        return False
-
-    # authenticate to the server
-    mailserver_user = os.getenv('DEBSMTP_USER')
-    mailserver_pass = os.getenv('DEBSMTP_PASS')
-    if mailserver_user and mailserver_pass:
-        try:
-            s.login(mailserver_user, mailserver_pass)
-        except smtplib.SMTPAuthenticationError:
-            print 'Error authenticating to the server: invalid username and password.'
-            s.quit()
-            return False
-        except:
-            print 'Unknown SMTP error.'
-            s.quit()
-            return False
-
-    s.sendmail(myemailaddr, to, mail)
-    s.quit()
-    print 'Sync request mailed.'
-
-    return True
-
-def post_bug(source_package, subscribe, status, bugtitle, bugtext):
-    '''Use python-launchpadlib to submit the sync request.
-    Return True if successfully posted, otherwise False.'''
-
-    import glob, os.path
-
-    try:
-        launchpad = Launchpad.login()
-    except ImportError:
-        print >> sys.stderr, 'Importing launchpadlib failed. Is python-launchpadlib installed?'
-        return False
-    except IOError, msg:
-        # No credentials found.
-        print msg
-        sys.exit(1)
-
-    if source_package:
-        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, source_package)
-    else:
-        # new source package
-        product_url = "%subuntu" %launchpad._root_uri
-        
-    in_confirm_loop = True
-    while in_confirm_loop:
-        print 'Summary:\n%s\n\nDescription:\n%s' % (bugtitle, bugtext)
-
-        # ask for confirmation and allow to edit:
-        print 'Do you want to edit the report before sending [y/N]? Press Control-C to abort.'
-        while 1:
-            val = raw_input_exit_on_ctrlc()
-            if val.lower() in ('y', 'yes'):
-                (bugtitle, bugtext) = edit_report(bugtitle, bugtext)
-                break
-            elif val.lower() in ('n', 'no', ''):
-                in_confirm_loop = False
-                break
-            else:
-                print "Invalid answer."
-
-    # Create bug
-    bug = launchpad.bugs.createBug(description=bugtext, title=bugtitle, target=product_url)
-    
-    #newly created bugreports have one task
-    task = bug.bug_tasks[0]
-    # Only members of ubuntu-bugcontrol can set importance
-    if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
-        task.importance = 'Wishlist'
-    task.status = status
-    task.lp_save()
-    
-    subscribe_url = "%s~%s" %(launchpad._root_uri, subscribe)
-    bug.subscribe(person=subscribe_url)
-
-    print 'Sync request filed as bug #%i: %s' % (bug.id,
-        lp_libsupport.translate_api_web(bug.self_link))
-    return True
-
-def edit_report(subject, body, changes_required=False):
-    """Edit a report (consisting of subject and body) in sensible-editor.
-    
-    subject and body get decorated, before they are written to the temporary
-    file and undecorated after editing again.
-    If changes_required is True and the file has not been edited
-    (according to its mtime), an error is written to STDERR and the
-    program exits.
-    Returns (new_subject, new_body).
-    """
-    import re
-    import string
-
-    report = "Summary (one line):\n%s\n\nDescription:\n%s" % (subject, body)
-
-    # Create tempfile and remember mtime
-    import tempfile
-    report_file = tempfile.NamedTemporaryFile( prefix='requestsync_' )
-    report_file.file.write(report)
-    report_file.file.flush()
-    mtime_before = os.stat( report_file.name ).st_mtime
-
-    # Launch editor
-    try:
-        editor = subprocess.check_call( ['sensible-editor', report_file.name] )
-    except subprocess.CalledProcessError, e:
-        print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % (e,)
-        sys.exit(1)
-
-    # Check if the tempfile has been changed
-    if changes_required:
-        report_file_info = os.stat( report_file.name )
-        if mtime_before == os.stat( report_file.name ).st_mtime:
-            print >> sys.stderr, 'The temporary file %s has not been changed, but you have\nto explain why the Ubuntu changes can be dropped. Aborting. [Press ENTER]' % (report_file.name,)
-            raw_input()
-            sys.exit(1)
-
-    report_file.file.seek(0)
-    report = report_file.file.read()
-    report_file.file.close()
-
-    # Undecorate report again:
-    (new_subject, new_body) = report.split("\nDescription:\n", 1)
-    # Remove prefix and whitespace for subject:
-    new_subject = string.rstrip( re.sub("\n", " ", re.sub("^Summary \(one line\):\s*", "", new_subject, 1)) )
-
-    return (new_subject, new_body)
-
 
 #
 # entry point
 #
 
 if __name__ == '__main__':
-    # Our usage options.
-    usage = "Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] "
-    usage += "<source package> [<target release> [base version]]"
-    optParser = OptionParser(usage)
+	# Our usage options.
+	usage = 'Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] ' \
+		'<source package> [<target release> [base version]]'
+	optParser = OptionParser(usage)
 
-    optParser.add_option("-d", type = "string",
-        dest = "dist", default = "unstable",
-        help = "Debian distribution to sync from.")
-    optParser.add_option("-k", type = "string",
-        dest = "keyid", default = None,
-        help = "GnuPG key ID to use for signing report.")
-    optParser.add_option("-n", action = "store_true",
-        dest = "newpkg", default = False,
-        help = "Whether package to sync is a new package in Ubuntu.")
-    optParser.add_option("--lp", action = "store_true",
-        dest = "lpbugs", default = False,
-        help = "Specify whether to use the launchpadlib module for filing " \
-            "report.")
-    optParser.add_option("-s", action = "store_true",
-        dest = "sponsor", default = False,
-        help = "Force sponsorship requirement (shall be autodetected if not " \
-            "specified).")
-    optParser.add_option("-e", action = "store_true",
-        dest = "ffe", default = False,
-        help = "Use this after FeatureFreeze for non-bug fix syncs, changes " \
-            "default subscription to the appropriate release team.")
+	optParser.add_option('-d', type = 'string',
+		dest = 'dist', default = 'unstable',
+		help = 'Debian distribution to sync from.')
+	optParser.add_option('-k', type = 'string',
+		dest = 'keyid', default = None,
+		help = 'GnuPG key ID to use for signing report (only used when emailing the sync request).')
+	optParser.add_option('-n', action = 'store_true',
+		dest = 'newpkg', default = False,
+		help = 'Whether package to sync is a new package in Ubuntu.')
+	optParser.add_option('--lp', action = 'store_true',
+		dest = 'lpapi', default = False,
+		help = 'Specify whether to use the LP API for filing the sync request (recommended).')
+	optParser.add_option('-s', action = 'store_true',
+		dest = 'sponsorship', default = False,
+		help = 'Force sponsorship')
+	optParser.add_option('-e', action = 'store_true',
+		dest = 'ffe', default = False,
+		help = 'Use this after FeatureFreeze for non-bug fix syncs, changes ' \
+			'default subscription to the appropriate release team.')
 
-    (options, args) = optParser.parse_args()
+	(options, args) = optParser.parse_args()
 
-    newsource = options.newpkg
-    sponsorship = options.sponsor
-    keyid = options.keyid
-    use_lp_bugs = options.lpbugs
-    need_interaction = False
-    distro = options.dist
-    ffe = options.ffe
+	if not len(args):
+		optParser.print_help()
+		sys.exit(1)
 
-    if not use_lp_bugs and not get_email_address():
-        sys.exit(1)
+	# import the needed requestsync module
+	if options.lpapi:
+		from ubuntutools.requestsync.lp import *
+		from ubuntutools.lp.lpapicache import Distribution, PersonTeam
+	else:
+		from ubuntutools.requestsync.mail import *
+		if not getEmailAddress():
+			sys.exit(1)
 
-    if len(args) == 0:
-        optParser.print_help()
-        sys.exit(1)
+	newsource = options.newpkg
+	sponsorship = options.sponsorship
+	distro = options.dist
+	ffe = options.ffe
+	lpapi = options.lpapi
+	need_interaction = False
+	force_base_version = None
+	srcpkg = args[0]
 
-    if len(args) not in (2, 3): # no release specified, assume development release
-        release = Distribution('ubuntu').getDevelopmentSeries().name
-        print >> sys.stderr, ("Source package / target release missing - assuming %s " %
-            release)
-    else:
-        release = args[1]
+	if len(args) == 1:
+		if lpapi:
+			release = Distribution('ubuntu').getDevelopmentSeries().name
+			print >> sys.stderr, 'W: Target release missing - assuming %s' % release
+		else:
+			print >> sys.stderr, 'E: Source package or target release missing. Exiting.'
+			sys.exit(1)
+	elif len(args) == 2:
+		release = args[1]
+	elif len(args) == 3:
+		release = args[1]
+		force_base_version = Version(args[2])
+	else:
+		print >> sys.stderr, 'E: Too many arguments.'
+		optParser.print_help()
+		sys.exit(1)
 
-    srcpkg = args[0]
-    force_base_ver = None
+	# Get the current Ubuntu source package
+	try:
+		ubuntu_srcpkg = getUbuntuSrcPkg(srcpkg, release)
+		ubuntu_version = Version(ubuntu_srcpkg.getVersion())
+		ubuntu_component = ubuntu_srcpkg.getComponent()
+		newsource = False # override the -n flag
+	except udtexceptions.PackageNotFoundException:
+		ubuntu_srcpkg = None
+		ubuntu_version = Version(0)
+		ubuntu_component = 'universe' # let's assume universe
+		if not newsource:
+			print "'%s' doesn't exist in 'Ubuntu %s'.\nDo you want to sync a new package?" % \
+				(srcpkg, release)
+			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+			newsource = True
 
-    # Base version specified.
-    if len(args) == 3: force_base_ver = args[2]
+	# Get the requested Debian source package
+	try:
+		debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
+		debian_version = Version(debian_srcpkg.getVersion())
+		debian_component = debian_srcpkg.getComponent()
+	except udtexceptions.PackageNotFoundException, e:
+		print >> sys.stderr, "E: %s" % e
+		sys.exit(1)
 
-    (cur_ver, component) = ('0', 'universe') # Let's assume universe
-    
-    # Find Ubuntu release's package version.
-    if not newsource: (cur_ver, component) = cur_version_component(srcpkg, release)
+	# Debian and Ubuntu versions are the same - stop
+	if ubuntu_version == debian_version:
+		print  >> sys.stderr, \
+			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
+		sys.exit(1)
 
-    debiancomponent = debian_component(srcpkg, distro)
-    # Find Debian release's package version.
-    deb_version = cur_deb_version(srcpkg, distro)
+	# -s flag not specified - check if we do need sponsorship
+	if not sponsorship:
+		sponsorship = needSponsorship(srcpkg, ubuntu_component)
 
-    # Debian and Ubuntu versions are the same - stop.
-    if deb_version == cur_ver:
-        print 'The versions in Debian and Ubuntu are the same already (%s). Aborting.' % (deb_version,)
-        sys.exit(1)
+	# Check for existing package reports
+	if not newsource:
+		checkExistingReports(srcpkg)
 
-    # -s flag not specified - check if we do need sponsorship.
-    if (not sponsorship):
-        if (not newsource):
-            sponsorship = checkNeedsSponsorship(srcpkg)
-        else:
-            sponsorship = not PersonTeam.getMe().isLpTeamMember('motu') # assume going to universe
+	# Generate bug report
+	pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % \
+		(srcpkg, debian_version, ubuntu_component, distro, debian_component)
+	title = "Sync %s" % pkg_to_sync
+	if ffe:
+		title = "FFe: " + title
+	report = "Please sync %s\n\n" % pkg_to_sync
 
-    # Check for existing package reports.
-    if (not newsource) and use_lp_bugs: checkExistingReports(srcpkg)
+	if 'ubuntu' in str(ubuntu_version):
+		need_interaction = True
 
-    # Generate bug report.
-    subscribe = 'ubuntu-archive'
-    status = 'confirmed'
-    if sponsorship == True:
-        status = 'new'
-        if component in ['main', 'restricted']:
-            subscribe = 'ubuntu-main-sponsors'
-        else:
-            subscribe = 'ubuntu-universe-sponsors'
-    if ffe == True:
-        status = 'new'
-        if component in ['main', 'restricted']:
-            subscribe = 'ubuntu-release'
-        else:
-            subscribe = 'motu-release'
+		print 'Changes have been made to the package in Ubuntu.\n' \
+			'Please edit the report and give an explanation.\n' \
+			'Not saving the report file will abort the request.'
+		report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' \
+			'>>> ENTER_EXPLANATION_HERE <<<\n\n'
 
+	if ffe:
+		need_interaction = True
 
-    pkg_to_sync = '%s %s (%s) from Debian %s (%s)' % (srcpkg, deb_version, component, distro, debiancomponent)
-    title = "Sync %s" % pkg_to_sync
-    if ffe == True:
-        title = "FFe: " + title
-    report = "Please sync %s\n\n" % pkg_to_sync
-    
-    base_ver = cur_ver
-    uidx = base_ver.find('ubuntu')
-    if uidx > 0:
-        base_ver = base_ver[:uidx]
-        need_interaction = True
+		print 'To approve FeatureFreeze exception, you need to state\n' \
+			'the reason why you feel it is necessary.\n' \
+			'Not saving the report file will abort the request.'
+		report += 'Explanation of FeatureFreeze exception:\n' \
+			'>>> ENTER_EXPLANATION_HERE <<<\n\n'
 
-        print 'Changes have been made to the package in Ubuntu.'
-        print 'Please edit the report and give an explanation.'
-        print 'Press ENTER to start your editor. Press Control-C to abort now.'
-        print 'Not saving the report file will abort the request, too.'
-        raw_input_exit_on_ctrlc()
-        report += 'Explanation of the Ubuntu delta and why it can be dropped:\n' + \
-                  '>>> ENTER_EXPLANATION_HERE <<<\n\n'
+	if need_interaction:
+		raw_input_exit_on_ctrlc('Press [Enter] to continue. Press [Ctrl-C] to abort now. ')
 
-    if ffe == True:
-        need_interaction = True
+	# Check if they have a per-package upload permission.
+	if lpapi:
+		ubuntu_archive = Distribution('ubuntu').getArchive()
+		if PersonTeam.getMe().isPerPackageUploader(ubuntu_archive, srcpkg):
+			report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
-        print 'To approve FeatureFreeze exception, you need to state '
-        print 'the reason why you feel it is necessary.'
-        print 'Press ENTER to start your editor. Press Control-C to abort now.'
-        print 'Not saving the report file will abort the request, too.'
-        raw_input_exit_on_ctrlc()
-        report += 'Explanation of FeatureFreeze exception:\n' + \
-                  '>>> ENTER_EXPLANATION_HERE <<<\n\n'
+	base_version = force_base_version or ubuntu_version
 
+	if newsource:
+		report += 'All changelog entries:\n\n'
+	else:
+		report += 'Changelog entries since current %s version %s:\n\n' % (release, ubuntu_version)
+	changelog = getDebianChangelog(debian_srcpkg, base_version)
+	if not changelog:
+		sys.exit(1)
+	report += changelog
 
-        # Check if they have a per-package upload permission.
-        if LpApiWrapper.isPerPackageUploader(srcpkg):
-	        report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
+	(title, report) = edit_report(title, report, changes_required = need_interaction)
 
-    uidx = base_ver.find('build')
-    if uidx > 0:
-        base_ver = base_ver[:uidx]
+	# bug status and bug subscriber
+	status = 'confirmed'
+	subscribe = 'ubuntu-archive'
+	if sponsorship:
+		status = 'new'
+		if ubuntu_component in ('main', 'restricted'):
+			subscribe = 'ubuntu-main-sponsors'
+		else:
+			subscribe = 'ubuntu-universe-sponsors'
+	if ffe:
+		status = 'new'
+		if ubuntu_component in ('main', 'restricted'):
+			subscribe = 'ubuntu-release'
+		else:
+			subscribe = 'motu-release'
 
-    if force_base_ver:
-        base_ver = force_base_ver
-
-    if not newsource: report += 'Changelog since current %s version %s:\n\n' % (release, cur_ver)
-    report += debian_changelog(srcpkg, debiancomponent, base_ver, deb_version) + '\n'
-
-    if need_interaction:
-        (title, report) = edit_report(title, report, changes_required=True)
-
-    # Post sync request using Launchpad interface:
-    srcpkg = not newsource and srcpkg or None
-    if use_lp_bugs:
-        # Map status to the values expected by lp-bugs
-        mapping = {'new': 'New', 'confirmed': 'Confirmed'}
-        if post_bug(srcpkg, subscribe, mapping[status], title, report):
-            sys.exit(0)
-        # Abort on error:
-        print 'Something went wrong. No sync request filed.'
-        sys.exit(1)
-
-    # Mail sync request:
-    if mail_bug(srcpkg, subscribe, status, title, report, keyid):
-        sys.exit(0)
-
-    print 'Something went wrong. No sync request filed.'
-    sys.exit(1)
+	srcpkg = not newsource and srcpkg or None
+	if lpapi:
+		# Map status to the values expected by LP API
+		mapping = {'new': 'New', 'confirmed': 'Confirmed'}
+		# Post sync request using LP API
+		postBug(srcpkg, subscribe, mapping[status], title, report)
+	else:
+		# Mail sync request
+		mailBug(srcpkg, subscribe, status, title, report, options.keyid)

@@ -24,6 +24,7 @@
 #import httplib2
 #httplib2.debuglevel = 1
 
+import sys
 import libsupport
 from launchpadlib.errors import HTTPError
 from launchpadlib.resource import Entry
@@ -38,7 +39,11 @@ class Launchpad(object):
 		Enforce a login through the LP API.
 		'''
 		if not self.__lp:
-			self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+			try:
+				self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+			except IOError, error:
+				print >> sys.stderr, 'E: %s' % error
+				sys.exit(1)
 		return self
 
 	def __getattr__(self, attr):
@@ -49,56 +54,6 @@ class Launchpad(object):
 	def __call__(self):
 		return self
 Launchpad = Launchpad()
-
-# Almost deprecated, better use the specific classes like Distribution
-# or PersonTeam directly
-class LpApiWrapper(object):
-	'''
-	Wrapper around some common used LP API functions used in
-	ubuntu-dev-tools.
-	'''
-
-	@classmethod
-	def canUploadPackage(cls, srcpkg, series = None):
-		'''
-		Check if the currently authenticated LP user has upload rights
-		for package either through component upload rights or
-		per-package upload rights.
-
-		'package' can either be a SourcePackagePublishingHistory object
-		or a string and an Ubuntu series. If 'package' doesn't exist
-		yet in Ubuntu assume 'universe' for component.
-		'''
-		component = 'universe'
-		archive = Distribution('ubuntu').getArchive()
-
-		if isinstance(srcpkg, SourcePackagePublishingHistory):
-			package = srcpkg.getPackageName()
-			component = srcpkg.getComponent()
-		else:
-			if not series:
-				series = Distribution('ubuntu').getDevelopmentSeries()
-			try:
-				srcpkg = archive.getSourcePackage(srcpkg, series)
-				package = srcpkg.getPackageName()
-				component = srcpkg.getComponent()
-			except PackageNotFoundException:
-				package = None
-
-		return PersonTeam.getMe().canUploadPackage(archive, package, component)
-
-	# TODO: check if this is still needed after ArchiveReorg (or at all)
-	@classmethod
-	def isPerPackageUploader(cls, package, series = None):
-		'''
-		Check if the user has PerPackageUpload rights for package.
-		'''
-		if isinstance(package, SourcePackagePublishingHistory):
-			package = package.getPackageName()
-
-		archive = Distribution('ubuntu').getArchive()
-
-		return PersonTeam.getMe().canUploadPackage(archive, package, None)
 
 
 class MetaWrapper(type):
@@ -458,9 +413,9 @@ class PersonTeam(BaseWrapper):
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-		if not isinstance(package, (str, None)):
+		if package and not isinstance(package, str):
 			raise TypeError('A source package name expected.')
-		if not isinstance(component, (str, None)):
+		if component and not isinstance(component, str):
 			raise TypeError('A component name expected.')
 		if not package and not component:
 			raise ValueError('Either a source package name or a component has to be specified.')
@@ -494,10 +449,8 @@ class PersonTeam(BaseWrapper):
 		'''
 		if isinstance(package, SourcePackagePublishingHistory):
 			pkg = package.getPackageName()
-			comp = package.getComponent()
 		else:
 			pkg = package
-			compon
 
 		return self.canUploadPackage(archive, pkg, None)
 
