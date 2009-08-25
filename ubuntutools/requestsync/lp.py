@@ -55,7 +55,7 @@ Your sync request shall require an approval by a member of the appropriate
 sponsorship team, who shall be subscribed to this bug report.
 This must be done before it can be processed by a member of the Ubuntu Archive
 team.'''
-		raw_input_exit_on_ctrlc('If the above is correct please press [Enter]: ')
+		raw_input_exit_on_ctrlc('If the above is correct please press [Enter] ')
 
 	return need_sponsor
 
@@ -73,10 +73,10 @@ def checkExistingReports(srcpkg):
 	# Search bug list for other sync requests.
 	for bug in pkgBugList:
 		# check for Sync or sync and the package name
-		if 'ync %s' % package in bug.title:
+		if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
 			print 'The following bug could be a possible duplicate sync bug on Launchpad:'
-			print ' * Bug #%i: %s (%s)' % \
-				(bug.id, bug.title, translate_api_web(bug.self_link))
+			print ' * %s (%s)' % \
+				(bug.title, translate_api_web(bug.self_link))
 			print 'Please check the above URL to verify this before continuing.'
 			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
@@ -96,7 +96,7 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 		bug_target = Distribution('ubuntu')
 
 	# create bug
-	bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target)
+	bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target())
 
 	# newly created bugreports have only one task
 	task = bug.bug_tasks[0]
@@ -106,7 +106,7 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 	task.status = status
 	task.lp_save()
 
-	bug.subscribe(person = PersonTeam(subscribe))
+	bug.subscribe(person = PersonTeam(subscribe)())
 
 	print 'Sync request filed as bug #%i: %s' % (bug.id,
 		translate_api_web(bug.self_link))

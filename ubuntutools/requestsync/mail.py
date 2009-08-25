@@ -31,6 +31,8 @@ __all__ = [
 	'getDebianSrcPkg',
 	'getUbuntuSrcPkg',
 	'getEmailAddress',
+	'needSponsorship',
+	'checkExistingReports',
 	'mailBug',
 	]
 
@@ -111,7 +113,7 @@ def needSponsorship(name, component):
 	while True:
 		print "Do you have upload permissions for the '%s' component " \
 			"or the package '%s'?" % (component, name)
-		val = raw_input_exit_on_ctrlc("If in doubt answer 'no'. [y/N]? ")
+		val = raw_input_exit_on_ctrlc("If in doubt answer 'n'. [y/N]? ")
 		if val.lower() in ('y', 'yes'):
 			return False
 		elif val.lower() in ('n', 'no', ''):
@@ -123,7 +125,8 @@ def checkExistingReports(srcpkg):
 	'''
 	Point the user to the URL to manually check for duplicate bug reports.
 	'''
-	print 'Please check on https://bugs.launchpad.net/ubuntu/+source/%s/+bugs for duplicate sync requests before continuing.'
+	print 'Please check on https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n' \
+		'for duplicate sync requests before continuing.' % srcpkg
 	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):

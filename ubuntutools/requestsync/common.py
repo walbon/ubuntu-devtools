@@ -34,7 +34,7 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
 	try:
 		return raw_input(*args, **kwargs)
 	except KeyboardInterrupt:
-		print 'Abort requested. No sync request filed.'
+		print '\nAbort requested. No sync request filed.'
 		sys.exit(1)
 
 def getDebianChangelog(srcpkg, version):
@@ -48,6 +48,9 @@ def getDebianChangelog(srcpkg, version):
 		subdir = 'lib%s' % pkgname[3]
 	else:
 		subdir = pkgname[0]
+	# Strip epoch from version
+	if ':' in pkgversion:
+		pkgversion = pkgversion[pkgversion.find(':')+1:]
 
 	# Get the debian changelog file from packages.debian.org
 	try:
@@ -113,6 +116,8 @@ def edit_report(subject, body, changes_required = False):
 					print 'The report has not been changed, but you have to explain why ' \
 						'the Ubuntu changes can be dropped.'
 					raw_input_exit_on_ctrlc('Press [Enter] to retry or [Control-C] to abort. ')
+				else:
+					changes_required = False
 
 			report_file.seek(0)
 			report = report_file.read()

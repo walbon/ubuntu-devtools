@@ -124,9 +124,13 @@ if __name__ == '__main__':
 			newsource = True
 
 	# Get the requested Debian source package
-	debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
-	debian_version = Version(debian_srcpkg.getVersion())
-	debian_component = debian_srcpkg.getComponent()
+	try:
+		debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
+		debian_version = Version(debian_srcpkg.getVersion())
+		debian_component = debian_srcpkg.getComponent()
+	except udtexceptions.PackageNotFoundException, e:
+		print >> sys.stderr, "E: %s" % e
+		sys.exit(1)
 
 	# Debian and Ubuntu versions are the same - stop
 	if ubuntu_version == debian_version:
@@ -136,7 +140,7 @@ if __name__ == '__main__':
 
 	# -s flag not specified - check if we do need sponsorship
 	if not sponsorship:
-		sponsorship = needsSponsorship(srcpkg, ubuntu_component)
+		sponsorship = needSponsorship(srcpkg, ubuntu_component)
 
 	# Check for existing package reports
 	if not newsource:
