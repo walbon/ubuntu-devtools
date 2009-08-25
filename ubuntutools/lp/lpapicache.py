@@ -55,56 +55,6 @@ class Launchpad(object):
 		return self
 Launchpad = Launchpad()
 
-# Almost deprecated, better use the specific classes like Distribution
-# or PersonTeam directly
-class LpApiWrapper(object):
-	'''
-	Wrapper around some common used LP API functions used in
-	ubuntu-dev-tools.
-	'''
-
-	@classmethod
-	def canUploadPackage(cls, srcpkg, series = None):
-		'''
-		Check if the currently authenticated LP user has upload rights
-		for package either through component upload rights or
-		per-package upload rights.
-
-		'package' can either be a SourcePackagePublishingHistory object
-		or a string and an Ubuntu series. If 'package' doesn't exist
-		yet in Ubuntu assume 'universe' for component.
-		'''
-		component = 'universe'
-		archive = Distribution('ubuntu').getArchive()
-
-		if isinstance(srcpkg, SourcePackagePublishingHistory):
-			package = srcpkg.getPackageName()
-			component = srcpkg.getComponent()
-		else:
-			if not series:
-				series = Distribution('ubuntu').getDevelopmentSeries()
-			try:
-				srcpkg = archive.getSourcePackage(srcpkg, series)
-				package = srcpkg.getPackageName()
-				component = srcpkg.getComponent()
-			except PackageNotFoundException:
-				package = None
-
-		return PersonTeam.getMe().canUploadPackage(archive, package, component)
-
-	# TODO: check if this is still needed after ArchiveReorg (or at all)
-	@classmethod
-	def isPerPackageUploader(cls, package, series = None):
-		'''
-		Check if the user has PerPackageUpload rights for package.
-		'''
-		if isinstance(package, SourcePackagePublishingHistory):
-			package = package.getPackageName()
-
-		archive = Distribution('ubuntu').getArchive()
-
-		return PersonTeam.getMe().canUploadPackage(archive, package, None)
-
 
 class MetaWrapper(type):
 	'''
