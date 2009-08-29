@@ -27,7 +27,7 @@
 import sys
 import libsupport
 from launchpadlib.errors import HTTPError
-from launchpadlib.resource import Entry
+from lazr.restfulclient.resource import Entry
 from udtexceptions import *
 
 class Launchpad(object):
