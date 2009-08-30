@@ -32,22 +32,13 @@ my($help)=0;
 GetOptions('help' => \$help);
 usage() if($help);
 
-my $url = "http://" . $REVU . "/p/" . $package;
+dget(getURL());
 
-dget(constructURL(getPage($url),'dsc'));
-
-sub getPage {
-	my($url) = @_;
+sub getURL {
+	my($url) = "http://" . $REVU . "/dsc.py?url&package=" . $package;
 	my($page)=get($url);
 	die("Could Not Get $url") unless (defined $page);
 	return $page;
-}
-
-sub constructURL {
-	my($page,$extension) = @_;
-	my($url) = $page =~ m/a href=\"(.*?\.$extension)\"/im;
-	die("No URL Ending in $extension") unless(defined $url);
-	return "http://" . $REVU . $url;
 }
 
 sub dget {

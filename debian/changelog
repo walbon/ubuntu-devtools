@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.77) UNRELEASED; urgency=low
+
+  * pull-revu-source: Update to use dsc.py to get dsc URL
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Sun, 30 Aug 2009 19:51:03 +0000
+
 ubuntu-dev-tools (0.76) karmic; urgency=low
 
   [ Nicolas Valcárcel ]
