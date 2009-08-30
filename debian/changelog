@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.76) karmic; urgency=low
 
   [ Nicolas Valcárcel ]
   * mk-sbuild-lv:

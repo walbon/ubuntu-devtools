@@ -40,12 +40,10 @@ fi
 if [ ! -w /var/lib/sbuild ]; then
     # Load all the packages you'll need to do work
     sudo apt-get install sbuild schroot debootstrap lvm2
-    # Make sure dm_snapshot is not built-in into the kernel
-    sudo bash -c "dmsetup targets | grep ^snapshot > /dev/null || BUILTIN=False"
-    if [ "$BUILTIN" = "False" ]; then
-        # Make sure LVM tools that operate on the snapshots have needed module
+    # Make sure LVM tools that operate on the snapshots have needed module
+    if ! sudo dmsetup targets | grep -q ^snapshot; then
         sudo modprobe dm_snapshot
-        sudo bash -c "grep ^dm_snapshot /etc/modules >/dev/null || echo dm_snapshot >> /etc/modules"
+        echo dm_snapshot | sudo tee -a /etc/modules >/dev/null
     fi
     # Add self to the sbuild group
     sudo adduser "$USER" sbuild
