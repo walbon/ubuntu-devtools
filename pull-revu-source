@@ -1,0 +1,61 @@
+#!/usr/bin/perl
+# Script Name: pull-revu-source
+# Author: Nathan Handler <nhandler@ubuntu.com>
+# Usage: pull-revu-source <source package>
+# Copyright (C) 2009 Nathan Handler <nhandler@ubuntu.com>
+# Based on revupull in kubuntu-dev-tools,
+# written by Harald Sitter <apachelogger@ubuntu.com>
+# License: GNU General Public License
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in the /usr/share/common-licenses/GPL-3 file.
+
+use warnings;
+use strict;
+use LWP::Simple;
+use Getopt::Long;
+
+die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
+
+my $REVU = "revu.ubuntuwire.com";
+
+my($package) = lc($ARGV[0]) || usage();
+my($help)=0;
+GetOptions('help' => \$help);
+usage() if($help);
+
+my $url = "http://" . $REVU . "/p/" . $package;
+
+dget(constructURL(getPage($url),'dsc'));
+
+sub getPage {
+	my($url) = @_;
+	my($page)=get($url);
+	die("Could Not Get $url") unless (defined $page);
+	return $page;
+}
+
+sub constructURL {
+	my($page,$extension) = @_;
+	my($url) = $page =~ m/a href=\"(.*?\.$extension)\"/im;
+	die("No URL Ending in $extension") unless(defined $url);
+	return "http://" . $REVU . $url;
+}
+
+sub dget {
+	my($dsc) = @_;
+	exec("dget -xu $dsc");
+}
+
+sub usage {
+	my($name)=basename($0);
+	die("USAGE: $name [-h] <source package>\n");
+}

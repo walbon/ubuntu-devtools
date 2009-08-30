@@ -46,7 +46,11 @@ ubuntu-dev-tools (0.76) UNRELEASED; urgency=low
     - debian/rules: set DEB_PYTHON_SYSTEM to pysupport.
     - ubuntu-dev-tools.preinst: remove stale pycentral files on upgrades.
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 29 Aug 2009 11:12:01 +0200
+  [ Nathan Handler ]
+  * Add pull-revu-source and doc/pull-revu-source.1
+  * Update debian/copyright to include pull-revu-source
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Sun, 30 Aug 2009 17:24:23 +0000
 
 ubuntu-dev-tools (0.75) karmic; urgency=low
 
