@@ -1,6 +1,11 @@
 ubuntu-dev-tools (0.78) UNRELEASED; urgency=low
 
+  [ Nathan Handler ]
   * setup.py: Add pull-revu-source to list of scripts
+
+  [ Steve Langasek ]
+  * Set XS-Python-Version to 2.6 or better, due to use of 2.6-specific
+    syntax in requestsync.
 
  -- Nathan Handler <nhandler@ubuntu.com>  Tue, 01 Sep 2009 11:06:23 +0000
 
