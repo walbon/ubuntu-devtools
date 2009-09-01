@@ -1,8 +1,8 @@
 ubuntu-dev-tools (0.78) UNRELEASED; urgency=low
 
-  * 
+  * setup.py: Add pull-revu-source to list of scripts
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 01 Sep 2009 10:58:53 +0200
+ -- Nathan Handler <nhandler@ubuntu.com>  Tue, 01 Sep 2009 11:06:23 +0000
 
 ubuntu-dev-tools (0.77) karmic; urgency=low
 
