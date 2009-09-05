@@ -15,10 +15,10 @@ Upstream Authors:
 	Luke Yelavich <themuso@ubuntu.com>
 	Markus Korn <thekorn@gmx.de>
 	Martin Pitt <martin.pitt@ubuntu.com>
-    Matt Zimmerman <mdz@ubuntu.com>
+	Matt Zimmerman <mdz@ubuntu.com>
 	Michael Bienia <geser@ubuntu.com>
 	Pete Savage <petesavage@ubuntu.com>
-    Scott James Remnant <scott@ubuntu.com>
+	Scott James Remnant <scott@ubuntu.com>
 	Siegfried-A. Gevatter <rainct@ubuntu.com>
 	Soren Hansen <soren@ubuntu.com>
 	Steve Kowalik <stevenk@ubuntu.com>
@@ -28,6 +28,7 @@ Upstream Authors:
 Copyright:
 
 	(C) 2006-2008, Canonical Ltd.
+	(C) 2009, Canonical Ltd.
 	(C) 2007, Albert Damen <albrt@gmx.net>
 	(C) 2006-2007, Albin Tonnerre <lut1n.tne@gmail.com>
 	(C) 2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
@@ -45,7 +46,7 @@ Copyright:
 
 Licenses:
 
-404main, check-symbols,  dgetlp, pbuilder-dist, requestsync,
+404main, check-symbols,  dgetlp, lp-project-upload, pbuilder-dist, requestsync,
 reverse-build-depends, submittodebian, ubuntuiso and update-maintainer are
 licensed under the GNU General Public License, version 2:
 
