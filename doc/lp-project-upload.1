@@ -1,0 +1,20 @@
+.TH lp-project-upload "1" "05 September 2009" "ubuntu-dev-tools"
+.SH NAME
+lp\-project\-upload \- Upload a release tarball to a Launchpad project.
+
+.SH SYNOPSIS
+.B lp\-project\-upload 
+.I project-name version tarball
+
+.SH DESCRIPTION
+\fBlp\-project\-upload\fR uploads a tarball release of a project to Launchpad.
+It can create milestones and releases on the fly after confirmation.
+
+If there is a file \fItarball\fB.asc\fR, it is uploaded as the signature of the
+tarball.
+
+.SH AUTHORS
+\fBlp\-project\-upload\fR was written by Martin Pitt <martin.pitt@ubuntu.com>.
+.PP
+It is released under the terms of the GNU General Public License, version 2
+or (at your option) any later version.

@@ -1,0 +1,90 @@
+#!/usr/bin/python
+
+# Copyright (c) 2009 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+#
+# lp-set-dup is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# Authors:
+#  Martin Pitt <martin.pitt@ubuntu.com>, based on
+#  http://blog.launchpad.net/api/recipe-for-uploading-files-via-the-api
+
+'''Upload a release tarball to a Launchpad project.'''
+
+import sys, datetime, os.path
+
+from ubuntutools.lp.libsupport import get_launchpad
+from launchpadlib.errors import HTTPError
+
+def create_release(project, version):
+    '''Create new release and milestone for LP project.'''
+
+    print 'Release %s could not be found for project. Create it? (Y/n)' % version
+    answer = sys.stdin.readline().strip()
+    if answer.startswith('n'):
+        sys.exit(0)
+    if len(proj.series) != 1:
+        print >> sys.stderr, 'Does not support creating releases if more than one series exists.'
+        sys.exit(3)
+    release_date = datetime.date.today().strftime('%Y-%m-%d')
+    series = proj.series[0]
+    milestone = series.newMilestone(name=version,
+            date_targeted=release_date)
+    return milestone.createProductRelease(date_released=release_date)
+
+#
+# main
+#
+
+if len(sys.argv) != 4:
+    print >> sys.stderr, '''Upload a release tarball to a Launchpad project.
+
+Usage: %s <project name> <version> <tarball>''' % sys.argv[0]
+    sys.exit(1)
+
+(project, version, tarball) = sys.argv[1:]
+
+try:
+    lp = get_launchpad('ubuntu-dev-tools')
+except Exception, e:
+    print >> sys.stderr, 'Could not connect to Launchpad:', str(e)
+    sys.exit(2)
+
+try:
+    # Look up the project using the Launchpad instance.
+    proj = lp.projects[project]
+    # Find the release in the project's releases collection.
+    release = None
+    for rel in proj.releases:
+        if rel.version == version:
+            release = rel
+            break
+    if not release:
+        release = create_release(proj, version)
+
+    # Get the file contents.
+    file_content = open(tarball, 'r').read()
+    # Get the signature, if available.
+    signature = tarball + '.asc'
+    if os.path.exists(signature):
+        signature_content = open(signature, 'r').read()
+    else:
+        print 'WARNING: no signature found (%s)' % signature
+        signature_content = None
+
+    # Create a new product release file.
+    release.add_file(filename=tarball, description='release tarball',
+            file_content=file_content, content_type='appplication/x-gzip',
+            file_type='Code Release Tarball', signature_filename=signature,
+            signature_content=signature_content)
+except HTTPError, e:
+    print 'An error happened in the upload:', e.content
+    sys.exit(1)
+
