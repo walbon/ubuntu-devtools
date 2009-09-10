@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
+
+  * mk-sbuild-lv: Export http_proxy. LP: #416438
+
+ -- Michael Terry <michael.terry@canonical.com>  Thu, 10 Sep 2009 10:53:30 -0400
+
 ubuntu-dev-tools (0.79) karmic; urgency=low
 
   * Add lp-project-upload: Upload a release tarball to a Launchpad project.

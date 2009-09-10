@@ -354,6 +354,7 @@ sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 #!/bin/bash
 #set -x
 set -e
+export http_proxy=${http_proxy}
 # Reload package lists
 apt-get update || true
 # Pull down signature requirements
