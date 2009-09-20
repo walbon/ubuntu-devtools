@@ -189,6 +189,7 @@ if __name__ == '__main__':
 		report += 'Changelog entries since current %s version %s:\n\n' % (release, ubuntu_version)
 	changelog = getDebianChangelog(debian_srcpkg, base_version)
 	if not changelog:
+		print >> sys.stderr, "E: Did not retrieve any changelog entries. Was the package recently uploaded? (check http://packages.debian.org/changelogs/)"
 		sys.exit(1)
 	report += changelog
 
