@@ -7,7 +7,10 @@ ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
   * requestsync: Give an error message if no changelog entries - happens if,
     for example, the new package's changelog hasn't yet been published on p.d.o
 
- -- Iain Lane <laney@ubuntu.com>  Mon, 21 Sep 2009 00:41:03 +0100
+  [ Jonathan Davies ]
+  * debian/control: Included a short description of each script (LP: #406658).
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Wed, 23 Sep 2009 17:30:20 +0100
 
 ubuntu-dev-tools (0.79) karmic; urgency=low
 
