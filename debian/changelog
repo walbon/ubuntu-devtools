@@ -10,6 +10,9 @@ ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
     who to update maintainer to. 
   * update-maintainer: Prefer updating control.in to control; this is used by
     some Debian packages, notably those maintained by pkg-gnome.
+  * debian/control: Update standards-version to 3.8.3, no changes
+  * debian/control, debian/pyversions: Remove XS-Python version to
+    debian/pyversions to silence a warning
 
   [ Jonathan Davies ]
   * debian/control: Included a short description of each script (LP: #406658).
@@ -21,7 +24,8 @@ ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
   * Launchpad API changed causing pull-lp-source to fail to parse the .dsc
     file from the URL contents (LP: #436006).
 
- -- Iain Lane <laney@ubuntu.com>  Thu, 24 Sep 2009 12:38:52 +0100
+
+ -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 00:11:08 +0100
 
 ubuntu-dev-tools (0.79) karmic; urgency=low
 
