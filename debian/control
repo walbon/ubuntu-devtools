@@ -51,6 +51,7 @@ Description: useful tools for Ubuntu developers
   - pull-debian-source - downloads the lastest source package available in
     Debian of a package.
   - pull-lp-source - downloads lastest source package from Launchpad.
+  - pull-revu-source - downloads the latest source package from REVU
   - requestsync - files a sync request with Debian changelog and ratione.
   - reverse-build-depends - find the reverse build dependencies that a package
     has.
