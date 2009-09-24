@@ -54,7 +54,7 @@ class BackportFromLP:
     def __prepare_sources(self):
         # Scrape the source package from Launchpad :)
         contents = urllib2.urlopen('https://launchpad.net/ubuntu/%(target_release)s/+source/%(package)s' % self).read()
-        links = re.findall('a href=\"(.*\.dsc)\"', contents)
+        links = re.findall('href=\"(.*\.dsc)\"', contents)
         
         if len(links) == 1 and \
         subprocess.call(['dget', '-xu', 'https://launchpad.net%s' % links[0]]) == 0:
