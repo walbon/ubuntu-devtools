@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.81) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.81) karmic; urgency=low
 
   [ Iain Lane ]
   * requestsync: Give an error message if no changelog entries - happens if,
@@ -21,7 +21,7 @@ ubuntu-dev-tools (0.81) UNRELEASED; urgency=low
   * Launchpad API changed causing pull-lp-source to fail to parse the .dsc
     file from the URL contents (LP: #436006).
 
- -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 20:16:43 +0100
+ -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 20:20:49 +0100
 
 ubuntu-dev-tools (0.80) karmic; urgency=low
 
