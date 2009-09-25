@@ -1,7 +1,4 @@
-ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
-
-  [ Michael Terry ]
-  * mk-sbuild-lv: Export http_proxy. LP: #416438
+ubuntu-dev-tools (0.81) UNRELEASED; urgency=low
 
   [ Iain Lane ]
   * requestsync: Give an error message if no changelog entries - happens if,
@@ -24,8 +21,13 @@ ubuntu-dev-tools (0.80) UNRELEASED; urgency=low
   * Launchpad API changed causing pull-lp-source to fail to parse the .dsc
     file from the URL contents (LP: #436006).
 
+ -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 20:16:43 +0100
 
- -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 00:11:08 +0100
+ubuntu-dev-tools (0.80) karmic; urgency=low
+
+  * mk-sbuild-lv: Export http_proxy. LP: #416438
+   
+ -- Michael Terry <michael.terry@canonical.com>  Thu, 10 Sep 2009 10:53:30 -0400
 
 ubuntu-dev-tools (0.79) karmic; urgency=low
 
