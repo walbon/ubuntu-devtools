@@ -1,9 +1,13 @@
 ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
 
+  [ Iain Lane ]
   * debian/control: Readd XS-Python-Version - this is more standard
   * debian/pyversions: Drop
 
- -- Iain Lane <laney@ubuntu.com>  Fri, 25 Sep 2009 21:37:07 +0100
+  [ Nathan Handler ]
+  * debian/control: Mention lp-project-upload in Description
+
+ -- Nathan Handler <nhandler@ubuntu.com>  Thu, 01 Oct 2009 13:34:03 +0000
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
