@@ -7,7 +7,11 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   [ Nathan Handler ]
   * debian/control: Mention lp-project-upload in Description
 
- -- Nathan Handler <nhandler@ubuntu.com>  Thu, 01 Oct 2009 13:34:03 +0000
+  [ Siegfried-Angel Gevatter Pujals ]
+  * debian/control: Improve description of pbuilder-dist and mention
+    cowbuilder-dist.
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Mon, 12 Oct 2009 13:35:32 +0200
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
