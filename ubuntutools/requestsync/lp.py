@@ -22,7 +22,7 @@
 
 from .common import raw_input_exit_on_ctrlc
 from ..lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
-from ..lp.udtexceptions import *
+from ..lp.udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExistException, ArchiveNotFoundException
 from ..lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):

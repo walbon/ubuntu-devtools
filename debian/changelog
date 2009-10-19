@@ -11,7 +11,12 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   * debian/control: Improve description of pbuilder-dist and mention
     cowbuilder-dist.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Mon, 12 Oct 2009 13:35:32 +0200
+  [ Luca Falavigna ]
+  * ubuntutools/requestsync/lp.py: explicitly import exceptions for
+    backward compatibility with Python 2.5.
+  * debian/control: re-enable support for python2.5.
+
+ -- Luca Falavigna <dktrkranz@debian.org>  Mon, 19 Oct 2009 20:46:33 +0200
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
