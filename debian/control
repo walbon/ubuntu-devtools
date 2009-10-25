@@ -57,6 +57,8 @@ Description: useful tools for Ubuntu developers
   - requestsync - files a sync request with Debian changelog and ratione.
   - reverse-build-depends - find the reverse build dependencies that a package
     has.
+  - setup-packaging-environment - assistant to get an Ubuntu installation
+    ready for packaging work.
   - submittodebian - automatically send your changes to Debian as a bug report.
   - suspicious-source - outputs a list of files which are not common source
     files.

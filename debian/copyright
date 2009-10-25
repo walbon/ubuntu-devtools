@@ -64,8 +64,8 @@ License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, manage-credentials, massfile,
 mk-sbuild-lv, ppaput, pull-debian-debdiff, pull-debian-source, pull-lp-source,
-pull-revu-source, suspicious-source and what-patch are licensed under the GNU
-General Public License, version 3:
+pull-revu-source, setup-packaging-environment, suspicious-source and what-patch
+are licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -82,5 +82,5 @@ License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 The following of the scripts can be used, at your option, regarding any
 later version of the previously specified license: 404main, dch-repeat, dgetlp,
 get-build-deps, manage-credentials, mk-sbuild-lv, pull-debian-debdiff,
-pull-debian-source, pull-lp-source, reverse-build-depends, suspicious-source,
-what-patch.
+pull-debian-source, pull-lp-source, reverse-build-depends,
+setup-packaging-environment, suspicious-source, what-patch.

@@ -17,6 +17,8 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   * pbuilder-dist, ubuntutools/misc.py:
      - Move the functions used to determine the hosts architecture and
        distribution to the ubuntutools.misc module.
+  * setup-packaging-environment, setup.py, debian/copyright, debian/control:
+     - Add a new script, setup-packaging-environment.
 
   [ Luca Falavigna ]
   * ubuntutools/requestsync/lp.py: explicitly import exceptions for

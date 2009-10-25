@@ -1,0 +1,187 @@
+#! /bin/sh
+#
+# Copyright (C) 2009 Siegfried-A. Gevatter <rainct@ubuntu.com>
+#
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 or later.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL for more details.
+#
+# ##################################################################
+#
+# This assistants's aim is to make it more straightforward for new
+# contributors to get their Ubuntu installation ready for packaging work.
+
+separator1() {
+    echo '------------------------------------------------------'
+    echo
+}
+
+separator2() {
+    echo '======================================================'
+    echo
+}
+
+await_response() {
+    echo
+    echo -n "Press enter when you're ready to continue... "
+    read line # Wait for a key press
+    echo
+}
+
+# ##################################################################
+
+if [ "$(lsb_release -is)" != "Ubuntu" ]
+then
+    echo "Error: This script has been created for Ubuntu, but you are "
+    echo "running «$(lsb_release -is)». Aborting."
+    exit 1
+fi
+
+echo "Welcome to the Ubuntu Packaging Environment setup!"
+separator1
+echo "This assistant will help you setting up your computer with everything"
+echo "necessary for getting started with Ubuntu development."
+await_response
+separator2
+
+echo "Enabling the main, restricted, universe and multiverse components..."
+separator1
+echo "Further steps will require packages from the «main» and «universe»"
+echo "components. It's advisable for «restricted» and «multiverse» to also"
+echo "be enabled, so that your apt cache knows about all official Ubuntu"
+echo "packages."
+echo
+echo "This is the list of repositories enabled on your system:"
+cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list | \
+grep '^[ ]*deb[ ]' | while read line
+do
+    echo " - $line"
+done
+echo
+echo "Please check that the list above contains all four components from"
+echo "Ubuntu's official repositories, and enable any missing component"
+echo "(eg., using System -> Administration -> Software Sources). Do this"
+echo "now."
+await_response
+separator2
+
+echo "Installing recommended packages..."
+separator1
+echo "In order to do packaging work, you'll need a minimal set of packages."
+echo "Those, together with other packages which, though optional, have proven"
+echo "to be useful, will now be installed."
+echo
+sudo aptitude install ubuntu-dev-tools devscripts debhelper cdbs patchutils pbuilder build-essential
+separator2
+
+echo "Enabling the source repository"
+separator1
+echo "In order to do packaging work comfortably, you'll want to have"
+echo "information about all of Ubuntu's source packages in your apt"
+echo "cache. This will make it possible for you to:"
+echo " - Check information about them without the need to go online."
+echo " - Download the latest version of a source package with a single command."
+echo
+echo "This is the list of source repositories enabled on your system:"
+cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list | \
+grep '^[ ]*deb-src[ ]' | while read line
+do
+    echo " - $line"
+done
+echo
+echo "Please check that the list above contains all four components, from"
+echo "Ubuntu's official repositories and for the current development version"
+echo "(important: even if you're using a stable Ubuntu release, the deb-src"
+echo "line needs to be for the latest, in-development, Ubuntu version)".
+echo
+echo "Enable any missing component (eg., by editing your /etc/apt/sources.list"
+echo "file). Do this now."
+await_response
+separator2
+
+echo "Defining the DEBEMAIL and DEBFULLNAME environment variables"
+separator1
+echo "Most packaging tools make use of the DEBEMAIL and DEBFULLNAME"
+echo "environment variables to know who you are."
+echo
+skip_step=false
+if [ -n "$DEBFULLNAME" -a -n "$DEBEMAIL" ]
+then
+    echo "This variables currently have the following value on your system:"
+    echo "Full name (and comment): $DEBFULLNAME"
+    echo "Valid e-mail address: $DEBEMAIL"
+    echo
+    echo -n "Is this information correct? [yn] "
+    while read line
+    do
+        if [ "$line" = "y" ]
+        then
+            skip_step=true
+            break
+        fi
+        if [ "$line" = "n" ]
+        then
+            break
+        fi
+        echo -n "Please write on of «y» or «n»: "
+    done
+    echo
+fi
+show_gpg_info() {
+    if [ -n "gpg --list-secret-keys 2>/dev/null" ]
+    then
+        echo
+        echo "Note: Write your name and e-mail exactly like in your GPG key."
+        echo "For reference, here are your GPG identities:"
+        gpg --list-secret-keys | grep uid | cut -c4- | sed 's/^[ ]*//;' | \
+        while read line
+        do
+            echo " - $line"
+        done
+    fi
+}
+if [ "$skip_step" = false -a "$(basename $SHELL)" != "bash" ]
+then
+    echo "Please export the DEBEMAIL and DEBFULLNAME variables in your"
+    echo "shell's configuration file."
+    show_gpg_info
+    skip_step=true
+    await_response
+fi
+if [ "$skip_step" = false ]
+then
+    echo
+    echo "Please indicate your name and e-mail address. This information will"
+    echo "be added to your ~/.bashrc."
+    show_gpg_info
+    echo
+    echo -n "Full name (and comment): "
+    read line
+    echo "export DEBFULLNAME=\"$(echo $line | sed 's/^[ ]*//;s/[ ]*$//')\"" >> ~/.bashrc
+    echo -n "Valid e-mail address: "
+    read line
+    echo "export DEBEMAIL=\"$(echo $line | sed 's/^[ ]*//;s/[ ]*$//')\"" >> ~/.bashrc
+    echo
+fi
+separator2
+
+echo "Thank you!"
+separator1
+echo "If you've followed all instructions carefully, your system does now"
+echo "have the basic tools and configurations recommended for Ubuntu"
+echo "development."
+echo
+echo "Some resources which may be useful during your path are:"
+echo " - The Ubuntu Packaging Guide: http://wiki.ubuntu.com/PackagingGuide"
+echo " - The Ubuntu Developers IRC channel: #ubuntu-motu on irc.freenode.net"
+echo
+echo "May the source be with you!"
