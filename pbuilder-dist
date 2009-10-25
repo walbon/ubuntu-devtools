@@ -31,6 +31,8 @@
 import sys
 import os
 
+import ubuntutools.misc
+
 debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', \
 	'testing', 'unstable', 'experimental']
 
@@ -93,28 +95,9 @@ class pbuilder_dist:
 		if 'PBUILDAUTH' in os.environ:
 			self.auth = os.environ['PBUILDAUTH']
 		
-		self.system_architecture = host_architecture()
-		
-		if not self.system_architecture or 'not found' in self.system_architecture:
-			print 'Error: Not running on a Debian based system; could not detect its architecture.'
-		
-		if os.path.isfile('/etc/lsb-release'):
-			for line in open('/etc/lsb-release'):
-				line = line.strip()
-				if line.startswith('DISTRIB_CODENAME'):
-					self.system_distro = line[17:]
-					break
-		else:
-			import commands
-			output = commands.getoutput('lsb_release -c').split()
-			if len(output) == 2:
-				self.system_distro = output[1]
-			else:
-				print 'Error: Not running on a Debian based system; could not find lsb_release.'
-				exit(1)
-		
-		if not self.system_distro:
-			print 'Error: Could not determine what distribution you are running.'
+		self.system_architecture = ubuntutools.misc.host_architecture()
+		self.system_distro = ubuntutools.misc.system_distribution()
+		if not self.system_architecture or not self.system_distro:
 			exit(1)
 		
 		self.target_distro = self.system_distro
@@ -255,16 +238,6 @@ class pbuilder_dist:
 		
 		return self.auth + ' /usr/sbin/' + self.builder + ' ' + ' '.join(arguments)
 
-def host_architecture():
-	""" host_architecture -> string
-	
-	Detect the host's architecture and return it as a string
-	(i386/amd64/other values).
-	
-	"""
-	
-	return os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386').replace('i686', 'i386')
-
 def ask(question):
 	""" ask(question) -> string
 	
@@ -330,7 +303,7 @@ def main():
 	
 	if len(parts) > 2:
 		requested_arch = parts[2]
-	elif args[0] in ('i386', 'amd64'):
+	elif len(args) > 0 and args[0] in ('i386', 'amd64'):
 		requested_arch = args.pop(0)
 	else:
 		requested_arch = None

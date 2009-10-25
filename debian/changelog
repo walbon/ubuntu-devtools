@@ -1,22 +1,29 @@
 ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
 
   [ Iain Lane ]
-  * debian/control: Readd XS-Python-Version - this is more standard
+  * debian/control: Re-add XS-Python-Version - this is more standard
   * debian/pyversions: Drop
 
   [ Nathan Handler ]
   * debian/control: Mention lp-project-upload in Description
 
   [ Siegfried-Angel Gevatter Pujals ]
-  * debian/control: Improve description of pbuilder-dist and mention
-    cowbuilder-dist.
+  * debian/control:
+     - Improve description of pbuilder-dist and mention cowbuilder-dist.
+  * pbuilder-dist:
+     - Abort if the host's architecture can't be determined.
+     - Error out instead of showing a traceback if pbuilder-dist is called
+       without any argument.
+  * pbuilder-dist, ubuntutools/misc.py:
+     - Move the functions used to determine the hosts architecture and
+       distribution to the ubuntutools.misc module.
 
   [ Luca Falavigna ]
   * ubuntutools/requestsync/lp.py: explicitly import exceptions for
     backward compatibility with Python 2.5.
   * debian/control: re-enable support for python2.5.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Mon, 19 Oct 2009 20:46:33 +0200
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 25 Oct 2009 13:46:58 +0100
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
