@@ -41,9 +41,9 @@ def system_distribution():
                 return line[17:]
     else:
         import commands
-        output = commands.getoutput('lsb_release -c').split()
-        if len(output) == 2:
-            return output[1]
+        output = commands.getoutput('lsb_release -cs')
+        if output:
+            return output
     print 'Error: Could not determine what distribution you are running.'
     return None
 
