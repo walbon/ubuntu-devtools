@@ -24,8 +24,9 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   * ubuntutools/requestsync/lp.py: explicitly import exceptions for
     backward compatibility with Python 2.5.
   * debian/control: re-enable support for python2.5.
+  * debian/copyright: update copyright holders.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 25 Oct 2009 13:46:58 +0100
+ -- Luca Falavigna <dktrkranz@debian.org>  Sun, 01 Nov 2009 15:58:08 +0100
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
