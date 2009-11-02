@@ -29,8 +29,9 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * requestsync: request syncs from 'testing' by default (should be changed
     back to 'unstable' for lucid+1)
+  * pull-debian-source: change default release to pull from to 'testing'
 
- -- Michael Bienia <geser@ubuntu.com>  Mon, 02 Nov 2009 19:01:19 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 02 Nov 2009 19:23:15 +0100
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
