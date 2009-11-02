@@ -47,7 +47,7 @@ if __name__ == '__main__':
 	optParser = OptionParser(usage)
 
 	optParser.add_option('-d', type = 'string',
-		dest = 'dist', default = 'unstable',
+		dest = 'dist', default = 'testing',
 		help = 'Debian distribution to sync from.')
 	optParser.add_option('-k', type = 'string',
 		dest = 'keyid', default = None,

@@ -29,9 +29,12 @@ def getDebianSrcPkg(name, release):
 	debian = Distribution('debian')
 	debian_archive = debian.getArchive()
 
-	# Map 'unstable' to 'sid' as LP doesn't know 'unstable' but only 'sid'
-	if release == 'unstable':
-		release = 'sid'
+	# Map 'unstable' and 'testing' to their codenames as LP knows only them
+	codenames = {
+		'unstable': 'sid',
+		'testing': 'squeeze', # Needs updating after each Debian release
+	}
+	release = codenames.get(release, release)
 
 	return debian_archive.getSourcePackage(name, release)
 

@@ -26,7 +26,11 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   * debian/control: re-enable support for python2.5.
   * debian/copyright: update copyright holders.
 
- -- Luca Falavigna <dktrkranz@debian.org>  Sun, 01 Nov 2009 15:58:08 +0100
+  [ Michael Bienia ]
+  * requestsync: request syncs from 'testing' by default (should be changed
+    back to 'unstable' for lucid+1)
+
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 02 Nov 2009 19:01:19 +0100
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
