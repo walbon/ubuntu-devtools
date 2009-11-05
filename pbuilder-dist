@@ -178,7 +178,7 @@ class pbuilder_dist:
 		prefix = os.path.join(self.base, self.chroot_string)
 		result = '%s_result/' % prefix
 		
-		if not self.logfile:
+		if not self.logfile and self.operation != 'login':
 			self.logfile = os.path.normpath('%s/last_operation.log' % result)
 		
 		if not os.path.isdir(result):
@@ -198,11 +198,13 @@ class pbuilder_dist:
 			base,
 			'--distribution "%(target_distro)s"' % self,
 			'--buildresult "%s"' % result,
-			'--logfile "%s"' % self.logfile,
 			'--aptcache "/var/cache/apt/archives/"',
 			### --mirror "${ARCHIVE}" \
 			'--override-config',
 			]
+
+		if self.logfile:
+			arguments.append('--logfile %s' % self.logfile)
 		
 		if os.path.exists('/var/cache/archive/'):
 			arguments.append('--bindmounts "/var/cache/archive/"')		

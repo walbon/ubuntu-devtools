@@ -3,6 +3,9 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
   [ Iain Lane ]
   * debian/control: Re-add XS-Python-Version - this is more standard
   * debian/pyversions: Drop
+  * pbuilder-dist: Don't pass --logfile if we are trying to log in to the
+    chroot - the logfile option swallows the prompt, and we probably don't
+    want to log if we are using login anyway.
 
   [ Nathan Handler ]
   * debian/control: Mention lp-project-upload in Description
@@ -31,7 +34,7 @@ ubuntu-dev-tools (0.82) UNRELEASED; urgency=low
     back to 'unstable' for lucid+1)
   * pull-debian-source: change default release to pull from to 'testing'
 
- -- Michael Bienia <geser@ubuntu.com>  Mon, 02 Nov 2009 19:23:15 +0100
+ -- Iain Lane <laney@ubuntu.com>  Thu, 05 Nov 2009 14:17:21 +0000
 
 ubuntu-dev-tools (0.81) karmic; urgency=low
 
