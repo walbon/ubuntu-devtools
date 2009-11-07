@@ -33,23 +33,30 @@ def main():
         print USAGE
         sys.exit(0)
 
-    launchpad = get_launchpad("ubuntu-dev-tools")
-    for arg in sys.argv[1:]:
-        try:
-            number = int(arg)
-        except:
-            print >> sys.stderr, "'%s' is not a valid bug number." % arg
-            sys.exit(1)
+    try:
+        launchpad = get_launchpad("ubuntu-dev-tools")
 
-        b = launchpad.bugs[number]
-  
-        for a in b.attachments:
-            f = a.data.open()
-            filename = os.path.join(os.getcwd(), f.filename)
-            local_file = open(filename, "w")
-            local_file.write(f.read())
-            f.close()
-            local_file.close()
+        for arg in sys.argv[1:]:
+            try:
+                number = int(arg)
+            except:
+                print >> sys.stderr, "'%s' is not a valid bug number." % arg
+                sys.exit(1)
+    
+            b = launchpad.bugs[number]
+      
+            for a in b.attachments:
+                f = a.data.open()
+                filename = os.path.join(os.getcwd(), f.filename)
+                local_file = open(filename, "w")
+                local_file.write(f.read())
+                f.close()
+                local_file.close()
+
+    # no LP credentials
+    except IOError, e:
+        print e
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

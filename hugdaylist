@@ -88,7 +88,13 @@ def main():
         print >> sys.stderr, "Options in url are not supported, url: %s" %url
         sys.exit(1)
     
-    launchpad = get_launchpad("ubuntu-dev-tools")
+    launchpad = None
+    try:
+        launchpad = get_launchpad("ubuntu-dev-tools")
+    except IOError, e:
+        print e
+        sys.exit(1)
+	
     api_url = translate_web_api(url, launchpad)
     try:
         product = launchpad.load(api_url)

@@ -7,10 +7,11 @@ ubuntu-dev-tools (0.83) UNRELEASED; urgency=low
     default release if we aren't using it. (LP: #477670)
   * pull-lp-source: Detect more failure conditions and give a nice error
     instead of a trace
-  * buildd, requestsync: Detect & bail if we don't have credentials and need
-    them. These scripts cannot continue under those circumstances.
+  * buildd, requestsync, grab-attachments, hugdaylist, update-maintainer: 
+    Detect & bail if we don't have credentials and need them. These scripts
+    cannot continue under those circumstances.
 
- -- Iain Lane <laney@ubuntu.com>  Sat, 07 Nov 2009 19:18:27 +0000
+ -- Iain Lane <laney@ubuntu.com>  Sat, 07 Nov 2009 19:34:25 +0000
 
 ubuntu-dev-tools (0.82) lucid; urgency=low
 
