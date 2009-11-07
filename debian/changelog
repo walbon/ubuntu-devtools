@@ -1,3 +1,17 @@
+ubuntu-dev-tools (0.83) UNRELEASED; urgency=low
+
+  * lpapicache: Do not immediately bail out if we have no credentials to
+    login. Clients are now expected to handle the lack of credentials
+    themselves.
+  * pull-lp-source: Make LP API use optional - fall back to a hardcoded
+    default release if we aren't using it. (LP: #477670)
+  * pull-lp-source: Detect more failure conditions and give a nice error
+    instead of a trace
+  * buildd, requestsync: Detect & bail if we don't have credentials and need
+    them. These scripts cannot continue under those circumstances.
+
+ -- Iain Lane <laney@ubuntu.com>  Sat, 07 Nov 2009 19:18:27 +0000
+
 ubuntu-dev-tools (0.82) lucid; urgency=low
 
   [ Iain Lane ]

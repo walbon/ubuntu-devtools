@@ -43,7 +43,7 @@ class Launchpad(object):
 				self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
 			except IOError, error:
 				print >> sys.stderr, 'E: %s' % error
-				sys.exit(1)
+				raise error
 		return self
 
 	def __getattr__(self, attr):

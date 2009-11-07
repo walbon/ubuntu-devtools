@@ -124,7 +124,11 @@ if not options.batch:
 		sys.exit(1)
 
 	# Get the ubuntu archive
-	ubuntu_archive = Distribution('ubuntu').getArchive()
+	try:
+		ubuntu_archive = Distribution('ubuntu').getArchive()
+	# Will fail here if we have no credentials, bail out
+	except IOError:
+		sys.exit(1)
 	# Get list of published sources for package in question.
 	try:
 		sources = ubuntu_archive.getSourcePackage(package, release, pocket)
