@@ -277,7 +277,7 @@ esac
 
 # Allocate the "golden" chroot LV
 sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
-sudo mkfs -t ext3 "$CHROOT_PATH"
+sudo mkfs -t ext4 "$CHROOT_PATH"
 
 # Mount and debootstrap the chroot
 MNT=`mktemp -d -t schroot-XXXXXX`
