@@ -333,7 +333,10 @@ def main():
 		sys.exit(1)
 	
 	# Execute the pbuilder command
-	sys.exit(os.system(app.get_command(args)))
+	if not '--debug-echo' in args:
+		sys.exit(os.system(app.get_command(args)))
+	else:
+		print app.get_command(args)
 
 if __name__ == '__main__':
 	
