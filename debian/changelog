@@ -22,6 +22,8 @@ ubuntu-dev-tools (0.83) UNRELEASED; urgency=low
 
   [ Martin Pitt ]
   * lp-project-upload: Generate tarball signature if it is not present yet.
+  * lp-project-upload: Invoke editor to specify changelog and release notes,
+    and add those to the project release.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 17 Nov 2009 19:44:44 +0100
 

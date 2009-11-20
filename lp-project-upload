@@ -18,7 +18,7 @@
 
 '''Upload a release tarball to a Launchpad project.'''
 
-import sys, datetime, os.path, subprocess
+import sys, datetime, os.path, subprocess, tempfile, os
 
 from ubuntutools.lp.libsupport import get_launchpad
 from launchpadlib.errors import HTTPError
@@ -38,6 +38,20 @@ def create_release(project, version):
     milestone = series.newMilestone(name=version,
             date_targeted=release_date)
     return milestone.createProductRelease(date_released=release_date)
+
+def edit_file(prefix, description):
+    (fd, f) = tempfile.mkstemp(prefix=prefix+'.')
+    os.write(fd, '\n\n#------\n# Please enter the %s here. Lines which start with "#" are ignored.\n' % 
+            description)
+    os.close(fd)
+    subprocess.call(['sensible-editor', f])
+    content = ''
+    for l in open(f):
+        if l.startswith('#'):
+            continue
+        content += l
+
+    return content.strip()
 
 #
 # main
@@ -88,6 +102,16 @@ try:
             file_content=file_content, content_type='appplication/x-gzip',
             file_type='Code Release Tarball', signature_filename=signature,
             signature_content=signature_content)
+
+    changelog = edit_file('changelog', 'changelog')
+    if changelog:
+        release.changelog = changelog
+    release_notes = edit_file('releasenotes', 'release notes')
+    if release_notes:
+        release.release_notes = release_notes
+
+    release.lp_save()
+
 except HTTPError, e:
     print 'An error happened in the upload:', e.content
     sys.exit(1)
