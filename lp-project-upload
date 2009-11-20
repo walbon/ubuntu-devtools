@@ -18,7 +18,7 @@
 
 '''Upload a release tarball to a Launchpad project.'''
 
-import sys, datetime, os.path
+import sys, datetime, os.path, subprocess
 
 from ubuntutools.lp.libsupport import get_launchpad
 from launchpadlib.errors import HTTPError
@@ -73,10 +73,14 @@ try:
     file_content = open(tarball, 'r').read()
     # Get the signature, if available.
     signature = tarball + '.asc'
+    if not os.path.exists(signature):
+        print 'Calling GPG to create tarball signature...'
+        if subprocess.call(['gpg', '--armor', '--sign', '--detach-sig', tarball]) != 0:
+            print >> sys.stderr, 'gpg failed, aborting'
+
     if os.path.exists(signature):
         signature_content = open(signature, 'r').read()
     else:
-        print 'WARNING: no signature found (%s)' % signature
         signature_content = None
 
     # Create a new product release file.
