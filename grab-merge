@@ -69,9 +69,11 @@ else
         }
 
     for NAME in $(sed -n -e "/^    /p" REPORT); do
-	echo "Getting $NAME..."
-	URL="https://merges.ubuntu.com/$HASH/$MERGE/$NAME"
-	wget -q "$URL" || { echo "Error downloading $URL"; exit 1; }
+        if [ ! -f "$NAME" ]; then
+            echo "Getting $NAME..."
+            URL="https://merges.ubuntu.com/$HASH/$MERGE/$NAME"
+            wget -q "$URL" || { echo "Error downloading $URL"; exit 1; }
+        fi
     done
 fi
 echo

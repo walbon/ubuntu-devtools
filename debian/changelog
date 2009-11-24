@@ -1,9 +1,13 @@
 ubuntu-dev-tools (0.84) UNRELEASED; urgency=low
 
+  [ Michael Bienia ]
   * update-maintainer: Remove the check for LP credentials again as this
     script doesn't use the LP API.
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 21 Nov 2009 20:22:54 +0100
+  [ Manny Vindiola ]
+  * grab-merge: Only download files listed multiple times in REPORT once
+
+ -- Manny Vindiola <mannyv@gmail.com>  Tue, 24 Nov 2009 17:03:08 -0500
 
 ubuntu-dev-tools (0.83) lucid; urgency=low
 
