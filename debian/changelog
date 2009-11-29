@@ -7,7 +7,11 @@ ubuntu-dev-tools (0.84) UNRELEASED; urgency=low
   [ Manny Vindiola ]
   * grab-merge: Only download files listed multiple times in REPORT once
 
- -- Manny Vindiola <mannyv@gmail.com>  Tue, 24 Nov 2009 17:03:08 -0500
+  [ Luca Falavigna ]
+  * ubuntutools/lp/lpapicache.py: recent lazr.restfulclient does use of
+    unicode strings, use basestring to catch bot str and unicode.
+
+ -- Luca Falavigna <dktrkranz@debian.org>  Sun, 29 Nov 2009 17:52:33 +0100
 
 ubuntu-dev-tools (0.83) lucid; urgency=low
 

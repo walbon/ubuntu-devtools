@@ -75,7 +75,7 @@ class BaseWrapper(object):
 	resource_type = None # it's a base class after all
 
 	def __new__(cls, data):
-		if isinstance(data, str) and data.startswith('https://api.edge.launchpad.net/beta/'):
+		if isinstance(data, basestring) and data.startswith('https://api.edge.launchpad.net/beta/'):
 			# looks like a LP API URL
 			# check if it's already cached
 			cached = cls._cache.get(data)
