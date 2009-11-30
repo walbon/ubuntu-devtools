@@ -1,24 +1,24 @@
-.TH BUILDD "1" "14 August 2008" "ubuntu-dev-tools"
+.TH UBUNTU-BUILD "1" "14 August 2008" "ubuntu-dev-tools"
 .SH NAME
-buildd \- command-line interface to Launchpad build operations
+ubuntu-build \- command-line interface to Launchpad build operations
 
 .SH SYNOPSIS
-.B buildd <srcpackage> <release> <operation>
+.B ubuntu-build <srcpackage> <release> <operation>
 .br
-.B buildd \-\-help
+.B ubuntu-build \-\-help
 
 .SH DESCRIPTION
-\fBbuildd\fR provides a command line interface to the Launchpad build
+\fBubuntu-build\fR provides a command line interface to the Launchpad build
 operations.
 
 .PP
-\fBbuildd\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to authenticate
+\fBubuntu-build\fR uses a cookie file stored at \fI~/.lpcookie.txt\fR to authenticate
 to Launchpad.
 This cookie is created on run from the Mozilla Firefox cookie
 file at \fI~/.mozilla/*/*/cookies.sqlite\fR.
 
 .SH OPERATIONS
-Listed below are the available operations for \fBbuildd\fR:
+Listed below are the available operations for \fBubuntu-build\fR:
 .TP
 .B status
 Outputs the build status of the package on Launchpad on all architectures.
@@ -33,7 +33,7 @@ Only members of the Launchpad build administrators may issue this operation,
 and it may only be performed on packages which \fINeed building\fR.
 
 .SH OPTIONS
-Listed below are the command line options for \fBbuildd\fR:
+Listed below are the command line options for \fBubuntu-build\fR:
 .TP
 .B \-h or \-\-help
 Display a help message and exit.
@@ -44,7 +44,7 @@ This will only request the rebuilding/rescoring on the specified
 architecture.
 
 .SH AUTHORS
-\fBbuildd\fR was written by Martin Pitt <martin.pitt@canonical.com>, and
+\fBubuntu-build\fR was written by Martin Pitt <martin.pitt@canonical.com>, and
 this manual page was written by Jonathan Patrick Davies <jpds@ubuntu.com>.
 .PP
 Both are released under the terms of the GNU General Public License, version 3

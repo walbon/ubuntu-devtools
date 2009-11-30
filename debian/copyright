@@ -67,11 +67,11 @@ and update-maintainer are licensed under the GNU General Public License, version
 On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
-buildd, dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
+dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
 hugdaylist, manage-credentials, massfile, mk-sbuild-lv, pbuilder-dist-simple,
 ppaput, pull-debian-debdiff, pull-debian-source, pull-lp-source, pull-revu-source,
-setup-packaging-environment, suspicious-source and what-patch are licensed under
-the GNU General Public License, version 3:
+setup-packaging-environment, suspicious-source, ubuntu-build and what-patch are
+licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -86,8 +86,8 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following scripts can be used, at your option, regarding any later
-version of the previously specified license: 404main, buildd, dch-repeat, dgetlp,
+version of the previously specified license: 404main, dch-repeat, dgetlp,
 get-build-deps, lp-project-upload, lp-set-dup, manage-credentials, mk-sbuild-lv,
 pbuilder-dist, pull-debian-debdiff, pull-debian-source, pull-lp-source,
 pull-revu-source, reverse-build-depends, setup-packaging-environment, submittodebian,
-suspicious-source, what-patch.
+suspicious-source, ubuntu-build, what-patch.

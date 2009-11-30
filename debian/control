@@ -27,7 +27,6 @@ Description: useful tools for Ubuntu developers
  .
   - 404main - used to check what components a package's deps are in, for
     doing a main inclusion report for example.
-  - buildd - give commands to the Launchpad build daemons from the command line.
   - check-symbols - will compare and give you a diff of the exported symbols of
     all .so files in a binary package.
   - dch-repeat - used to repeat a change log into an older release.
@@ -62,6 +61,7 @@ Description: useful tools for Ubuntu developers
   - submittodebian - automatically send your changes to Debian as a bug report.
   - suspicious-source - outputs a list of files which are not common source
     files.
+  - ubuntu-build - give commands to the Launchpad build daemons from the command line.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - update-maintainer - script to update maintainer field in ubuntu packages.
   - what-patch - determines what patch system, if any, a source package is

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # 
-#   buildd - command line interface for Launchpad buildd operations.
+#   ubuntu-build - command line interface for Launchpad buildd operations.
 #
 #   Copyright (C) 2007 Canonical Ltd.
 #   Authors:
@@ -54,7 +54,7 @@ retryRescoreOptions.add_option("-a", "--arch", type = "string",
 batch_options = OptionGroup(
 	optParser, "Batch processing",
 	"These options and parameter ordering is only available in --batch mode.\n"
-	"Usage: buildd --batch [options] <package>...")
+	"Usage: ubuntu-build --batch [options] <package>...")
 batch_options.add_option(
 	'--batch', action = 'store_true', dest = 'batch', default = False,
 	help = 'Enable batch mode')
