@@ -13,7 +13,10 @@ ubuntu-dev-tools (0.84) UNRELEASED; urgency=low
   * ubuntutools/lp/lpapicache.py: recent lazr.restfulclient does use of
     unicode strings, use basestring to catch bot str and unicode.
 
- -- Michael Bienia <geser@ubuntu.com>  Mon, 30 Nov 2009 22:55:46 +0100
+  [ Jonathan Davies ]
+  * dch-repeat: Added Lucid to releases.
+
+ -- Jonathan Davies <jpds@ubuntu.com>  Thu, 03 Dec 2009 13:47:27 +0000
 
 ubuntu-dev-tools (0.83) lucid; urgency=low
 
