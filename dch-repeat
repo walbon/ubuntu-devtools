@@ -47,7 +47,7 @@ EOM
     exit(0);
 }
 
-my @releases = ('dapper', 'hardy', 'intrepid', 'jaunty', 'karmic');
+my @releases = ('dapper', 'hardy', 'intrepid', 'jaunty', 'karmic', 'lucid');
 
 #Getopt::Long::Configure("bundling", "no_ignore_case");
 our $opt_build_tree = "/scratch/ubuntu/build";
