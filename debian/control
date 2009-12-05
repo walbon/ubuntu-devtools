@@ -14,7 +14,7 @@ Package: ubuntu-dev-tools
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
  python-debian, python-launchpadlib, dctrl-tools, lsb-release, diffstat,
- dpkg-dev, python-apt (>= 0.7.9), python-lazr-restfulclient
+ dpkg-dev, python-apt (>= 0.7.9), python-lazr.restfulclient
 Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
  ca-certificates, debootstrap, genisoimage, perl-modules, libwww-perl
 Conflicts: devscripts (<< 2.10.7ubuntu5)
