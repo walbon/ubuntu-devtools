@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.84) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.84) lucid; urgency=low
 
   [ Michael Bienia ]
   * update-maintainer: Remove the check for LP credentials again as this
@@ -18,7 +18,7 @@ ubuntu-dev-tools (0.84) UNRELEASED; urgency=low
   [ Jonathan Davies ]
   * dch-repeat: Added Lucid to releases.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Sat, 05 Dec 2009 16:11:02 +0100
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Mon, 07 Dec 2009 10:18:55 +0100
 
 ubuntu-dev-tools (0.83) lucid; urgency=low
 
