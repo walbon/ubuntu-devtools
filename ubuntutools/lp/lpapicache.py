@@ -142,7 +142,7 @@ class Distribution(BaseWrapper):
 		'''
 		Fetch the distribution object identified by 'dist' from LP.
 		'''
-		if not isinstance(dist, str):
+		if not isinstance(dist, basestring):
 			raise TypeError("Don't know what do with '%r'" % dist)
 		cached = cls._cache.get(dist)
 		if not cached:
@@ -378,7 +378,7 @@ class PersonTeam(BaseWrapper):
 		'''
 		Fetch the person or team object identified by 'url' from LP.
 		'''
-		if not isinstance(person_or_team, str):
+		if not isinstance(person_or_team, basestring):
 			raise TypeError("Don't know what do with '%r'" % person_or_team)
 		cached = cls._cache.get(person_or_team)
 		if not cached:
@@ -413,9 +413,9 @@ class PersonTeam(BaseWrapper):
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-		if package and not isinstance(package, str):
+		if package and not isinstance(package, basestring):
 			raise TypeError('A source package name expected.')
-		if component and not isinstance(component, str):
+		if component and not isinstance(component, basestring):
 			raise TypeError('A component name expected.')
 		if not package and not component:
 			raise ValueError('Either a source package name or a component has to be specified.')
