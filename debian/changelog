@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.84ubuntu1) UNRELEASED; urgency=low
+
+  * submittodebian: switch to use lucid as the default distro tag.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 11 Dec 2009 13:28:24 -0800
+
 ubuntu-dev-tools (0.84) lucid; urgency=low
 
   [ Michael Bienia ]
