@@ -1,10 +1,10 @@
-ubuntu-dev-tools (0.85) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.85) lucid; urgency=low
 
   * submittodebian: switch to use lucid as the default distro tag.
   * submittodebian: if the package is in bzr, look for bzr metadata first
     before looking for a previous package revision in the parent dir.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 11 Dec 2009 13:28:24 -0800
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 11 Dec 2009 13:46:31 -0800
 
 ubuntu-dev-tools (0.84) lucid; urgency=low
 
