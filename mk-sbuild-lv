@@ -141,6 +141,7 @@ while :; do
             # By default, use the native architecture.
             arch_opt="--arch $2"
             arch_suffix="-$2"
+            CHROOT_ARCH="$2"
             if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
             then
                 personality="linux32"
@@ -203,6 +204,10 @@ CHROOT_LV="${name}_chroot${arch_suffix}"
 CHROOT_PATH="/dev/$VG/$CHROOT_LV"
 CHROOT_NAME="${name}${arch_suffix}"
 
+if [ -z "$CHROOT_ARCH" ]; then
+    CHROOT_ARCH=$(dpkg --print-architecture)
+fi
+
 # Load customizations
 if [ -r ~/.mk-sbuild-lv.rc ]; then
     . ~/.mk-sbuild-lv.rc
@@ -225,12 +230,22 @@ BUILD_PKGS="build-essential fakeroot devscripts apt-utils"
 # Handle distro-specific logic, unknown to debootstrap
 case "$DISTRO" in
 ubuntu)
-    # are we doing an lpia build?
-    if [ -z "$DEBOOTSTRAP_MIRROR" ] && [ "$arch_opt" = "--arch lpia" ]; then
-        DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/"
-    fi
     if [ -z "$DEBOOTSTRAP_MIRROR" ]; then
-        DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
+        case "$CHROOT_ARCH" in
+        amd64 | i386)
+            DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
+            ;;
+        armel | hppa | ia64 | lpia | sparc)
+            DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
+            ;;
+        powerpc)
+            if [ "$RELEASE" != "dapper" ]; then
+                DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
+            else
+                DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
+            fi
+            ;;
+        esac
     fi
     if [ -z "$COMPONENTS" ]; then
         COMPONENTS="main restricted universe multiverse"
@@ -239,7 +254,21 @@ ubuntu)
         SOURCES_SECURITY_SUITE="RELEASE-updates"
     fi
     if [ -z "$SOURCES_SECURITY_URL" ]; then
-        SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
+        case "$CHROOT_ARCH" in
+        amd64 | i386)
+            SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
+            ;;
+        armel | hppa | ia64 | lpia | sparc)
+            SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
+            ;;
+        powerpc)
+            if [ "$RELEASE" != "dapper" ]; then
+                SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
+            else
+                SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
+            fi
+            ;;
+        esac
     fi
     # Add edgy+ buildd tools
     if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
