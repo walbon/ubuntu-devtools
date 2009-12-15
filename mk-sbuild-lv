@@ -251,7 +251,7 @@ ubuntu)
         COMPONENTS="main restricted universe multiverse"
     fi
     if [ -z "$SOURCES_SECURITY_SUITE" ]; then
-        SOURCES_SECURITY_SUITE="RELEASE-updates"
+        SOURCES_SECURITY_SUITE="RELEASE-security"
     fi
     if [ -z "$SOURCES_SECURITY_URL" ]; then
         case "$CHROOT_ARCH" in

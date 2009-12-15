@@ -1,8 +1,9 @@
 ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
 
   * mk-sbuild-lv: Add richer support for ports architectures in Ubuntu
+  * mk-sbuild-lv: Really use -security for SOURCES_SECURITY_SUITE in Ubuntu
 
- -- Emmet Hikory <persia@ubuntu.com>  Sat, 12 Dec 2009 14:01:50 +0900
+ -- Emmet Hikory <persia@ubuntu.com>  Tue, 15 Dec 2009 09:57:20 +0900
 
 ubuntu-dev-tools (0.85) lucid; urgency=low
 
