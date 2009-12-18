@@ -93,7 +93,15 @@ def edit_debdiff(debdiff):
 	run_cmd(cmd)
 
 def submit_bugreport(body, debdiff, changelog):
-	cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu lucid ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
+	# Count the number of lines in the patch
+	debdiff_file = open(debdiff, 'r')
+	n_lines = len(debdiff_file.readlines())
+	debdiff_file.close()
+
+	# If the patch is smaller than 51 lines, we include it inline, attach it otherwise.
+	inclusion_method = '--include' if n_lines < 51 else '-A'
+
+	cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu lucid ubuntu-patch" -T patch %s %s -B debian -i %s -V %s %s' % (inclusion_method, debdiff, body, deb_version, changelog.package)
 	run_cmd(cmd)
 
 def run_cmd(cmd):
