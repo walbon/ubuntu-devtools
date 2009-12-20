@@ -8,7 +8,11 @@ ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
   * submittodebian: if patch is relatively small (shorter than fifty
     lines), display it inline instead of attaching to the report.
 
- -- Kumar Appaiah <akumar@debian.org>  Fri, 18 Dec 2009 21:30:30 +0100
+  [ Michael Bienia ]
+  * ubuntutools/requestsync/common.py: convert the changelog into a unicode
+    string (lp: #498349)
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 20 Dec 2009 14:08:31 +0100
 
 ubuntu-dev-tools (0.85) lucid; urgency=low
 

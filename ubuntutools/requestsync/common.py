@@ -63,9 +63,11 @@ def getDebianChangelog(srcpkg, version):
 
 	new_entries = ''
 	changelog = Changelog(changelog.read())
+	# see also Debian #539334
 	for block in changelog._blocks:
 		if block.version > version:
-			new_entries += str(block)
+			# see also Debian #561805
+			new_entries += unicode(str(block).decode('utf-8'))
 
 	return new_entries
 
