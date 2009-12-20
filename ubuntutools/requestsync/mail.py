@@ -24,6 +24,7 @@ import sys
 import subprocess
 import smtplib
 import socket
+from debian_bundle.changelog import Version
 from .common import raw_input_exit_on_ctrlc
 from ..lp.udtexceptions import PackageNotFoundException
 
@@ -63,13 +64,18 @@ def rmadison(distro, package, release):
 	rmadison_out = rmadison_cmd.communicate()[0]
 	assert (rmadison_cmd.returncode == 0)
 
-	# Work-around for a bug in Debians madison.php script not returning 
-	# only the source line 
-	for line in rmadison_out.splitlines():
-		if line.find('source') > 0:
-			return map(lambda x: x.strip(), line.split('|'))
-
-	return None
+	# Return the most recent source line
+	lines = rmadison_out.splitlines()
+	if not lines:
+		# no output
+		return None
+	lines = [map(lambda x: x.strip(), line.split('|')) for line in lines]
+	lines = [line for line in lines if line[3].find('source') != -1]
+	if lines:
+		return max(lines, key = lambda x: Version(x[1]))
+	else:
+		# no source line
+		return None
 
 def getSrcPkg(distro, name, release):
 	out = rmadison(distro, name, release)

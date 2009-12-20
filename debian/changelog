@@ -11,8 +11,10 @@ ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * ubuntutools/requestsync/common.py: convert the changelog into a unicode
     string (lp: #498349)
+  * ubuntutools/requestsync/mail.py: rmadison() returns now the most recent
+    source line (Closes: #560758) 
 
- -- Michael Bienia <geser@ubuntu.com>  Sun, 20 Dec 2009 14:08:31 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 20 Dec 2009 15:40:40 +0100
 
 ubuntu-dev-tools (0.85) lucid; urgency=low
 
