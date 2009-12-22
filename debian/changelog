@@ -14,7 +14,11 @@ ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
   * ubuntutools/requestsync/mail.py: rmadison() returns now the most recent
     source line (Closes: #560758) 
 
- -- Michael Bienia <geser@ubuntu.com>  Sun, 20 Dec 2009 15:40:40 +0100
+  [ Iain Lane ]
+  * pull-debian-source: Return the most recent source line. Depend on
+    libapt-pkg-perl for the Debian version comparison required for this.
+
+ -- Iain Lane <laney@ubuntu.com>  Tue, 22 Dec 2009 22:26:07 +0000
 
 ubuntu-dev-tools (0.85) lucid; urgency=low
 

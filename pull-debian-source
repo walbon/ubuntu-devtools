@@ -22,6 +22,7 @@ use strict;
 use LWP::Simple;
 use File::Basename;
 use Getopt::Long;
+use AptPkg::Version;
 
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
@@ -89,9 +90,11 @@ sub getDSC {
 		die("$madison");
 	}
 	my($baseURL)='http://ftp.debian.org/debian/pool/';
-	my($url)=$baseURL;
 	my(@madison)=split(/\n/,$madison);
+	my %urls;
+	my $url;
 	foreach my $line (@madison) {
+		$url = $baseURL;
 		my($package,$version,$release,$archs)=split(/\|/,$line,4);
 		$package=~s/\s*//g;
 		$version=~s/\s*//g;
@@ -117,10 +120,15 @@ sub getDSC {
 				$url .= 'main/';
 			}
 			$url .= $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
-			return $url;
+			$urls{$version} = $url;
 		}
+
 	}
-	die("Unable To Find Source Package On Madison\n");
+
+	my @vers = reverse sort AptPkg::Version::CmpVersion keys %urls;	
+
+	return $urls{$vers[0]} or die("Unable To Find Source Package On Madison\n");
+
 }
 sub usage {
 	my($name)=basename($0);
