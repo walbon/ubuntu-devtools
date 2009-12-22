@@ -101,7 +101,7 @@ def edit_report(subject, body, changes_required = False):
 		if not editing_finished:
 			# Create tempfile and remember mtime
 			report_file = tempfile.NamedTemporaryFile(prefix='requestsync_')
-			report_file.write(report)
+			report_file.write(report.encode('utf-8'))
 			report_file.flush()
 			mtime_before = os.stat(report_file.name).st_mtime
 
