@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.86) lucid; urgency=low
 
   [ Emmet Hikory ]
   * mk-sbuild-lv: Add richer support for ports architectures in Ubuntu
@@ -23,7 +23,7 @@ ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
     'bzr diff' first and check the return value; otherwise we get no output
     at all from submittodebian in the non-bzr case.
 
- -- Iain Lane <laney@ubuntu.com>  Tue, 22 Dec 2009 22:26:07 +0000
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Sun, 27 Dec 2009 13:03:56 -0800
 
 ubuntu-dev-tools (0.85) lucid; urgency=low
 
