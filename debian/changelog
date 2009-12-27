@@ -18,6 +18,11 @@ ubuntu-dev-tools (0.86) UNRELEASED; urgency=low
   * pull-debian-source: Return the most recent source line. Depend on
     libapt-pkg-perl for the Debian version comparison required for this.
 
+  [ Steve Langasek ]
+  * submittodebian: os.system() doesn't throw exceptions, so attempt a
+    'bzr diff' first and check the return value; otherwise we get no output
+    at all from submittodebian in the non-bzr case.
+
  -- Iain Lane <laney@ubuntu.com>  Tue, 22 Dec 2009 22:26:07 +0000
 
 ubuntu-dev-tools (0.85) lucid; urgency=low

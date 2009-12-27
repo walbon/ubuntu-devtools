@@ -52,15 +52,14 @@ def gen_debdiff(changelog):
 	oldver = changelog._blocks[1].version
 	newver = changelog._blocks[0].version
 
-	try:
+	(fd, debdiff) = mkstemp()
+	os.close(fd)
+
+	if os.system('bzr diff -r tag:%s > /dev/null 2>&1' % oldver) == 256:
 		print "Extracting bzr diff between %s and %s" % (oldver, newver)
-		(fd, debdiff) = mkstemp()
-		os.close(fd)
 		cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % (oldver, debdiff)
 		run_cmd(cmd)
-
-	except:
-		os.unlink(debdiff)
+	else:
 		if oldver.epoch is not None:
 			oldver = str(oldver)[str(oldver).index(":")+1:]
 		if newver.epoch is not None:
@@ -73,8 +72,6 @@ def gen_debdiff(changelog):
 		check_file(newdsc)
 
 		print "Generating debdiff between %s and %s" % (oldver, newver)
-		(fd, debdiff) = mkstemp()
-		os.close(fd)
 		cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % (olddsc, newdsc, debdiff)
 		run_cmd(cmd)
 
