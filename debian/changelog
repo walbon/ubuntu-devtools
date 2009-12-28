@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.86ubuntu1) UNRELEASED; urgency=low
+
+  * Revert the submittodebian change to inline patches.  This is a style
+    choice, the patch length has nothing to do with it; if there's demand for
+    patch inlining, this should be made a (non-default) option to
+    submittodebian.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Sun, 27 Dec 2009 16:24:49 -0800
+
 ubuntu-dev-tools (0.86) lucid; urgency=low
 
   [ Emmet Hikory ]
