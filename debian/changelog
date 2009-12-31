@@ -10,7 +10,10 @@ ubuntu-dev-tools (0.87) UNRELEASED; urgency=low
   * requestsync: Fix a bug that prevented sync requests for new packages with
     a version smaller than 0.
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 31 Dec 2009 13:15:01 +0100
+  [ Luca Falavigna ]
+  * Fix some typos in man pages.
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Thu, 31 Dec 2009 17:47:10 +0100
 
 ubuntu-dev-tools (0.86) lucid; urgency=low
 
