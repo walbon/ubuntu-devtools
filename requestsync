@@ -120,7 +120,7 @@ if __name__ == '__main__':
 		newsource = False # override the -n flag
 	except udtexceptions.PackageNotFoundException:
 		ubuntu_srcpkg = None
-		ubuntu_version = Version(0)
+		ubuntu_version = Version('0~0')
 		ubuntu_component = 'universe' # let's assume universe
 		if not newsource:
 			print "'%s' doesn't exist in 'Ubuntu %s'.\nDo you want to sync a new package?" % \
