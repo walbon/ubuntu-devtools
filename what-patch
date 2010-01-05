@@ -66,6 +66,11 @@ if [ "$VERBOSE" -gt 0 ]; then
 	fi
 fi
 
+if fgrep -q quilt debian/source/format 2>/dev/null; then
+	echo "quilt"
+	exit 0
+fi
+
 # Do not change the output of existing checks by default, as there are build
 # tools that rely on the exisitng output.  If changes in reporting is needed,
 # please check the "VERBOSE" flag (see below for examples).  Feel free
