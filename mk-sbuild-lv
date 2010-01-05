@@ -359,6 +359,8 @@ root-groups=root,sbuild,admin
 device=CHROOT_PATH
 mount-options=-o noatime
 lvm-snapshot-options=--size SNAPSHOT_SIZE
+run-setup-scripts=true
+run-exec-scripts=true
 EOM
 fi
 if [ ! -z "$personality" ]; then
