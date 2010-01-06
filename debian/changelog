@@ -1,10 +1,4 @@
-ubuntu-dev-tools (0.87) UNRELEASED; urgency=low
-
-  [ Steve Langasek ]
-  * Revert the submittodebian change to inline patches.  This is a style
-    choice, the patch length has nothing to do with it; if there's demand for
-    patch inlining, this should be made a (non-default) option to
-    submittodebian.
+ubuntu-dev-tools (0.88) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * requestsync: Fix a bug that prevented sync requests for new packages with
@@ -18,6 +12,15 @@ ubuntu-dev-tools (0.87) UNRELEASED; urgency=low
   * what-patch: updated for 3.0 source format.
 
  -- Kees Cook <kees@ubuntu.com>  Tue, 05 Jan 2010 08:14:11 -0800
+
+ubuntu-dev-tools (0.87) lucid; urgency=low
+
+  * Revert the submittodebian change to inline patches.  This is a style
+    choice, the patch length has nothing to do with it; if there's demand for
+    patch inlining, this should be made a (non-default) option to
+    submittodebian.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 28 Dec 2009 14:41:31 -0800
 
 ubuntu-dev-tools (0.86) lucid; urgency=low
 
