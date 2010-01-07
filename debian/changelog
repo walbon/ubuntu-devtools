@@ -3,6 +3,8 @@ ubuntu-dev-tools (0.88) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * requestsync: Fix a bug that prevented sync requests for new packages with
     a version smaller than 0.
+  * ubuntutools/requestsync/common.py: Decode the edited report file back from
+    UTF-8 so it can be encoded again in the next iteration (lp: #504263)
 
   [ Luca Falavigna ]
   * Fix some typos in man pages.
@@ -11,7 +13,7 @@ ubuntu-dev-tools (0.88) UNRELEASED; urgency=low
   * mk-sbuild-lv: drop deprecated sbuild configuration fields from template.
   * what-patch: updated for 3.0 source format.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 05 Jan 2010 08:14:11 -0800
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 07 Jan 2010 23:10:25 +0100
 
 ubuntu-dev-tools (0.87) lucid; urgency=low
 

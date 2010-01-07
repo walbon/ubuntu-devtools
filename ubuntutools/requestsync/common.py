@@ -122,7 +122,7 @@ def edit_report(subject, body, changes_required = False):
 					changes_required = False
 
 			report_file.seek(0)
-			report = report_file.read()
+			report = report_file.read().decode('utf-8')
 			report_file.close()
 
 			# Undecorate report again
