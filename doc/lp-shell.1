@@ -1,0 +1,27 @@
+.TH lp-shell "1" "13 January 2010" "ubuntu-dev-tools"
+.SH NAME
+lp\-shell \- Open an interactive launchpadlib shell.
+
+.SH SYNOPSIS
+.B lp\-shell
+[ staging ]
+
+.SH DESCRIPTION
+.B lp\-shell
+opens an interactive Python shell with a launchpadlib.Launchpad object "lp"
+which is ready for use.
+
+It authenticates against Launchpad with the consumer name "test".
+
+If you want to connect to staging instead of production, call
+.B lp\-shell
+with the
+.B staging
+argument.
+
+.SH AUTHORS
+.B lp\-shell
+was written by Martin Pitt <martin.pitt@ubuntu.com>.
+.PP
+It is released under the terms of the GNU General Public License, version 2
+or (at your option) any later version.

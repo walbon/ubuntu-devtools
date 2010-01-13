@@ -1,0 +1,27 @@
+#!/usr/bin/python -i
+
+# open an interactive launchpadlib Python shell. If the first command line
+# argument is "staging", this will be on staging instead of production.
+
+# Author: Martin Pitt <martin.pitt@ubuntu.com>
+# Copyright: (C) 2010 Canonical Ltd.
+#
+# This package is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, at version 2.
+# 
+# This package is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+import code, os, sys
+
+from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT
+
+if len(sys.argv) == 2 and sys.argv[1] == 'staging':
+    instance = STAGING_SERVICE_ROOT
+else:
+    instance = EDGE_SERVICE_ROOT
+
+lp = Launchpad.login_with('test', instance)
