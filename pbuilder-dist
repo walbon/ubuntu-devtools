@@ -239,7 +239,8 @@ class pbuilder_dist:
 		if remaining_arguments:
 			arguments.extend(remaining_arguments)
 		
-		return self.auth + ' /usr/sbin/' + self.builder + ' ' + ' '.join(arguments)
+		return '%s /usr/bin/%s %s' % (self.auth, self.builder,
+			' '.join(arguments))
 
 def ask(question):
 	""" ask(question) -> string
@@ -337,7 +338,8 @@ def main():
 	if not '--debug-echo' in args:
 		sys.exit(os.system(app.get_command(args)))
 	else:
-		print app.get_command(args)
+		print app.get_command((arg for arg in args if arg)).replace(
+			' --debug-echo', '')
 
 if __name__ == '__main__':
 	
