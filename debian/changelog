@@ -1,5 +1,10 @@
 ubuntu-dev-tools (0.88) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
+  * pbuilder-dist:
+     - Set "--mirror" option also for Ubuntu chroots, so that they work
+       on Debian.
+
   [ Michael Bienia ]
   * requestsync: Fix a bug that prevented sync requests for new packages with
     a version smaller than 0.
@@ -13,7 +18,7 @@ ubuntu-dev-tools (0.88) UNRELEASED; urgency=low
   * mk-sbuild-lv: drop deprecated sbuild configuration fields from template.
   * what-patch: updated for 3.0 source format.
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 07 Jan 2010 23:10:25 +0100
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Fri, 15 Jan 2010 14:24:51 +0100
 
 ubuntu-dev-tools (0.87) lucid; urgency=low
 
