@@ -239,7 +239,7 @@ class pbuilder_dist:
 		if remaining_arguments:
 			arguments.extend(remaining_arguments)
 		
-		return '%s /usr/bin/%s %s' % (self.auth, self.builder,
+		return '%s /usr/sbin/%s %s' % (self.auth, self.builder,
 			' '.join(arguments))
 
 def ask(question):
