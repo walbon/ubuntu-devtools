@@ -359,8 +359,6 @@ root-groups=root,sbuild,admin
 device=CHROOT_PATH
 mount-options=-o noatime
 lvm-snapshot-options=--size SNAPSHOT_SIZE
-run-setup-scripts=true
-run-exec-scripts=true
 EOM
 fi
 if [ ! -z "$personality" ]; then
@@ -405,13 +403,13 @@ sudo chmod +x "$MNT"/finish.sh
 sudo umount "$MNT"
 rmdir "$MNT"
 # Run finalization script on the "golden" copy via schroot.
-schroot -c "$CHROOT_NAME"-source -u root /finish.sh
+sudo schroot -c "$CHROOT_NAME"-source -u root /finish.sh
 
 # Finished
 echo ""
 echo "Done building $CHROOT_NAME."
 echo ""
-echo " To CHANGE the golden image: schroot -c ${CHROOT_NAME}-source -u root"
+echo " To CHANGE the golden image: sudo schroot -c ${CHROOT_NAME}-source -u root"
 echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
 echo " To BUILD within a snapshot: sbuild -d ${CHROOT_NAME} PACKAGE*.dsc"
 echo ""
