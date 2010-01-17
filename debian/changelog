@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
+
+  * ubuntutools/requestsync/mail.py:
+    Map "sid" back to "unstable" (and "squeeze" to "testing") else rmadison
+    gets a Python traceback from the remote site instead of the expected data
+    (lp: #508794).
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 17 Jan 2010 17:53:57 +0100
+
 ubuntu-dev-tools (0.91) lucid; urgency=low
 
   * mk-sbuild-lv: drop deprecated keys from schroot.conf template

@@ -57,6 +57,14 @@ class SourcePackagePublishingHistory(object):
 		return self.component
 
 def rmadison(distro, package, release):
+	# Map 'sid' and 'squeeze' to their releasenames else rmadison gets a python
+	# traceback back from the remote script
+	releasenames = {
+		'sid': 'unstable',
+		'squeeze': 'testing', # Needs updating after each Debian release
+	}
+	release = releasenames.get(release, release)
+
 	rmadison_cmd = subprocess.Popen(
 		['rmadison', '-u', distro, '-a', 'source', '-s', release, package],
 		stdout = subprocess.PIPE)
