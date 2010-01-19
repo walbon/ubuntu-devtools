@@ -359,6 +359,10 @@ root-groups=root,sbuild,admin
 device=CHROOT_PATH
 mount-options=-o noatime
 lvm-snapshot-options=--size SNAPSHOT_SIZE
+# Uncomment these lines to allow "sbuild" and "admin" users to access
+# the -source chroots directly (useful for automated updates, etc).
+#source-root-users=root,sbuild,admin
+#source-root-groups=root,sbuild,admin
 EOM
 fi
 if [ ! -z "$personality" ]; then
