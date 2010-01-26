@@ -169,3 +169,4 @@ if __name__ == '__main__':
 			print >> sys.stderr, "E: '%s' is not a valid bug number." % args[0]
 		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
 	main(bug_number, package, version, update, verbose, silent)
+
