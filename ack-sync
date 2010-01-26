@@ -51,7 +51,7 @@ def get_source(package, version, section):
 	os.chdir(workdir)
 	
 	if package.startswith("lib"):
-		group = package[0-3]
+		group = package[0:3]
 	else:
 		group = package[0]
 
