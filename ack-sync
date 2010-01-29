@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import sys
+import logging
 
 from ubuntutools.lp.libsupport import get_launchpad
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
@@ -41,6 +42,11 @@ def strip_epoch(version):
 		del parts[0]
 	version = ':'.join(parts)
 	return version
+
+def LogCall(command):
+    command = map(str, command)
+    logging.info("Running %s", " ".join(command))
+    return command
 
 def get_source(package, version, section):
 	assert section in ("main", "contrib", "non-free")
@@ -65,7 +71,10 @@ def build_source(dsc_file):
 	# TODO: use release-info (once available)
 	dist = "lucid"
 	try:
-		subprocess.check_call(["sudo", "env", "DIST=" + dist, "pbuilder", "build", dsc_file])
+		if sbuild:
+			subprocess.check_call(LogCall(["sbuild", "-c", dist,"-A", dsc_file]))
+		else:
+			subprocess.check_call(LogCall(["sudo", "env", "DIST=" + dist, "pbuilder", "build", dsc_file]))
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
 		sys.exit(1)
@@ -87,7 +96,10 @@ def main(bug_number, package, version, update, verbose=False, silent=False):
 	
 	# update pbuilder
 	if update:
-		subprocess.call(["sudo", "env", "DIST=lucid", "pbuilder", "update"])
+		if sbuild:
+			subprocess.call(LogCall(["sbuild-update", dist]))
+		else:
+			subprocess.call(LogCall(["sudo", "env", "DIST=lucid", "pbuilder", "update"]))
 	
 	build_source(dsc_file)
 	
@@ -121,14 +133,15 @@ def usage():
   -h, --help                displays this help
   -p, --package=<package>   set the package
   -s, --silent              be more silent
+  -S, --with_sbuild         use sbuild instead of pbuilder
   -u, --update              updates pbuilder before building
   -v, --verbose             be more verbosive
   -V, --version=<version>   set the version"""
 
 if __name__ == '__main__':
 	try:
-		long_opts = ["help", "package", "silent", "update", "verbose", "version"]
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:suvV:", long_opts)
+		long_opts = ["help", "package", "silent", "update", "verbose", "version", "with_sbuild"]
+		opts, args = getopt.getopt(sys.argv[1:], "hp:sSuvV:", long_opts)
 	except getopt.GetoptError, e:
 		# print help information and exit:
 		print >> sys.stderr, str(e) # will print something like "option -a not recognized"
@@ -139,6 +152,7 @@ if __name__ == '__main__':
 	update = False
 	verbose = False
 	version = None
+	sbuild = False
 
 	for o, a in opts:
 		if o in ("-h", "--help"):
@@ -154,6 +168,8 @@ if __name__ == '__main__':
 			verbose = True
 		elif o in ("-V", "--version"):
 			version = a
+		elif o in ("-S", "--with_sbuild"):
+			sbuild = True
 		else:
 			assert False, "unhandled option"
 
