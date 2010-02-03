@@ -314,7 +314,7 @@ def main():
 	if requested_arch:
 		if requested_arch in ('i386', 'amd64') and app.system_architecture == 'amd64':
 			app.build_architecture = requested_arch
-		else if requested_arch == 'armel' and app.system_architecture in ('i386', 'amd64'):
+		elif requested_arch == 'armel' and app.system_architecture in ('i386', 'amd64'):
 			app.build_architecture = requested_arch
 			args.append('--debootstrap=build-arm-chroot')
 		else:
