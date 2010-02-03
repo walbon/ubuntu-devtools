@@ -8,6 +8,7 @@ ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
   * mk-sbuild-lv: support foreign armel schroots
   * mk-sbuild-lv: use --arch=foo rather than --arch foo for debootstrap
   * pbuilder-dist: Allow architecture-switching to armel on i386/amd64
+  * pbuilder-dist: use --arch=foo rather than --arch foo for debootstrap
   * docs/pbuilder-dist.1: Document architecture-switching for armel
   * debian/control: add qemu-arm-static to Recommends:
 

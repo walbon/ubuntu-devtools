@@ -227,8 +227,7 @@ class pbuilder_dist:
 		arguments.append('--components "%s"' % components)
 		
 		if self.build_architecture != self.system_architecture:
-			arguments.append('--debootstrapopts --arch')
-			arguments.append('--debootstrapopts "%(build_architecture)s"' % self)
+			arguments.append('--debootstrapopts --arch="%(build_architecture)s"' % self)
 		
 		apt_conf_dir = os.path.join(self.base, 'etc/%(target_distro)s/apt.conf' % self)
 		if os.path.exists(apt_conf_dir):
