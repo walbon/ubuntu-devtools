@@ -139,7 +139,7 @@ while :; do
             ;;
         --arch)
             # By default, use the native architecture.
-            arch_opt="--arch $2"
+            arch_opt="--arch=$2"
             arch_suffix="-$2"
             CHROOT_ARCH="$2"
             if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
