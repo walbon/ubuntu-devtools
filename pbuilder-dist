@@ -316,7 +316,7 @@ def main():
 			app.build_architecture = requested_arch
 		elif requested_arch == 'armel' and app.system_architecture in ('i386', 'amd64'):
 			app.build_architecture = requested_arch
-			args.append('--debootstrap=build-arm-chroot')
+			args.append('--debootstrap build-arm-chroot')
 		else:
 			print 'Error: Architecture switching is not supported on your system; wrong filename.'
 			sys.exit(1)
