@@ -199,7 +199,6 @@ class pbuilder_dist:
 			'--distribution "%(target_distro)s"' % self,
 			'--buildresult "%s"' % result,
 			'--aptcache "/var/cache/apt/archives/"',
-			### --mirror "${ARCHIVE}" \
 			'--override-config',
 			]
 
