@@ -314,6 +314,8 @@ def main():
 	if requested_arch:
 		if requested_arch in ('i386', 'amd64') and app.system_architecture == 'amd64':
 			app.build_architecture = requested_arch
+		else if requested_arch == 'armel' and app.system_architecture in ('i386', 'amd64'):
+			app.build_architecture = requested_arch
 		else:
 			print 'Error: Architecture switching is not supported on your system; wrong filename.'
 			sys.exit(1)
