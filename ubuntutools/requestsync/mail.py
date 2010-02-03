@@ -25,8 +25,8 @@ import subprocess
 import smtplib
 import socket
 from debian_bundle.changelog import Version
-from .common import raw_input_exit_on_ctrlc
-from ..lp.udtexceptions import PackageNotFoundException
+from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
 __all__ = [
 	'getDebianSrcPkg',

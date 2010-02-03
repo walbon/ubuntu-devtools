@@ -20,10 +20,10 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
-from .common import raw_input_exit_on_ctrlc
-from ..lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
-from ..lp.udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExistException, ArchiveNotFoundException
-from ..lp.libsupport import translate_api_web
+from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+from ubuntutools.lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
+from ubuntutools.lp.udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExistException, ArchiveNotFoundException
+from ubuntutools.lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
 	debian = Distribution('debian')
