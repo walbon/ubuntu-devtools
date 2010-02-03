@@ -204,8 +204,9 @@ CHROOT_LV="${name}_chroot${arch_suffix}"
 CHROOT_PATH="/dev/$VG/$CHROOT_LV"
 CHROOT_NAME="${name}${arch_suffix}"
 
+HOST_ARCH=$(dpkg --print-architecture)
 if [ -z "$CHROOT_ARCH" ]; then
-    CHROOT_ARCH=$(dpkg --print-architecture)
+    CHROOT_ARCH=$HOST_ARCH
 fi
 
 # Load customizations
@@ -311,7 +312,19 @@ sudo mkfs -t ext4 "$CHROOT_PATH"
 # Mount and debootstrap the chroot
 MNT=`mktemp -d -t schroot-XXXXXX`
 sudo mount "$CHROOT_PATH" "$MNT"
-sudo debootstrap $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+
+DEBOOTSTRAP_COMMAND=debootstrap
+# Use qemu-arm-static / build-arm-chroot for foreign armel chroots
+if [ "$CHROOT_ARCH" = 'armel' ] && [ ! "$HOST_ARCH" = 'armel' ] ; then
+    if [ -f "/usr/bin/build-arm-chroot" ]; then
+      DEBOOTSTRAP_COMMAND=build-arm-chroot
+    else
+      echo Please install qemu-arm-static to use foreign armel chroots
+    fi
+fi
+
+sudo $DEBOOTSTRAP_COMMAND $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
 if [ -z "$TEMPLATE_SOURCES" ]; then

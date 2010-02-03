@@ -1,11 +1,12 @@
-ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
   * bash_completion/pbuilder-dist:
      - Enable tab-completion for pbuilder-lucid and cowbuilder-lucid.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Wed, 03 Feb 2010 12:35:56 +0100
-
-ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
+  [ Emmet Hikory ]
+  * mk-sbuild-lv: support foreign armel schroots
+  * debian/control: add qemu-arm-static to Recommends:
 
   [ Michael Bienia ]
   * ubuntutools/requestsync/mail.py:
@@ -17,7 +18,7 @@ ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
   * mk-sbuild-lv: adjust schroot.conf template to document the -source
     change further.
 
- -- Kees Cook <kees@ubuntu.com>  Mon, 18 Jan 2010 16:08:16 -0800
+ -- Emmet Hikory <persia@ubuntu.com>  Wed, 03 Feb 2010 11:39:12 -0800
 
 ubuntu-dev-tools (0.91) lucid; urgency=low
 
