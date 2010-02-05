@@ -44,9 +44,9 @@ def strip_epoch(version):
 	return version
 
 def LogCall(command):
-    command = map(str, command)
-    logging.info("Running %s", " ".join(command))
-    return command
+	command = map(str, command)
+	logging.info("Running %s", " ".join(command))
+	return command
 
 def get_source(package, version, section):
 	assert section in ("main", "contrib", "non-free")
