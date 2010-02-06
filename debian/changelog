@@ -1,6 +1,11 @@
 ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
+  [ Emmet Hikory ]
   * Support qemu-arm-static -> qemu-kvm-extras-static transition
+
+  [ Loïc Minier ]
+  * Demote qemu-kvm-extras-static to a Suggests since most people don't build
+    for armel.
 
  -- Emmet Hikory <persia@ubuntu.com>  Fri, 05 Feb 2010 16:45:26 -0800
 
