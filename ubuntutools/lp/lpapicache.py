@@ -3,7 +3,7 @@
 #   lpapicache.py - wrapper classes around the LP API implementing caching
 #                   for usage in the ubuntu-dev-tools package
 #
-#   Copyright © 2009 Michael Bienia <geser@ubuntu.com>
+#   Copyright © 2009-2010 Michael Bienia <geser@ubuntu.com>
 #
 #   This program is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU General Public License
@@ -25,10 +25,14 @@
 #httplib2.debuglevel = 1
 
 import sys
-import libsupport
+
 from launchpadlib.errors import HTTPError
+from launchpadlib.uris import lookup_service_root
 from lazr.restfulclient.resource import Entry
-from udtexceptions import *
+
+import ubuntutools.lp.libsupport as libsupport
+from ubuntutools.lp import service
+from ubuntutools.lp.udtexceptions import *
 
 class Launchpad(object):
 	''' Singleton for LP API access. '''
@@ -125,7 +129,7 @@ class Distribution(BaseWrapper):
 	'''
 	Wrapper class around a LP distribution object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
+	resource_type = lookup_service_root(service) + '#distribution'
 
 	def __init__(self, *args):
 		# Don't share _series and _archives between different Distributions
@@ -207,14 +211,14 @@ class DistroSeries(BaseWrapper):
 	'''
 	Wrapper class around a LP distro series object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distro_series'
+	resource_type = lookup_service_root(service) + '#distro_series'
 
 
 class Archive(BaseWrapper):
 	'''
 	Wrapper class around a LP archive object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#archive'
+	resource_type = lookup_service_root(service) + '#archive'
 
 	def __init__(self, *args):
 		# Don't share _srcpkgs between different Archives
@@ -275,7 +279,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
+	resource_type = lookup_service_root(service) + '#source_package_publishing_history'
 
 	def __init__(self, *args):
 		# Don't share _builds between different SourcePackagePublishingHistory objects
@@ -356,7 +360,7 @@ class PersonTeam(BaseWrapper):
 	'''
 	Wrapper class around a LP person or team object.
 	'''
-	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
+	resource_type = (lookup_service_root(service) + '#person', lookup_service_root(service) + '#team')
 
 	_me = None # the PersonTeam object of the currently authenticated LP user
 
@@ -459,7 +463,7 @@ class Build(BaseWrapper):
 	'''
 	Wrapper class around a build object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#build'
+	resource_type = lookup_service_root(service) + '#build'
 
 	def __str__(self):
 		return u'%s: %s' % (self.arch_tag, self.buildstate)
@@ -481,4 +485,4 @@ class DistributionSourcePackage(BaseWrapper):
 	'''
 	Caching class for distribution_source_package objects.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distribution_source_package'
+	resource_type = lookup_service_root(service) + '#distribution_source_package'
