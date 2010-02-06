@@ -17,7 +17,7 @@ Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
  dpkg-dev, python-apt (>= 0.7.9), python-lazr.restfulclient
 Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
  ca-certificates, debootstrap, genisoimage, perl-modules, libwww-perl,
- libapt-pkg-perl, qemu-arm-static
+ libapt-pkg-perl, qemu-kvm-extras-static
 Conflicts: devscripts (<< 2.10.7ubuntu5)
 Replaces: devscripts (<< 2.10.7ubuntu5)
 Description: useful tools for Ubuntu developers
