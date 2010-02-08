@@ -7,7 +7,10 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * Demote qemu-kvm-extras-static to a Suggests since most people don't build
     for armel.
 
- -- Emmet Hikory <persia@ubuntu.com>  Fri, 05 Feb 2010 16:45:26 -0800
+  [ Kees Cook ]
+  * requestsync: add -C to allow manually adding changelog when missing.
+
+ -- Kees Cook <kees@ubuntu.com>  Mon, 08 Feb 2010 10:12:23 -0800
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
