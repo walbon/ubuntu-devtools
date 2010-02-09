@@ -8,7 +8,8 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * mk-sbuild: automatically install qemu-kvm-extras-static if requested
   * mk-sbuild: conditionally install lvm2 only for lv-snapshot schroots
   * mk-sbuild: rationalise architecture variables
-  * mk-sbuild: Generalise --type support and add "file"|"tarball" type
+  * mk-sbuild: Generalise --type support and add "file" SCHROOT_TYPE
+  * mk-sbuild.1: Document the --type argument
 
   [ Loïc Minier ]
   * Demote qemu-kvm-extras-static to a Suggests since most people don't build
@@ -21,7 +22,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * mk-sbuild.1: update documentation to reflect alternative config file
     names for distro and schroot type overrides.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 09 Feb 2010 00:14:26 -0800
+ -- Emmet Hikory <persia@ubuntu.com>  Tue, 09 Feb 2010 22:08:56 +0900
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
