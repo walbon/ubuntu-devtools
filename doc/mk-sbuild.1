@@ -1,4 +1,4 @@
-.TH MK\-SBUILD "1" "08 February 2010" "ubuntu-dev-tools"
+.TH MK\-SBUILD "1" "09 February 2010" "ubuntu-dev-tools"
 
 .SH NAME
 mk\-sbuild \- creates chroots via schroot and sbuild
@@ -40,8 +40,9 @@ official Ubuntu repositories for the supported architectures).
 Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
 and "debian".
 .TP
-.B \-\-volume-group
-Specify a volume group, and subsequently use lvm-snapshot rather than aufs mounts.
+.B \-\-vg
+Specify a volume group, and subsequently use SCHROOT_TYPE of "lvm-snapshot"
+rather than "directory" (via aufs) mounts.
 
 .SH ENVIRONMENT VARIABLES
 .TP
@@ -58,25 +59,30 @@ Lines to append to schroot entries.
 Do not include the \-updates pocket in the installed sources.list.
 .TP
 .B SOURCE_CHROOTS_DIR
-use SOURCE_CHROOTS_DIR as home of schroot source directories. (default /srv/chroots)
+use SOURCE_CHROOTS_DIR as home of schroot source directories. (default
+/var/lib/schroot/chroots)
 
 .SH FILES
 .TP
 .B $HOME/.mk\-sbuild.rc
 Sourced for environment variables (defined above).
 .TP
-.B $HOME/.mk\-sbuild.sources
+.B $HOME/.mk\-sbuild.sources[.$DISTRO]
 Can contain a customized sources.list.
 It will be read when creating the schroot.
+If a file with ".ubuntu" or ".debian" is found (based on the \-\-distro
+argument) that file will use used instead.
 See sources.list(5) for more details on the format.
 .TP
-.B $HOME/.mk\-sbuild.schroot.conf
+.B $HOME/.mk\-sbuild.schroot.conf[.$SCHROOT_TYPE]
 Can contain a customized configuration section to be inserted into
 /etc/schroot/schroot.conf.
+If a file with ".lvm-snapshot" or ".directory" is found (based on the presence
+of the \-\-vg argument) that file will use used instead.
 See schroot.conf(5) for more details on the format.
 .SH USING THE CHROOTS
 .TP
-To CHANGE the golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root\fR
+To CHANGE the golden image: \fBsudo schroot \-c ${CHROOT_NAME}\-source \-u root\fR
 .TP
 To ENTER an image snapshot: \fBschroot \-c ${CHROOT_NAME}\fR
 .TP
