@@ -41,8 +41,12 @@ Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
 and "debian".
 .TP
 .B \-\-vg
-Specify a volume group, and subsequently use SCHROOT_TYPE of "lvm-snapshot"
-rather than "directory" (via aufs) mounts.
+Specify a volume group, and subsequently use a default SCHROOT_TYPE of
+"lvm-snapshot" rather than "directory" (via aufs) mounts.
+.TP
+.B \-\-type
+Specify a SCHROOT_TYPE.  Supported values are "directory" (default if
+\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified), and "file".
 
 .SH ENVIRONMENT VARIABLES
 .TP
@@ -61,6 +65,10 @@ Do not include the \-updates pocket in the installed sources.list.
 .B SOURCE_CHROOTS_DIR
 use SOURCE_CHROOTS_DIR as home of schroot source directories. (default
 /var/lib/schroot/chroots)
+.TP
+.B SOURCE_CHROOTS_TGZ
+use SOURCE_CHROOTS_TGZ as home of schroot source tarballs. (default
+/var/lib/schroot/tarballs)
 
 .SH FILES
 .TP
@@ -77,8 +85,8 @@ See sources.list(5) for more details on the format.
 .B $HOME/.mk\-sbuild.schroot.conf[.$SCHROOT_TYPE]
 Can contain a customized configuration section to be inserted into
 /etc/schroot/schroot.conf.
-If a file with ".lvm-snapshot" or ".directory" is found (based on the presence
-of the \-\-vg argument) that file will use used instead.
+If a file with ".lvm-snapshot", ".directory", or ".file" is found (based on the
+values of the \-\-vg and \-\-type arguments) that file will use used instead.
 See schroot.conf(5) for more details on the format.
 .SH USING THE CHROOTS
 .TP
