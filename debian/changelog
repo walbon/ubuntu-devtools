@@ -1,5 +1,8 @@
 ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
+  [ Scott Moser ]
+  * rename mk-sbuild-lv to mk-sbuild, support union-type=aufs
+
   [ Emmet Hikory ]
   * Support qemu-arm-static -> qemu-kvm-extras-static transition
 
@@ -10,8 +13,11 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   [ Kees Cook ]
   * requestsync: add -C to allow manually adding changelog when missing
     (LP: #518574).
+  * mk-sbuild: clean up and make slight adjustments to new lvm/aufs logic.
+  * mk-sbuild.1: update documentation to reflect alternative config file
+    names for distro and schroot type overrides.
 
- -- Kees Cook <kees@ubuntu.com>  Mon, 08 Feb 2010 10:12:23 -0800
+ -- Kees Cook <kees@ubuntu.com>  Tue, 09 Feb 2010 00:14:26 -0800
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
