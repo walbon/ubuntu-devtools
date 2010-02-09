@@ -22,6 +22,8 @@ import re
 import subprocess
 import sys
 import logging
+import glob
+import fnmatch
 
 from ubuntutools.lp.libsupport import get_launchpad
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
@@ -82,22 +84,40 @@ def build_source(dsc_file):
 def test_install(dsc_file):
 	# TODO: use release-info (once available)
 	dist = "lucid"
-	# TODO: add piuparts pbuilder support
-	changes_file=os.path.splitext(dsc_file)[0]+"_i386.changes"
+	changes_files=glob.glob(os.path.splitext(dsc_file)[0]+"_*.changes")
+	changes_file = ""
 
-	if not (os.path.isfile(changes_file)): # if the _i386.changes file doe not exists, try with amd64
-		changes_file=os.path.splitext(dsc_file)[0]+"_amd64.changes"
+	for temp_file in changes_files:
+		if not fnmatch.fnmatch(temp_file, '*_source.changes'):
+			changes_file = temp_file
 
 	if not (os.path.isfile(changes_file)): # if no file exists at all => exit
 		print >> sys.stderr, "E: No .changes file has been generated."
 		sys.exit(1)
-	if sbuild:
-		try:
-			subprocess.check_call(LogCall(["sudo", "piuparts", "--lvm-volume="+lvm+"/"+dist+"_chroot", "-N", "-W", "--single-changes-list", "--log-level=info", "--ignore=/var/log/apt/history.log", "--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", changes_file]))
-		except subprocess.CalledProcessError:
-			print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
-	else:
-		print >> sys.stderr, "W: piuparts only work with sbuild ATM"
+
+	try:
+		if sbuild:
+			subprocess.check_call(LogCall(["sudo", "piuparts", 
+						"--lvm-volume="+lvm+"/"+dist+"_chroot",
+						"-N",
+						"-W", 
+						"--single-changes-list",
+						"--log-level=info", 
+						"--ignore=/var/log/apt/history.log", 
+						"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", 
+						changes_file]))
+		else:
+			subprocess.check_call(LogCall(["sudo", "piuparts", 
+						"--pbuilder",
+						"-N",
+						"-W", 
+						"--single-changes-list",
+						"--log-level=info", 
+						"--ignore=/var/log/apt/history.log", 
+						"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", 
+						changes_file]))
+	except subprocess.CalledProcessError:
+		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
 def main(bug_number, package, version, section, update, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
@@ -137,8 +157,8 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 	print "uus unsubscribed"
 	task.transitionToAssignee(assignee=None)
 	print "unassigned me"
-	task.transitionToStatus (status="Confirmed")
-	print "status set to Confirmed"
+	task.transitionToStatus (status="Triaged")
+	print "status set to Triaged"
 	if task.importance == "Undecided":
 		task.transitionToImportance(importance="Wishlist")
 		print "importance set to Wishlist"
