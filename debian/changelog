@@ -8,6 +8,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * mk-sbuild: automatically install qemu-kvm-extras-static if requested
   * mk-sbuild: conditionally install lvm2 only for lv-snapshot schroots
   * mk-sbuild: rationalise architecture variables
+  * mk-sbuild: Generalise --type support and add "file"|"tarball" type
 
   [ Loïc Minier ]
   * Demote qemu-kvm-extras-static to a Suggests since most people don't build
