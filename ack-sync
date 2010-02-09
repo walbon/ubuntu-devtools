@@ -80,6 +80,8 @@ def build_source(dsc_file):
 		sys.exit(1)
 
 def test_install(dsc_file):
+	# TODO: use release-info (once available)
+	dist = "lucid"
 	# TODO: add piuparts pbuilder support
 	changes_file=os.path.splitext(dsc_file)[0]+"_i386.changes"
 
@@ -91,7 +93,7 @@ def test_install(dsc_file):
 		sys.exit(1)
 	if sbuild:
 		try:
-			subprocess.check_call(LogCall(["sudo", "piuparts", "--lvm-volume="+lvm, "-N", "-W", "--single-changes-list", "--log-level=info", "--ignore=/var/log/apt/history.log", "--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", changes_file]))
+			subprocess.check_call(LogCall(["sudo", "piuparts", "--lvm-volume="+lvm+"/"+dist+"_chroot", "-N", "-W", "--single-changes-list", "--log-level=info", "--ignore=/var/log/apt/history.log", "--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", changes_file]))
 		except subprocess.CalledProcessError:
 			print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 	else:
@@ -155,7 +157,7 @@ def usage():
 	print """ack-sync <bug numbers>
 
   -h, --help                displays this help
-  -l, --lvm                 lvm partition to use for sbuild and piuparts
+  -l, --lvm                 lvm root dev directory, used for sbuild and piuparts. Default is /dev/vg
   -p, --package=<package>   set the package
   -P, --with_piuparts       use piuparts to check the instalability of the package
       --section=<section>   Debian section (one of main, contrib, non-free)
@@ -168,7 +170,7 @@ def usage():
 if __name__ == '__main__':
 	try:
 		long_opts = ["help", "package=", "section=", "silent", "update",
-				"verbose", "version=", "with_sbuild", "with_piuparts", "lvm"]
+				"verbose", "version=", "with_sbuild", "with_piuparts", "lvm="]
 		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:sSuvV:", long_opts)
 	except getopt.GetoptError, e:
 		# print help information and exit:
@@ -183,7 +185,7 @@ if __name__ == '__main__':
 	verbose = False
 	version = None
 	piuparts = False
-	lvm = None
+	lvm = "/dev/vg"
 
 	for o, a in opts:
 		if o in ("-h", "--help"):
