@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 #
 # Copyright 2006-2009 (C) Canonical Ltd.
 # Author: Kees Cook <kees@ubuntu.com>
@@ -36,10 +36,10 @@ if [ -w /etc/passwd ]; then
     exit 1
 fi
 
-# Perform once-only things to initially set up for using sbuild+schroot+lvm
+# Perform once-only things to initially set up for using sbuild+schroot
 if [ ! -w /var/lib/sbuild ]; then
     # Load all the packages you'll need to do work
-    sudo apt-get install sbuild schroot debootstrap lvm2
+    sudo apt-get install sbuild schroot debootstrap
     # Add self to the sbuild group
     sudo adduser "$USER" sbuild
 
@@ -340,6 +340,9 @@ fi
 
 case "$SRC_TYPE" in
 "lvm")
+    # Install lvm2 if missing
+    dpkg -l lvm2 > /dev/null || sudo apt-get install lvm2
+
     # Allocate the "golden" chroot LV
     sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
     sudo mkfs -t ext4 "$CHROOT_PATH"

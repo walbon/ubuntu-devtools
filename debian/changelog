@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
   [ Emmet Hikory ]
   * Support qemu-arm-static -> qemu-kvm-extras-static transition
+  * mk-sbuild: conditionally install lvm2 only for lv-snapshot schroots
 
   [ Loïc Minier ]
   * Demote qemu-kvm-extras-static to a Suggests since most people don't build
@@ -14,7 +15,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * requestsync: add -C to allow manually adding changelog when missing
     (LP: #518574).
 
- -- Kees Cook <kees@ubuntu.com>  Mon, 08 Feb 2010 10:12:23 -0800
+ -- Emmet Hikory <persia@ubuntu.com>  Tue, 09 Feb 2010 11:32:02 +0900
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
