@@ -245,6 +245,11 @@ case "$SCHROOT_TYPE" in
     CHROOT_LV="${name}_${CHROOT_ARCH}_chroot"
     CHROOT_PATH="/dev/$VG/$CHROOT_LV"
 
+    # Install lvm2 if missing
+    if ! dpkg -l lvm2 >/dev/null 2>&1; then
+        sudo apt-get install lvm2
+    fi
+
     # Does the specified VG exist?  (vgdisplay doesn't set error codes...)
     if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
         echo "Volume group '${VG}' does not appear to exist" >&2
@@ -367,11 +372,6 @@ fi
 
 case "$SCHROOT_TYPE" in
 "lvm-snapshot")
-    # Install lvm2 if missing
-    if ! dpkg -l lvm2 >/dev/null 2>&1; then
-        sudo apt-get install lvm2
-    fi
-
     # Allocate the "golden" chroot LV
     sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
     sudo mkfs -t ext4 "$CHROOT_PATH"
