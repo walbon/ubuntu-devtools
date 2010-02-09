@@ -327,13 +327,12 @@ debian)
 esac
 
 DEBOOTSTRAP_COMMAND=debootstrap
-# Use qemu-arm-static / build-arm-chroot for foreign armel chroots
+# Use qemu-kvm-extras-static / build-arm-chroot for foreign armel chroots
 if [ "$CHROOT_ARCH" = 'armel' ] && [ ! "$HOST_ARCH" = 'armel' ] ; then
-    if [ -f "/usr/bin/build-arm-chroot" ]; then
-      DEBOOTSTRAP_COMMAND=build-arm-chroot
-    else
-      echo Please install qemu-arm-static to use foreign armel chroots
+    if [ ! -f "/usr/bin/build-arm-chroot" ]; then
+        sudo apt-get install qemu-kvm-extras-static
     fi
+    DEBOOTSTRAP_COMMAND=build-arm-chroot
 fi
 
 case "$SRC_TYPE" in

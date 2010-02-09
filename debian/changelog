@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
   [ Emmet Hikory ]
   * Support qemu-arm-static -> qemu-kvm-extras-static transition
+  * mk-sbuild: automatically install qemu-kvm-extras-static if requested
   * mk-sbuild: conditionally install lvm2 only for lv-snapshot schroots
   * mk-sbuild: rationalise architecture variables
 
