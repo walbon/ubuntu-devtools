@@ -79,6 +79,24 @@ def build_source(dsc_file):
 		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
 		sys.exit(1)
 
+def test_install(dsc_file):
+	# TODO: add piuparts pbuilder support
+	changes_file=os.path.splitext(dsc_file)[0]+"_i386.changes"
+
+	if not (os.path.isfile(changes_file)): # if the _i386.changes file doe not exists, try with amd64
+		changes_file=os.path.splitext(dsc_file)[0]+"_amd64.changes"
+
+	if not (os.path.isfile(changes_file)): # if no file exists at all => exit
+		print >> sys.stderr, "E: No .changes file has been generated."
+		sys.exit(1)
+	if sbuild:
+		try:
+			subprocess.check_call(LogCall(["sudo", "piuparts", "--lvm-volume="+lvm, "-N", "-W", "--single-changes-list", "--log-level=info", "--ignore=/var/log/apt/history.log", "--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", changes_file]))
+		except subprocess.CalledProcessError:
+			print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
+	else:
+		print >> sys.stderr, "W: piuparts only work with sbuild ATM"
+
 def main(bug_number, package, version, section, update, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
 
@@ -103,6 +121,9 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 	
 	build_source(dsc_file)
 	
+	if piuparts:
+		test_install(dsc_file)
+
 	print bug.title
 	print task.assignee
 	print task.status
@@ -119,7 +140,10 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 	if task.importance == "Undecided":
 		task.transitionToImportance(importance="Wishlist")
 		print "importance set to Wishlist"
-	bug.newMessage(content="package builds, sync request ACK'd")
+	if piuparts:	
+		bug.newMessage(content="package builds and installs, sync request ACK'd")
+	else:
+		bug.newMessage(content="package builds, sync request ACK'd")
 	print "Ack comment added"
 	aa = people['ubuntu-archive']
 	bug.subscribe(person=aa)
@@ -131,7 +155,9 @@ def usage():
 	print """ack-sync <bug numbers>
 
   -h, --help                displays this help
+  -l, --lvm                 lvm partition to use for sbuild and piuparts
   -p, --package=<package>   set the package
+  -P, --with_piuparts       use piuparts to check the instalability of the package
       --section=<section>   Debian section (one of main, contrib, non-free)
   -s, --silent              be more silent
   -S, --with_sbuild         use sbuild instead of pbuilder
@@ -142,7 +168,7 @@ def usage():
 if __name__ == '__main__':
 	try:
 		long_opts = ["help", "package=", "section=", "silent", "update",
-				"verbose", "version=", "with_sbuild"]
+				"verbose", "version=", "with_sbuild", "with_piuparts", "lvm"]
 		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:sSuvV:", long_opts)
 	except getopt.GetoptError, e:
 		# print help information and exit:
@@ -156,13 +182,19 @@ if __name__ == '__main__':
 	update = False
 	verbose = False
 	version = None
+	piuparts = False
+	lvm = None
 
 	for o, a in opts:
 		if o in ("-h", "--help"):
 			usage()
 			sys.exit()
+		elif o in ("-l", "--lvm"):
+			lvm = a
 		elif o in ("-p", "--package"):
 			package = a
+		elif o in ("-P", "--with_piuparts"):
+			piuparts = True
 		elif o in ("--section"):
 			section = a
 		elif o in ("-s", "--silent"):
