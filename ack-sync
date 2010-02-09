@@ -177,21 +177,22 @@ def usage():
 	print """ack-sync <bug numbers>
 
   -h, --help                displays this help
-  -l, --lvm                 lvm root dev directory, used for sbuild and piuparts. Default is /dev/vg
+  -l, --lvm                 lvm root dev directory, used for sbuild and piuparts
+                            default is /dev/vg
   -p, --package=<package>   set the package
-  -P, --with_piuparts       use piuparts to check the instalability of the package
+  -P, --with-piuparts       use piuparts to check the instalability
       --section=<section>   Debian section (one of main, contrib, non-free)
   -s, --silent              be more silent
-  -S, --with_sbuild         use sbuild instead of pbuilder
+  -S, --with-sbuild         use sbuild instead of pbuilder
   -u, --update              updates pbuilder before building
   -v, --verbose             be more verbosive
   -V, --version=<version>   set the version"""
 
 if __name__ == '__main__':
 	try:
-		long_opts = ["help", "package=", "section=", "silent", "update",
-				"verbose", "version=", "with_sbuild", "with_piuparts", "lvm="]
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:sSuvV:", long_opts)
+		long_opts = ["help", "lvm=", "package=", "section=", "silent", "update",
+				"verbose", "version=", "with-sbuild", "with-piuparts"]
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:PsSuvV:", long_opts)
 	except getopt.GetoptError, e:
 		# print help information and exit:
 		print >> sys.stderr, str(e) # will print something like "option -a not recognized"
@@ -215,13 +216,13 @@ if __name__ == '__main__':
 			lvm = a
 		elif o in ("-p", "--package"):
 			package = a
-		elif o in ("-P", "--with_piuparts"):
+		elif o in ("-P", "--with-piuparts"):
 			piuparts = True
 		elif o in ("--section"):
 			section = a
 		elif o in ("-s", "--silent"):
 			silent = True
-		elif o in ("-S", "--with_sbuild"):
+		elif o in ("-S", "--with-sbuild"):
 			sbuild = True
 		elif o in ("-u", "--update"):
 			update = True
