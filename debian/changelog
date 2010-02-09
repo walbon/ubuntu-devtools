@@ -1,5 +1,8 @@
 ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
+  [ Scott Moser ]
+  * rename mk-sbuild-lv to mk-sbuild, support union-type=aufs
+
   [ Emmet Hikory ]
   * Support qemu-arm-static -> qemu-kvm-extras-static transition
 
