@@ -124,6 +124,11 @@ class BaseWrapper(object):
 	def __getattr__(self, attr):
 		return getattr(self._lpobject, attr)
 
+        def __repr__(self):
+            if hasattr(str, 'format'):
+                return '<{0}: {1!r}>'.format(self.__class__.__name__, self._lpobject)
+            else:
+                return '<%s: %r>' % (self.__class__.__name__, self._lpobject)
 
 class Distribution(BaseWrapper):
 	'''
