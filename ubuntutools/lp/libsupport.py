@@ -28,7 +28,7 @@ import httplib2
 
 try:
     from launchpadlib.credentials import Credentials
-    from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT
+    from launchpadlib.launchpad import Launchpad
     from launchpadlib.errors import HTTPError
 except ImportError:
     print "Unable to import launchpadlib module, is python-launchpadlib installed?"
@@ -36,6 +36,8 @@ except ImportError:
 except:
     Credentials = None
     Launchpad = None
+
+from ubuntutools.lp import service
 
 def find_credentials(consumer, files, level=None):
     """ search for credentials matching 'consumer' in path for given access level. """
@@ -73,7 +75,7 @@ def get_credentials(consumer, cred_file=None, level=None):
 
     return find_credentials(consumer, files, level)
     
-def get_launchpad(consumer, server=EDGE_SERVICE_ROOT, cache=None,
+def get_launchpad(consumer, server=service, cache=None,
                   cred_file=None, level=None):
     credentials = get_credentials(consumer, cred_file, level)
     cache = cache or os.environ.get("LPCACHE", None)
@@ -140,14 +142,3 @@ def approve_application(credentials, email, password, level, web_root,
             raise HTTPError(response, content)
     credentials.exchange_request_token_for_access_token(web_root)
     return credentials
-    
-def translate_service(service):
-    _service = service.lower()
-    if _service in (STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT):
-        return _service
-    elif _service == "edge":
-        return EDGE_SERVICE_ROOT
-    elif _service == "staging":
-        return STAGING_SERVICE_ROOT
-    else:
-        raise ValueError("unknown service '%s'" %service)
