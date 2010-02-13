@@ -1,0 +1,213 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2007, Canonical Ltd.
+# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+#
+# fakesync is based on ack-sync, which was initial written by Daniel Holbach.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-3 for more details.
+
+import getopt
+import os
+import re
+import subprocess
+import sys
+
+from ubuntutools.lp.libsupport import get_launchpad
+from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+
+COMMAND_LINE_SYNTAX_ERROR = 1
+VERSION_DETECTION_FAILED = 2
+
+def get_version(title):
+	m = re.search("[() ][0-9][0-9a-zA-Z.:+-]*", title)
+	if m is None:
+		print >> sys.stderr, "Version could not be detected. Please specify it with -V."
+		sys.exit(VERSION_DETECTION_FAILED)
+	return m.group(0).strip("() ")
+
+def strip_epoch(version):
+	parts = version.split(':')
+	if len(parts) > 1:
+		del parts[0]
+	version = ':'.join(parts)
+	return version
+
+def extract_upstream_version(debian_version):
+	# remove last part separated by a dash (1.0-2 -> 1.0)
+	parts = debian_version.split('-')
+	if len(parts) > 1:
+		del parts[-1]
+	upstream_version = '-'.join(parts)
+
+	# remove epoch
+	parts = upstream_version.split(':')
+	if len(parts) > 1:
+		del parts[0]
+	upstream_version = ':'.join(parts)
+
+	return upstream_version
+
+def get_source(package, version, section, bug_number):
+	assert section in ("main", "contrib", "non-free")
+
+	# TODO: use release-info (once available)
+	dist = "lucid"
+
+	workdir = "/tmp/fakesync"
+	if not os.path.isdir(workdir):
+		os.makedirs(workdir)
+	os.chdir(workdir)
+	
+	if package.startswith("lib"):
+		group = package[0:4]
+	else:
+		group = package[0]
+
+	dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	location = os.path.join("http://ftp.debian.org/debian/pool", section, group, package, dsc_file)
+	#print "location:", location
+	subprocess.check_call(["dget", "-u", location])
+
+	# remove the Debian tarball
+	tarball_name = package + "_" + extract_upstream_version(version) + ".orig.tar.gz"
+	os.remove(tarball_name)
+
+	# get Ubuntu tarball
+	subprocess.check_call(["wget", "https://launchpad.net/ubuntu/+archive/primary/+files/" + tarball_name])
+	
+	# Update changelog
+	os.chdir(package + "-" + extract_upstream_version(version))
+	new_version = version + "fakesync1"
+	subprocess.check_call(["dch", "-v", new_version, "-D", dist, "--force-distribution", "Fake sync due to mismatching .orig.tar.gz (LP: #%i)." % (bug_number)])
+	# TODO: do we have to run update-maintainer
+	subprocess.check_call(["update-maintainer"])
+	subprocess.check_call(["debuild", "-S"])
+	os.chdir("..")
+
+	# Create Debian -> Ubuntu debdiff
+	new_dsc_file = package + "_" + strip_epoch(new_version) + ".dsc"
+	patch_file = package + "_" + strip_epoch(new_version) + ".patch"
+	output = subprocess.Popen(["debdiff", dsc_file, new_dsc_file], stdout=subprocess.PIPE).communicate()[0]
+	f = open(patch_file, "w")
+	f.write(output)
+	f.close()
+
+	return new_dsc_file
+
+def build_source(dsc_file):
+	# TODO: use release-info (once available)
+	dist = "lucid"
+	try:
+		subprocess.check_call(["sudo", "env", "DIST=" + dist, "pbuilder", "build", dsc_file])
+	except subprocess.CalledProcessError:
+		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
+		sys.exit(1)
+
+def main(bug_number, package, version, update, verbose=False, silent=False):
+	launchpad = get_launchpad("ubuntu-dev-tools")
+
+	bug = launchpad.bugs[bug_number]
+
+	task = list(bug.bug_tasks)[0]
+	
+	if package is None:
+		package = task.bug_target_name.split(" ")[0]
+	if version is None:
+		version = get_version(bug.title)
+	print "package:", package
+	print "version:", version
+	dsc_file = get_source(package, version, "main", bug_number)
+	
+	# update pbuilder
+	if update:
+		subprocess.call(["sudo", "env", "DIST=lucid", "pbuilder", "update"])
+	
+	build_source(dsc_file)
+	
+	print bug.title
+	print task.assignee
+	print task.status
+	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+
+	people = launchpad.people
+	uus = people['ubuntu-universe-sponsors']
+	bug.unsubscribe(person=uus)
+	print "uus unsubscribed"
+	task.transitionToAssignee(assignee=None)
+	print "unassigned me"
+	task.transitionToStatus (status="Fix Committed")
+	print "status set to Fix Committed"
+#	bug.newMessage(content="package builds, sync request ACK'd")
+#	print "Ack comment added"
+	bug.subscribe(person=launchpad.me)
+	print "subscribed me"
+
+	# Upload package
+	changes_file = dsc_file[:-4] + "_source.changes"
+	subprocess.check_call(["dput", changes_file])
+
+def usage():
+	print """ack-sync <bug numbers>
+
+  -h, --help                displays this help
+  -p, --package=<package>   set the package
+  -s, --silent              be more silent
+  -u, --update              updates pbuilder before building
+  -v, --verbose             be more verbosive
+  -V, --version=<version>   set the version"""
+
+if __name__ == '__main__':
+	try:
+		long_opts = ["help", "package", "silent", "update", "verbose", "version"]
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:suvV:", long_opts)
+	except getopt.GetoptError, e:
+		# print help information and exit:
+		print >> sys.stderr, str(e) # will print something like "option -a not recognized"
+		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+
+	package = None
+	silent = False
+	update = False
+	verbose = False
+	version = None
+
+	for o, a in opts:
+		if o in ("-h", "--help"):
+			usage()
+			sys.exit()
+		elif o in ("-p", "--package"):
+			package = a
+		elif o in ("-s", "--silent"):
+			silent = True
+		elif o in ("-u", "--update"):
+			update = True
+		elif o in ("-v", "--verbose"):
+			verbose = True
+		elif o in ("-V", "--version"):
+			version = a
+		else:
+			assert False, "unhandled option"
+
+	if len(args) != 1:
+		if not silent:
+			print >> sys.stderr, "E: You must specify bug number."
+		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+
+	try:
+		bug_number = int(args[0])
+	except:
+		if not silent:
+			print >> sys.stderr, "E: '%s' is not a valid bug number." % args[0]
+		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+	main(bug_number, package, version, update, verbose, silent)
+
