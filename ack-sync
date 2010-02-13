@@ -76,7 +76,9 @@ def build_source(dsc_file):
 		if sbuild:
 			subprocess.check_call(LogCall(["sbuild", "-c", dist,"-A", dsc_file]))
 		else:
-			subprocess.check_call(LogCall(["sudo", "env", "DIST=" + dist, "pbuilder", "build", dsc_file]))
+			cmd = ["sudo", "env", "DIST=" + dist, "pbuilder", "build",
+					"--buildresult", ".", dsc_file]
+			subprocess.check_call(LogCall(cmd))
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
 		sys.exit(1)
@@ -96,26 +98,14 @@ def test_install(dsc_file):
 		sys.exit(1)
 
 	try:
+		cmd = ["sudo", "piuparts", "-N", "-W", "--single-changes-list",
+				"--log-level=info", "--ignore=/var/log/apt/history.log",
+				"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse",
+				changes_file]
 		if sbuild:
-			subprocess.check_call(LogCall(["sudo", "piuparts", 
-						"--lvm-volume="+lvm+"/"+dist+"_chroot",
-						"-N",
-						"-W", 
-						"--single-changes-list",
-						"--log-level=info", 
-						"--ignore=/var/log/apt/history.log", 
-						"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", 
-						changes_file]))
+			subprocess.check_call(LogCall(cmd + ["--lvm-volume="+lvm+"/"+dist+"_chroot"]))
 		else:
-			subprocess.check_call(LogCall(["sudo", "piuparts", 
-						"--pbuilder",
-						"-N",
-						"-W", 
-						"--single-changes-list",
-						"--log-level=info", 
-						"--ignore=/var/log/apt/history.log", 
-						"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse", 
-						changes_file]))
+			subprocess.check_call(LogCall(cmd + ["--pbuilder"]))
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
@@ -128,6 +118,10 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 	
 	if package is None:
 		package = task.bug_target_name.split(" ")[0]
+		if package == "ubuntu":
+			# no source package was defined. Guessing that the second word in
+			# the title is the package name
+			package = bug.title.split(" ")[1]
 	if version is None:
 		version = get_version(bug.title)
 	print "package:", package
@@ -139,7 +133,8 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 		if sbuild:
 			subprocess.call(LogCall(["sbuild-update", dist]))
 		else:
-			subprocess.call(LogCall(["sudo", "env", "DIST=lucid", "pbuilder", "update"]))
+			cmd = ["sudo", "env", "DIST=lucid", "pbuilder", "update"]
+			subprocess.call(LogCall(cmd))
 	
 	build_source(dsc_file)
 	
@@ -162,7 +157,7 @@ def main(bug_number, package, version, section, update, verbose=False, silent=Fa
 	if task.importance == "Undecided":
 		task.transitionToImportance(importance="Wishlist")
 		print "importance set to Wishlist"
-	if piuparts:	
+	if piuparts:
 		bug.newMessage(content="package builds and installs, sync request ACK'd")
 	else:
 		bug.newMessage(content="package builds, sync request ACK'd")
@@ -194,8 +189,8 @@ if __name__ == '__main__':
 				"verbose", "version=", "with-sbuild", "with-piuparts"]
 		opts, args = getopt.gnu_getopt(sys.argv[1:], "hp:PsSuvV:", long_opts)
 	except getopt.GetoptError, e:
-		# print help information and exit:
-		print >> sys.stderr, str(e) # will print something like "option -a not recognized"
+		# will print something like "option -a not recognized"
+		print >> sys.stderr, str(e)
 		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
 
 	package = None
