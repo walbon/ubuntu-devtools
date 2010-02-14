@@ -124,13 +124,13 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 
 		task = list(bug.bug_tasks)[0]
 	
-		if package is None:
+		if package is None or len(bug_numbers) > 1:
 			package = task.bug_target_name.split(" ")[0]
 			if package == "ubuntu":
 				# no source package was defined. Guessing that the second word in
 				# the title is the package name
 				package = bug.title.split(" ")[1]
-		if version is None:
+		if version is None or len(bug_numbers) > 1:
 			version = get_version(bug.title)
 		print "package:", package
 		print "version:", version
