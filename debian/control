@@ -45,6 +45,8 @@ Description: useful tools for Ubuntu developers
   - lp-set-dup - sets the "duplicate of" bug of a bug and its dups.
   - manage-credentials - manage Launchpad token credentials.
   - massfile - fill multiple bugs using a template.
+  - merge_changelog - manually merges two Debian changelogs with the same base
+    version.
   - mk-sbuild-lv - script to create LVM snapshot chroots via schroot and
     sbuild.
   - pbuilder-dist, cowbuilder-dist - wrapper script for managing several build

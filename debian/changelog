@@ -22,7 +22,12 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * mk-sbuild.1: update documentation to reflect alternative config file
     names for distro and schroot type overrides.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 09 Feb 2010 07:10:39 -0800
+  [ Ryan Kavanagh ]
+  * Added the merge_changelog script from
+    https://lists.ubuntu.com/archives/ubuntu-x/2009-June/000586.html for those
+    who need to manually merge packages.
+
+ -- Ryan Kavanagh <ryanakca@kubuntu.org>  Mon, 15 Feb 2010 09:19:55 -0500
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 

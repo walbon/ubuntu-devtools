@@ -1,0 +1,21 @@
+.TH merge_changelog 1 "February 15, 2010" "ubuntu-dev-tools"
+
+.SH NAME
+merge_changelog \- merges two changelogs with a common base
+grab\-merge \- grab's a merge's files from merges.ubuntu.com.
+
+.SH SYNOPSIS
+\fBmerge_changelog\fP <\fIleft changelog\fP> <\fIright changelog\fP>
+
+.SH DESCRIPTION
+\fBmerge_changelog\fP takes two changelogs that once shared a common source,
+merges them back together, and prints the merged result to stdout.  This
+is useful if you need to manually merge a ubuntu package with a new
+Debian release of the package
+
+.SH AUTHORS
+\fBmerge_changelog\fP was written by Scott James Remnant <scott@ubuntu.com>
+Bryce Harrington <bryce@ubuntu.com>. This manpage was written by Ryan Kavanagh
+<ryanakca@kubuntu.org>.
+.PP
+Both are released under the GNU General Public License, version 3.
