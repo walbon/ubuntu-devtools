@@ -22,7 +22,11 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * mk-sbuild.1: update documentation to reflect alternative config file
     names for distro and schroot type overrides.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 09 Feb 2010 07:10:39 -0800
+  [ Michael Bienia ]
+  * ubuntutools/requestsync/mail.py: Encode the report to utf-8 before passing
+    it to gpg for signing (lp: #522316).
+
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 15 Feb 2010 22:37:59 +0100
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
