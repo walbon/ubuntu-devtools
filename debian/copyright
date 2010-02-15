@@ -69,7 +69,7 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
-hugdaylist, manage-credentials, massfile, merge_changelog, mk-sbuild-lv,
+hugdaylist, manage-credentials, massfile, merge-changelog, mk-sbuild-lv,
 pbuilder-dist-simple, ppaput, pull-debian-debdiff, pull-debian-source,
 pull-lp-source, pull-revu-source, setup-packaging-environment,
 suspicious-source, ubuntu-build and what-patch are licensed under the GNU

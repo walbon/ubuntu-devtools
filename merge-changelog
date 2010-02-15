@@ -3,6 +3,8 @@
 # Copyright ? 2008 Canonical Ltd.
 # Author: Scott James Remnant <scott at ubuntu.com>.
 # Hacked up by: Bryce Harrington <bryce at ubuntu.com>
+# Change merge_changelog to merge-changelog: Ryan Kavanagh
+#                                            <ryanakca@kubuntu.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of version 3 of the GNU General Public License as
@@ -22,9 +24,9 @@ from stat import *
 from textwrap import fill
 
 def usage():
-    print '''Usage: merge_changelog <left changelog> <right changelog>
+    print '''Usage: merge-changelog <left changelog> <right changelog>
 
-merge_changelog takes two changelogs that once shared a common source, 
+merge-changelog takes two changelogs that once shared a common source, 
 merges them back together, and prints the merged result to stdout.  This
 is useful if you need to manually merge a ubuntu package with a new
 Debian release of the package.
