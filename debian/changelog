@@ -25,6 +25,10 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * ubuntutools/requestsync/mail.py: Encode the report to utf-8 before passing
     it to gpg for signing (lp: #522316).
+  
+  [ Michael Vogt ]
+  * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
+    to transparently deal with the various patch systems.
 
  -- Michael Bienia <geser@ubuntu.com>  Mon, 15 Feb 2010 22:37:59 +0100
 

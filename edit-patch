@@ -1,0 +1,191 @@
+#!/bin/sh
+#
+# Copyright (C) 2009 Canonical
+#
+# Authors:
+#  Daniel Holbach
+#   Michael Vogt
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; version 3.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+set -e
+
+
+PATCHSYSTEM="unknown"
+PATCHNAME="no-patch-name"
+
+PATCH_DESC=$(cat<<EOF
+## Description: add some description\
+\n## Origin/Author: add some origin or author\
+\n## Bug: bug URL
+EOF
+)
+
+fatal_error() {
+    echo "$@" >&2
+    exit 1
+}
+
+# check if the given binary is installed and give a error if not
+# arg1: binary
+# arg2: error message
+require_installed() {
+    if ! which "$1" >/dev/null; then
+	fatal_error "$2"
+    fi 
+}    
+
+ensure_debian_dir() {
+    if [ ! -e debian/control ] || [ ! -e debian/rules ]; then
+	fatal_error "Can not find debian/rules or debian/control. Not in a debian dir?"
+    fi
+
+}
+
+detect_patchsystem() {
+    CDBS_PATCHSYS="^[^#]*simple-patchsys.mk"
+
+    if grep -q "$CDBS_PATCHSYS" debian/rules; then
+	PATCHSYSTEM="cdbs"
+	require_installed cdbs-edit-patch "no cdbs-edit-patch found, is 'cdbs' installed?"
+    elif [ -e debian/patches/00list ]; then
+	PATCHSYSTEM="dpatch"
+	require_installed dpatch-edit-patch "no dpatch-edit-patch found, is 'dpatch' installed?"
+    elif [ -e debian/patches/series ]; then
+	PATCHSYSTEM="quilt"
+	require_installed quilt "no quilt found, is 'quilt' installed?"
+    else
+	fatal_error "Patch system can not be detected (no quilt, cdbs or dpatch?)"
+    fi
+}
+
+# ensure (for new patches) that:
+# - dpatch ends with .dpatch
+# - cdbs/quilt with .patch
+normalize_patch_extension() {
+    # check if we have a patch already
+    if [ -e debian/patches/$PATCHNAME ]; then
+	echo "Patch $PATCHNAME exists, not normalizing"
+	return
+    fi
+
+    # normalize name for new patches
+    PATCHNAME=${PATCHNAME%.*}
+    if [ "$PATCHSYSTEM" = "quilt" ]; then
+	PATCHNAME="${PATCHNAME}.patch"
+    elif [ "$PATCHSYSTEM" = "cdbs" ]; then
+	PATCHNAME="${PATCHNAME}.patch"
+    elif [ "$PATCHSYSTEM" = "dpatch" ]; then
+	PATCHNAME="${PATCHNAME}.dpatch"
+    fi
+
+    echo "Normalizing patch name to $PATCHNAME"
+}
+
+edit_patch_cdbs() {
+    cdbs-edit-patch $PATCHNAME
+    vcs_add debian/patches/$1
+}
+
+edit_patch_dpatch() {
+    dpatch-edit-patch $PATCHNAME
+    # add if needed
+    if ! grep -q $1 debian/patches/00list; then
+	echo "$1" >> debian/patches/00list
+    fi
+    vcs_add debian/patches/00list debian/patches/$1
+}
+
+edit_patch_quilt() {
+    export QUILT_PATCHES=debian/patches
+    if [ -e debian/patches/$1 ]; then
+	quilt push $1
+    else
+	quilt push -a
+	quilt new $1
+    fi
+    # use a sub-shell
+    quilt shell
+    quilt refresh
+    quilt pop -a
+    vcs_add debian/patches/$1 debian/patches/series
+}
+
+vcs_add() {
+    if [ -d .bzr ]; then
+	bzr add $@
+    elif [ -d .git ];then
+	git add $@
+    else
+	echo "Remember to add $@ to a VCS if you use one"
+    fi
+}
+
+vcs_commit() {
+    # check if debcommit is happy
+    if ! debcommit --noact 2>/dev/null; then
+	return
+    fi
+    # commit (if the user confirms)
+    debcommit --confirm
+}
+
+add_changelog() {
+    S="debian/patches/$1: [DESCRIBE CHANGES HERE]"
+    if head -n1 debian/changelog|grep UNRELEASED; then
+	dch --append "$S"
+    else
+	dch --increment "$S"
+    fi
+    # let the user edit it
+    dch --edit
+}
+
+add_patch_tagging() {
+    # check if we have a descripton already
+    if grep "## Description:" debian/patches/$1; then
+	return
+    fi
+    # if not, add one
+    RANGE=1,1
+    # make sure we keep the first line (for dpatch)
+    if head -n1 debian/patches/$1|grep -q '^#'; then
+	RANGE=2,2
+    fi
+    sed -i ${RANGE}i"$PATCH_DESC" debian/patches/$1
+}
+
+
+# TODO:
+# - edit-patch --remove implementieren
+# - dbs patch system
+# - handle no patch system
+
+main() {
+    # parse args
+    if [ $# -ne 1 ]; then
+	fatal_error "Need exactly one patch name"
+    fi
+    PATCHNAME="$1"
+    # do the work
+    ensure_debian_dir
+    detect_patchsystem
+    normalize_patch_extension
+    edit_patch_$PATCHSYSTEM $PATCHNAME
+    add_patch_tagging $PATCHNAME
+    add_changelog $PATCHNAME
+    vcs_commit
+}
+
+main $@
