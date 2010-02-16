@@ -180,7 +180,7 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
 
 	# sign the mail body
 	gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-	signed_report = gpg.communicate(mailbody)[0]
+	signed_report = gpg.communicate(mailbody.encode('utf-8'))[0]
 	assert gpg.returncode == 0
 
 	# generate email

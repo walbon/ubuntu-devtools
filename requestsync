@@ -61,6 +61,9 @@ if __name__ == '__main__':
 	optParser.add_option('-s', action = 'store_true',
 		dest = 'sponsorship', default = False,
 		help = 'Force sponsorship')
+	optParser.add_option('-C', action = 'store_true',
+		dest = 'missing_changelog_ok', default = False,
+		help = 'Allow changelog to be manually filled in when missing')
 	optParser.add_option('-e', action = 'store_true',
 		dest = 'ffe', default = False,
 		help = 'Use this after FeatureFreeze for non-bug fix syncs, changes ' \
@@ -194,11 +197,18 @@ if __name__ == '__main__':
 		report += 'Changelog entries since current %s version %s:\n\n' % (release, ubuntu_version)
 	changelog = getDebianChangelog(debian_srcpkg, base_version)
 	if not changelog:
-		print >> sys.stderr, "E: Did not retrieve any changelog entries. Was the package recently uploaded? (check http://packages.debian.org/changelogs/)"
-		sys.exit(1)
+		if not options.missing_changelog_ok:
+			print >> sys.stderr, "E: Did not retrieve any changelog entries. Do you need to specify '-C'? Was the package recently uploaded? (check http://packages.debian.org/changelogs/)"
+			sys.exit(1)
+		else:
+			need_interaction = True
+			changelog = "XXX FIXME: add changelog here XXX"
 	report += changelog
 
 	(title, report) = edit_report(title, report, changes_required = need_interaction)
+	if 'XXX FIXME' in report:
+		print >> sys.stderr, "E: changelog boilerplate found in report, please manually add changelog when using '-C'"
+		sys.exit(1)
 
 	# bug status and bug subscriber
 	status = 'confirmed'

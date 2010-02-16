@@ -1,7 +1,10 @@
 #!/bin/bash
 #
-# Copyright 2006-2009 (C) Canonical Ltd.
-# Author: Kees Cook <kees@ubuntu.com>
+# Copyright 2006-2010 (C) Canonical Ltd.
+# Authors:
+#  Kees Cook <kees@ubuntu.com>
+#  Emmet Hikory <persia@ubuntu.com>
+#  Scott Moser <smoser@ubuntu.com>
 #
 # ##################################################################
 #
@@ -19,7 +22,8 @@
 #
 # ##################################################################
 #
-# This script creates LVM snapshot chroots via schroot and sbuild.
+# This script creates chroots designed to be used in a snapshot mode
+# (either with LVM or aufs) with schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
@@ -36,15 +40,10 @@ if [ -w /etc/passwd ]; then
     exit 1
 fi
 
-# Perform once-only things to initially set up for using sbuild+schroot+lvm
+# Perform once-only things to initially set up for using sbuild+schroot
 if [ ! -w /var/lib/sbuild ]; then
     # Load all the packages you'll need to do work
-    sudo apt-get install sbuild schroot debootstrap lvm2
-    # Make sure LVM tools that operate on the snapshots have needed module
-    if ! sudo dmsetup targets | grep -q ^snapshot; then
-        sudo modprobe dm_snapshot
-        echo dm_snapshot | sudo tee -a /etc/modules >/dev/null
-    fi
+    sudo apt-get install sbuild schroot debootstrap
     # Add self to the sbuild group
     sudo adduser "$USER" sbuild
 
@@ -98,23 +97,32 @@ fi
 # Set up configurable defaults (loaded after option processing)
 LV_SIZE="5G"
 SNAPSHOT_SIZE="4G"
+SOURCE_CHROOTS_DIR="/var/lib/schroot/chroots"
+SOURCE_CHROOTS_TGZ="/var/lib/schroot/tarballs"
 
 function usage()
 {
-    echo "Usage: $0 [OPTIONS] VG Release" >&2
+    echo "Usage: $0 [OPTIONS] Release" >&2
     echo "Options:"
     echo "  --arch=ARCH                What architecture to select"
     echo "  --name=NAME                Base name for the schroot (arch is appended)"
     echo "  --personality=PERSONALITY  What personality to use (defaults to match --arch)"
+    echo "  --vg=VG                    use LVM snapshots, with group VG"
     echo "  --debug                    Turn on script debugging"
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
-    echo "  --distro=DISTRO            Install specific distro (defaults to 'ubuntu')"
+    echo "  --distro=DISTRO            Install specific distro:"
+    echo "                                 'ubuntu'(default), or 'debian'"
+    echo "  --type=SCHROOT_TYPE        Define the schroot type:"
+    echo "                                 'directory'(default), or 'file'"
+    echo "                                 'lvm-snapshot' is selected via --vg"
     echo ""
-    echo "Configuration (via ~/.mk-sbuild-lv.rc)"
+    echo "Configuration (via ~/.mk-sbuild.rc)"
     echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
     echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
+    echo "  SOURCE_CHROOTS_DIR         Directory to store directory source chroots"
+    echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
@@ -126,9 +134,10 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:,distro:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:,distro:,vg:,type:" -- "$@"`
 eval set -- "$OPTS"
 
+VG=""
 DISTRO="ubuntu"
 name=""
 while :; do
@@ -138,9 +147,6 @@ while :; do
             shift
             ;;
         --arch)
-            # By default, use the native architecture.
-            arch_opt="--arch=$2"
-            arch_suffix="-$2"
             CHROOT_ARCH="$2"
             if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
             then
@@ -176,6 +182,14 @@ while :; do
             DISTRO="$2"
             shift 2
             ;;
+        --vg)
+            VG="$2"
+            shift 2
+            ;;
+        --type)
+            SCHROOT_TYPE="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -186,11 +200,9 @@ while :; do
      esac
 done
 
-# To build the LV, we need to know which volume group to use, and which
-# release of Ubuntu to debootstrap
-VG="$1"
-RELEASE="$2"
-if [ -z "$VG" ] || [ -z "$RELEASE" ]; then
+# To build the chroot, we need to know which release of Ubuntu to debootstrap
+RELEASE="$1"
+if [ -z "$RELEASE" ]; then
     usage
 fi
 
@@ -199,32 +211,76 @@ if [ -z "$name" ]; then
     name="$RELEASE"
 fi
 
-# Set up some variables for use in the paths and names
-CHROOT_LV="${name}_chroot${arch_suffix}"
-CHROOT_PATH="/dev/$VG/$CHROOT_LV"
-CHROOT_NAME="${name}${arch_suffix}"
-
+# By default, use the native architecture.
 HOST_ARCH=$(dpkg --print-architecture)
 if [ -z "$CHROOT_ARCH" ]; then
-    CHROOT_ARCH=$HOST_ARCH
+    CHROOT_ARCH="$HOST_ARCH"
 fi
+
+CHROOT_NAME="${name}-${CHROOT_ARCH}"
 
 # Load customizations
-if [ -r ~/.mk-sbuild-lv.rc ]; then
-    . ~/.mk-sbuild-lv.rc
+if [ -r ~/.mk-sbuild.rc ]; then
+    . ~/.mk-sbuild.rc
 fi
 
-# Does the specified VG exist?  (vgdisplay doesn't set error codes...)
-if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
-    exit 1 
+if [ -z "$SCHROOT_TYPE" ]; then
+    # To build the LV, we need to know which volume group to use
+    if [ -n "$VG" ]; then
+        SCHROOT_TYPE="lvm-snapshot"
+    else
+        SCHROOT_TYPE="directory"
+    fi
 fi
+
+case "$SCHROOT_TYPE" in
+"lvm-snapshot")
+    # Make sure LVM tools that operate on the snapshots have needed module
+    if ! sudo dmsetup targets | grep -q ^snapshot; then
+        sudo modprobe dm_snapshot
+        echo dm_snapshot | sudo tee -a /etc/modules >/dev/null
+    fi
+
+    # Set up some variables for use in the paths and names
+    CHROOT_LV="${name}_${CHROOT_ARCH}_chroot"
+    CHROOT_PATH="/dev/$VG/$CHROOT_LV"
+
+    # Install lvm2 if missing
+    if ! dpkg -l lvm2 >/dev/null 2>&1; then
+        sudo apt-get install lvm2
+    fi
+
+    # Does the specified VG exist?  (vgdisplay doesn't set error codes...)
+    if [ `sudo vgdisplay -c "$VG" | wc -l` -eq 0 ]; then
+        echo "Volume group '${VG}' does not appear to exist" >&2
+        exit 1
+    fi
+    ;;
+"directory")
+    if [ ! -d "${SOURCE_CHROOTS_DIR}" ]; then
+        sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
+    fi
+    # Set up some variables for use in the paths and names
+    CHROOT_PATH="${SOURCE_CHROOTS_DIR}/${CHROOT_NAME}"
+    ;;
+"file")
+    if [ ! -d "$SOURCE_CHROOTS_TGZ" ]; then
+        sudo mkdir -p "$SOURCE_CHROOTS_TGZ"
+    fi
+    # Set up some variables for use in the paths and names
+    CHROOT_PATH="${SOURCE_CHROOTS_TGZ}/${CHROOT_NAME}.tgz"
+    ;;
+*)
+    echo 'unknown source type!?' >&2
+    exit 1
+    ;;
+esac
 
 # Is the specified release known to debootstrap?
+variant_opt="--variant=buildd"
 if [ ! -r "/usr/share/debootstrap/scripts/$RELEASE" ]; then
     echo "Specified release not known to debootstrap" >&2
     exit 1
-else
-    variant_opt="--variant=buildd"
 fi
 
 BUILD_PKGS="build-essential fakeroot devscripts apt-utils"
@@ -305,30 +361,44 @@ debian)
     ;;
 esac
 
-# Allocate the "golden" chroot LV
-sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
-sudo mkfs -t ext4 "$CHROOT_PATH"
-
-# Mount and debootstrap the chroot
-MNT=`mktemp -d -t schroot-XXXXXX`
-sudo mount "$CHROOT_PATH" "$MNT"
-
 DEBOOTSTRAP_COMMAND=debootstrap
-# Use qemu-arm-static / build-arm-chroot for foreign armel chroots
+# Use qemu-kvm-extras-static / build-arm-chroot for foreign armel chroots
 if [ "$CHROOT_ARCH" = 'armel' ] && [ ! "$HOST_ARCH" = 'armel' ] ; then
-    if [ -f "/usr/bin/build-arm-chroot" ]; then
-      DEBOOTSTRAP_COMMAND=build-arm-chroot
-    else
-      echo Please install qemu-arm-static to use foreign armel chroots
+    if [ ! -f "/usr/bin/build-arm-chroot" ]; then
+        sudo apt-get install qemu-kvm-extras-static
     fi
+    DEBOOTSTRAP_COMMAND=build-arm-chroot
 fi
 
-sudo $DEBOOTSTRAP_COMMAND $arch_opt $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+case "$SCHROOT_TYPE" in
+"lvm-snapshot")
+    # Allocate the "golden" chroot LV
+    sudo lvcreate -n "$CHROOT_LV" -L "$LV_SIZE" "$VG"
+    sudo mkfs -t ext4 "$CHROOT_PATH"
+
+    # Mount
+    MNT=`mktemp -d -t schroot-XXXXXX`
+    sudo mount "$CHROOT_PATH" "$MNT"
+    ;;
+"directory")
+    MNT="${CHROOT_PATH}"
+    if [ -d "${MNT}" ]; then
+        echo "E: ${MNT} already exists; aborting" >&2
+        exit 1
+    fi
+    sudo mkdir -p "${MNT}"
+    ;;
+"file")
+    MNT=`mktemp -d -t schroot-XXXXXX`
+esac
+
+# debootstrap the chroot
+sudo "$DEBOOTSTRAP_COMMAND" --arch="$CHROOT_ARCH" $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
 if [ -z "$TEMPLATE_SOURCES" ]; then
-    TEMPLATE_SOURCES=~/.mk-sbuild-lv.sources
+    TEMPLATE_SOURCES=~/.mk-sbuild.sources
 fi
 if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
@@ -355,28 +425,47 @@ cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
 rm -f "$TEMP_SOURCES"
 # Copy the timezone (comment this out if you want to leave the chroot at UTC)
 sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
-# Create an LVM-snapshot-based schroot entry for this LV
+# Create a schroot entry for this chroot
 TEMP_SCHROOTCONF=`mktemp -t schrootconf-XXXXXX`
-TEMPLATE_SCHROOTCONF=~/.mk-sbuild-lv.schroot.conf
-if [ -r "$TEMPLATE_SCHROOTCONF" ]; then
+TEMPLATE_SCHROOTCONF=~/.mk-sbuild.schroot.conf
+TYPED_TEMPLATE_SCHROOTCONF="${TEMPLATE_SCHROOTCONF}.${SCHROOT_TYPE}"
+
+if [ -r "${TYPED_TEMPLATE_SCHROOTCONF}" ]; then
+    cat "${TYPED_TEMPLATE_SCHROOTCONF}" > "$TEMP_SCHROOTCONF"
+elif [ -r "${TEMPLATE_SCHROOT}" ]; then
     cat "$TEMPLATE_SCHROOTCONF" > "$TEMP_SCHROOTCONF"
 else
-    cat > "$TEMP_SCHROOTCONF" <<EOM
+        # Please do not remove the blank line above [CHROOT_NAME]
+        # it helps keep the schroot stanzas separated in the main
+        # /etc/schroot/schroot.conf file.
+        cat > "$TEMP_SCHROOTCONF" <<EOM
 
 [CHROOT_NAME]
-type=lvm-snapshot
 description=CHROOT_NAME
 priority=3
 groups=sbuild,root,admin
 root-groups=root,sbuild,admin
-device=CHROOT_PATH
-mount-options=-o noatime
-lvm-snapshot-options=--size SNAPSHOT_SIZE
 # Uncomment these lines to allow "sbuild" and "admin" users to access
 # the -source chroots directly (useful for automated updates, etc).
 #source-root-users=root,sbuild,admin
 #source-root-groups=root,sbuild,admin
+type=SCHROOT_TYPE
 EOM
+    case "$SCHROOT_TYPE" in
+    "lvm-snapshot")
+        cat >> "$TEMP_SCHROOTCONF" <<EOM
+device=CHROOT_PATH
+mount-options=-o noatime
+lvm-snapshot-options=--size SNAPSHOT_SIZE
+EOM
+    ;;
+    directory|file)
+        cat >> "${TEMP_SCHROOTCONF}" <<EOM
+union-type=aufs
+${SCHROOT_TYPE}=CHROOT_PATH
+EOM
+    ;;
+    esac
 fi
 if [ ! -z "$personality" ]; then
     echo "personality=$personality" >> "$TEMP_SCHROOTCONF"
@@ -388,6 +477,7 @@ cat "$TEMP_SCHROOTCONF" | sed \
         -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
         -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
         -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
+        -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
         | \
         sudo bash -c "cat >> /etc/schroot/schroot.conf"
 rm -f "$TEMP_SCHROOTCONF"
@@ -416,9 +506,23 @@ if [ ! -r /dev/stderr ]; then ln -s /proc/self/fd/2 /dev/stderr; fi
 apt-get clean
 rm /finish.sh
 EOM
-sudo chmod +x "$MNT"/finish.sh
-sudo umount "$MNT"
-rmdir "$MNT"
+sudo chmod a+x "$MNT"/finish.sh
+
+case "$SCHROOT_TYPE" in
+"lvm-snapshot")
+    sudo umount "$MNT"
+    rmdir "$MNT"
+    ;;
+"directory")
+    ;;
+"file")
+    cd "$MNT"
+    sudo tar czf "$CHROOT_PATH" .
+    cd /
+    sudo rm -r "$MNT"
+    ;;
+esac
+
 # Run finalization script on the "golden" copy via schroot.
 sudo schroot -c "$CHROOT_NAME"-source -u root /finish.sh
 

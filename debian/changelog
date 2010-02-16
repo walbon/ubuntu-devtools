@@ -1,4 +1,34 @@
-ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
+
+  [ Scott Moser ]
+  * rename mk-sbuild-lv to mk-sbuild, support union-type=aufs
+
+  [ Emmet Hikory ]
+  * Support qemu-arm-static -> qemu-kvm-extras-static transition
+  * mk-sbuild: automatically install qemu-kvm-extras-static if requested
+  * mk-sbuild: conditionally install lvm2 only for lvm-snapshot schroots
+  * mk-sbuild: rationalise architecture variables
+  * mk-sbuild: Generalise --type support and add "file" SCHROOT_TYPE
+  * mk-sbuild.1: Document the --type argument
+
+  [ Loïc Minier ]
+  * Demote qemu-kvm-extras-static to a Suggests since most people don't build
+    for armel.
+
+  [ Kees Cook ]
+  * requestsync: add -C to allow manually adding changelog when missing
+    (LP: #518574).
+  * mk-sbuild: clean up and make slight adjustments to new lvm/dir/file logic.
+  * mk-sbuild.1: update documentation to reflect alternative config file
+    names for distro and schroot type overrides.
+
+  [ Michael Bienia ]
+  * ubuntutools/requestsync/mail.py: Encode the report to utf-8 before passing
+    it to gpg for signing (lp: #522316).
+
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 15 Feb 2010 22:37:59 +0100
+
+ubuntu-dev-tools (0.92) lucid; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * bash_completion/pbuilder-dist:
@@ -9,6 +39,7 @@ ubuntu-dev-tools (0.92) UNRELEASED; urgency=low
   * mk-sbuild-lv: use --arch=foo rather than --arch foo for debootstrap
   * pbuilder-dist: Allow architecture-switching to armel on i386/amd64
   * pbuilder-dist: use --arch=foo rather than --arch foo for debootstrap
+  * pbuilder-dist: change --mirror logic to use -ports when appropriate
   * docs/pbuilder-dist.1: Document architecture-switching for armel
   * debian/control: add qemu-arm-static to Recommends:
 

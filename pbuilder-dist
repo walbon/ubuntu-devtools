@@ -219,7 +219,12 @@ class pbuilder_dist:
 			if self.extra_components:
 				components += ' contrib non-free'
 		else:
-			arguments.append('--mirror "http://mirrors.kernel.org/ubuntu/"')
+			if self.build_architecture in ('amd64','i386'):
+				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
+			elif self.build_architecture == 'powerpc' and target_distro == 'dapper':
+				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
+			else:
+				arguments.append('--mirror "http://ports.ubuntu.com/ubuntu-ports/"')
 			components = 'main restricted'
 			if self.extra_components:
 				components += ' universe multiverse'
