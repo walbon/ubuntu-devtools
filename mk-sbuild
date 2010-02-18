@@ -125,6 +125,7 @@ function usage()
     echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
+    echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
     echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
     exit 1
