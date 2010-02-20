@@ -88,7 +88,7 @@ def get_source(package, version, section, bug_number):
 	# Update changelog
 	os.chdir(package + "-" + extract_upstream_version(version))
 	new_version = version + "fakesync1"
-	subprocess.check_call(["dch", "-v", new_version, "-D", dist, "--force-distribution", "Fake sync due to mismatching .orig.tar.gz (LP: #%i)." % (bug_number)])
+	subprocess.check_call(["dch", "-v", new_version, "-D", dist, "--force-distribution", "Fake sync due to mismatching tarball (LP: #%i)." % (bug_number)])
 	# TODO: do we have to run update-maintainer
 	subprocess.check_call(["update-maintainer"])
 	subprocess.check_call(["debuild", "-S"])
