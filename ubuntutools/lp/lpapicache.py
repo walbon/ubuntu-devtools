@@ -73,7 +73,7 @@ class MetaWrapper(type):
 	def __init__(cls, name, bases, attrd):
 		super(MetaWrapper, cls).__init__(name, bases, attrd)
 		if 'resource_type' not in attrd:
-			raise TypeError('Class needs an associated resource type')
+			raise TypeError('Class "%s" needs an associated resource type' % name)
 		cls._cache = dict()
 
 
@@ -367,16 +367,33 @@ class SourcePackagePublishingHistory(BaseWrapper):
 			self.getPackageName(), '\n'.join(res))
 
 
+class MetaPersonTeam(MetaWrapper):
+    @property
+    def me(cls):
+        '''The PersonTeam object of the currently authenticated LP user or
+        None when anonymously logged in.
+        '''
+        if '_me' not in cls.__dict__:
+            try:
+                cls._me = PersonTeam(Launchpad.me)
+            except HTTPError, error:
+                if error.response.status == 401:
+                    # Anonymous login
+                    cls._me  = None
+                else:
+                    raise
+        return cls._me
+
 class PersonTeam(BaseWrapper):
 	'''
 	Wrapper class around a LP person or team object.
 	'''
+        __metaclass__ = MetaPersonTeam
+
 	resource_type = (
             lookup_service_root(service) + 'beta/#person',
             lookup_service_root(service) + 'beta/#team',
             )
-
-	_me = None # the PersonTeam object of the currently authenticated LP user
 
 	def __init__(self, *args):
 		# Don't share _upload_{pkg,comp} between different PersonTeams
@@ -402,15 +419,6 @@ class PersonTeam(BaseWrapper):
 		if not cached:
 			cached = PersonTeam(Launchpad.people[person_or_team])
 		return cached
-
-	@classmethod
-	def getMe(cls):
-		'''
-		Returns a PersonTeam object of the currently authenticated LP user.
-		'''
-		if not cls._me:
-			cls._me = PersonTeam(Launchpad.me)
-		return cls._me
 
 	def isLpTeamMember(self, team):
 		'''

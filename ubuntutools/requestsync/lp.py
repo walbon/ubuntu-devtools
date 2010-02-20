@@ -52,7 +52,7 @@ def needSponsorship(name, component, release):
 	archive = Distribution('ubuntu').getArchive()
         distroseries = Distribution('ubuntu').getSeries(release)
 
-	need_sponsor = not PersonTeam.getMe().canUploadPackage(archive, distroseries, name, component)
+	need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
 	if need_sponsor:
 		print '''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate
@@ -105,7 +105,7 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 	# newly created bugreports have only one task
 	task = bug.bug_tasks[0]
 	# only members of ubuntu-bugcontrol can set importance
-	if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
+	if PersonTeam.me.isLpTeamMember('ubuntu-bugcontrol'):
 		task.importance = 'Wishlist'
 	task.status = status
 	task.lp_save()

@@ -145,7 +145,7 @@ if not options.batch:
 
 	# Operations that are remaining may only be done by Ubuntu developers (retry)
 	# or buildd admins (rescore). Check if the proper permissions are in place.
-	me = PersonTeam.getMe()
+	me = PersonTeam.me
 	if op == "rescore": necessaryPrivs = me.isLpTeamMember('launchpad-buildd-admins')
 	if op == "retry": necessaryPrivs = me.canUploadPackage(
 		ubuntu_archive, distroseries, sources.getPackageName(), sources.getComponent())
@@ -216,7 +216,7 @@ if release and '-' in release:
 		sys.exit(1)
 
 ubuntu_archive = Distribution('ubuntu').getArchive()
-me = PersonTeam.getMe()
+me = PersonTeam.me
 
 # Check permisions (part 1): Rescoring can only be done by buildd admins
 can_rescore = options.priority and me.isLpTeamMember('launchpad-buildd-admins') or False
