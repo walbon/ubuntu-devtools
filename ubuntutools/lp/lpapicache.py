@@ -35,6 +35,17 @@ import ubuntutools.lp.libsupport as libsupport
 from ubuntutools.lp import service
 from ubuntutools.lp.udtexceptions import *
 
+__all__ = [
+    'Archive',
+    'Build',
+    'Distribution',
+    'DistributionSourcePackage',
+    'DistroSeries',
+    'Launchpad',
+    'PersonTeam',
+    'SourcePackagePublishingHistory',
+    ]
+
 class Launchpad(object):
     '''Singleton for LP API access.'''
 
