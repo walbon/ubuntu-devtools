@@ -44,14 +44,15 @@ def getUbuntuSrcPkg(name, release):
 
 	return ubuntu_archive.getSourcePackage(name, release)
 
-def needSponsorship(name, component):
+def needSponsorship(name, component, release):
 	'''
 	Check if the user has upload permissions for either the package
 	itself or the component
 	'''
 	archive = Distribution('ubuntu').getArchive()
+        distroseries = Distribution('ubuntu').getSeries(release)
 
-	need_sponsor = not PersonTeam.getMe().canUploadPackage(archive, name, component)
+	need_sponsor = not PersonTeam.getMe().canUploadPackage(archive, distroseries, name, component)
 	if need_sponsor:
 		print '''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate

@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
 	# -s flag not specified - check if we do need sponsorship
 	if not sponsorship:
-		sponsorship = needSponsorship(srcpkg, ubuntu_component)
+		sponsorship = needSponsorship(srcpkg, ubuntu_component, release)
 
 	# Check for existing package reports
 	if not newsource:
@@ -182,12 +182,6 @@ if __name__ == '__main__':
 
 	if need_interaction:
 		raw_input_exit_on_ctrlc('Press [Enter] to continue. Press [Ctrl-C] to abort now. ')
-
-	# Check if they have a per-package upload permission.
-	if lpapi:
-		ubuntu_archive = Distribution('ubuntu').getArchive()
-		if PersonTeam.getMe().isPerPackageUploader(ubuntu_archive, srcpkg):
-			report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
 	base_version = force_base_version or ubuntu_version
 

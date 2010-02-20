@@ -414,29 +414,38 @@ class PersonTeam(BaseWrapper):
 		'''
 		return any(t.name == team for t in self.super_teams)
 
-	def canUploadPackage(self, archive, package, component):
-		'''
-		Check if the person or team has upload rights for the source package
-		to the specified 'archive' either through component upload
-		rights or per-package upload rights.
+	def canUploadPackage(self, archive, distroseries, package, component):
+		'''Check if the person or team has upload rights for the source
+                package to the specified 'archive' and 'distrorelease' either
+                through package sets, component or or per-package upload rights.
 		Either a source package name or a component has the specified.
 
 		'archive' has to be a Archive object.
+                'distroseries' has to be an DistroSeries object.
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-		if package and not isinstance(package, basestring):
+                if not isinstance(distroseries, DistroSeries):
+                        raise TypeError("'%r' is not a DistroSeries object." % distroseries)
+		if package is not None and not isinstance(package, basestring):
 			raise TypeError('A source package name expected.')
-		if component and not isinstance(component, basestring):
+		if component is not None and not isinstance(component, basestring):
 			raise TypeError('A component name expected.')
-		if not package and not component:
+		if package is None and component is None:
 			raise ValueError('Either a source package name or a component has to be specified.')
 
 		upload_comp = self._upload_comp.get((archive, component))
 		upload_pkg = self._upload_pkg.get((archive, package))
 
-		if upload_comp == None and upload_pkg == None:
-			for perm in archive.getPermissionsForPerson(person = self()):
+		if upload_comp is None and upload_pkg is None:
+                        # archive.isSourceUploadAllowed() checks only package sets permission
+                        if package is not None and archive.isSourceUploadAllowed(
+                            distroseries=distroseries(), person=self(), sourcepackagename=package):
+                                # TODO: also cache the release it applies to
+                                self._upload_pkg[(archive, package)] = True
+                                return True
+                        # check for component or per-package upload rights
+			for perm in archive.getPermissionsForPerson(person=self()):
 				if perm.permission != 'Archive Upload Rights':
 					continue
 				if component and perm.component_name == component:
@@ -453,18 +462,6 @@ class PersonTeam(BaseWrapper):
 			return False
 		else:
 			return upload_comp or upload_pkg
-
-	# TODO: check if this is still needed after ArchiveReorg (or at all)
-	def isPerPackageUploader(self, archive, package):
-		'''
-		Check if the user has PerPackageUpload rights for package.
-		'''
-		if isinstance(package, SourcePackagePublishingHistory):
-			pkg = package.getPackageName()
-		else:
-			pkg = package
-
-		return self.canUploadPackage(archive, pkg, None)
 
 
 class Build(BaseWrapper):

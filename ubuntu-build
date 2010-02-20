@@ -132,6 +132,7 @@ if not options.batch:
 	# Get list of published sources for package in question.
 	try:
 		sources = ubuntu_archive.getSourcePackage(package, release, pocket)
+                distroseries = Distribution('ubuntu').getSeries(release)
 	except (SeriesNotFoundException, PackageNotFoundException), e:
 	    print e
 	    sys.exit(1)
@@ -147,7 +148,7 @@ if not options.batch:
 	me = PersonTeam.getMe()
 	if op == "rescore": necessaryPrivs = me.isLpTeamMember('launchpad-buildd-admins')
 	if op == "retry": necessaryPrivs = me.canUploadPackage(
-		ubuntu_archive, sources.getPackageName(), sources.getComponent())
+		ubuntu_archive, distroseries, sources.getPackageName(), sources.getComponent())
 
 	if op in ('rescore', 'retry') and not necessaryPrivs:
 	    print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
