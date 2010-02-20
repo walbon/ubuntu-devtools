@@ -26,6 +26,7 @@
 
 import sys
 
+import launchpadlib.launchpad as launchpad
 from launchpadlib.errors import HTTPError
 from launchpadlib.uris import lookup_service_root
 from lazr.restfulclient.resource import Entry
@@ -35,28 +36,33 @@ from ubuntutools.lp import service
 from ubuntutools.lp.udtexceptions import *
 
 class Launchpad(object):
-	''' Singleton for LP API access. '''
-	__lp = None
+    '''Singleton for LP API access.'''
 
-	def login(self):
-		'''
-		Enforce a login through the LP API.
-		'''
-		if not self.__lp:
-			try:
-				self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
-			except IOError, error:
-				print >> sys.stderr, 'E: %s' % error
-				raise error
-		return self
+    def login(self):
+        '''Enforce a non-anonymous login.'''
+        if '_Launchpad__lp' not in self.__dict__:
+            try:
+                self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+            except IOError, error:
+                print >> sys.stderr, 'E: %s' % error
+                raise
+        else:
+            raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
-	def __getattr__(self, attr):
-		if not self.__lp:
-			self.login()
-		return getattr(self.__lp, attr)
+    def login_anonymously(self):
+        '''Enforce an anonymous login.'''
+        if '_Launchpad__lp' not in self.__dict__:
+            self.__lp = launchpad.Launchpad.login_anonymously('ubuntu-dev-tools', service)
+        else:
+            raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
-	def __call__(self):
-		return self
+    def __getattr__(self, attr):
+        if '_Launchpad__lp' not in self.__dict__:
+            self.login()
+        return getattr(self.__lp, attr)
+
+    def __call__(self):
+        return self
 Launchpad = Launchpad()
 
 
