@@ -27,12 +27,15 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * ubuntutools/requestsync/mail.py: Encode the report to utf-8 before passing
     it to gpg for signing (lp: #522316).
+  * Add support for the other LP service roots (edge is still default)
+  * Depend on python-launchpadlib >= 1.5.4
+  * Also check package sets for upload permissions.
 
   [ Michael Vogt ]
   * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
     to transparently deal with the various patch systems.
 
- -- Kees Cook <kees@ubuntu.com>  Thu, 18 Feb 2010 11:10:45 -0800
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 20 Feb 2010 18:38:17 +0100
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 

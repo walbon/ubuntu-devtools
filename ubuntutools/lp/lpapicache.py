@@ -3,7 +3,7 @@
 #   lpapicache.py - wrapper classes around the LP API implementing caching
 #                   for usage in the ubuntu-dev-tools package
 #
-#   Copyright © 2009 Michael Bienia <geser@ubuntu.com>
+#   Copyright © 2009-2010 Michael Bienia <geser@ubuntu.com>
 #
 #   This program is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU General Public License
@@ -25,34 +25,55 @@
 #httplib2.debuglevel = 1
 
 import sys
-import libsupport
+
+import launchpadlib.launchpad as launchpad
 from launchpadlib.errors import HTTPError
+from launchpadlib.uris import lookup_service_root
 from lazr.restfulclient.resource import Entry
-from udtexceptions import *
+
+import ubuntutools.lp.libsupport as libsupport
+from ubuntutools.lp import service
+from ubuntutools.lp.udtexceptions import *
+
+__all__ = [
+    'Archive',
+    'Build',
+    'Distribution',
+    'DistributionSourcePackage',
+    'DistroSeries',
+    'Launchpad',
+    'PersonTeam',
+    'SourcePackagePublishingHistory',
+    ]
 
 class Launchpad(object):
-	''' Singleton for LP API access. '''
-	__lp = None
+    '''Singleton for LP API access.'''
 
-	def login(self):
-		'''
-		Enforce a login through the LP API.
-		'''
-		if not self.__lp:
-			try:
-				self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
-			except IOError, error:
-				print >> sys.stderr, 'E: %s' % error
-				raise error
-		return self
+    def login(self):
+        '''Enforce a non-anonymous login.'''
+        if '_Launchpad__lp' not in self.__dict__:
+            try:
+                self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+            except IOError, error:
+                print >> sys.stderr, 'E: %s' % error
+                raise
+        else:
+            raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
-	def __getattr__(self, attr):
-		if not self.__lp:
-			self.login()
-		return getattr(self.__lp, attr)
+    def login_anonymously(self):
+        '''Enforce an anonymous login.'''
+        if '_Launchpad__lp' not in self.__dict__:
+            self.__lp = launchpad.Launchpad.login_anonymously('ubuntu-dev-tools', service)
+        else:
+            raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
-	def __call__(self):
-		return self
+    def __getattr__(self, attr):
+        if '_Launchpad__lp' not in self.__dict__:
+            self.login()
+        return getattr(self.__lp, attr)
+
+    def __call__(self):
+        return self
 Launchpad = Launchpad()
 
 
@@ -63,7 +84,7 @@ class MetaWrapper(type):
 	def __init__(cls, name, bases, attrd):
 		super(MetaWrapper, cls).__init__(name, bases, attrd)
 		if 'resource_type' not in attrd:
-			raise TypeError('Class needs an associated resource type')
+			raise TypeError('Class "%s" needs an associated resource type' % name)
 		cls._cache = dict()
 
 
@@ -75,7 +96,7 @@ class BaseWrapper(object):
 	resource_type = None # it's a base class after all
 
 	def __new__(cls, data):
-		if isinstance(data, basestring) and data.startswith('https://api.edge.launchpad.net/beta/'):
+		if isinstance(data, basestring) and data.startswith(lookup_service_root(service) + 'beta/'):
 			# looks like a LP API URL
 			# check if it's already cached
 			cached = cls._cache.get(data)
@@ -120,12 +141,17 @@ class BaseWrapper(object):
 	def __getattr__(self, attr):
 		return getattr(self._lpobject, attr)
 
+        def __repr__(self):
+            if hasattr(str, 'format'):
+                return '<{0}: {1!r}>'.format(self.__class__.__name__, self._lpobject)
+            else:
+                return '<%s: %r>' % (self.__class__.__name__, self._lpobject)
 
 class Distribution(BaseWrapper):
 	'''
 	Wrapper class around a LP distribution object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distribution'
+	resource_type = lookup_service_root(service) + 'beta/#distribution'
 
 	def __init__(self, *args):
 		# Don't share _series and _archives between different Distributions
@@ -207,14 +233,14 @@ class DistroSeries(BaseWrapper):
 	'''
 	Wrapper class around a LP distro series object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distro_series'
+	resource_type = lookup_service_root(service) + 'beta/#distro_series'
 
 
 class Archive(BaseWrapper):
 	'''
 	Wrapper class around a LP archive object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#archive'
+	resource_type = lookup_service_root(service) + 'beta/#archive'
 
 	def __init__(self, *args):
 		# Don't share _srcpkgs between different Archives
@@ -275,7 +301,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#source_package_publishing_history'
+	resource_type = lookup_service_root(service) + 'beta/#source_package_publishing_history'
 
 	def __init__(self, *args):
 		# Don't share _builds between different SourcePackagePublishingHistory objects
@@ -352,13 +378,33 @@ class SourcePackagePublishingHistory(BaseWrapper):
 			self.getPackageName(), '\n'.join(res))
 
 
+class MetaPersonTeam(MetaWrapper):
+    @property
+    def me(cls):
+        '''The PersonTeam object of the currently authenticated LP user or
+        None when anonymously logged in.
+        '''
+        if '_me' not in cls.__dict__:
+            try:
+                cls._me = PersonTeam(Launchpad.me)
+            except HTTPError, error:
+                if error.response.status == 401:
+                    # Anonymous login
+                    cls._me  = None
+                else:
+                    raise
+        return cls._me
+
 class PersonTeam(BaseWrapper):
 	'''
 	Wrapper class around a LP person or team object.
 	'''
-	resource_type = ('https://api.edge.launchpad.net/beta/#person', 'https://api.edge.launchpad.net/beta/#team')
+        __metaclass__ = MetaPersonTeam
 
-	_me = None # the PersonTeam object of the currently authenticated LP user
+	resource_type = (
+            lookup_service_root(service) + 'beta/#person',
+            lookup_service_root(service) + 'beta/#team',
+            )
 
 	def __init__(self, *args):
 		# Don't share _upload_{pkg,comp} between different PersonTeams
@@ -385,15 +431,6 @@ class PersonTeam(BaseWrapper):
 			cached = PersonTeam(Launchpad.people[person_or_team])
 		return cached
 
-	@classmethod
-	def getMe(cls):
-		'''
-		Returns a PersonTeam object of the currently authenticated LP user.
-		'''
-		if not cls._me:
-			cls._me = PersonTeam(Launchpad.me)
-		return cls._me
-
 	def isLpTeamMember(self, team):
 		'''
 		Checks if the user is a member of a certain team on Launchpad.
@@ -402,29 +439,38 @@ class PersonTeam(BaseWrapper):
 		'''
 		return any(t.name == team for t in self.super_teams)
 
-	def canUploadPackage(self, archive, package, component):
-		'''
-		Check if the person or team has upload rights for the source package
-		to the specified 'archive' either through component upload
-		rights or per-package upload rights.
+	def canUploadPackage(self, archive, distroseries, package, component):
+		'''Check if the person or team has upload rights for the source
+                package to the specified 'archive' and 'distrorelease' either
+                through package sets, component or or per-package upload rights.
 		Either a source package name or a component has the specified.
 
 		'archive' has to be a Archive object.
+                'distroseries' has to be an DistroSeries object.
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-		if package and not isinstance(package, basestring):
+                if not isinstance(distroseries, DistroSeries):
+                        raise TypeError("'%r' is not a DistroSeries object." % distroseries)
+		if package is not None and not isinstance(package, basestring):
 			raise TypeError('A source package name expected.')
-		if component and not isinstance(component, basestring):
+		if component is not None and not isinstance(component, basestring):
 			raise TypeError('A component name expected.')
-		if not package and not component:
+		if package is None and component is None:
 			raise ValueError('Either a source package name or a component has to be specified.')
 
 		upload_comp = self._upload_comp.get((archive, component))
 		upload_pkg = self._upload_pkg.get((archive, package))
 
-		if upload_comp == None and upload_pkg == None:
-			for perm in archive.getPermissionsForPerson(person = self()):
+		if upload_comp is None and upload_pkg is None:
+                        # archive.isSourceUploadAllowed() checks only package sets permission
+                        if package is not None and archive.isSourceUploadAllowed(
+                            distroseries=distroseries(), person=self(), sourcepackagename=package):
+                                # TODO: also cache the release it applies to
+                                self._upload_pkg[(archive, package)] = True
+                                return True
+                        # check for component or per-package upload rights
+			for perm in archive.getPermissionsForPerson(person=self()):
 				if perm.permission != 'Archive Upload Rights':
 					continue
 				if component and perm.component_name == component:
@@ -442,24 +488,12 @@ class PersonTeam(BaseWrapper):
 		else:
 			return upload_comp or upload_pkg
 
-	# TODO: check if this is still needed after ArchiveReorg (or at all)
-	def isPerPackageUploader(self, archive, package):
-		'''
-		Check if the user has PerPackageUpload rights for package.
-		'''
-		if isinstance(package, SourcePackagePublishingHistory):
-			pkg = package.getPackageName()
-		else:
-			pkg = package
-
-		return self.canUploadPackage(archive, pkg, None)
-
 
 class Build(BaseWrapper):
 	'''
 	Wrapper class around a build object.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#build'
+	resource_type = lookup_service_root(service) + 'beta/#build'
 
 	def __str__(self):
 		return u'%s: %s' % (self.arch_tag, self.buildstate)
@@ -481,4 +515,4 @@ class DistributionSourcePackage(BaseWrapper):
 	'''
 	Caching class for distribution_source_package objects.
 	'''
-	resource_type = 'https://api.edge.launchpad.net/beta/#distribution_source_package'
+	resource_type = lookup_service_root(service) + 'beta/#distribution_source_package'

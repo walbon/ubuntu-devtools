@@ -13,3 +13,7 @@ class PocketDoesNotExistException(BaseException):
 class ArchiveNotFoundException(BaseException):
 	""" Thrown when an archive for a distibution is not found """
 	pass
+
+class AlreadyLoggedInError(Exception):
+    '''Raised when a second login is attempted.'''
+    pass

@@ -20,10 +20,10 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
-from .common import raw_input_exit_on_ctrlc
-from ..lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
-from ..lp.udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExistException, ArchiveNotFoundException
-from ..lp.libsupport import translate_api_web
+from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+from ubuntutools.lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
+from ubuntutools.lp.udtexceptions import PackageNotFoundException, SeriesNotFoundException, PocketDoesNotExistException, ArchiveNotFoundException
+from ubuntutools.lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
 	debian = Distribution('debian')
@@ -44,14 +44,15 @@ def getUbuntuSrcPkg(name, release):
 
 	return ubuntu_archive.getSourcePackage(name, release)
 
-def needSponsorship(name, component):
+def needSponsorship(name, component, release):
 	'''
 	Check if the user has upload permissions for either the package
 	itself or the component
 	'''
 	archive = Distribution('ubuntu').getArchive()
+        distroseries = Distribution('ubuntu').getSeries(release)
 
-	need_sponsor = not PersonTeam.getMe().canUploadPackage(archive, name, component)
+	need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
 	if need_sponsor:
 		print '''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate
@@ -104,7 +105,7 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 	# newly created bugreports have only one task
 	task = bug.bug_tasks[0]
 	# only members of ubuntu-bugcontrol can set importance
-	if PersonTeam.getMe().isLpTeamMember('ubuntu-bugcontrol'):
+	if PersonTeam.me.isLpTeamMember('ubuntu-bugcontrol'):
 		task.importance = 'Wishlist'
 	task.status = status
 	task.lp_save()

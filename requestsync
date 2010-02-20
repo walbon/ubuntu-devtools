@@ -78,7 +78,7 @@ if __name__ == '__main__':
 	# import the needed requestsync module
 	if options.lpapi:
 		from ubuntutools.requestsync.lp import *
-		from ubuntutools.lp.lpapicache import Distribution, PersonTeam
+		from ubuntutools.lp.lpapicache import Distribution
 		# See if we have LP credentials and exit if we don't - cannot continue in this case
 		try:
 			Launchpad.login()
@@ -140,15 +140,19 @@ if __name__ == '__main__':
 		print >> sys.stderr, "E: %s" % e
 		sys.exit(1)
 
-	# Debian and Ubuntu versions are the same - stop
+        # Stop if Ubuntu has already the version from Debian or a newer version
 	if ubuntu_version == debian_version:
 		print  >> sys.stderr, \
 			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
 		sys.exit(1)
+        if ubuntu_version > debian_version:
+            print >> sys.stderr, \
+                'E: The version in Ubuntu (%s) is newer than the version in Debian (%s). Aborting.' % (ubuntu_version, debian_version)
+            sys.exit(1)
 
 	# -s flag not specified - check if we do need sponsorship
 	if not sponsorship:
-		sponsorship = needSponsorship(srcpkg, ubuntu_component)
+		sponsorship = needSponsorship(srcpkg, ubuntu_component, release)
 
 	# Check for existing package reports
 	if not newsource:
@@ -182,12 +186,6 @@ if __name__ == '__main__':
 
 	if need_interaction:
 		raw_input_exit_on_ctrlc('Press [Enter] to continue. Press [Ctrl-C] to abort now. ')
-
-	# Check if they have a per-package upload permission.
-	if lpapi:
-		ubuntu_archive = Distribution('ubuntu').getArchive()
-		if PersonTeam.getMe().isPerPackageUploader(ubuntu_archive, srcpkg):
-			report += 'Note that I have per-package upload permissions for %s.\n\n' % srcpkg
 
 	base_version = force_base_version or ubuntu_version
 
