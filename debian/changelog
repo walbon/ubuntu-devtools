@@ -30,12 +30,13 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * Add support for the other LP service roots (edge is still default)
   * Depend on python-launchpadlib >= 1.5.4
   * Also check package sets for upload permissions.
+  * lp-set-dup: Don't crash when accessing private bugs (lp: #525539)
 
   [ Michael Vogt ]
   * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
     to transparently deal with the various patch systems.
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 20 Feb 2010 18:38:17 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Tue, 23 Feb 2010 00:31:19 +0100
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 

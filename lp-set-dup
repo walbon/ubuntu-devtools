@@ -22,10 +22,12 @@
 # Authors:
 #  Loïc Minier <lool@dooz.org>
 
-import os, sys
+import sys
+
 from optparse import OptionParser
 
 import ubuntutools.lp.libsupport as lp_libsupport
+from launchpadlib.errors import HTTPError
 
 def die(message):
     print >> sys.stderr, "Fatal: " + message
@@ -56,7 +58,14 @@ if __name__ == '__main__':
         die("Couldn't setup Launchpad for the ubuntu-dev-tools consumer; %s" % (suggestion, ))
 
     # check that the new main bug isn't a duplicate
-    new_main_bug = launchpad.bugs[args[0]]
+    try:
+        new_main_bug = launchpad.bugs[args[0]]
+    except HTTPError, error:
+        if error.response.status == 401:
+            print >> sys.stderr, "E: Don't have enough permissions to access bug %s" % (args[0])
+            die(error.content)
+        else:
+            raise
     new_main_dup_of = new_main_bug.duplicate_of
     if new_main_dup_of is not None:
         s = None
@@ -72,7 +81,15 @@ if __name__ == '__main__':
     bugs_to_process = []
     for b in args[1:]:
         print "Processing %s" % (b)
-        bug = launchpad.bugs[b]
+        try:
+            bug = launchpad.bugs[b]
+        except HTTPError, error:
+            if error.response.status == 401:
+                print >> sys.stderr, "W: Don't have enough permissions to access bug %s" % (b)
+                print >> sys.stderr, "W: %s" % (error.content)
+                continue
+            else:
+                raise
         dups = bug.duplicates
         if dups is not None:
             bugs_to_process.extend(dups)
