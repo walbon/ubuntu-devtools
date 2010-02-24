@@ -36,6 +36,10 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
     to transparently deal with the various patch systems.
 
+  [ Colin Watson ]
+  * lp-shell: Disable default apport excepthook, as this is intended for
+    interactive use.
+
  -- Michael Bienia <geser@ubuntu.com>  Tue, 23 Feb 2010 00:31:19 +0100
 
 ubuntu-dev-tools (0.92) lucid; urgency=low

@@ -25,3 +25,7 @@ else:
     instance = EDGE_SERVICE_ROOT
 
 lp = Launchpad.login_with('test', instance)
+
+# Disable default apport hook, as lp-shell is intended for interactive use
+# and thus exceptions often bubble up to the top level.
+sys.excepthook = sys.__excepthook__
