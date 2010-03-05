@@ -31,6 +31,8 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * Depend on python-launchpadlib >= 1.5.4
   * Also check package sets for upload permissions.
   * lp-set-dup: Don't crash when accessing private bugs (lp: #525539)
+  * requestsync: Subscribe 'ubuntu-release' to Feature Freeze exceptions
+    (updated to current policy; lp: #532740)
 
   [ Michael Vogt ]
   * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
@@ -40,7 +42,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * lp-shell: Disable default apport excepthook, as this is intended for
     interactive use.
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 23 Feb 2010 00:31:19 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Fri, 05 Mar 2010 17:54:20 +0100
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 

@@ -219,10 +219,7 @@ if __name__ == '__main__':
 			subscribe = 'ubuntu-universe-sponsors'
 	if ffe:
 		status = 'new'
-		if ubuntu_component in ('main', 'restricted'):
-			subscribe = 'ubuntu-release'
-		else:
-			subscribe = 'motu-release'
+		subscribe = 'ubuntu-release'
 
 	srcpkg = not newsource and srcpkg or None
 	if lpapi:
