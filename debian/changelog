@@ -26,13 +26,13 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * ubuntutools/requestsync/mail.py: Encode the report to utf-8 before passing
-    it to gpg for signing (lp: #522316).
+    it to gpg for signing (LP: #522316).
   * Add support for the other LP service roots (edge is still default)
   * Depend on python-launchpadlib >= 1.5.4
   * Also check package sets for upload permissions.
-  * lp-set-dup: Don't crash when accessing private bugs (lp: #525539)
+  * lp-set-dup: Don't crash when accessing private bugs (LP: #525539)
   * requestsync: Subscribe 'ubuntu-release' to Feature Freeze exceptions
-    (updated to current policy; lp: #532740)
+    (updated to current policy; LP: #532740)
 
   [ Michael Vogt ]
   * edit-patch: add wrapper around cdbs-edit-patch, dpatch-edit-patch, quilt
