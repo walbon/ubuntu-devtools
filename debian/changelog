@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.93) lucid; urgency=low
 
   [ Scott Moser ]
   * rename mk-sbuild-lv to mk-sbuild, support union-type=aufs
@@ -42,7 +42,7 @@ ubuntu-dev-tools (0.93) UNRELEASED; urgency=low
   * lp-shell: Disable default apport excepthook, as this is intended for
     interactive use.
 
- -- Michael Bienia <geser@ubuntu.com>  Fri, 05 Mar 2010 17:54:20 +0100
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 05 Mar 2010 19:16:32 -0800
 
 ubuntu-dev-tools (0.92) lucid; urgency=low
 
