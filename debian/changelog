@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.94) UNRELEASED; urgency=low
+
+  * debian/control: bump Standards-Version to 3.8.4, no changes needed.
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Sat, 06 Mar 2010 12:51:54 +0100
+
 ubuntu-dev-tools (0.93) lucid; urgency=low
 
   [ Scott Moser ]
