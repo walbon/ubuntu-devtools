@@ -4,10 +4,10 @@
 pbuilder\-dist, cowbuilder\-dist \- multi-distribution pbuilder/cowbuilder wrapper
 
 .SH SYNOPSIS
-\fBpbuilder\-dist\fP \fIdistribution\fR [\fBi386\fP|\fBamd64\fP|\fBarmel\fP] [\fBmainonly\fP]
+\fBpbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] [\fBmainonly\fP]
 \fIoperation\fR [\fI...\fR]
 
-\fBcowbuilder\-dist\fP \fIdistribution\fR [\fBi386\fP|\fBamd64\fP|\fBarmel\fP] [\fBmainonly\fP]
+\fBcowbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] [\fBmainonly\fP]
 \fIoperation\fR [\fI...\fR]
 
 .SH DESCRIPTION
@@ -15,8 +15,8 @@ pbuilder\-dist, cowbuilder\-dist \- multi-distribution pbuilder/cowbuilder wrapp
 versions of Ubuntu and/or Debian. 
 .PP
 It is common to symlink this script in order to give it many names in the form of
-\fBpbuilder\-\fIdistribution\fP\fR (\fBpbuilder\-\fIdistribution\fR\-\fIarchitecture\fP\fR on amd64
-systems), like for example \fBpbuilder\-feisty\fP, \fBpbuilder\-sid\fP, \fBpbuilder\-gutsy\-i386\fP, etc.
+\fBpbuilder\-\fIdistribution\fP\fR or \fBpbuilder\-\fIdistribution\fR\-\fIarchitecture\fP\fR,
+like for example \fBpbuilder\-feisty\fP, \fBpbuilder\-sid\fP, \fBpbuilder\-gutsy\-i386\fP, etc.
 .PP
 The same applies to \fBcowbuilder\-dist\fP, which uses cowbuilder. The main
 difference between both is that pbuilder compresses the created chroot as a
@@ -33,12 +33,13 @@ the name also contains \-\fIarchitecture\fR.
 \fBdistribution\fP
 Replace this with the codename of the version of Ubuntu or Debian you want to use.
 .TP
-\fBi386\fP / \fBamd64\fP / \fBarmel\fP
-Only available on i386 and amd64 systems.
-This is optional; default is the native architecture
-If \fBi386\fP is specified, an i386 environment will be used.
-If \fBarmel\fP is specified, an armel environment will be used.
-Note that there is no support for amd64 chroots on i386 systems
+\fBarchitecture\fP
+This optional parameter will attempt to construct a chroot in a foreign
+architecture.  For some architecture pairs (e.g. i386 on an amd64 install),
+the chroot will be created natively.  For others (e.g. armel on an i386
+install), qemu-static and binfmt-misc will be used.  Note that some
+combinations (e.g. amd64 on an i386 install) require special separate
+kernel handling, and may break in unexpected ways.
 .TP
 \fBmainonly\fP
 If you specify \fBmainonly\fP, only packages from the main (in Debian) or
