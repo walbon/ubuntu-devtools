@@ -221,7 +221,7 @@ class pbuilder_dist:
 		else:
 			if self.build_architecture in ('amd64','i386'):
 				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
-			elif self.build_architecture == 'powerpc' and target_distro == 'dapper':
+			elif self.build_architecture == 'powerpc' and self.target_distro == 'dapper':
 				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
 			else:
 				arguments.append('--mirror "http://ports.ubuntu.com/ubuntu-ports/"')

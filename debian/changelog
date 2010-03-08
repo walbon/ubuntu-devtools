@@ -9,8 +9,9 @@ ubuntu-dev-tools (0.94) UNRELEASED; urgency=low
   * mk-sbuild: allow any foreign chroot (may not work, but we can try)
   * pbuilder-dist: allow any foreign chroot (may not work, but we can try)
   * docs/pbuilder-dist.1: update manpage to indicate general architecture
+  * pbuilder-dist: add self. before target_distro in powerpc check
 
- -- Emmet Hikory <persia@ubuntu.com>  Mon, 08 Mar 2010 18:51:19 +0900
+ -- Emmet Hikory <persia@ubuntu.com>  Mon, 08 Mar 2010 20:45:09 +0900
 
 ubuntu-dev-tools (0.93) lucid; urgency=low
 
