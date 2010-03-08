@@ -7,6 +7,7 @@ Upstream Authors:
 	Albin Tonnerre <lut1n.tne@gmail.com>
 	Daniel Hahler <ubuntu@thequod.de>
 	Daniel Holbach <daniel.holbach@ubuntu.com>
+	Emmet Hikory <persia@ubuntu.com>
 	Iain Lane <iain@orangesquash.org.uk>
 	Jamin W. Collins <jcollins@asgardsrealm.net>
 	Jonathan Davies <jpds@ubuntu.com>
@@ -18,6 +19,7 @@ Upstream Authors:
 	Matt Zimmerman <mdz@ubuntu.com>
 	Michael Bienia <geser@ubuntu.com>
 	Pete Savage <petesavage@ubuntu.com>
+	Scott Moser <smoser@ubuntu.com>
 	Scott James Remnant <scott@ubuntu.com>
 	Siegfried-A. Gevatter <rainct@ubuntu.com>
 	Soren Hansen <soren@ubuntu.com>
@@ -68,7 +70,7 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
-hugdaylist, manage-credentials, massfile, mk-sbuild-lv, pbuilder-dist-simple,
+hugdaylist, manage-credentials, massfile, mk-sbuild, pbuilder-dist-simple,
 ppaput, pull-debian-debdiff, pull-debian-source, pull-lp-source, pull-revu-source,
 setup-packaging-environment, suspicious-source, ubuntu-build and what-patch are
 licensed under the GNU General Public License, version 3:
