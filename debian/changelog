@@ -3,7 +3,10 @@ ubuntu-dev-tools (0.96) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * ubuntu-build: missed updating a function call.
 
- -- Michael Bienia <geser@ubuntu.com>  Mon, 08 Mar 2010 17:49:49 +0100
+  [ Emmet Hikory ]
+  * mk-sbuild: Really don't use build-arm-chroot
+
+ -- Emmet Hikory <persia@ubuntu.com>  Tue, 09 Mar 2010 08:32:50 +0900
 
 ubuntu-dev-tools (0.95) lucid; urgency=low
 
