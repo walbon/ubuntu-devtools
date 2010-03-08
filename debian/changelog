@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.94) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.94) lucid; urgency=low
 
   [ Luca Falavigna ]
   * docs/lp-set-dup.1: add manpage for lp-set-dup.
