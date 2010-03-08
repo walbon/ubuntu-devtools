@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.95) lucid; urgency=low
+
+  * Update reverse-build-depends for lucid
+
+ -- Jonathan Riddell <jriddell@ubuntu.com>  Mon, 08 Mar 2010 13:33:47 +0000
+
 ubuntu-dev-tools (0.94) lucid; urgency=low
 
   [ Luca Falavigna ]
