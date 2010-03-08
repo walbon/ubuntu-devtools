@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.96) UNRELEASED; urgency=low
+
+  [ Michael Bienia ]
+  * ubuntu-build: missed updating a function call.
+
+ -- Michael Bienia <geser@ubuntu.com>  Mon, 08 Mar 2010 17:49:49 +0100
+
 ubuntu-dev-tools (0.95) lucid; urgency=low
 
   * Update reverse-build-depends for lucid

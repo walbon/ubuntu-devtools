@@ -132,7 +132,7 @@ if not options.batch:
 	# Get list of published sources for package in question.
 	try:
 		sources = ubuntu_archive.getSourcePackage(package, release, pocket)
-                distroseries = Distribution('ubuntu').getSeries(release)
+		distroseries = Distribution('ubuntu').getSeries(release)
 	except (SeriesNotFoundException, PackageNotFoundException), e:
 	    print e
 	    sys.exit(1)
@@ -216,6 +216,11 @@ if release and '-' in release:
 		sys.exit(1)
 
 ubuntu_archive = Distribution('ubuntu').getArchive()
+try:
+	distroseries = Distribution('ubuntu').getSeries(release)
+except SeriesNotFoundException, e:
+	print e
+	sys.exit(1)
 me = PersonTeam.me
 
 # Check permisions (part 1): Rescoring can only be done by buildd admins
@@ -226,15 +231,12 @@ if options.priority and not can_rescore:
 for pkg in args:
 	try:
 		pkg = ubuntu_archive.getSourcePackage(pkg, release, pocket)
-	except SeriesNotFoundException, e:
-		print e
-		sys.exit(1)
 	except PackageNotFoundException, e:
 		print e
 		continue
 
 	# Check permissions (part 2): check upload permissions for the source package
-	can_retry = options.retry and me.canUploadPackage(ubuntu_archive, pkg.getPackageName(), pkg.getComponent())
+	can_retry = options.retry and me.canUploadPackage(ubuntu_archive, distroseries, pkg.getPackageName(), pkg.getComponent())
 	if options.retry and not can_retry:
 		print >> sys.stderr, "You don't have the permissions to retry the build of '%s'. Ignoring your request." % pkg.getPackageName()
 
