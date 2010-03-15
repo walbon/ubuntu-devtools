@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.96) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.96) lucid; urgency=low
 
   [ Michael Bienia ]
   * ubuntu-build: missed updating a function call.
