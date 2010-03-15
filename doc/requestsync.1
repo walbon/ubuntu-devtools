@@ -23,9 +23,8 @@ the launchpadlib module fails.
 .PP
 \fBrequestsync\fR checks if you have the permissions to request the sync from
 the archive administrators directly by checking if you are a member of the
-\fI~ubuntu\-dev\fR team (for universe/multiverse syncs) or a member of the
-\fI~ubuntu\-core\-dev\fR team (for main/restricted syncs) on Launchpad.
-If you are not a member of the appropriate team, the script will subscribe
+\fI~ubuntu\-dev\fR team on Launchpad.
+If you are not a member of the team, the script will subscribe
 the necessary team with approval rights to the bug report for you.
 
 .PP
@@ -58,14 +57,12 @@ file the sync request in Launchpad.
 .TP
 .B \-s
 Specifies that you require sponsorship.
-You need this option if you are not a member of ubuntu-dev for universe or
-multiverse, or ubuntu-core-dev for main or restricted. This shall disable the
+You need this option if you are not a member of ubuntu-dev. This shall disable the
 Launchpad team membership checking described above. 
 .TP
 .B \-e
 Use this flag after FeatureFreeze for non-bug fix syncs. \fBrequestsync\fR will
-subscribe ubuntu-release team (for main/restricted packages) or motu-release
-team (for universe/multiverse packages) instead of sponsorship team.
+subscribe ubuntu-release team instead of sponsorship team.
 .TP
 .B <source package>
 This is the source package that you would like to be synced from Debian.

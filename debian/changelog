@@ -6,7 +6,14 @@ ubuntu-dev-tools (0.96) UNRELEASED; urgency=low
   [ Emmet Hikory ]
   * mk-sbuild: Really don't use build-arm-chroot
 
- -- Emmet Hikory <persia@ubuntu.com>  Tue, 09 Mar 2010 08:32:50 +0900
+  [ Daniel Holbach ]
+  * hugdaylist, requestsync, doc/requestsync.1: 
+    ubuntu-{main,universe}-sponsors → ubuntu-sponsors,
+    {ubuntu,motu}-release → ubuntu-release.
+  * ubuntutools/ppaput.py: removed, not necessary any more.
+  * debian/copyright: removed references to ppaput.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 15 Mar 2010 10:21:31 +0100
 
 ubuntu-dev-tools (0.95) lucid; urgency=low
 

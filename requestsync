@@ -213,10 +213,7 @@ if __name__ == '__main__':
 	subscribe = 'ubuntu-archive'
 	if sponsorship:
 		status = 'new'
-		if ubuntu_component in ('main', 'restricted'):
-			subscribe = 'ubuntu-main-sponsors'
-		else:
-			subscribe = 'ubuntu-universe-sponsors'
+		subscribe = 'ubuntu-sponsors'
 	if ffe:
 		status = 'new'
 		subscribe = 'ubuntu-release'
