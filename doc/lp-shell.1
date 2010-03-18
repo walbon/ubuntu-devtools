@@ -4,7 +4,7 @@ lp\-shell \- Open an interactive launchpadlib shell.
 
 .SH SYNOPSIS
 .B lp\-shell
-[ staging ]
+[service]
 
 .SH DESCRIPTION
 .B lp\-shell
@@ -13,11 +13,13 @@ which is ready for use.
 
 It authenticates against Launchpad with the consumer name "test".
 
-If you want to connect to staging instead of production, call
+It uses by default the "edge" Launchpad service and the default API version.
+If you want to connect to an other Launchpad service, call
 .B lp\-shell
-with the
-.B staging
-argument.
+with the service name as the second argument. lp-shell supports all services
+known by launchpadlib Python module.
+Currently known are (list can be incomplete or outdated): "production", "edge",
+"staging", "dogfood".
 
 .SH AUTHORS
 .B lp\-shell

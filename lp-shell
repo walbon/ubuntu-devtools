@@ -17,12 +17,16 @@
 
 import code, os, sys
 
-from launchpadlib.launchpad import Launchpad, STAGING_SERVICE_ROOT, EDGE_SERVICE_ROOT
+from launchpadlib.launchpad import Launchpad
+from launchpadlib.uris import lookup_service_root
 
-if len(sys.argv) == 2 and sys.argv[1] == 'staging':
-    instance = STAGING_SERVICE_ROOT
-else:
-    instance = EDGE_SERVICE_ROOT
+instance = 'edge'
+if len(sys.argv) >= 2:
+    try:
+        instance = lookup_service_root(sys.argv[1])
+    except ValueError, err:
+        print 'E: %s' % (err)
+        print 'W: Falling back to "edge"'
 
 lp = Launchpad.login_with('test', instance)
 
