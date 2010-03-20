@@ -8,8 +8,10 @@ ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
   * ubuntutools/lp/__init__.py: Set the '1.0' LP API version as default.
   * massfile: Updated to 1.0 LP API.
   * doc/requestsync.1: Update the paragraph about sponsoring (lp: #538990).
+  * pull-lp-source: Use (anonymously) the LP API to get the URL for the .dsc
+    file instead of screen scraping.
 
- -- Michael Bienia <geser@ubuntu.com>  Sat, 20 Mar 2010 18:48:34 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 20 Mar 2010 20:21:24 +0100
 
 ubuntu-dev-tools (0.96) lucid; urgency=low
 
