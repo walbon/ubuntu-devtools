@@ -63,7 +63,8 @@ class Launchpad(object):
     def login_anonymously(self):
         '''Enforce an anonymous login.'''
         if '_Launchpad__lp' not in self.__dict__:
-            self.__lp = launchpad.Launchpad.login_anonymously('ubuntu-dev-tools', service)
+            self.__lp = launchpad.Launchpad.login_anonymously('ubuntu-dev-tools',
+                    service_root=service, version=api_version)
         else:
             raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
