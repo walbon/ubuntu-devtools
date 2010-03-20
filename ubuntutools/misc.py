@@ -23,6 +23,8 @@
 # Modules.
 import os
 
+from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
+
 def system_distribution():
     """ system_distro() -> string
     
@@ -90,3 +92,26 @@ def readlist(filename, uniq=True):
         items = list(set(items))
     
     return items
+
+def splitReleasePocket(release):
+    '''Splits the release and pocket name.
+
+    If the argument doesn't contain a pocket name then the 'Release' pocket
+    is assumed.
+
+    Returns the release and pocket name.
+    '''
+    pocket = 'Release'
+
+    if release is None:
+        raise ValueError('No release name specified')
+
+    if '-' in release:
+        (release, pocket) = release.split('-')
+        pocket = pocket.capitalize()
+
+        if pocket not in ('Release', 'Security', 'Updates', 'Proposed',
+                'Backports'):
+            raise PocketDoesNotExistError("Pocket '%s' does not exist." % pocket)
+
+    return (release, pocket)
