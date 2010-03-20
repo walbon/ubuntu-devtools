@@ -260,7 +260,7 @@ class Archive(BaseWrapper):
 		'''
 		# Check if pocket has a valid value
 		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
-			raise PocketDoesNotExistException("Pocket '%s' does not exist." % pocket)
+			raise PocketDoesNotExistError("Pocket '%s' does not exist." % pocket)
 
 		dist = Distribution(self.distribution_link)
 		# Check if series is already a DistoSeries object or not
