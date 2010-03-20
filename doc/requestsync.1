@@ -2,7 +2,7 @@
 .SH NAME
 requestsync \- helper to file sync requests for Ubuntu
 .SH SYNOPSIS
-.B requestsync\fR [\fB\-d distro\fR] [\fB\-nse\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> [\fBtarget release\fR] [\fIbase version\fR]
+.B requestsync\fR [\fB\-d \fIdistro\fR] [\fB\-nse\fR] [\fB\-k \fIkeyid\fR] <\fBsource package\fR> [\fBtarget release\fR] [\fIbase version\fR]
 .br
 .B requestsync \-\-lp\fR [\fB\-nse\fR] <\fBsource package\fR> <\fBtarget release\fR> [\fIbase version\fR]
 .br
@@ -22,10 +22,15 @@ the launchpadlib module fails.
 
 .PP
 \fBrequestsync\fR checks if you have the permissions to request the sync from
-the archive administrators directly by checking if you are a member of the
-\fI~ubuntu\-dev\fR team on Launchpad.
-If you are not a member of the team, the script will subscribe
-the necessary team with approval rights to the bug report for you.
+the archive administrators directly by checking if you have upload permissions
+for that package through package set permissions or component permissions. If
+you don't have upload permissions, the script will subscribe the necessary
+team with approval rights to the bug report for you.
+
+This check is only performed if \fBrequestsync\fR is allowed to use the LP API
+(option \fB\-\-lp\fR). In the other case \fBrequestsync\fR relies on that you
+answer the question about upload permissions honestly to determine if a team
+with approval rights is to be subscribed to the bug.
 
 .PP
 \fBrequestsync\fR uses launchpadlib authentication to file its requests. Please
@@ -57,8 +62,8 @@ file the sync request in Launchpad.
 .TP
 .B \-s
 Specifies that you require sponsorship.
-You need this option if you are not a member of ubuntu-dev. This shall disable the
-Launchpad team membership checking described above. 
+You need this option if you don't have upload permissions for that package.
+This disables the upload permissions check described above. 
 .TP
 .B \-e
 Use this flag after FeatureFreeze for non-bug fix syncs. \fBrequestsync\fR will
@@ -96,7 +101,7 @@ If unspecified this defaults to fiordland.ubuntu.com.
 .B DEBSMTP_PORT
 Sets which port of the SMTP server to use. Default is 25.
 .TP
-.B DEBSMTP_USER and DEBSMTP_PASS
+.B DEBSMTP_USER \fRand\fB DEBSMTP_PASS
 Sets the username and password to use when authenticating to the SMTP server.
 
 .SH SEE ALSO 
