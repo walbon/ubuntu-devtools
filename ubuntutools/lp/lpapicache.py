@@ -32,7 +32,7 @@ from launchpadlib.uris import lookup_service_root
 from lazr.restfulclient.resource import Entry
 
 import ubuntutools.lp.libsupport as libsupport
-from ubuntutools.lp import service
+from ubuntutools.lp import (service, api_version)
 from ubuntutools.lp.udtexceptions import *
 
 __all__ = [
@@ -96,7 +96,7 @@ class BaseWrapper(object):
 	resource_type = None # it's a base class after all
 
 	def __new__(cls, data):
-		if isinstance(data, basestring) and data.startswith(lookup_service_root(service) + 'beta/'):
+		if isinstance(data, basestring) and data.startswith('%s%s/' % (lookup_service_root(service), api_version)):
 			# looks like a LP API URL
 			# check if it's already cached
 			cached = cls._cache.get(data)
@@ -151,7 +151,7 @@ class Distribution(BaseWrapper):
 	'''
 	Wrapper class around a LP distribution object.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#distribution'
+	resource_type = lookup_service_root(service) + api_version + '/#distribution'
 
 	def __init__(self, *args):
 		# Don't share _series and _archives between different Distributions
@@ -214,7 +214,7 @@ class Distribution(BaseWrapper):
 				self._series[series.name] = series
 				self._series[series.version] = series
 			except HTTPError:
-				raise SeriesNotFoundException("Error: Release '%s' is unknown in '%s'." % (name_or_version, self.display_name))
+				raise SeriesNotFoundException("Release '%s' is unknown in '%s'." % (name_or_version, self.display_name))
 		return self._series[name_or_version]
 
 	def getDevelopmentSeries(self):
@@ -233,14 +233,14 @@ class DistroSeries(BaseWrapper):
 	'''
 	Wrapper class around a LP distro series object.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#distro_series'
+	resource_type = lookup_service_root(service) + api_version + '/#distro_series'
 
 
 class Archive(BaseWrapper):
 	'''
 	Wrapper class around a LP archive object.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#archive'
+	resource_type = lookup_service_root(service) + api_version + '/#archive'
 
 	def __init__(self, *args):
 		# Don't share _srcpkgs between different Archives
@@ -301,7 +301,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
 	'''
 	Wrapper class around a LP source package object.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#source_package_publishing_history'
+	resource_type = lookup_service_root(service) + api_version + '/#source_package_publishing_history'
 
 	def __init__(self, *args):
 		# Don't share _builds between different SourcePackagePublishingHistory objects
@@ -334,7 +334,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
 
 	def getBuildStates(self, archs):
 		res = list()
-		
+
 		if not self._builds:
 			self._fetch_builds()
 
@@ -402,8 +402,8 @@ class PersonTeam(BaseWrapper):
         __metaclass__ = MetaPersonTeam
 
 	resource_type = (
-            lookup_service_root(service) + 'beta/#person',
-            lookup_service_root(service) + 'beta/#team',
+            lookup_service_root(service) + api_version + '/#person',
+            lookup_service_root(service) + api_version + '/#team',
             )
 
 	def __init__(self, *args):
@@ -434,7 +434,7 @@ class PersonTeam(BaseWrapper):
 	def isLpTeamMember(self, team):
 		'''
 		Checks if the user is a member of a certain team on Launchpad.
-		
+
 		Returns True if the user is a member of the team otherwise False.
 		'''
 		return any(t.name == team for t in self.super_teams)
@@ -493,7 +493,7 @@ class Build(BaseWrapper):
 	'''
 	Wrapper class around a build object.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#build'
+	resource_type = lookup_service_root(service) + api_version + '/#build'
 
 	def __str__(self):
 		return u'%s: %s' % (self.arch_tag, self.buildstate)
@@ -515,4 +515,4 @@ class DistributionSourcePackage(BaseWrapper):
 	'''
 	Caching class for distribution_source_package objects.
 	'''
-	resource_type = lookup_service_root(service) + 'beta/#distribution_source_package'
+	resource_type = lookup_service_root(service) + api_version + '/#distribution_source_package'

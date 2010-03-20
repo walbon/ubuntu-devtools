@@ -3,8 +3,12 @@ ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * lp-shell: Support all to the launchpadlib Python module known service
     names.
+  * ubuntutools/lp/lpapicache.py, ubuntutools/lp/libsupport.py: Add support
+    for different LP API versions.
+  * ubuntutools/lp/__init__.py: Set the '1.0' LP API version as default.
+  * massfile: Updated to 1.0 LP API.
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 18 Mar 2010 11:01:21 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 20 Mar 2010 18:26:49 +0100
 
 ubuntu-dev-tools (0.96) lucid; urgency=low
 

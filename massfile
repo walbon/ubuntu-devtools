@@ -106,12 +106,13 @@ def file_bug(config):
             status = config["status"].capitalize()
         else:
             status = "Confirmed"
-        task.transitionToStatus(status=status)
+        task.status = status
         
         assignee = config["assignee"]
         if assignee:
             assignee_url = "%s~%s" %(launchpad._root_uri, assignee)
-            bug.transitionToAssignee(assignee=assignee_url)
+            task.assignee = assignee_url
+        task.lp_save()
     except:
         "Bug for '%s' was not filed." % config["sourcepackage"]
 

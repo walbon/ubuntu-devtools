@@ -37,7 +37,7 @@ except:
     Credentials = None
     Launchpad = None
 
-from ubuntutools.lp import service
+from ubuntutools.lp import (service, api_version)
 
 def find_credentials(consumer, files, level=None):
     """ search for credentials matching 'consumer' in path for given access level. """
@@ -79,7 +79,7 @@ def get_launchpad(consumer, server=service, cache=None,
                   cred_file=None, level=None):
     credentials = get_credentials(consumer, cred_file, level)
     cache = cache or os.environ.get("LPCACHE", None)
-    return Launchpad(credentials, server, cache)
+    return Launchpad(credentials, server, cache, version=api_version)
     
 def query_to_dict(query_string):
     result = dict()
@@ -106,7 +106,7 @@ def translate_web_api(url, launchpad):
     return url
     
 def translate_api_web(self_url):
-    return self_url.replace("api.", "").replace("beta/", "")
+    return self_url.replace("api.", "").replace("%s/" % (api_version), "")
     
 LEVEL = {
     0: "UNAUTHORIZED",
