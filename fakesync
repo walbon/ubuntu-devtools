@@ -140,9 +140,14 @@ def main(bug_number, package, version, update, verbose=False, silent=False):
 	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 	people = launchpad.people
+	ums = people['ubuntu-main-sponsors']
+	bug.unsubscribe(person=ums)
 	uus = people['ubuntu-universe-sponsors']
 	bug.unsubscribe(person=uus)
-	print "uus unsubscribed"
+	print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
+	us = people['ubuntu-sponsors']
+	bug.unsubscribe(person=us)
+	print "ubuntu-sponsors unsubscribed"
 	task.transitionToAssignee(assignee=None)
 	print "unassigned me"
 	task.transitionToStatus (status="Fix Committed")
