@@ -17,6 +17,7 @@
 # See file /usr/share/common-licenses/GPL-3 for more details.
 
 import getopt
+import lazr.restfulclient
 import os
 import re
 import subprocess
@@ -149,13 +150,23 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		except KeyboardInterrupt:
 			continue
 
-		people = launchpad.people
-		ums = people['ubuntu-main-sponsors']
-		bug.unsubscribe(person=ums)
-		uus = people['ubuntu-universe-sponsors']
-		bug.unsubscribe(person=uus)
-		print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
-		us = people['ubuntu-sponsors']
+		succeeded_unsubscribe = True
+		ums = launchpad.people['ubuntu-main-sponsors']
+		uus = launchpad.people['ubuntu-universe-sponsors']
+		try:
+			bug.unsubscribe(person=ums)
+		except lazr.restfulclient.errors.HTTPError, http_error:
+			print "failed to unsubscribe ubuntu-main-sponsors: " + http_error.content
+			succeeded_unsubscribe = False
+		try:
+			bug.unsubscribe(person=uus)
+		except lazr.restfulclient.errors.HTTPError, http_error:
+			print "failed to unsubscribe ubuntu-universe-sponsors: " + http_error.content
+			succeeded_unsubscribe = False
+		if succeeded_unsubscribe:
+			print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
+
+		us = launchpad.people['ubuntu-sponsors']
 		bug.unsubscribe(person=us)
 		print "ubuntu-sponsors unsubscribed"
 		task.transitionToAssignee(assignee=None)
@@ -170,7 +181,7 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		else:
 			bug.newMessage(content="package builds, sync request ACK'd")
 		print "Ack comment added"
-		aa = people['ubuntu-archive']
+		aa = launchpad.people['ubuntu-archive']
 		bug.subscribe(person=aa)
 		print "Archive admin subscribed"
 		bug.subscribe(person=launchpad.me)
