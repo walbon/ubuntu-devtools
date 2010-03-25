@@ -180,11 +180,11 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
 
 	# sign the mail body
 	gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-	signed_report = gpg.communicate(mailbody.encode('utf-8'))[0]
+	signed_report = gpg.communicate(mailbody.encode('utf-8'))[0].decode('utf-8')
 	assert gpg.returncode == 0
 
 	# generate email
-	mail = '''\
+	mail = u'''\
 From: %s
 To: %s
 Subject: %s
@@ -223,6 +223,6 @@ Content-Type: text/plain; charset=UTF-8
 			s.quit()
 			return
 
-	s.sendmail(myemailaddr, to, mail)
+	s.sendmail(myemailaddr, to, mail.encode('utf-8'))
 	s.quit()
 	print 'Sync request mailed.'
