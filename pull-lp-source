@@ -26,84 +26,60 @@
 
 
 import os
-import re
-import subprocess
 import sys
-import urllib2
+import subprocess
 from optparse import OptionParser
 
 # ubuntu-dev-tools modules.
-from ubuntutools.lp.lpapicache import Distribution
-from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
+from ubuntutools.lp.lpapicache import Distribution, Launchpad
+from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
+        PackageNotFoundException, PocketDoesNotExistError)
+from ubuntutools.misc import splitReleasePocket
 
 if not os.path.exists("/usr/bin/dget"):
-    print "dget is not installed - please install the 'devscripts' package" \
+    print "E: dget is not installed - please install the 'devscripts' package" \
         " and rerun this script again."
     sys.exit(1)
-
-class BackportFromLP:
-
-    def __getitem__(self, name):
-        return getattr(self, name)
-    
-    def __init__(self, package, target_release):
-        self.package = package
-        self.target_release = target_release
-        self.__prepare_sources()
-    
-    def __prepare_sources(self):
-        # Scrape the source package from Launchpad :)
-        try:
-            contents = urllib2.urlopen('https://launchpad.net/ubuntu/%(target_release)s/+source/%(package)s' % self).read()
-            links = re.findall('href=\"(.*\.dsc)\"', contents)
-        
-            if len(links) == 1 and \
-            subprocess.call(['dget', '-xu', 'https://launchpad.net%s' % links[0]]) == 0:
-                print '\nSuccess!'
-            else:
-                raise ValueError, '\nFailed to fetch and extract the source. ' +\
-                    'Ensure that the package specified is a valid source ' +\
-                    'package name and that Launchpad is not down.'
-        except urllib2.HTTPError:
-                raise ValueError, '\nFailed to fetch and extract the source. ' +\
-                    'Ensure that the package specified is a valid source ' +\
-                    'package name and that Launchpad is not down.'
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
     (options, args) = optParser.parse_args()
-    release = None
-    
-    if not args: optParser.error("Arguments required.")
-    
-    package = str(args[0]).lower()
 
-    try:
-        if len(args) == 2: # Custom distribution specified.
-            release = str(args[1]).lower()
-        else:
-            release = os.getenv('DIST') or Distribution('ubuntu').getDevelopmentSeries().name
-
-        # Arguments are correct, proceed.
-        # Check that the Ubuntu release and package specified exists.
-        Distribution('ubuntu').getArchive().getSourcePackage(package, release)
-    except IOError, e:
-        print "This is non-fatal, continuing..."
-    except (SeriesNotFoundException, PackageNotFoundException), e:
-        print e
+    if not args:
+        optParser.print_help()
         sys.exit(1)
 
-    # We won't have been able to get the release if there are no LP credentials, hardcode it
-	# also could bail out here if others think that is better
-    if release is None:
-        release = 'lucid'
+    # Login anonymously to LP
+    Launchpad.login_anonymously()
+
+    package = str(args[0]).lower()
+
+    if len(args) >= 2: # Custom distribution specified.
+        release = str(args[1]).lower()
+    else:
+        release = os.getenv('DIST') or Distribution('ubuntu').getDevelopmentSeries().name
+
+    try:
+        (release, pocket) = splitReleasePocket(release)
+    except PocketDoesNotExistError, e:
+        print 'E: %s' % e
+        sys.exit(1)
+
+    try:
+        spph = Distribution('ubuntu').getArchive().getSourcePackage(package, release, pocket)
+    except (SeriesNotFoundException, PackageNotFoundException), e:
+        print 'E: %s' % e
+        sys.exit(1)
+
+    dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
+    assert dsc_url, 'No .dsc file found'
 
     # All good - start downloading...
-    try:
-        print 'Attempting to get %s from release %s...' % \
-            (package, release.capitalize())
-        BackportFromLP(package, release)
-    except ValueError, e:
-        print 'Error when downloading package %s from release %s: %s.' % \
-            (package, release, e)
+    print 'Fetching the source for %s from %s (%s)...' % (
+            package, release.capitalize(), pocket)
+    if subprocess.call(['/usr/bin/dget', '-xu', dsc_url[0]]) == 0:
+        print 'Success!'
+    else:
+        print 'Failed to fetch and extrace the source.', \
+                'Please check the output for the error.'

@@ -3,3 +3,4 @@
 ##
 
 service = 'edge'
+api_version = '1.0'

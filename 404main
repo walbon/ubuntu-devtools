@@ -88,19 +88,19 @@ def find_main(cache, pack):
 		# attribute on version for this, so unfortunately we have to
 		# do a lot of messing about with apt.
 		deps = []
-		src_records = apt_pkg.GetPkgSrcRecords()
+		src_records = apt_pkg.SourceRecords()
 		got_src = False
-		while src_records.Lookup(version.source_name):
-			if pack in src_records.Binaries:
+		while src_records.lookup(version.source_name):
+			if pack in src_records.binaries:
 				got_src = True
 				break
 		if got_src:
-			base_deps = []
-			for (name, ver, op, deptype) in src_records.BuildDepends:
-				base_deps.append(apt.package.BaseDependency(name, comp_type_deb(op), ver, False))
-				if (op & 16) != 16:
-					deps.append(apt.package.Dependency(base_deps))
+			for deptype, all_deps in src_records.build_depends.iteritems():
+				for or_deps in all_deps:
 					base_deps = []
+					for (name, ver, op) in or_deps:
+						base_deps.append(apt.package.BaseDependency(name, op, ver, False))
+					deps.append(apt.package.Dependency(base_deps))
 		
 		process_deps(cache, deps)
 

@@ -3,8 +3,17 @@ ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * lp-shell: Support all to the launchpadlib Python module known service
     names.
+  * ubuntutools/lp/lpapicache.py, ubuntutools/lp/libsupport.py: Add support
+    for different LP API versions.
+  * ubuntutools/lp/__init__.py: Set the '1.0' LP API version as default.
+  * massfile: Updated to 1.0 LP API.
+  * doc/requestsync.1: Update the paragraph about sponsoring (lp: #538990).
+  * pull-lp-source: Use (anonymously) the LP API to get the URL for the .dsc
+    file instead of screen scraping.
+  * Apply patch from Julian Andres Klode for the python-apt 0.8 API transition
+    (Closes: #572091) 
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 18 Mar 2010 11:01:21 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 25 Mar 2010 21:58:47 +0100
 
 ubuntu-dev-tools (0.96) lucid; urgency=low
 

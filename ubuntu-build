@@ -26,8 +26,10 @@
 import sys
 from optparse import OptionGroup
 from optparse import OptionParser
-from ubuntutools.lp.udtexceptions import SeriesNotFoundException, PackageNotFoundException
+from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
+        PackageNotFoundException, PocketDoesNotExistError,)
 from ubuntutools.lp.lpapicache import Distribution, PersonTeam
+from ubuntutools.misc import splitReleasePocket
 
 # Usage.
 usage = "%prog <srcpackage> <release> <operation>\n\n"
@@ -114,13 +116,10 @@ if not options.batch:
 	    oneArch = False
 
 	# split release and pocket
-	if '-' in release:
-		(release, pocket) = release.split('-')
-	else:
-		pocket = 'Release'
-	pocket = pocket.capitalize()
-	if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
-		print 'Unknown pocket: %s' % pocket
+	try:
+		(release, pocket) = splitReleasePocket(release)
+	except PocketDoesNotExistError, e:
+		print 'E: %s' % e
 		sys.exit(1)
 
 	# Get the ubuntu archive
@@ -205,15 +204,11 @@ else:
 archs.intersection_update(valid_archs)
 
 release = options.series or Distribution('ubuntu').getDevelopmentSeries().name
-pocket = 'Release'
-if release and '-' in release:
-	# split release and pocket
-	(release, pocket) = options.series.split('-')
-	pocket = pocket.capitalize()
-
-	if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
-		print 'Unknown pocket: %s' % pocket
-		sys.exit(1)
+try:
+    (release, pocket) = splitReleasePocket(release)
+except PocketDoesNotExistError, e:
+    print 'E: %s' % e
+    sys.exit(1)
 
 ubuntu_archive = Distribution('ubuntu').getArchive()
 try:
