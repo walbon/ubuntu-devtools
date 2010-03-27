@@ -1,8 +1,10 @@
 ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
-  * lp-shell: Support all to the launchpadlib Python module known service
-    names.
+  * lp-shell:
+    + Support all known LP service names.
+    + Add support for using different LP API versions.
+    + Add option to login anonymously into LP.
   * ubuntutools/lp/lpapicache.py, ubuntutools/lp/libsupport.py: Add support
     for different LP API versions.
   * ubuntutools/lp/__init__.py: Set the '1.0' LP API version as default.
@@ -13,7 +15,7 @@ ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
   * Apply patch from Julian Andres Klode for the python-apt 0.8 API transition
     (Closes: #572091) 
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 25 Mar 2010 21:58:47 +0100
+ -- Michael Bienia <geser@ubuntu.com>  Sat, 27 Mar 2010 20:14:24 +0100
 
 ubuntu-dev-tools (0.96) lucid; urgency=low
 

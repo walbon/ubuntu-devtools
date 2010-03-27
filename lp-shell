@@ -1,7 +1,8 @@
-#!/usr/bin/python -i
+#!/usr/bin/python
 
-# open an interactive launchpadlib Python shell. If the first command line
-# argument is "staging", this will be on staging instead of production.
+# Open an interactive launchpadlib Python shell.
+# It supports all known LP service instances and API versions. The login
+# can optionally happen anonymously.
 
 # Author: Martin Pitt <martin.pitt@ubuntu.com>
 # Copyright: (C) 2010 Canonical Ltd.
@@ -15,21 +16,66 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import code, os, sys
+import sys
+import code
+from optparse import OptionParser
 
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.uris import lookup_service_root
 
 instance = 'edge'
-if len(sys.argv) >= 2:
+valid_api_versions = ('beta', '1.0', 'devel')
+api_version = '1.0'
+
+usage = 'Usage: %prog [-a] [instance] [LP API version]'
+optParser = OptionParser(usage)
+optParser.add_option('-a', action='store_true',
+        dest='anonymous', default=False,
+        help='Login anonymously into LP.')
+
+(options, args) = optParser.parse_args()
+
+if len(args) >= 1:
     try:
-        instance = lookup_service_root(sys.argv[1])
+        instance = lookup_service_root(args[0])
     except ValueError, err:
         print 'E: %s' % (err)
-        print 'W: Falling back to "edge"'
+        print 'I: Falling back to "edge".'
 
-lp = Launchpad.login_with('test', instance)
+if len(args) >= 2:
+    if args[1] in valid_api_versions:
+        api_version = args[1]
+    else:
+        print 'E: "%s" is not a valid LP API version.' % (args[1])
+        print 'I: Falling back to "1.0".'
+
+if options.anonymous:
+    lp = Launchpad.login_anonymously('test', instance, version=api_version)
+    banner = 'Connected anonymously to LP service "%s" with API version "%s":' % (
+            instance, api_version)
+else:
+    lp = Launchpad.login_with('test', instance, version=api_version)
+    banner = 'Connected to LP service "%s" with API version "%s":' % (
+            instance, api_version)
+
+banner += '\nNote: LP can be accessed through the "lp" object.'
+
+class CompleterConsole(code.InteractiveConsole):
+    def __init__(self):
+        local = {'lp': lp}
+        code.InteractiveConsole.__init__(self,
+                locals=local)
+        try:
+            import readline
+        except ImportError:
+            print 'I: readline module not available.'
+        else:
+            import rlcompleter
+            readline.parse_and_bind("tab: complete")
 
 # Disable default apport hook, as lp-shell is intended for interactive use
 # and thus exceptions often bubble up to the top level.
 sys.excepthook = sys.__excepthook__
+
+console = CompleterConsole()
+console.interact(banner)
