@@ -13,7 +13,7 @@ Standards-Version: 3.8.4
 Package: ubuntu-dev-tools
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
- python-debian, python-launchpadlib (>= 1.5.4), dctrl-tools, lsb-release, diffstat,
+ python-debian, python-launchpadlib (>= 1.5.7), dctrl-tools, lsb-release, diffstat,
  dpkg-dev, python-apt (>= 0.7.93~), python-lazr.restfulclient
 Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
  ca-certificates, debootstrap, genisoimage, perl-modules, libwww-perl,
