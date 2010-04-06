@@ -112,7 +112,10 @@ edit_patch_quilt() {
     if [ -e debian/patches/$1 ]; then
 	quilt push $1
     else
-	quilt push -a
+	# make the new patch the last entry
+	if quilt unapplied >/dev/null; then
+		quilt push -a
+	fi
 	quilt new $1
     fi
     # use a sub-shell

@@ -14,6 +14,11 @@ ubuntu-dev-tools (0.97) UNRELEASED; urgency=low
     file instead of screen scraping.
   * Apply patch from Julian Andres Klode for the python-apt 0.8 API transition
     (Closes: #572091) 
+  
+  [ Michael Vogt ]
+  * edit-patch:
+    - fix quilt mode when dpkg already applied all the patches 
+      (LP: #556297)
 
  -- Michael Bienia <geser@ubuntu.com>  Sat, 27 Mar 2010 20:14:24 +0100
 
