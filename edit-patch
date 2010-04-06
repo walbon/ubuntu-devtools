@@ -110,9 +110,14 @@ edit_patch_dpatch() {
 edit_patch_quilt() {
     export QUILT_PATCHES=debian/patches
     if [ -e debian/patches/$1 ]; then
+	# if its a existing patch and we are at the end of the stack,
+	# go back at the beginning
+	if ! quilt unapplied; then
+	    quilt pop -a
+	fi
 	quilt push $1
     else
-	# make the new patch the last entry
+	# if its a new patch make sure we are at the end of the stack
 	if quilt unapplied >/dev/null; then
 		quilt push -a
 	fi
