@@ -10,7 +10,7 @@ ubuntu-dev-tools package in Ubuntu.
 
 2) Check to make sure that all approved merges have been merged:
 
-    https://code.launchpad.net/ubuntu-dev-tools/+approvedmerges
+    https://code.launchpad.net/ubuntu-dev-tools/+activereviews
 
 3) Make sure that there is no low lying fruit that can be fixed at:
 
