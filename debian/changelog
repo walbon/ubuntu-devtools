@@ -1,3 +1,13 @@
+ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
+
+  [ Ryan Kavanagh ]
+  * Added the merge-changelog script from
+    https://lists.ubuntu.com/archives/ubuntu-x/2009-June/000586.html for those
+    who need to manually merge packages.
+  * Fixed typo in doc/grab-merge.1
+
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 08 Apr 2010 13:21:48 +0200
+
 ubuntu-dev-tools (0.97) lucid; urgency=low
 
   [ Michael Bienia ]

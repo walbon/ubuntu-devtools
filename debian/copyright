@@ -5,6 +5,7 @@ Upstream Authors:
 
 	Albert Damen <albrt@gmx.net>
 	Albin Tonnerre <lut1n.tne@gmail.com>
+	Bryce Harrington <bryce@ubuntu.com>
 	Daniel Hahler <ubuntu@thequod.de>
 	Daniel Holbach <daniel.holbach@ubuntu.com>
 	Emmet Hikory <persia@ubuntu.com>
@@ -45,7 +46,7 @@ Copyright:
 	(C) 2008, 2009, Nathan Handler <nhandler@ubuntu.com>
 	(C) Patrick Schoenfeld <schoenfeld@debian.org>
 	(C) 2006-2007, Pete Savage <petesavage@ubuntu.com>
-	(C) 2009 Ryan Kavanagh <ryanakca@kubuntu.org>
+	(C) 2009-2010 Ryan Kavanagh <ryanakca@kubuntu.org>
 	(C) 2007-2009, Siegfried-A. Gevatter <rainct@ubuntu.com>
 	(C) 2008, Stephan Hermann <sh@sourcecode.de>
 	(C) 2007 Steve Kowalik <stevenk@ubuntu.com>
@@ -70,10 +71,10 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
-hugdaylist, manage-credentials, massfile, mk-sbuild, pbuilder-dist-simple,
-pull-debian-debdiff, pull-debian-source, pull-lp-source, pull-revu-source,
-setup-packaging-environment, suspicious-source, ubuntu-build and what-patch are
-licensed under the GNU General Public License, version 3:
+hugdaylist, manage-credentials, massfile, merge-changelog, mk-sbuild,
+pbuilder-dist-simple, pull-debian-debdiff, pull-debian-source, pull-lp-source,
+pull-revu-source, setup-packaging-environment, suspicious-source, ubuntu-build
+and what-patch are licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
