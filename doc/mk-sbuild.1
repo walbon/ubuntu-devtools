@@ -6,7 +6,8 @@ mk\-sbuild \- creates chroots via schroot and sbuild
 .SH SYNOPSIS
 \fBmk\-sbuild\fR [\fB\-\-arch=ARCH\fR] [\fB\-\-name=NAME\fR]
 [\fB\-\-personality=PERSONALITY\fR] [\fB\-\-debug\fR] [\fB\-\-source\-template=FILE\fR]
-[\fB\-\-debootstrap\-mirror=URL\fR] <\fBRelease\fR>
+[\fB\-\-debootstrap\-mirror=URL\fR] [\fB\-\-distro=DISTRO\fR] 
+[\fB\-\-vg=VOLUME_GROUP\fR] [\fB\-\-type=SCHROOT_TYPE\fR] <\fBRelease\fR>
 
 .SH DESCRIPTION
 \fBmk\-sbuild\fR creates chroots via schroot and sbuild.
@@ -36,15 +37,15 @@ Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild.sources).
 Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
 official Ubuntu repositories for the supported architectures).
 .TP
-.B \-\-distro
+.B \-\-distro=DISTRO
 Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
 and "debian".
 .TP
-.B \-\-vg
+.B \-\-vg=VOLUME_GROUP
 Specify a volume group, and subsequently use a default SCHROOT_TYPE of
 "lvm-snapshot" rather than "directory" (via aufs) mounts.
 .TP
-.B \-\-type
+.B \-\-type=SHROOT_TYPE
 Specify a SCHROOT_TYPE.  Supported values are "directory" (default if
 \-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified), and "file".
 

@@ -6,7 +6,10 @@ ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
     who need to manually merge packages.
   * Fixed typo in doc/grab-merge.1
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 08 Apr 2010 13:21:48 +0200
+  [ Emmet Hikory ]
+  * doc/mk-sbuild.1: add missing options to summary
+
+ -- Emmet Hikory <persia@ubuntu.com>  Sun, 11 Apr 2010 17:29:42 +0900
 
 ubuntu-dev-tools (0.97) lucid; urgency=low
 
