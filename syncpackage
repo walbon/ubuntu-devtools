@@ -19,6 +19,7 @@
 # ##################################################################
 
 import os, os.path, sys, urllib, subprocess, shutil
+from ubuntutools.requestsync.lp import getUbuntuSrcPkg
 
 def retrieve_file(url):
     '''Download file (by URL)  to the current directory.
@@ -29,18 +30,6 @@ def retrieve_file(url):
     if not os.path.exists(fname):
 	print 'downloading', url
 	urllib.urlretrieve(url, fname)
-
-def cur_version(sourcepkg, release):
-    madison = subprocess.Popen(['apt-cache', 'madison', sourcepkg], stdout=subprocess.PIPE)
-    out = madison.communicate()[0]
-    assert (madison.returncode == 0)
-
-    for l in out.splitlines():
-	(pkg, version, aptsrc) = l.split('|')
-	if aptsrc.endswith('Sources') and aptsrc.find(release) > 0:
-	    return version.strip()
-
-    raise Exception('apt-cache madison does not contain %s/%s' % (sourcepkg, release))
 
 def dsc_getfiles(dsc):
     '''Return list of files in a .dsc file (excluding the .dsc file itself).'''
@@ -77,7 +66,7 @@ basepath = os.path.dirname(dscurl)
 (srcpkg, new_ver) = dscname.split('_')
 new_ver = new_ver[:-4] # strip off '.dsc'
 
-cur_ver = cur_version(srcpkg, release)
+cur_ver = getUbuntuSrcPkg(srcpkg, release).getVersion()
 
 retrieve_file(dscurl)
 files = dsc_getfiles(dscname)
