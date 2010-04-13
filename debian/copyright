@@ -93,4 +93,4 @@ version of the previously specified license: 404main, dch-repeat, dgetlp,
 get-build-deps, lp-project-upload, lp-set-dup, manage-credentials, mk-sbuild-lv,
 pbuilder-dist, pull-debian-debdiff, pull-debian-source, pull-lp-source,
 pull-revu-source, reverse-build-depends, setup-packaging-environment, submittodebian,
-suspicious-source, ubuntu-build, what-patch.
+suspicious-source, syncpackage, ubuntu-build, what-patch.
