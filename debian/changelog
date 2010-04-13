@@ -13,7 +13,10 @@ ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
   * lp-shell: Use "udt-lp-shell" as LP API consumer instead of the non-unique
     "test" (lp: #558531).
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 13 Apr 2010 18:41:36 +0200
+  [ Luca Falavigna ]
+  * syncpackage: new script to easily upload pristine Debian packages.
+
+ -- Luca Falavigna <dktrkranz@debian.org>  Tue, 13 Apr 2010 23:17:22 +0200
 
 ubuntu-dev-tools (0.97) lucid; urgency=low
 
