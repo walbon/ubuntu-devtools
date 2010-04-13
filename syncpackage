@@ -18,6 +18,7 @@
 #
 # ##################################################################
 
+import apt_pkg
 import os, os.path, sys, urllib, subprocess, shutil
 from ubuntutools.requestsync.lp import getUbuntuSrcPkg
 
@@ -67,6 +68,11 @@ basepath = os.path.dirname(dscurl)
 new_ver = new_ver[:-4] # strip off '.dsc'
 
 cur_ver = getUbuntuSrcPkg(srcpkg, release).getVersion()
+
+# No need to continue if version is not greater than current one
+apt_pkg.init()
+if not apt_pkg.check_dep(new_ver, '>', cur_ver):
+    raise Exception('%s version %s is not greater than already available %s' % (srcpkg, new_ver, cur_ver))
 
 retrieve_file(dscurl)
 files = dsc_getfiles(dscname)
