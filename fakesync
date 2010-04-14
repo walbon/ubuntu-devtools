@@ -30,7 +30,7 @@ COMMAND_LINE_SYNTAX_ERROR = 1
 VERSION_DETECTION_FAILED = 2
 
 def get_version(title):
-	m = re.search("[() ][0-9][0-9a-zA-Z.:+-]*", title)
+	m = re.search("[() ][0-9][0-9a-zA-Z.:+-~]*", title)
 	if m is None:
 		print >> sys.stderr, "Version could not be detected. Please specify it with -V."
 		sys.exit(VERSION_DETECTION_FAILED)
