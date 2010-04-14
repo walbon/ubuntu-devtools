@@ -169,13 +169,14 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		us = launchpad.people['ubuntu-sponsors']
 		bug.unsubscribe(person=us)
 		print "ubuntu-sponsors unsubscribed"
-		task.transitionToAssignee(assignee=None)
+		task.assignee = None
 		print "unassigned me"
-		task.transitionToStatus (status="Triaged")
+		task.status = "Triaged"
 		print "status set to Triaged"
 		if task.importance == "Undecided":
-			task.transitionToImportance(importance="Wishlist")
+			task.importance = "Wishlist"
 			print "importance set to Wishlist"
+		task.lp_save()
 		if piuparts:
 			bug.newMessage(content="package builds and installs, sync request ACK'd")
 		else:

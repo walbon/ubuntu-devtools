@@ -159,10 +159,11 @@ def main(bug_number, package, version, update, verbose=False, silent=False):
 	us = launchpad.people['ubuntu-sponsors']
 	bug.unsubscribe(person=us)
 	print "ubuntu-sponsors unsubscribed"
-	task.transitionToAssignee(assignee=None)
+	task.assignee = None
 	print "unassigned me"
-	task.transitionToStatus (status="Fix Committed")
+	task.status = "Fix Committed"
 	print "status set to Fix Committed"
+	task.lp_save()
 #	bug.newMessage(content="package builds, sync request ACK'd")
 #	print "Ack comment added"
 	bug.subscribe(person=launchpad.me)
