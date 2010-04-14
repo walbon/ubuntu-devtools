@@ -58,11 +58,8 @@ def extract_upstream_version(debian_version):
 
 	return upstream_version
 
-def get_source(package, version, section, bug_number):
+def get_source(package, version, section, bug_number, dist):
 	assert section in ("main", "contrib", "non-free")
-
-	# TODO: use release-info (once available)
-	dist = "lucid"
 
 	workdir = "/tmp/fakesync"
 	if not os.path.isdir(workdir):
@@ -105,9 +102,7 @@ def get_source(package, version, section, bug_number):
 
 	return new_dsc_file
 
-def build_source(dsc_file):
-	# TODO: use release-info (once available)
-	dist = "lucid"
+def build_source(dist, dsc_file):
 	try:
 		subprocess.check_call(["sudo", "env", "DIST=" + dist, "pbuilder", "build", dsc_file])
 	except subprocess.CalledProcessError:
@@ -116,6 +111,8 @@ def build_source(dsc_file):
 
 def main(bug_number, package, version, update, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
+	# TODO: use release-info (once available)
+	dist = launchpad.distributions["ubuntu"].current_series.name
 
 	bug = launchpad.bugs[bug_number]
 
@@ -127,13 +124,13 @@ def main(bug_number, package, version, update, verbose=False, silent=False):
 		version = get_version(bug.title)
 	print "package:", package
 	print "version:", version
-	dsc_file = get_source(package, version, "main", bug_number)
+	dsc_file = get_source(package, version, "main", bug_number, dist)
 	
 	# update pbuilder
 	if update:
-		subprocess.call(["sudo", "env", "DIST=lucid", "pbuilder", "update"])
+		subprocess.call(["sudo", "env", "DIST=" + dist, "pbuilder", "update"])
 	
-	build_source(dsc_file)
+	build_source(dist, dsc_file)
 	
 	print bug.title
 	print task.assignee

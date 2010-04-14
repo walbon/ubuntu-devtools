@@ -69,9 +69,7 @@ def get_source(package, version, section):
 	subprocess.check_call(["dget", "-u", location])
 	return dsc_file
 
-def build_source(dsc_file):
-	# TODO: use release-info (once available)
-	dist = "lucid"
+def build_source(dist, dsc_file):
 	try:
 		if sbuild:
 			subprocess.check_call(LogCall(["sbuild", "-c", dist,"-A", dsc_file]))
@@ -83,9 +81,7 @@ def build_source(dsc_file):
 		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
 		sys.exit(1)
 
-def test_install(dsc_file):
-	# TODO: use release-info (once available)
-	dist = "lucid"
+def test_install(dist, dsc_file):
 	changes_files=glob.glob(os.path.splitext(dsc_file)[0]+"_*.changes")
 	changes_file = ""
 
@@ -110,15 +106,17 @@ def test_install(dsc_file):
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
 def main(bug_numbers, package, version, section, update, verbose=False, silent=False):
+	launchpad = get_launchpad("ubuntu-dev-tools")
+	# TODO: use release-info (once available)
+	dist = launchpad.distributions["ubuntu"].current_series.name
+
 	# update pbuilder
 	if update:
 		if sbuild:
 			subprocess.call(LogCall(["sbuild-update", dist]))
 		else:
-			cmd = ["sudo", "env", "DIST=lucid", "pbuilder", "update"]
+			cmd = ["sudo", "env", "DIST=" + dist, "pbuilder", "update"]
 			subprocess.call(LogCall(cmd))
-
-	launchpad = get_launchpad("ubuntu-dev-tools")
 
 	for bug_number in bug_numbers:
 		bug = launchpad.bugs[bug_number]
@@ -137,10 +135,10 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		print "version:", version
 		dsc_file = get_source(package, version, section)
 
-		build_source(dsc_file)
+		build_source(dist, dsc_file)
 	
 		if piuparts:
-			test_install(dsc_file)
+			test_install(dist, dsc_file)
 
 		print bug.title
 		print task.assignee
