@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.98) lucid; urgency=low
 
   [ Ryan Kavanagh ]
   * Added the merge-changelog script from
@@ -18,7 +18,7 @@ ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
     Ubuntu dists; the default dist for reverse-build-depends and
     submittodebian should be changed in maverick.
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 13 Apr 2010 18:41:36 +0200
+ -- Loïc Minier <loic.minier@ubuntu.com>  Fri, 16 Apr 2010 11:28:12 +0200
 
 ubuntu-dev-tools (0.97) lucid; urgency=low
 
