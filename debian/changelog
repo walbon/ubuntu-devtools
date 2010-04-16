@@ -1,11 +1,4 @@
-ubuntu-dev-tools (0.99) UNRELEASED; urgency=low
-
-  [ Michael Bienia ]
-  * get-branches: Use the LP API to obtain a list of branches of a team.
-
- -- Michael Bienia <geser@ubuntu.com>  Fri, 16 Apr 2010 12:25:35 +0200
-
-ubuntu-dev-tools (0.98) lucid; urgency=low
+ubuntu-dev-tools (0.98) UNRELEASED; urgency=low
 
   [ Ryan Kavanagh ]
   * Added the merge-changelog script from
@@ -13,12 +6,17 @@ ubuntu-dev-tools (0.98) lucid; urgency=low
     who need to manually merge packages.
   * Fixed typo in doc/grab-merge.1
 
+  [ Soren Hansen ]
+  * Update get-branches to account for changes in LP's web UI. Really, someone
+    should update it to use the LP API, but for now, this will have to do.
+
   [ Emmet Hikory ]
   * doc/mk-sbuild.1: add missing options to summary
 
   [ Michael Bienia ]
   * lp-shell: Use "udt-lp-shell" as LP API consumer instead of the non-unique
     "test" (lp: #558531).
+  * get-branches: Use the LP API to obtain a list of branches of a team.
 
   [ Loïc Minier ]
   * bash_completion/pbuilder-dist, dch-repeat: list maverick in possible
