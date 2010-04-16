@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.99) UNRELEASED; urgency=low
+
+  [ Michael Bienia ]
+  * get-branches: Use the LP API to obtain a list of branches of a team.
+
+ -- Michael Bienia <geser@ubuntu.com>  Fri, 16 Apr 2010 12:25:35 +0200
+
 ubuntu-dev-tools (0.98) lucid; urgency=low
 
   [ Ryan Kavanagh ]
