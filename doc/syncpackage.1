@@ -1,0 +1,24 @@
+.TH SYNCPACKAGE "1" "15 April 2008" "ubuntu-dev-tools"
+.SH NAME
+syncpackage \- helper to prepare .changes file to upload synced packages
+.SH SYNOPSIS
+.B syncpacage\fR \fB<.dsc file>\fR \fB<target release>\fR
+.SH DESCRIPTION
+\fBsyncpackage\fR generates a changes file to be directly uploaded to Ubuntu
+primary archive or PPA starting from a pristine Debian package.
+.PP
+\fBsyncpackage\fR allows you to upload files with the same checksums of the
+Debian ones, as the common script used by Ubuntu archive administrators does,
+this way you can preserve source files integrity between the two distributions.
+.SH OPTIONS
+.B <.dsc file>
+This is the .dsc file to generate .changes file against.
+.TP
+.B <target release>
+This is the release that you would like the source package to be synced into.
+This should always be the latest development release of Ubuntu.
+.SH AUTHOR
+.B requestsync
+This manual page were written by Luca Falavigna <dktrkranz@ubuntu.com>
+.PP
+It is released under GNU General Public License, version 3.

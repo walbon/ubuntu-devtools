@@ -1,0 +1,116 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008-2010 Martin Pitt <martin.pitt@canonical.com>
+#
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-3 for more details.
+#
+# ##################################################################
+
+import apt_pkg
+import os, os.path, sys, urllib, subprocess, shutil
+from ubuntutools.requestsync.lp import getUbuntuSrcPkg
+
+def retrieve_file(url):
+    '''Download file (by URL)  to the current directory.
+
+    If the file is already present, this function does nothing.'''
+
+    fname = os.path.basename(url)
+    if not os.path.exists(fname):
+	print 'downloading', url
+	urllib.urlretrieve(url, fname)
+
+def dsc_getfiles(dsc):
+    '''Return list of files in a .dsc file (excluding the .dsc file itself).'''
+
+    f = open(dsc)
+    files = []
+
+    # skip until 'Files:'
+    for l in f:
+	if l.strip() == 'Files:':
+	    break
+
+    for l in f:
+        if not l.startswith(' '):
+            continue
+	if l.strip() == '':
+	    break
+	fname = l.split()[2]
+	if not fname.endswith('.dsc'):
+	    files.append(fname)
+
+    f.close()
+    return files
+
+#
+# entry point
+#
+
+if len(sys.argv) != 3:
+    print 'Usage: syncpackage <.dsc URL or path> <target release>'
+    sys.exit (1)
+
+(dscurl, release) = sys.argv[1:]
+dscname = os.path.basename(dscurl)
+basepath = os.path.dirname(dscurl)
+(srcpkg, new_ver) = dscname.split('_')
+new_ver = new_ver[:-4] # strip off '.dsc'
+
+cur_ver = getUbuntuSrcPkg(srcpkg, release).getVersion()
+
+# No need to continue if version is not greater than current one
+apt_pkg.init()
+if not apt_pkg.check_dep(new_ver, '>', cur_ver):
+    raise Exception('%s version %s is not greater than already available %s' % (srcpkg, new_ver, cur_ver))
+
+retrieve_file(dscurl)
+files = dsc_getfiles(dscname)
+
+# do we need the orig.tar.gz?
+need_orig = True
+if cur_ver.find('-') > 0 and new_ver.find('-') > 0 and \
+    cur_ver.split('-')[0] == new_ver.split('-')[0]:
+    need_orig = False
+    #files = [f for f in files if not f.endswith('orig.tar.gz')]
+
+print 'Source %s: current version %s, new version %s' % (srcpkg, cur_ver, new_ver)
+print 'needs orig.tar.gz', need_orig
+print 'Files:', files
+for f in files:
+    retrieve_file(os.path.join(basepath, f))
+
+uidx = cur_ver.find('ubuntu')
+if uidx > 0:
+    cur_ver = cur_ver[:uidx]
+    print 'WARNING! Overwriting modified Ubuntu version, setting current version to', cur_ver
+
+uidx = cur_ver.find('build')
+if uidx > 0:
+    cur_ver = cur_ver[:uidx]
+
+orig_arg = ''
+if need_orig:
+    orig_arg = '-sa'
+
+# extract package, build Source
+assert subprocess.call(['dpkg-source', '-x', dscname]) == 0
+os.chdir(srcpkg + '-' + new_ver.split('-')[0])
+assert subprocess.call("dpkg-genchanges -q -S %s -v%s -e\"$(getent passwd $(id -u)|cut -f5 -d:|cut -f1 -d,) <$DEBEMAIL>\" | \
+    	sed 's/^Distribution:.*$/Distribution: %s/; 1 i\Origin: debian/unstable' > ../%s_%s_source.changes" % 
+	(orig_arg, cur_ver, release, srcpkg, new_ver), shell=True) == 0
+os.chdir('..')
+shutil.rmtree(srcpkg + '-' + new_ver.split('-')[0], True)
+assert subprocess.call("debsign %s_%s_source.changes" % (srcpkg, new_ver), shell=True) == 0
