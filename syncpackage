@@ -44,6 +44,8 @@ def dsc_getfiles(dsc):
 	    break
 
     for l in f:
+        if not l.startswith(' '):
+            continue
 	if l.strip() == '':
 	    break
 	fname = l.split()[2]
