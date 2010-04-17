@@ -1,32 +1,39 @@
-.TH GET\-BRANCHES "1" "11 August 2008" "ubuntu-dev-tools"
+.TH get\-branches "1" "11 August 2008" "ubuntu-dev-tools"
 .SH NAME
-get\-branches \- downloads all branches related to a Launchpad team or person
+get\-branches - downloads all branches related to a Launchpad team or person
 
 .SH SYNOPSIS
-.B get\-branches [\-d directory] [\-o branch|checkout] \-t <team>
+.B get\-branches
+.RB [ \-d
+.IR directory ]
+.RB [ \-o
+.BR branch | checkout ]
+.B \-t
+.I team
 .br
-.B get\-branches <team>
+.B get\-branches
+.I team
 .br
 .B get\-branches \-\-help
 
 .SH DESCRIPTION
-\fBget\-branches\fR examines the code page of a Launchpad team/person,
-parses it, and calls Bazaar to download all branches on that page.
+\fBget\-branches\fR uses the LP API to get a list of branches for a person or
+team and calls Bazaar to download all branches.
 
 .SH OPTIONS
 Listed below are the command line options for \fBget\-branches\fR:
 .TP
-.B \-h or \-\-help
+.BR \-h ", " \-\-help
 Display a help message and exit.
 .TP
-.B \-d or \-\-directory
+.BR \-d ", " \-\-directory
 Download branches to a directory other than the current directory.
 .TP
-.B \-o or \-\-operation
+.BR \-o ", " \-\-operation
 Specifies which Bazaar operation to use when downloading the branches; may be
 either \fIbranch\fR or \fIcheckout\fR.
 .TP
-.B \-t or \-\-team
+.BR \-t ", "  \-\-team
 Specifies which Launchpad team/person to download branches from.
 This option is required.
 

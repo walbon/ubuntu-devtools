@@ -25,11 +25,10 @@
 #
 
 import os
-import re
 import subprocess
 import sys
-import urllib2
 from optparse import OptionParser
+from ubuntutools.lp.lpapicache import PersonTeam
 
 def main():
     usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
@@ -49,97 +48,66 @@ def main():
 
     (options, args) = optParser.parse_args()
 
-    # Parse our options.
-    if len(args) != 1 and options.lpteam == None:
-        optParser.error("No team has been specified.")
-    
-    # Launchpad team setting.
-    if options.lpteam:
-        team = str(options.lpteam).lower()
-    if args:
-        team = str(args[0]).lower()
-
-    directory = options.directory
-
-    # Dictionary settings.
-    if not os.path.isdir(directory): # Check that it is a directory.
-        optParser.error("%s is not a valid directory." % directory)
-    
-    # Type of Bazaar operation to perform.
-    operation_type = str(options.operation).lower()
-
-    # Got an argument, check if it is valid.
-    if operation_type not in ("branch", "checkout"):
-        optParser.error("Invalid operation '%s' for '-o' flag." % \
-            operation_type)
-    
-
     # Fetch our current directory to return to later.
     pwd = os.getcwd()
 
-    # Change to the specified directory.
+    # Parse our options.
+    if len(args) != 1 and options.lpteam == None:
+        optParser.error("No team has been specified.")
+
+    # Dictionary settings.
+    directory = options.directory
+    if not os.path.isdir(directory): # Check that it is a directory.
+        optParser.error("%s is not a valid directory." % directory)
     os.chdir(directory)
 
-    # Try to open the teams code page.
-    try:
-        sock = urllib2.urlopen("https://code.launchpad.net/~%s" % team)
-    except urllib2.HTTPError:
-        print >> sys.stderr, "The page https://code.launchpad.net/~%s does " \
-            "not exist." % team
-        print >> sys.stderr, "Perhaps invalid team name?"
-        sys.exit(1)
+    # Type of Bazaar operation to perform.
+    operation_type = options.operation.lower()
+    if operation_type not in ("branch", "checkout"):
+        optParser.error("Invalid operation '%s' for '-o' flag." % \
+            operation_type)
 
-    branch_list_page = sock.read()
-    sock.close()
-    
-    branch_page_urls_regex = r'.*href="/(~%s/.*)">lp:.*' % team
-    branch_page_urls = re.findall(branch_page_urls_regex, branch_list_page)
-    
-    # Check the team actually has branches.
-    if len(branch_page_urls) == 0:
-        print "The team '%s' does not have any branches on Launchpad." % team
-        sys.exit(0)
-    
-    print "Downloading all branches for the team '%s'. This may take some " \
-        "time." % team
+    # Launchpad team setting.
+    if options.lpteam:
+        team = options.lpteam.lower()
+    if args:
+        team = args[0].lower()
+    try:
+        team = PersonTeam(team)
+    except KeyError:
+        print >> sys.stderr, "E: The team '%s' doesn't exist." % team
+
+    # Get a list of branches
+    branches = team.getBranches()
+
+    print "Downloading all branches for the '%s' team. This may take some " \
+        "time." % team.display_name
 
     try:
-        os.makedirs(team)
+        os.makedirs(team.name)
     except:
         pass
 
-    os.chdir(team)
-    
-    for url in branch_page_urls:
-        sock = urllib2.urlopen("https://code.launchpad.net/%s" % url)
-        branch_page = sock.read()
-        sock.close()
+    os.chdir(team.name)
 
-        branch_url_regex = r'<dd>bzr branch <span.*>lp:(.*)</span></dd>'
-        branch_url = re.findall(branch_url_regex, branch_page)
+    for branch in branches:
+        project_name = branch.project.name
+        if not os.path.exists(project_name):
+            os.makedirs(project_name)
+        os.chdir(project_name)
 
-        if branch_url[0]:
-            print "Downloading branch: lp:%s (%s)." % (branch_url[0], url)
-            product = url.split("/")[-2]
-            branch_nick = url.split("/")[-1]
+        if not os.path.exists(branch.name):
+            print "Branching %s ..." % branch.display_name
+            subprocess.call(["bzr", operation_type, branch.bzr_identity, branch.name])
         else:
-            continue
-       
-        print branch_nick, product, os.getcwd()
-        if not os.path.exists(product):
-            os.makedirs(product)
-        os.chdir(product)
-       	       	    
-        if not os.path.exists(branch_nick):
-            subprocess.call(["bzr", operation_type, "lp:%s" % url])
-        else:
-            os.chdir(branch_nick)
+            print "Merging %s ..." % branch.display_name
+            os.chdir(branch.name)
             subprocess.call(["bzr", "merge", "--pull", "--remember"])
-        os.chdir(os.path.join(directory, team))
-            
+        os.chdir(os.path.join(directory, team.name))
+
     os.chdir(pwd)
     sys.exit(0)
-    
+
 if __name__ == "__main__":
     try:
         main()
