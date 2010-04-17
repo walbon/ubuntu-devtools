@@ -61,7 +61,10 @@ def extract_upstream_version(debian_version):
 def get_source(package, version, section, bug_number, dist):
 	assert section in ("main", "contrib", "non-free")
 
-	workdir = "/tmp/fakesync"
+	if os.path.isdir("/tmpfs"):
+		workdir = "/tmpfs/ack-sync"
+	else
+		workdir = "/tmp/ack-sync"
 	if not os.path.isdir(workdir):
 		os.makedirs(workdir)
 	os.chdir(workdir)

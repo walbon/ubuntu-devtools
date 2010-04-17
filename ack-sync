@@ -53,7 +53,10 @@ def LogCall(command):
 def get_source(package, version, section):
 	assert section in ("main", "contrib", "non-free")
 
-	workdir = "/tmp/ack-sync"
+	if os.path.isdir("/tmpfs"):
+		workdir = "/tmpfs/ack-sync"
+	else
+		workdir = "/tmp/ack-sync"
 	if not os.path.isdir(workdir):
 		os.makedirs(workdir)
 	os.chdir(workdir)
