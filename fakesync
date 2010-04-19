@@ -28,6 +28,7 @@ from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 
 COMMAND_LINE_SYNTAX_ERROR = 1
 VERSION_DETECTION_FAILED = 2
+NO_TARBALL = 3
 
 def get_version(title):
 	m = re.search("[() ][0-9][0-9a-zA-Z.:+-~]*", title)
@@ -62,9 +63,9 @@ def get_source(package, version, section, bug_number, dist):
 	assert section in ("main", "contrib", "non-free")
 
 	if os.path.isdir("/tmpfs"):
-		workdir = "/tmpfs/ack-sync"
+		workdir = "/tmpfs/fakesync"
 	else:
-		workdir = "/tmp/ack-sync"
+		workdir = "/tmp/fakesync"
 	if not os.path.isdir(workdir):
 		os.makedirs(workdir)
 	os.chdir(workdir)
@@ -80,7 +81,14 @@ def get_source(package, version, section, bug_number, dist):
 	subprocess.check_call(["dget", "-u", location])
 
 	# remove the Debian tarball
-	tarball_name = package + "_" + extract_upstream_version(version) + ".orig.tar.gz"
+	tarball_name = package + "_" + extract_upstream_version(version) + ".orig.tar"
+	if os.path.exists(tarball_name + ".bz2"):
+		tarball_name += ".bz2"
+	elif os.path.exists(tarball_name + ".gz"):
+		tarball_name += ".gz"
+	else:
+		print "E: Unable to find Debian upstream tarball " + tarball_name + ".*"
+		sys.exit(NO_TARBALL)
 	os.remove(tarball_name)
 
 	# get Ubuntu tarball
