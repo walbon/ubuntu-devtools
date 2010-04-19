@@ -318,7 +318,7 @@ def main():
 	if requested_arch:
 		app.build_architecture = requested_arch
 		# For some foreign architectures we need to use qemu
-		if requested_arch != app.system_architecture and (requested_arch, app.system_architecture) not in (("amd64", "i386"), ("amd64", "lpia"), ("arm", "armel"), ("armel", "arm"), ("i386", "lpia"), ("lpia", "i386"), ("powerpc", "ppc64"), ("ppc64", "powerpc"), ("sparc", "sparc64"), ("sparc64", "sparc")):
+		if requested_arch != app.system_architecture and (app.system_architecture, requested_arch) not in [("amd64", "i386"), ("amd64", "lpia"), ("arm", "armel"), ("armel", "arm"), ("i386", "lpia"), ("lpia", "i386"), ("powerpc", "ppc64"), ("ppc64", "powerpc"), ("sparc", "sparc64"), ("sparc64", "sparc")]:
 			args.append('--debootstrap qemu-debootstrap')
 	
 	if 'mainonly' in sys.argv:

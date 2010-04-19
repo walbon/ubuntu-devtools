@@ -3,7 +3,10 @@ ubuntu-dev-tools (0.99) UNRELEASED; urgency=low
   [ Luca Falavigna ]
   * syncpackage: new script to easily upload pristine Debian packages.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Sat, 17 Apr 2010 12:46:34 +0200
+  [ Andrey Voronov ]
+  * pbuilder-dist: change requested/system arch order in check (LP: #557097)
+
+ -- Emmet Hikory <persia@ubuntu.com>  Tue, 20 Apr 2010 06:23:28 +0900
 
 ubuntu-dev-tools (0.98) lucid; urgency=low
 
