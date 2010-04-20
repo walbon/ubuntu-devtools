@@ -30,7 +30,7 @@ my($package)=$ARGV[0] || &usage();
 my($help)=0;
 GetOptions('help' => \$help);
 &usage() if($help);
-my($release)=$ARGV[1] || 'testing';
+my($release)=$ARGV[1] || 'unstable';
 $release=&convertCodeName($release);
 &checkRelease($release);
 my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
