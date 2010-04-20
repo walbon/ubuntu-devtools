@@ -47,7 +47,7 @@ if __name__ == '__main__':
 	optParser = OptionParser(usage)
 
 	optParser.add_option('-d', type = 'string',
-		dest = 'dist', default = 'testing',
+		dest = 'dist', default = 'unstable',
 		help = 'Debian distribution to sync from.')
 	optParser.add_option('-k', type = 'string',
 		dest = 'keyid', default = None,
@@ -101,10 +101,9 @@ if __name__ == '__main__':
 	if len(args) == 1:
 		if lpapi:
 			release = Distribution('ubuntu').getDevelopmentSeries().name
-			print >> sys.stderr, 'W: Target release missing - assuming %s' % release
 		else:
-			print >> sys.stderr, 'E: Source package or target release missing. Exiting.'
-			sys.exit(1)
+			release = 'maverick'
+		print >> sys.stderr, 'W: Target release missing - assuming %s' % release
 	elif len(args) == 2:
 		release = args[1]
 	elif len(args) == 3:
