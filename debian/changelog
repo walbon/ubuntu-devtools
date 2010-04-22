@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
+
+  [ Luca Falavigna ]
+  * syncpackage: new script to easily upload pristine Debian packages.
+
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 22 Apr 2010 21:34:22 +0200
+
 ubuntu-dev-tools (0.99) lucid; urgency=low
 
   [ Andrey Voronov ]
