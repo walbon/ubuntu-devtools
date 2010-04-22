@@ -1,8 +1,5 @@
 ubuntu-dev-tools (0.99) UNRELEASED; urgency=low
 
-  [ Luca Falavigna ]
-  * syncpackage: new script to easily upload pristine Debian packages.
-
   [ Andrey Voronov ]
   * pbuilder-dist: change requested/system arch order in check (LP: #557097)
 
@@ -10,7 +7,7 @@ ubuntu-dev-tools (0.99) UNRELEASED; urgency=low
   * Update the defaults for maverick and let requestsync and
     pull-debian-source default to unstable (lp: #472837).
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 20 Apr 2010 17:53:57 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 22 Apr 2010 21:22:18 +0200
 
 ubuntu-dev-tools (0.98) lucid; urgency=low
 

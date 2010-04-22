@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 from distutils.core import setup
-import glob
 import os
 import re
 
@@ -43,7 +42,7 @@ setup(name='ubuntu-dev-tools',
                'setup-packaging-environment',
                'submittodebian',
                'suspicious-source',
-               'syncpackage',
+#               'syncpackage',
                'ubuntu-build',
                'ubuntu-iso',
                'update-maintainer',
