@@ -65,6 +65,7 @@ Description: useful tools for Ubuntu developers
   - submittodebian - automatically send your changes to Debian as a bug report.
   - suspicious-source - outputs a list of files which are not common source
     files.
+  - syncpackage - helper to prepare .changes file to upload synced packages
   - ubuntu-build - give commands to the Launchpad build daemons from the
     command line.
   - ubuntu-iso - output information of an Ubuntu ISO image.
