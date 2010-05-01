@@ -2,8 +2,10 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
 
   [ Luca Falavigna ]
   * syncpackage: new script to easily upload pristine Debian packages.
+  * debian/ubuntu-dev-tools.preinst:
+    - It is no longer necessary to remove stale pycentral files.
 
- -- Michael Bienia <geser@ubuntu.com>  Thu, 22 Apr 2010 21:34:22 +0200
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Sat, 01 May 2010 14:48:37 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 
