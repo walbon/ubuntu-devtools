@@ -5,7 +5,11 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
   * debian/ubuntu-dev-tools.preinst:
     - It is no longer necessary to remove stale pycentral files.
 
- -- Luca Falavigna <dktrkranz@ubuntu.com>  Sat, 01 May 2010 14:48:37 +0200
+  [ Felix Geyer ]
+  * reverse-build-depends: Always display the correct default distribution
+    name in the usage text.
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 02 May 2010 18:33:59 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 

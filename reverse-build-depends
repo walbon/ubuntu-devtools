@@ -73,9 +73,10 @@ use Pod::Usage;
 use Data::Dumper;
 my $progname = basename($0);
 my $version = '1.0';
+my $default_distribution = "maverick";
 my $dctrl = "/usr/bin/grep-dctrl";
 my $sources_path = "/var/lib/apt/lists/";
-my $source_pattern = ".*_dists_maverick_.*Sources\$";
+my $source_pattern = ".*_dists_${default_distribution}_.*Sources\$";
 my @source_files;
 my $sources_count=0;
 my $opt_debug;
@@ -115,7 +116,7 @@ Options:
    -d, --debug                   Enable the debug mode
    -m, --print-maintainer        Print the maintainer information (experimental)
    --distribution distribution   Select a distribution to search for build-depends
-                                 (Default: karmic)
+                                 (Default: $default_distribution)
    --only-main                   Ignore universe and multiverse
 
 EOT
