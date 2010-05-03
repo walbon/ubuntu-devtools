@@ -9,7 +9,12 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
   * reverse-build-depends: Always display the correct default distribution
     name in the usage text.
 
- -- Michael Bienia <geser@ubuntu.com>  Sun, 02 May 2010 18:33:59 +0200
+  [ Iain Lane ]
+  * requestsync: Fall back to using rmadison when LP indicates that no new
+    version is available. The LP importer is often out of date wrt Debian when
+    rmadison isn't. (LP: #574398)
+
+ -- Iain Lane <laney@ubuntu.com>  Mon, 03 May 2010 23:25:15 +0100
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 

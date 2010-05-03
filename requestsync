@@ -80,6 +80,9 @@ if __name__ == '__main__':
 		from ubuntutools.requestsync.lp import *
 		from ubuntutools.lp.lpapicache import Distribution
 		# See if we have LP credentials and exit if we don't - cannot continue in this case
+
+		hasLP = True
+
 		try:
 			Launchpad.login()
 		except IOError:
@@ -140,6 +143,17 @@ if __name__ == '__main__':
 		sys.exit(1)
 
         # Stop if Ubuntu has already the version from Debian or a newer version
+	if (ubuntu_version == debian_version) and hasLP:
+		# try rmadison
+		import ubuntutools.requestsync.mail
+		try:
+			debian_srcpkg = ubuntutools.requestsync.mail.getDebianSrcPkg(srcpkg, distro)
+			debian_version = Version(debian_srcpkg.getVersion())
+			debian_component = debian_srcpkg.getComponent()
+		except udtexceptions.PackageNotFoundException, e:
+			print >> sys.stderr, "E: %s" % e
+			sys.exit(1)
+
 	if ubuntu_version == debian_version:
 		print  >> sys.stderr, \
 			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
