@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008-2010 Martin Pitt <martin.pitt@canonical.com>
+#               2010 Benjamin Drung <bdrung@ubuntu.com>
 #
 # ##################################################################
 #
@@ -19,17 +20,62 @@
 # ##################################################################
 
 import apt_pkg
-import os, os.path, sys, urllib, subprocess, shutil
-from ubuntutools.requestsync.lp import getUbuntuSrcPkg
+import optparse
+import os
+import shutil
+import subprocess
+import sys
+import urllib
 
-def retrieve_file(url):
+# ubuntu-dev-tools modules
+from ubuntutools.requestsync.mail import getDebianSrcPkg as ubuntutools_requestsync_mail_getDebianSrcPkg
+from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
+from ubuntutools.lp import udtexceptions
+from ubuntutools.lp.libsupport import get_launchpad
+
+def strip_epoch(version):
+	'''Removes the epoch from a Debian version string.
+	
+	strip_epoch(1:1.52-1) will return "1.52-1" and strip_epoch(1.1.3-1) will
+	return "1.1.3-1".'''
+
+	parts = version.split(':')
+	if len(parts) > 1:
+		del parts[0]
+	version = ':'.join(parts)
+	return version
+
+def remove_signature(dscname, verbose=False):
+	'''Removes the signature from a .dsc file if the .dsc file is signed.'''
+
+	f = open(dscname)
+	if f.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
+		unsigned_file = []
+		# search until begin of body found
+		for l in f:
+			if l.strip() == "":
+				break
+
+		# search for end of body
+		for l in f:
+			if l.strip() == "":
+				break
+			unsigned_file.append(l)
+
+		f.close()
+		f = open(dscname, "w")
+		f.writelines(unsigned_file)
+		f.close()
+
+def retrieve_file(url, verbose=False):
 	'''Download file (by URL)  to the current directory.
 
 	If the file is already present, this function does nothing.'''
 
 	fname = os.path.basename(url)
 	if not os.path.exists(fname):
-		print 'downloading', url
+		if verbose:
+			print 'downloading', url
 		urllib.urlretrieve(url, fname)
 
 def dsc_getfiles(dsc):
@@ -55,62 +101,167 @@ def dsc_getfiles(dsc):
 	f.close()
 	return files
 
-#
-# entry point
-#
+def sync_dsc(dscurl, debian_dist, release, uploader, keyid=None, verbose=False):
+	assert dscurl.endswith(".dsc")
+	dscname = os.path.basename(dscurl)
+	basepath = os.path.dirname(dscurl)
+	(srcpkg, new_ver) = dscname.split('_')
 
-if len(sys.argv) != 3:
-	print 'Usage: syncpackage <.dsc URL or path> <target release>'
-	sys.exit (1)
+	retrieve_file(dscurl, verbose)
+	dscfile = open(dscname).readlines()
+	new_ver = filter(lambda l: l.startswith("Version:"), dscfile)[0][8:].strip()
 
-(dscurl, release) = sys.argv[1:]
-dscname = os.path.basename(dscurl)
-basepath = os.path.dirname(dscurl)
-(srcpkg, new_ver) = dscname.split('_')
-new_ver = new_ver[:-4] # strip off '.dsc'
+	try:
+		ubuntu_ver = getUbuntuSrcPkg(srcpkg, release).getVersion()
+	except udtexceptions.PackageNotFoundException:
+		ubuntu_ver = '~'
 
-cur_ver = getUbuntuSrcPkg(srcpkg, release).getVersion()
+	# No need to continue if version is not greater than current one
+	apt_pkg.init()
+	if not apt_pkg.check_dep(new_ver, '>', ubuntu_ver):
+		raise Exception('%s version %s is not greater than already available %s' % (srcpkg, new_ver, ubuntu_ver))
 
-# No need to continue if version is not greater than current one
-apt_pkg.init()
-if not apt_pkg.check_dep(new_ver, '>', cur_ver):
-	raise Exception('%s version %s is not greater than already available %s' % (srcpkg, new_ver, cur_ver))
+	# do we need the orig.tar.gz?
+	need_orig = True
+	if ubuntu_ver.find('-') > 0 and new_ver.find('-') > 0 and \
+		ubuntu_ver.split('-')[0] == new_ver.split('-')[0]:
+		need_orig = False
 
-retrieve_file(dscurl)
-files = dsc_getfiles(dscname)
+	files = dsc_getfiles(dscname)
+	if verbose:
+		print 'Source %s: current version %s, new version %s' % (srcpkg, ubuntu_ver, new_ver)
+		print 'needs orig.tar.gz', need_orig
+		print 'Files:', files
+	for f in files:
+		retrieve_file(os.path.join(basepath, f), verbose)
 
-# do we need the orig.tar.gz?
-need_orig = True
-if cur_ver.find('-') > 0 and new_ver.find('-') > 0 and \
-	cur_ver.split('-')[0] == new_ver.split('-')[0]:
-	need_orig = False
-	#files = [f for f in files if not f.endswith('orig.tar.gz')]
+	uidx = ubuntu_ver.find('ubuntu')
+	if uidx > 0:
+		cur_ver = ubuntu_ver[:uidx]
+		print 'WARNING! Overwriting modified Ubuntu version %s, setting current version to %s' % (ubuntu_ver, cur_ver)
 
-print 'Source %s: current version %s, new version %s' % (srcpkg, cur_ver, new_ver)
-print 'needs orig.tar.gz', need_orig
-print 'Files:', files
-for f in files:
-	retrieve_file(os.path.join(basepath, f))
+	uidx = cur_ver.find('build')
+	if uidx > 0:
+		cur_ver = cur_ver[:uidx]
 
-uidx = cur_ver.find('ubuntu')
-if uidx > 0:
-	cur_ver = cur_ver[:uidx]
-	print 'WARNING! Overwriting modified Ubuntu version, setting current version to', cur_ver
+	# extract package
+	subprocess.check_call(['dpkg-source', '-x', dscname])
 
-uidx = cur_ver.find('build')
-if uidx > 0:
-	cur_ver = cur_ver[:uidx]
+	# change into package directory
+	directory = srcpkg + '-' + strip_epoch(new_ver).split('-')[0]
+	if verbose:
+		print "cd " + directory
+	os.chdir(directory)
 
-orig_arg = ''
-if need_orig:
-	orig_arg = '-sa'
+	# read Debian distribution from debian/changelog if not specified
+	if debian_dist is None:
+		line = open("debian/changelog").readline()
+		debian_dist = line.split(" ")[2].strip(";")
 
-# extract package, build Source
-assert subprocess.call(['dpkg-source', '-x', dscname]) == 0
-os.chdir(srcpkg + '-' + new_ver.split('-')[0])
-assert subprocess.call("dpkg-genchanges -q -S %s -v%s -e\"$(getent passwd $(id -u)|cut -f5 -d:|cut -f1 -d,) <$DEBEMAIL>\" | \
-		sed 's/^Distribution:.*$/Distribution: %s/; 1 i\Origin: debian/unstable' > ../%s_%s_source.changes" % 
-		(orig_arg, cur_ver, release, srcpkg, new_ver), shell=True) == 0
-os.chdir('..')
-shutil.rmtree(srcpkg + '-' + new_ver.split('-')[0], True)
-assert subprocess.call("debsign %s_%s_source.changes" % (srcpkg, new_ver), shell=True) == 0
+	# create the changes file
+	changes_file = "%s_%s_source.changes" % (srcpkg, strip_epoch(new_ver))
+	cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver,
+			"-DDistribution=" + release,
+			"-DOrigin=debian/" + debian_dist,
+			"-e" + uploader]
+	if need_orig:
+		cmd += ['-sa']
+	if not verbose:
+		cmd += ["-q"]
+	if verbose:
+		print " ".join(cmd) + " > ../" + changes_file
+	changes = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+
+	# remove extracted (temporary) files
+	os.chdir('..')
+	shutil.rmtree(directory, True)
+
+	# write changes file
+	f = open(changes_file, "w")
+	f.writelines(changes)
+	f.close()
+
+	# remove signature and sign package
+	remove_signature(dscname)
+	cmd = ["debsign", changes_file]
+	if not keyid is None:
+		cmd.insert(1, "-k" + keyid)
+	if verbose:
+		print " ".join(cmd)
+	subprocess.check_call(cmd)
+
+def get_debian_dscurl(package, dist, release, version=None, component=None):
+	if dist is None:
+		dist="unstable"
+
+	if version is None or component is None:
+		debian_srcpkg = getDebianSrcPkg(package, dist)
+		ubuntu_version = getUbuntuSrcPkg(package, release).getVersion()
+		apt_pkg.init()
+		if apt_pkg.check_dep(ubuntu_version, ">=", debian_srcpkg.getVersion()):
+			# The LP importer is maybe out of date
+			debian_srcpkg = ubuntutools_requestsync_mail_getDebianSrcPkg(package, dist)
+
+		if version is None:
+			version = debian_srcpkg.getVersion()
+		if component is None:
+			component = debian_srcpkg.getComponent()
+
+	assert component in ("main", "contrib", "non-free")
+
+	if package.startswith("lib"):
+		group = package[0:4]
+	else:
+		group = package[0]
+
+	dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	dscurl = os.path.join("http://ftp.debian.org/debian/pool", component, group, package, dsc_file)
+	return dscurl
+
+if __name__ == "__main__":
+	script_name = os.path.basename(sys.argv[0])
+	usage = "%s [options] <.dsc URL/path or package name>" % (script_name)
+	epilog = "See %s(1) for more info." % (script_name)
+	parser = optparse.OptionParser(usage=usage, epilog=epilog)
+
+	parser.add_option("-d", "--distribution", type = "string",
+			dest = "dist", default = None,
+			help = "Debian distribution to sync from.")
+	parser.add_option("-r", "--release",
+			help="Specify target Ubuntu release.", dest="release", default=None)
+	parser.add_option("-V", "--debian-version",
+			help="Specify the version to sync from.", dest="debversion", default=None)
+	parser.add_option("-c", "--component",
+			help="Specify the component to sync from.", dest="component", default=None)
+	parser.add_option("-v", "--verbose", help="print more information",
+			dest="verbose", action="store_true", default=False)
+	parser.add_option("-u", "--uploader", dest="uploader",
+			help="Use UPLOADER as the name and email address of the maintainer "
+			     "for this upload instead of evaluating DEBFULLNAME and DEBEMAIL.",
+			default = os.environ["DEBFULLNAME"] + " <"  + os.environ["DEBEMAIL"] + ">")
+	parser.add_option("-k", "--key", dest="keyid",
+			help="Specify the key ID to be used for signing.", default=None)
+
+	(options, args) = parser.parse_args()
+
+	if len(args) == 0:
+		print >> sys.stderr, "%s: Error: No .dsc URL/path or package name specified." % (script_name)
+		sys.exit(1)
+	elif len(args) > 1:
+		print >> sys.stderr, script_name + ": Error: Multiple .dsc URLs/paths or package names specified: " + ", ".join(args)
+		sys.exit(1)
+
+	if options.release is None:
+		launchpad = get_launchpad("ubuntu-dev-tools")
+		options.release = launchpad.distributions["ubuntu"].current_series.name
+
+	if args[0].endswith(".dsc"):
+		dscurl = args[0]
+	else:
+		dscurl = get_debian_dscurl(args[0], options.dist, options.release,
+				options.debversion, options.component)
+
+	if options.verbose:
+		print ".dsc url: " + dscurl
+	sync_dsc(dscurl, options.dist, options.release, options.uploader,
+			options.keyid, options.verbose)

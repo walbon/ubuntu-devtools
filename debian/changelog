@@ -14,7 +14,10 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
     version is available. The LP importer is often out of date wrt Debian when
     rmadison isn't. (LP: #574398)
 
- -- Iain Lane <laney@ubuntu.com>  Mon, 03 May 2010 23:25:15 +0100
+  [ Benjamin Drung ]
+  * syncpackage: add more options and allow pulling packages from Debian.
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 10 May 2010 00:04:52 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 
