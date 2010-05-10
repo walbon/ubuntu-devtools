@@ -50,9 +50,7 @@ def LogCall(command):
 	logging.info("Running %s", " ".join(command))
 	return command
 
-def get_source(package, version, section):
-	assert section in ("main", "contrib", "non-free")
-
+def get_source(package, version, section, dist, uploader, bug):
 	if os.path.isdir("/tmpfs"):
 		workdir = "/tmpfs/ack-sync"
 	else:
@@ -60,16 +58,15 @@ def get_source(package, version, section):
 	if not os.path.isdir(workdir):
 		os.makedirs(workdir)
 	os.chdir(workdir)
-	
-	if package.startswith("lib"):
-		group = package[0:4]
-	else:
-		group = package[0]
+
+	cmd = ["syncpackage", package, "-r", dist, "-V", version, "-b", str(bug)]
+	if section is not None:
+		cmd += ["-c", section]
+	if uploader is not None:
+		cmd += ["-u", uploader]
+	subprocess.check_call(cmd)
 
 	dsc_file = package + "_" + strip_epoch(version) + ".dsc"
-	location = os.path.join("http://ftp.debian.org/debian/pool", section, group, package, dsc_file)
-	#print "location:", location
-	subprocess.check_call(["dget", "-u", location])
 	return dsc_file
 
 def build_source(dist, dsc_file):
@@ -78,7 +75,7 @@ def build_source(dist, dsc_file):
 			subprocess.check_call(LogCall(["sbuild", "-c", dist,"-A", dsc_file]))
 		else:
 			cmd = ["sudo", "env", "DIST=" + dist, "pbuilder", "build",
-					"--buildresult", ".", dsc_file]
+					"--buildresult", "buildresult", dsc_file]
 			subprocess.check_call(LogCall(cmd))
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
@@ -123,6 +120,7 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 
 	for bug_number in bug_numbers:
 		bug = launchpad.bugs[bug_number]
+		uploader = bug.owner.display_name + " <" + bug.owner.preferred_email_address.email + ">"
 
 		task = list(bug.bug_tasks)[0]
 	
@@ -136,7 +134,7 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 			version = get_version(bug.title)
 		print "package:", package
 		print "version:", version
-		dsc_file = get_source(package, version, section)
+		dsc_file = get_source(package, version, section, dist, uploader, bug_number)
 
 		build_source(dist, dsc_file)
 	
@@ -172,22 +170,14 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		print "ubuntu-sponsors unsubscribed"
 		task.assignee = None
 		print "unassigned me"
-		task.status = "Triaged"
-		print "status set to Triaged"
 		if task.importance == "Undecided":
 			task.importance = "Wishlist"
 			print "importance set to Wishlist"
 		task.lp_save()
-		if piuparts:
-			bug.newMessage(content="package builds and installs, sync request ACK'd")
-		else:
-			bug.newMessage(content="package builds, sync request ACK'd")
-		print "Ack comment added"
-		aa = launchpad.people['ubuntu-archive']
-		bug.subscribe(person=aa)
-		print "Archive admin subscribed"
 		bug.subscribe(person=launchpad.me)
 		print "subscribed me"
+		changes_file = dsc_file[:-4] + "_source.changes"
+		subprocess.check_call(["dput", changes_file])
 
 def usage():
 	print """ack-sync <bug numbers>
@@ -216,7 +206,7 @@ if __name__ == '__main__':
 
 	package = None
 	sbuild = False
-	section = "main"
+	section = None
 	silent = False
 	update = False
 	verbose = False
