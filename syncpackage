@@ -101,7 +101,26 @@ def dsc_getfiles(dsc):
 	f.close()
 	return files
 
-def sync_dsc(dscurl, debian_dist, release, uploader, keyid=None, verbose=False):
+def add_fixed_bugs(changes, bugs, verbose=False):
+	'''Add additional Launchpad bugs to the list of fixed bugs in changes file.'''
+
+	changes = filter(lambda l: l.strip() != "", changes.split("\n"))
+	# Remove duplicates
+	bugs = set(bugs)
+
+	for i in xrange(len(changes)):
+		if changes[i].startswith("Launchpad-Bugs-Fixed:"):
+			bugs.update(changes[i][22:].strip().split(" "))
+			changes[i] = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
+			break
+		elif i == len(changes) - 1:
+			# Launchpad-Bugs-Fixed entry does not exist in changes file
+			line = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
+			changes.append(line)
+
+	return "\n".join(changes + [""])
+
+def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=False):
 	assert dscurl.endswith(".dsc")
 	dscname = os.path.basename(dscurl)
 	basepath = os.path.dirname(dscurl)
@@ -172,6 +191,10 @@ def sync_dsc(dscurl, debian_dist, release, uploader, keyid=None, verbose=False):
 		print " ".join(cmd) + " > ../" + changes_file
 	changes = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 
+	# Add additional bug numbers
+	if len(bugs) > 0:
+		changes = add_fixed_bugs(changes, bugs, verbose)
+
 	# remove extracted (temporary) files
 	os.chdir('..')
 	shutil.rmtree(directory, True)
@@ -241,6 +264,9 @@ if __name__ == "__main__":
 			default = os.environ["DEBFULLNAME"] + " <"  + os.environ["DEBEMAIL"] + ">")
 	parser.add_option("-k", "--key", dest="keyid",
 			help="Specify the key ID to be used for signing.", default=None)
+	parser.add_option("-b", "--bug", metavar="BUG",
+			help="Mark a Launchpad bug as being fixed by this upload",
+			dest="bugs", action="append", default=list())
 
 	(options, args) = parser.parse_args()
 
@@ -249,6 +275,12 @@ if __name__ == "__main__":
 		sys.exit(1)
 	elif len(args) > 1:
 		print >> sys.stderr, script_name + ": Error: Multiple .dsc URLs/paths or package names specified: " + ", ".join(args)
+		sys.exit(1)
+
+	invalid_bug_numbers = filter(lambda x: not x.isdigit(), options.bugs)
+	if len(invalid_bug_numbers) > 0:
+		print >> sys.stderr, "%s: Error: Invalid bug number(s) specified: %s" % \
+				(script_name, ", ".join(invalid_bug_numbers))
 		sys.exit(1)
 
 	if options.release is None:
@@ -264,4 +296,4 @@ if __name__ == "__main__":
 	if options.verbose:
 		print ".dsc url: " + dscurl
 	sync_dsc(dscurl, options.dist, options.release, options.uploader,
-			options.keyid, options.verbose)
+			options.bugs, options.keyid, options.verbose)
