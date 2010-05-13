@@ -18,9 +18,7 @@ Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
 Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
  ca-certificates, debootstrap, genisoimage, perl-modules, libwww-perl,
  libapt-pkg-perl
-Conflicts: devscripts (<< 2.10.7ubuntu5)
 Suggests: qemu-kvm-extras-static
-Replaces: devscripts (<< 2.10.7ubuntu5)
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
  packaging work a lot easier.
