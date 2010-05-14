@@ -144,6 +144,7 @@ def main(bug_numbers, package, version, section, update, verbose=False, silent=F
 		print bug.title
 		print task.assignee
 		print task.status
+		print "Uploader:", uploader
 		try:
 			raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
 		except KeyboardInterrupt:
