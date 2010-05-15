@@ -15,9 +15,11 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
     rmadison isn't. (LP: #574398)
 
   [ Benjamin Drung ]
-  * syncpackage: add more options and allow pulling packages from Debian.
+  * syncpackage:
+   - add more options and allow pulling packages from Debian.
+   - add mismatching source tarball detection (for fake syncs).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 10 May 2010 00:04:52 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 15 May 2010 17:55:22 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 
