@@ -157,7 +157,10 @@ def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=F
 	basepath = os.path.dirname(dscurl)
 	(srcpkg, new_ver) = dscname.split('_')
 
-	urllib.urlretrieve(dscurl, dscname)
+	if os.path.exists(os.path.join(basepath, dscname)):
+		dscfile = dscurl
+	else:
+		urllib.urlretrieve(dscurl, dscname)
 	dscfile = open(dscname).readlines()
 	new_ver = filter(lambda l: l.startswith("Version:"), dscfile)[0][8:].strip()
 
