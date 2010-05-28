@@ -18,6 +18,10 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
   * syncpackage:
    - add more options and allow pulling packages from Debian.
    - add mismatching source tarball detection (for fake syncs).
+  
+  [ Michael Vogt ]
+  * edit-patch:
+    - support full path to the patch as well (LP: #585599)
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 15 May 2010 17:55:22 +0200
 

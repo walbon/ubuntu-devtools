@@ -70,6 +70,12 @@ detect_patchsystem() {
     fi
 }
 
+# remove full path if given
+normalize_patch_path() {
+    PATCHNAME=${PATCHNAME##*/}
+    echo "Normalizing patch path to $PATCHNAME"
+}
+
 # ensure (for new patches) that:
 # - dpatch ends with .dpatch
 # - cdbs/quilt with .patch
@@ -189,6 +195,7 @@ main() {
     # do the work
     ensure_debian_dir
     detect_patchsystem
+    normalize_patch_path
     normalize_patch_extension
     edit_patch_$PATCHSYSTEM $PATCHNAME
     add_patch_tagging $PATCHNAME
