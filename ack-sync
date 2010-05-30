@@ -78,7 +78,7 @@ def build_source(dist, dsc_file):
 		else:
 			if not os.path.isdir("buildresult"):
 				os.makedirs("buildresult")
-			cmd = ["sudo", "env", "DIST=" + dist, "pbuilder", "build",
+			cmd = ["sudo", "env", "DIST=" + dist, pbuilder, "--build",
 					"--buildresult", "buildresult", dsc_file]
 			subprocess.check_call(LogCall(cmd))
 	except subprocess.CalledProcessError:
@@ -119,7 +119,7 @@ def main(bug_numbers, package, version, section, update, uploader, key, verbose=
 		if sbuild:
 			subprocess.call(LogCall(["sbuild-update", dist]))
 		else:
-			cmd = ["sudo", "env", "DIST=" + dist, "pbuilder", "update"]
+			cmd = ["sudo", "env", "DIST=" + dist, pbuilder, "--update"]
 			subprocess.call(LogCall(cmd))
 
 	for bug_number in bug_numbers:
@@ -198,6 +198,7 @@ def usage():
       --section=<section>   Debian section (one of main, contrib, non-free)
   -s, --silent              be more silent
   -S, --with-sbuild         use sbuild instead of pbuilder
+  -C, --pbuilder=<command>  use <command> as pbuilder
   -u, --update              updates pbuilder before building
   -v, --verbose             be more verbosive
   -V, --version=<version>   set the version"""
@@ -205,8 +206,8 @@ def usage():
 if __name__ == '__main__':
 	try:
 		long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent", "update",
-				"verbose", "version=", "with-sbuild", "with-piuparts"]
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSuvV:", long_opts)
+				"verbose", "version=", "with-sbuild", 'pbuilder=', "with-piuparts"]
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uvV:", long_opts)
 	except getopt.GetoptError, e:
 		# will print something like "option -a not recognized"
 		print >> sys.stderr, str(e)
@@ -221,6 +222,7 @@ if __name__ == '__main__':
 	verbose = False
 	version = None
 	piuparts = False
+	pbuilder = 'pbuilder'
 	lvm = "/dev/vg"
 	key = None
 
@@ -244,6 +246,8 @@ if __name__ == '__main__':
 			silent = True
 		elif o in ("-S", "--with-sbuild"):
 			sbuild = True
+		elif o in ("-C", "--pbuilder"):
+		    pbuilder=a
 		elif o in ("-u", "--update"):
 			update = True
 		elif o in ("-v", "--verbose"):
