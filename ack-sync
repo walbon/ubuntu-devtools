@@ -50,7 +50,7 @@ def LogCall(command):
 	logging.info("Running %s", " ".join(command))
 	return command
 
-def get_source(package, version, section, dist, uploader, bug, key):
+def get_source(package, version, section, dist, uploader_name, uploader_email, bug, key):
 	if os.path.isdir("/tmpfs"):
 		workdir = "/tmpfs/ack-sync"
 	else:
@@ -62,8 +62,10 @@ def get_source(package, version, section, dist, uploader, bug, key):
 	cmd = ["syncpackage", package, "-r", dist, "-V", version, "-b", str(bug)]
 	if section is not None:
 		cmd += ["-c", section]
-	if uploader is not None:
-		cmd += ["-u", uploader]
+	if uploader_email is not None:
+		cmd += ["-e", uploader_email]
+	if uploader_name is not None:
+		cmd += ["-n", uploader_name]
 	if key is not None:
 		cmd += ["-k", key]
 	subprocess.check_call(cmd)
@@ -109,7 +111,7 @@ def test_install(dist, dsc_file):
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
-def main(bug_numbers, package, version, section, update, uploader, key, verbose=False, silent=False):
+def main(bug_numbers, package, version, section, update, uploader_email, key, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
 	# TODO: use release-info (once available)
 	dist = launchpad.distributions["ubuntu"].current_series.name
@@ -124,8 +126,9 @@ def main(bug_numbers, package, version, section, update, uploader, key, verbose=
 
 	for bug_number in bug_numbers:
 		bug = launchpad.bugs[bug_number]
-		if uploader is None:
-			uploader = bug.owner.display_name + " <" + bug.owner.preferred_email_address.email + ">"
+		uploader_name = bug.owner.display_name
+		if uploader_email is None:
+			uploader_email =  bug.owner.preferred_email_address.email
 
 		task = list(bug.bug_tasks)[0]
 	
@@ -139,7 +142,10 @@ def main(bug_numbers, package, version, section, update, uploader, key, verbose=
 			version = get_version(bug.title)
 		print "package:", package
 		print "version:", version
-		dsc_file = get_source(package, version, section, dist, uploader, bug_number, key)
+		dsc_file = get_source(package, version, section, dist, uploader_name, uploader_email, bug_number, key)
+
+		# extract source
+		subprocess.check_call(["dpkg-source", "-x", dsc_file])
 
 		build_source(dist, dsc_file)
 	
@@ -149,7 +155,7 @@ def main(bug_numbers, package, version, section, update, uploader, key, verbose=
 		print bug.title
 		print task.assignee
 		print task.status
-		print "Uploader:", uploader
+		print "Uploader:", uploader_name + " <" + uploader_email + ">"
 		try:
 			raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
 		except KeyboardInterrupt:
@@ -188,7 +194,7 @@ def main(bug_numbers, package, version, section, update, uploader, key, verbose=
 def usage():
 	print """ack-sync <bug numbers>
 
-  -e,                       specify uploader
+  -e,                       specify uploader email address
   -h, --help                displays this help
   -k, --key                 key used to sign the package (in case of sponsoring)
   -l, --lvm                 lvm root dev directory, used for sbuild and piuparts
@@ -217,7 +223,7 @@ if __name__ == '__main__':
 	section = None
 	silent = False
 	update = False
-	uploader = None
+	uploader_email = None
 	verbose = False
 	version = None
 	piuparts = False
@@ -229,7 +235,7 @@ if __name__ == '__main__':
 			usage()
 			sys.exit()
 		elif o in ("-e"):
-			uploader = a
+			uploader_email = a
 		elif o in ("-k", "--key"):
 			key = a
 		elif o in ("-l", "--lvm"):
@@ -268,4 +274,4 @@ if __name__ == '__main__':
 			sys.exit(COMMAND_LINE_SYNTAX_ERROR)
 		bug_numbers.append(number)
 
-	main(bug_numbers, package, version, section, update, uploader, key, verbose, silent)
+	main(bug_numbers, package, version, section, update, uploader_email, key, verbose, silent)
