@@ -33,7 +33,7 @@ import urllib
 from ubuntutools.requestsync.mail import getDebianSrcPkg as ubuntutools_requestsync_mail_getDebianSrcPkg
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
-from ubuntutools.lp.libsupport import get_launchpad
+from ubuntutools.lp.lpapicache import Launchpad
 
 class File(object):
 	def __init__(self, url, checksum, size):
@@ -389,9 +389,9 @@ if __name__ == "__main__":
 				(script_name, ", ".join(invalid_bug_numbers))
 		sys.exit(1)
 
+	Launchpad.login_anonymously()
 	if options.release is None:
-		launchpad = get_launchpad("ubuntu-dev-tools")
-		options.release = launchpad.distributions["ubuntu"].current_series.name
+		options.release = Launchpad.distributions["ubuntu"].current_series.name
 
 	if args[0].endswith(".dsc"):
 		dscurl = args[0]
