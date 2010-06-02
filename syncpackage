@@ -151,11 +151,12 @@ def add_fixed_bugs(changes, bugs, verbose=False):
 
 	return "\n".join(changes + [""])
 
-def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=False):
+def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbose=False):
 	assert dscurl.endswith(".dsc")
 	dscname = os.path.basename(dscurl)
 	basepath = os.path.dirname(dscurl)
 	(srcpkg, new_ver) = dscname.split('_')
+	uploader = name + " <" + email + ">"
 
 	if os.path.exists(os.path.join(basepath, dscname)):
 		dscfile = dscurl
@@ -172,6 +173,7 @@ def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=F
 		ubuntu_dsc = ubuntu_dsc[0]
 	except udtexceptions.PackageNotFoundException:
 		ubuntu_ver = '~'
+		ubuntu_dsc = None
 
 	# No need to continue if version is not greater than current one
 	apt_pkg.init()
@@ -187,7 +189,10 @@ def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=F
 		print 'Source files:', map(lambda x: x.get_name(), source_files)
 	map(lambda f: f.download(verbose), files)
 
-	ubuntu_files = dsc_getfiles(ubuntu_dsc)
+	if ubuntu_dsc is None:
+		ubuntu_files = None
+	else:
+		ubuntu_files = dsc_getfiles(ubuntu_dsc)
 
 	# do we need the orig.tar.gz?
 	need_orig = True
@@ -289,9 +294,10 @@ def sync_dsc(dscurl, debian_dist, release, uploader, bugs, keyid=None, verbose=F
 		else:
 			message = "Fake sync due to mismatching orig tarball."
 		cmd = ["dch", "-v", new_ver, "-D", release, message]
+		env = {"DEBFULLNAME": name, "DEBEMAIL": email}
 
 		# update the Maintainer field
-		subprocess.check_call(cmd)
+		subprocess.check_call(cmd, env=env)
 		subprocess.check_call(["update-maintainer"])
 		
 		# Build source package
@@ -312,7 +318,10 @@ def get_debian_dscurl(package, dist, release, version=None, component=None):
 
 	if version is None or component is None:
 		debian_srcpkg = getDebianSrcPkg(package, dist)
-		ubuntu_version = getUbuntuSrcPkg(package, release).getVersion()
+		try:
+			ubuntu_version = getUbuntuSrcPkg(package, release).getVersion()
+		except udtexceptions.PackageNotFoundException:
+			ubuntu_version = '~'
 		apt_pkg.init()
 		if apt_pkg.check_dep(ubuntu_version, ">=", debian_srcpkg.getVersion()):
 			# The LP importer is maybe out of date
@@ -351,10 +360,14 @@ if __name__ == "__main__":
 			help="Specify the component to sync from.", dest="component", default=None)
 	parser.add_option("-v", "--verbose", help="print more information",
 			dest="verbose", action="store_true", default=False)
-	parser.add_option("-u", "--uploader", dest="uploader",
-			help="Use UPLOADER as the name and email address of the maintainer "
-			     "for this upload instead of evaluating DEBFULLNAME and DEBEMAIL.",
-			default = os.environ["DEBFULLNAME"] + " <"  + os.environ["DEBEMAIL"] + ">")
+	parser.add_option("-n", "--uploader-name", dest="uploader_name",
+			help="Use UPLOADER_NAME as the name of the maintainer "
+			     "for this upload instead of evaluating DEBFULLNAME.",
+			default = os.environ["DEBFULLNAME"])
+	parser.add_option("-e", "--uploader-email", dest="uploader_email",
+			help="Use UPLOADER_EMAIL as email address of the maintainer "
+			     "for this upload instead of evaluating DEBEMAIL.",
+			default = os.environ["DEBEMAIL"])
 	parser.add_option("-k", "--key", dest="keyid",
 			help="Specify the key ID to be used for signing.", default=None)
 	parser.add_option("-b", "--bug", metavar="BUG",
@@ -388,5 +401,5 @@ if __name__ == "__main__":
 
 	if options.verbose:
 		print ".dsc url: " + dscurl
-	sync_dsc(dscurl, options.dist, options.release, options.uploader,
-			options.bugs, options.keyid, options.verbose)
+	sync_dsc(dscurl, options.dist, options.release, options.uploader_name,
+			options.uploader_email, options.bugs, options.keyid, options.verbose)
