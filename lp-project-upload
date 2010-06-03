@@ -98,7 +98,8 @@ try:
         signature_content = None
 
     # Create a new product release file.
-    release.add_file(filename=tarball, description='release tarball',
+    filename = os.path.basename(tarball)
+    release.add_file(filename=filename, description='release tarball',
             file_content=file_content, content_type='appplication/x-gzip',
             file_type='Code Release Tarball', signature_filename=signature,
             signature_content=signature_content)
