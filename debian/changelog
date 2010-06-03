@@ -18,12 +18,13 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
   * syncpackage:
    - add more options and allow pulling packages from Debian.
    - add mismatching source tarball detection (for fake syncs).
-  
+  * update-maintainer: Remove duplicate Original-Maintainer field.
+
   [ Michael Vogt ]
   * edit-patch:
     - support full path to the patch as well (LP: #585599)
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 15 May 2010 17:55:22 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 03 Jun 2010 21:32:01 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 

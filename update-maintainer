@@ -95,6 +95,13 @@ original_maintainer = maintainer_name + " " + maintainer_mail
 # XSBC-Original maintainer field
 
 if not "lists.ubuntu.com" in original_maintainer:
+	# Remove existing Original-Maintainer field
+	# to avoid multiple Original-Maintainer fields
+	original_maintainer_fields = re.findall('(.*Original-Maintainer): (.*)', file_contents)
+	if len(original_maintainer_fields) > 0:
+		for original_maintainer_field in original_maintainer_fields:
+			print "Removing existing %s: %s" % original_maintainer_field
+		file_contents = re.sub('.*Original-Maintainer: .*\n', "", file_contents)
 	final_addition = target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
 else:
 	final_addition = target_maintainer
