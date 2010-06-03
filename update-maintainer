@@ -84,7 +84,12 @@ if not (ubuntutools.packages.checkIsInDebian(package_name, 'unstable') or ubuntu
 			sys.stderr.write('The environment variable DEBEMAIL or EMAIL ' +\
 				'needs to be set to make proper use of this script.\n')
 			sys.exit(1)
-	target_maintainer = user_email_address
+	user_name = os.getenv('DEBFULLNAME')
+	if not user_name:
+		sys.stderr.write('The environment variable DEBFULLNAME ' +\
+			'needs to be set to make proper use of this script.\n')
+		sys.exit(1)
+	target_maintainer = user_name + ' <' + user_email_address + '>'
 else:
 	target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
 
