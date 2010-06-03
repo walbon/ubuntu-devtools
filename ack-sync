@@ -71,7 +71,12 @@ def get_source(package, version, section, dist, uploader_name, uploader_email, b
 		cmd += ["-k", key]
 	subprocess.check_call(cmd)
 
-	dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	dsc_file = package + "_" + strip_epoch(version) + "fakesync1.dsc"
+	if not os.path.exists(os.path.join(workdir, dsc_file)):
+		dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	if not os.path.exists(os.path.join(workdir, dsc_file)):
+		print >> sys.stderr, "E: Failed to find .dsc file created by syncpackage."
+		sys.exit(1)
 	return dsc_file
 
 def build_source(dist, dsc_file):
