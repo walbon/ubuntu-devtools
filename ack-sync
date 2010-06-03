@@ -30,6 +30,7 @@ from ubuntutools.lp.libsupport import get_launchpad
 
 COMMAND_LINE_SYNTAX_ERROR = 1
 VERSION_DETECTION_FAILED = 2
+PRIVATE_USER_EMAIL = 3
 
 def get_version(title):
 	m = re.search("[() ][0-9][0-9a-zA-Z.:+-~]*", title)
@@ -128,7 +129,12 @@ def main(bug_numbers, package, version, section, update, uploader_email, key, ve
 		bug = launchpad.bugs[bug_number]
 		uploader_name = bug.owner.display_name
 		if uploader_email is None:
-			uploader_email =  bug.owner.preferred_email_address.email
+			try:
+				uploader_email =  bug.owner.preferred_email_address.email
+			except ValueError:
+				if not silent:
+					print >> sys.stderr, "E: Bug owner does not have a public email address. Specify uploader with '-e'."
+				sys.exit(PRIVATE_USER_EMAIL)
 
 		task = list(bug.bug_tasks)[0]
 	
