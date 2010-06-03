@@ -36,15 +36,15 @@ control_file_found = False
 
 # Check changelog file exists.
 for location in valid_locations:
-    if os.path.exists(location):
-         control_file_found = True
-         control_file = location
-         break # Stop looking.
+	if os.path.exists(location):
+		control_file_found = True
+		control_file = location
+		break # Stop looking.
 
 # Check if we've found a control file.
 if not control_file_found:
-   sys.stderr.write("Unable to find debian/control file.\n")
-   sys.exit(1)
+	sys.stderr.write("Unable to find debian/control file.\n")
+	sys.exit(1)
 
 # Read found file contents.
 debian_control_file = open(control_file, "r")
@@ -53,8 +53,8 @@ debian_control_file.close()
 
 # Check if there is a Maintainer field in file found.
 if not 'Maintainer' in file_contents:
-    sys.stderr.write("Unable to find Maintainer field in %s.\n" % control_file)
-    sys.exit(1)
+	sys.stderr.write("Unable to find Maintainer field in %s.\n" % control_file)
+	sys.exit(1)
 
 package_field = re.findall('(Source:) (.*)', file_contents)
 package_name = package_field[0][1]
@@ -67,26 +67,26 @@ maintainer_name = maintainer_field[0][1]
 maintainer_mail = maintainer_field[0][2]
 
 if maintainer_mail.find("@ubuntu.com") != -1:
-    print "Maintainer email is set to an @ubuntu.com address - doing nothing."
-    sys.exit(0)
+	print "Maintainer email is set to an @ubuntu.com address - doing nothing."
+	sys.exit(0)
 
 # Check if Maintainer field is as approved in TB decision.
 if 'Ubuntu Developers' in maintainer_name and \
-    '<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
-    print "Ubuntu Developers is already set as maintainer."
-    sys.exit(0)
+	'<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
+	print "Ubuntu Developers is already set as maintainer."
+	sys.exit(0)
 
 if not (ubuntutools.packages.checkIsInDebian(package_name, 'unstable') or ubuntutools.packages.checkIsInDebian(package_name, 'experimental')):
-    user_email_address = os.getenv('DEBEMAIL')
-    if not user_email_address:
-        user_email_address = os.getenv('EMAIL')
-        if not user_email_address:
-            sys.stderr.write('The environment variable DEBEMAIL or EMAIL ' +\
-                'needs to be set to make proper use of this script.\n')
-            sys.exit(1)
-    target_maintainer = user_email_address
+	user_email_address = os.getenv('DEBEMAIL')
+	if not user_email_address:
+		user_email_address = os.getenv('EMAIL')
+		if not user_email_address:
+			sys.stderr.write('The environment variable DEBEMAIL or EMAIL ' +\
+				'needs to be set to make proper use of this script.\n')
+			sys.exit(1)
+	target_maintainer = user_email_address
 else:
-    target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+	target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
 
 # Set original maintainer field in a string.
 original_maintainer = maintainer_name + " " + maintainer_mail
