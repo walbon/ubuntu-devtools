@@ -1,0 +1,292 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2007, Canonical Ltd.
+# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+#
+# It was initial written by Daniel Holbach.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-3 for more details.
+
+import getopt
+import lazr.restfulclient
+import os
+import re
+import subprocess
+import sys
+import logging
+import glob
+import fnmatch
+
+from ubuntutools.lp.libsupport import get_launchpad
+
+COMMAND_LINE_SYNTAX_ERROR = 1
+VERSION_DETECTION_FAILED = 2
+PRIVATE_USER_EMAIL = 3
+
+def get_version(title):
+	m = re.search("[() ][0-9][0-9a-zA-Z.:+-~]*", title)
+	if m is None:
+		print >> sys.stderr, "Version could not be detected. Please specify it with -V."
+		sys.exit(VERSION_DETECTION_FAILED)
+	return m.group(0).strip("() ")
+
+def strip_epoch(version):
+	parts = version.split(':')
+	if len(parts) > 1:
+		del parts[0]
+	version = ':'.join(parts)
+	return version
+
+def LogCall(command):
+	command = map(str, command)
+	logging.info("Running %s", " ".join(command))
+	return command
+
+def get_source(package, version, section, dist, uploader_name, uploader_email, bug, key):
+	if os.path.isdir("/tmpfs"):
+		workdir = "/tmpfs/ack-sync"
+	else:
+		workdir = "/tmp/ack-sync"
+	if not os.path.isdir(workdir):
+		os.makedirs(workdir)
+	os.chdir(workdir)
+
+	cmd = ["syncpackage", package, "-r", dist, "-V", version, "-b", str(bug)]
+	if section is not None:
+		cmd += ["-c", section]
+	if uploader_email is not None:
+		cmd += ["-e", uploader_email]
+	if uploader_name is not None:
+		cmd += ["-n", uploader_name]
+	if key is not None:
+		cmd += ["-k", key]
+	subprocess.check_call(cmd)
+
+	dsc_file = package + "_" + strip_epoch(version) + "fakesync1.dsc"
+	if not os.path.exists(os.path.join(workdir, dsc_file)):
+		dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	if not os.path.exists(os.path.join(workdir, dsc_file)):
+		print >> sys.stderr, "E: Failed to find .dsc file created by syncpackage."
+		sys.exit(1)
+	return dsc_file
+
+def build_source(dist, dsc_file):
+	try:
+		if sbuild:
+			subprocess.check_call(LogCall(["sbuild", "-c", dist,"-A", dsc_file]))
+		else:
+			if not os.path.isdir("buildresult"):
+				os.makedirs("buildresult")
+			cmd = ["sudo", "env", "DIST=" + dist, pbuilder, "--build",
+					"--buildresult", "buildresult", dsc_file]
+			subprocess.check_call(LogCall(cmd))
+	except subprocess.CalledProcessError:
+		print >> sys.stderr, "E: %s failed to build." % (dsc_file)
+		sys.exit(1)
+
+def test_install(dist, dsc_file):
+	changes_files=glob.glob(os.path.splitext(dsc_file)[0]+"_*.changes")
+	changes_file = ""
+
+	for temp_file in changes_files:
+		if not fnmatch.fnmatch(temp_file, '*_source.changes'):
+			changes_file = temp_file
+
+	if not (os.path.isfile(changes_file)): # if no file exists at all => exit
+		print >> sys.stderr, "E: No .changes file has been generated."
+		sys.exit(1)
+
+	try:
+		cmd = ["sudo", "piuparts", "-N", "-W", "--single-changes-list",
+				"--log-level=info", "--ignore=/var/log/apt/history.log",
+				"--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse",
+				changes_file]
+		if sbuild:
+			subprocess.check_call(LogCall(cmd + ["--lvm-volume="+lvm+"/"+dist+"_chroot"]))
+		else:
+			subprocess.check_call(LogCall(cmd + ["--pbuilder"]))
+	except subprocess.CalledProcessError:
+		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
+
+def main(bug_numbers, package, version, section, update, uploader_email, key, verbose=False, silent=False):
+	launchpad = get_launchpad("ubuntu-dev-tools")
+	# TODO: use release-info (once available)
+	dist = launchpad.distributions["ubuntu"].current_series.name
+
+	# update pbuilder
+	if update:
+		if sbuild:
+			subprocess.call(LogCall(["sbuild-update", dist]))
+		else:
+			cmd = ["sudo", "env", "DIST=" + dist, pbuilder, "--update"]
+			subprocess.call(LogCall(cmd))
+
+	for bug_number in bug_numbers:
+		bug = launchpad.bugs[bug_number]
+		uploader_name = bug.owner.display_name
+		if uploader_email is None:
+			try:
+				uploader_email =  bug.owner.preferred_email_address.email
+			except ValueError:
+				if not silent:
+					print >> sys.stderr, "E: Bug owner does not have a public email address. Specify uploader with '-e'."
+				sys.exit(PRIVATE_USER_EMAIL)
+
+		task = list(bug.bug_tasks)[0]
+	
+		if package is None or len(bug_numbers) > 1:
+			package = task.bug_target_name.split(" ")[0]
+			if package == "ubuntu":
+				# no source package was defined. Guessing that the second word in
+				# the title is the package name
+				package = bug.title.split(" ")[1]
+		if version is None or len(bug_numbers) > 1:
+			version = get_version(bug.title)
+		print "package:", package
+		print "version:", version
+		dsc_file = get_source(package, version, section, dist, uploader_name, uploader_email, bug_number, key)
+
+		# extract source
+		subprocess.check_call(["dpkg-source", "-x", dsc_file])
+
+		build_source(dist, dsc_file)
+	
+		if piuparts:
+			test_install(dist, dsc_file)
+
+		print bug.title
+		print task.assignee
+		print task.status
+		print "Uploader:", uploader_name + " <" + uploader_email + ">"
+		try:
+			raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
+		except KeyboardInterrupt:
+			continue
+
+		succeeded_unsubscribe = True
+		ums = launchpad.people['ubuntu-main-sponsors']
+		uus = launchpad.people['ubuntu-universe-sponsors']
+		try:
+			bug.unsubscribe(person=ums)
+		except lazr.restfulclient.errors.HTTPError, http_error:
+			print "failed to unsubscribe ubuntu-main-sponsors: " + http_error.content
+			succeeded_unsubscribe = False
+		try:
+			bug.unsubscribe(person=uus)
+		except lazr.restfulclient.errors.HTTPError, http_error:
+			print "failed to unsubscribe ubuntu-universe-sponsors: " + http_error.content
+			succeeded_unsubscribe = False
+		if succeeded_unsubscribe:
+			print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
+
+		us = launchpad.people['ubuntu-sponsors']
+		bug.unsubscribe(person=us)
+		print "ubuntu-sponsors unsubscribed"
+		task.assignee = None
+		print "unassigned me"
+		if task.importance == "Undecided":
+			task.importance = "Wishlist"
+			print "importance set to Wishlist"
+		task.lp_save()
+		bug.subscribe(person=launchpad.me)
+		print "subscribed me"
+		changes_file = dsc_file[:-4] + "_source.changes"
+		subprocess.check_call(["dput", changes_file])
+
+def usage():
+	print """ack-sync <bug numbers>
+
+  -e,                       specify uploader email address
+  -h, --help                displays this help
+  -k, --key                 key used to sign the package (in case of sponsoring)
+  -l, --lvm                 lvm root dev directory, used for sbuild and piuparts
+                            default is /dev/vg
+  -p, --package=<package>   set the package
+  -P, --with-piuparts       use piuparts to check the instalability
+      --section=<section>   Debian section (one of main, contrib, non-free)
+  -s, --silent              be more silent
+  -S, --with-sbuild         use sbuild instead of pbuilder
+  -C, --pbuilder=<command>  use <command> as pbuilder
+  -u, --update              updates pbuilder before building
+  -v, --verbose             be more verbosive
+  -V, --version=<version>   set the version"""
+
+if __name__ == '__main__':
+	try:
+		long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent", "update",
+				"verbose", "version=", "with-sbuild", 'pbuilder=', "with-piuparts"]
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uvV:", long_opts)
+	except getopt.GetoptError, e:
+		# will print something like "option -a not recognized"
+		print >> sys.stderr, str(e)
+		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+
+	package = None
+	sbuild = False
+	section = None
+	silent = False
+	update = False
+	uploader_email = None
+	verbose = False
+	version = None
+	piuparts = False
+	pbuilder = 'pbuilder'
+	lvm = "/dev/vg"
+	key = None
+
+	for o, a in opts:
+		if o in ("-h", "--help"):
+			usage()
+			sys.exit()
+		elif o in ("-e"):
+			uploader_email = a
+		elif o in ("-k", "--key"):
+			key = a
+		elif o in ("-l", "--lvm"):
+			lvm = a
+		elif o in ("-p", "--package"):
+			package = a
+		elif o in ("-P", "--with-piuparts"):
+			piuparts = True
+		elif o in ("--section"):
+			section = a
+		elif o in ("-s", "--silent"):
+			silent = True
+		elif o in ("-S", "--with-sbuild"):
+			sbuild = True
+		elif o in ("-C", "--pbuilder"):
+		    pbuilder=a
+		elif o in ("-u", "--update"):
+			update = True
+		elif o in ("-v", "--verbose"):
+			verbose = True
+		elif o in ("-V", "--version"):
+			version = a
+		else:
+			assert False, "unhandled option"
+
+	if len(args) == 0:
+		if not silent:
+			print >> sys.stderr, "E: You must specify at least one bug number."
+		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+
+	bug_numbers = []
+	for arg in args:
+		try:
+			number = int(arg)
+		except:
+			if not silent:
+				print >> sys.stderr, "E: '%s' is not a valid bug number." % arg
+			sys.exit(COMMAND_LINE_SYNTAX_ERROR)
+		bug_numbers.append(number)
+
+	main(bug_numbers, package, version, section, update, uploader_email, key, verbose, silent)
