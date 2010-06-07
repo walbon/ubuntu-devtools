@@ -23,6 +23,8 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
   [ Michael Vogt ]
   * edit-patch:
     - support full path to the patch as well (LP: #585599)
+    - support adding existing patches (e.g. from launchpad)
+      thanks to David Futcher (LP: #586787)
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 03 Jun 2010 21:32:01 +0200
 

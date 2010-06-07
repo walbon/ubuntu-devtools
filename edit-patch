@@ -180,6 +180,40 @@ add_patch_tagging() {
     sed -i ${RANGE}i"$PATCH_DESC" debian/patches/$1
 }
 
+detect_patch_location() {
+    # Checks whether the specified patch exists in debian/patches or on the filesystem
+    FILENAME=${PATCHNAME##*/}
+    
+    if [ -f "debian/patches/$FILENAME" ]; then
+        PATCHTYPE="debian"
+    elif [ -f "$PATCHNAME" ]; then
+        PATCHTYPE="file"
+        PATCHORIG="$PATCHNAME"
+    else
+        PATCHTYPE="new"
+    fi
+}
+
+prepare_new_patch() {
+    # Prepares new patches by copying them into debian/patches and adding
+    # them to the relevant series files. Also adds dpatch headers when required.
+    if [ "$PATCHTYPE" = "file" ]; then
+        cp "$PATCHORIG" "debian/patches/$PATCHNAME"
+        
+        if [ "$PATCHSYSTEM" = "quilt" ]; then
+            echo "$PATCHNAME" >> debian/patches/series
+        elif [ "$PATCHSYSTEM" = "dpatch" ]; then
+            echo "$PATCHNAME" >> debian/patches/00list
+            
+            # Add the dpatch header to files that don't already have it
+            if ! grep -q "@DPATCH@" "debian/patches/$PATCHNAME"; then
+                sed -i '1i#! /bin/sh /usr/share/dpatch/dpatch-run\n@DPATCH@' debian/patches/$PATCHNAME
+            fi
+        fi
+        
+        echo "Copying and applying new patch. You can now edit the patch or exit the subshell to save."
+    fi
+}
 
 # TODO:
 # - edit-patch --remove implementieren
@@ -190,13 +224,15 @@ main() {
     # parse args
     if [ $# -ne 1 ]; then
 	fatal_error "Need exactly one patch name"
-    fi
+	fi  
     PATCHNAME="$1"
     # do the work
     ensure_debian_dir
     detect_patchsystem
+    detect_patch_location
     normalize_patch_path
     normalize_patch_extension
+    prepare_new_patch
     edit_patch_$PATCHSYSTEM $PATCHNAME
     add_patch_tagging $PATCHNAME
     add_changelog $PATCHNAME
