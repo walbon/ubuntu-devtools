@@ -25,7 +25,7 @@ import urllib2
 import re
 import tempfile
 import subprocess
-from debian_bundle.changelog import Changelog
+from debian.changelog import Changelog
 
 def raw_input_exit_on_ctrlc(*args, **kwargs):
 	'''
@@ -63,8 +63,7 @@ def getDebianChangelog(srcpkg, version):
 
 	new_entries = ''
 	changelog = Changelog(changelog.read())
-	# see also Debian #539334
-	for block in changelog._blocks:
+	for block in changelog:
 		if block.version > version:
 			# see also Debian #561805
 			new_entries += unicode(str(block).decode('utf-8'))

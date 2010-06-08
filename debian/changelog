@@ -26,7 +26,13 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
     - support adding existing patches (e.g. from launchpad)
       thanks to David Futcher (LP: #586787)
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 03 Jun 2010 21:32:01 +0200
+  [ Michael Bienia ]
+  * Update to the new python-debian version:
+    - Depend on python-debian >= 1.1.15
+    - Replace imports of debian_bundle with debian to fix the deprecation
+      warnings.
+
+ -- Michael Bienia <geser@ubuntu.com>  Tue, 08 Jun 2010 19:08:24 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 

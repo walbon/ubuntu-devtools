@@ -24,7 +24,7 @@ import sys
 import subprocess
 import smtplib
 import socket
-from debian_bundle.changelog import Version
+from debian.changelog import Version
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 

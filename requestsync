@@ -28,7 +28,7 @@
 
 import sys
 from optparse import OptionParser
-from debian_bundle.changelog import Version
+from debian.changelog import Version
 
 # ubuntu-dev-tools modules
 from ubuntutools.lp import udtexceptions

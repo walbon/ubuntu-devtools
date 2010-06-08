@@ -26,7 +26,7 @@ import re, os, sys
 from tempfile import mkstemp
 
 try:
-	from debian_bundle.changelog import Changelog
+	from debian.changelog import Changelog
 except ImportError:
 	print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
 	sys.exit(1)
