@@ -301,7 +301,7 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 		subprocess.check_call(["update-maintainer"])
 		
 		# Build source package
-		cmd = ["dpkg-buildpackage", "-S", "-v" + cur_ver, "-e" + uploader]
+		cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver]
 		if need_orig:
 			cmd += ['-sa']
 		if not keyid is None:
