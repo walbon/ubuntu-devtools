@@ -31,7 +31,7 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * Update to the new python-debian version:
-    - Depend on python-debian >= 1.1.15
+    - Depend on python-debian >= 0.1.15
     - Replace imports of debian_bundle with debian to fix the deprecation
       warnings.
 
