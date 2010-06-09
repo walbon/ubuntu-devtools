@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
-Build-Depends: cdbs (>= 0.4.49), debhelper (>= 6), python (>= 2.5)
+Build-Depends: cdbs (>= 0.4.49),
+               debhelper (>= 6),
+               python (>= 2.5)
 Build-Depends-Indep: python-support (>= 0.5.3)
 XS-Python-Version: >= 2.5
 Homepage: https://launchpad.net/ubuntu-dev-tools/
@@ -12,12 +14,28 @@ Standards-Version: 3.8.4
 
 Package: ubuntu-dev-tools
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, binutils, devscripts, sudo,
- python-debian (>= 1.1.15), python-launchpadlib (>= 1.5.7), dctrl-tools, lsb-release, diffstat,
- dpkg-dev, python-apt (>= 0.7.93~), python-lazr.restfulclient
-Recommends: bzr, pbuilder | cowdancer | sbuild, reportbug (>= 3.39ubuntu1),
- ca-certificates, debootstrap, genisoimage, perl-modules, libwww-perl,
- libapt-pkg-perl
+Depends: binutils,
+         dctrl-tools,
+         devscripts,
+         diffstat,
+         dpkg-dev,
+         lsb-release,
+         python-apt (>= 0.7.93~),
+         python-debian (>= 1.1.15),
+         python-launchpadlib (>= 1.5.7),
+         python-lazr.restfulclient,
+         sudo,
+         ${python:Depends},
+         ${misc:Depends}
+Recommends: bzr,
+            ca-certificates,
+            debootstrap,
+            genisoimage,
+            libapt-pkg-perl,
+            libwww-perl,
+            pbuilder | cowdancer | sbuild,
+            perl-modules,
+            reportbug (>= 3.39ubuntu1)
 Suggests: qemu-kvm-extras-static
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
