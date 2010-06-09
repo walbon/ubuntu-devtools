@@ -16,9 +16,12 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * syncpackage:
-   - add more options and allow pulling packages from Debian.
-   - add mismatching source tarball detection (for fake syncs).
-  * update-maintainer: Remove duplicate Original-Maintainer field.
+    - add more options and allow pulling packages from Debian.
+    - add mismatching source tarball detection (for fake syncs).
+  * update-maintainer:
+    - Remove duplicate Original-Maintainer field.
+    - Avoid duplicate Original-Maintainer field if maintainer is listed in
+      Uploaders too.
 
   [ Michael Vogt ]
   * edit-patch:
@@ -32,7 +35,7 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
     - Replace imports of debian_bundle with debian to fix the deprecation
       warnings.
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 08 Jun 2010 19:08:24 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 09 Jun 2010 23:53:13 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 

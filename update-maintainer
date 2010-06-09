@@ -107,14 +107,15 @@ if not "lists.ubuntu.com" in original_maintainer:
 		for original_maintainer_field in original_maintainer_fields:
 			print "Removing existing %s: %s" % original_maintainer_field
 		file_contents = re.sub('.*Original-Maintainer: .*\n', "", file_contents)
-	final_addition = target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
+	final_addition = "Maintainer: " + target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
 else:
-	final_addition = target_maintainer
+	final_addition = "Maintainer: " + target_maintainer
 
 print "The original maintainer for this package is: " + original_maintainer
 print "Resetting as: " + target_maintainer
 
 # Replace text.
 debian_control_file = open(control_file, "w")
-debian_control_file.write(re.sub(re.escape(original_maintainer), final_addition, file_contents))
+original_maintainer_line = "Maintainer: " + original_maintainer
+debian_control_file.write(re.sub(re.escape(original_maintainer_line), final_addition, file_contents))
 debian_control_file.close()
