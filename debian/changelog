@@ -35,7 +35,10 @@ ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
     - Replace imports of debian_bundle with debian to fix the deprecation
       warnings.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 09 Jun 2010 23:53:13 +0200
+  [ Daniel Hahler ]
+  * mk-sbuild: add $RELEASE to error message.
+
+ -- Michael Bienia <geser@ubuntu.com>  Thu, 17 Jun 2010 21:17:10 +0200
 
 ubuntu-dev-tools (0.99) lucid; urgency=low
 
