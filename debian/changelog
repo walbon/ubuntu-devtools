@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.100) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.100) maverick; urgency=low
 
   [ Luca Falavigna ]
   * syncpackage: new script to easily upload pristine Debian packages.
