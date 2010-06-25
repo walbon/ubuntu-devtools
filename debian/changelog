@@ -1,8 +1,9 @@
 ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
 
   * syncpackage: Update manpage to reflect current usage. (LP: #598477)
+  * ubuntu-build: Update manpage to reflect current usage. (LP: #490535)
 
- -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Fri, 25 Jun 2010 15:45:37 -0400
+ -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Fri, 25 Jun 2010 16:11:00 -0400
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
