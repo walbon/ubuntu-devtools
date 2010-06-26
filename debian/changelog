@@ -6,8 +6,9 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * massfile: Add manpage.
   * pull-debian-debdiff: Add manpage.
   * setup-packaging-environment: Add manpage.
+  * ubuntu-iso: Add manpage.
 
- -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Sat, 26 Jun 2010 14:31:15 -0400
+ -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Sat, 26 Jun 2010 14:40:48 -0400
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
