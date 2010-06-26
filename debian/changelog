@@ -4,8 +4,9 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * ubuntu-build: Update manpage to reflect current usage. (LP: #490535)
   * edit-patch: Add manpage. (LP: #538379)
   * massfile: Add manpage.
+  * pull-debian-debdiff: Add manpage.
 
- -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Sat, 26 Jun 2010 13:52:40 -0400
+ -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Sat, 26 Jun 2010 14:14:11 -0400
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
