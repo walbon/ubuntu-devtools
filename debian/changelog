@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
+
+  * doc/syncpackage.1:
+    - Integrate with new syncpackage options (Closes: #587142). 
+
+ -- Luca Falavigna <dktrkranz@ubuntu.com>  Sun, 27 Jun 2010 17:12:03 +0200
+
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
   [ Luca Falavigna ]
