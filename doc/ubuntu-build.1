@@ -1,11 +1,9 @@
-.TH UBUNTU-BUILD "1" "14 August 2008" "ubuntu-dev-tools"
+.TH UBUNTU-BUILD "1" "June 2010" "ubuntu-dev-tools"
 .SH NAME
 ubuntu-build \- command-line interface to Launchpad build operations
 
 .SH SYNOPSIS
 .B ubuntu-build <srcpackage> <release> <operation>
-.br
-.B ubuntu-build \-\-help
 
 .SH DESCRIPTION
 \fBubuntu-build\fR provides a command line interface to the Launchpad build
@@ -38,10 +36,38 @@ Listed below are the command line options for \fBubuntu-build\fR:
 .B \-h or \-\-help
 Display a help message and exit.
 .TP
-.B \-a or \-\-architecture
-Only available for \fIrescore\fR and \fIretry\fR operations only.
-This will only request the rebuilding/rescoring on the specified
-architecture.
+Retry and rescore options:
+.IP
+These options may only be used with the 'retry' and 'rescore'
+operations.
+.IP
+\fB\-a\fR ARCHITECTURE, \fB\-\-arch\fR=\fIARCHITECTURE\fR
+Rebuild or rescore a specific architecture. Valid
+architectures include: amd64, sparc, powerpc, i386,
+armel, ia64, lpia, hppa.
+.TP
+Batch processing:
+.IP
+These options and parameter ordering is only available in \fB\-\-batch\fR
+mode. Usage: ubuntu\-build \fB\-\-batch\fR [options] <package>...
+.IP
+\fB\-\-batch\fR
+Enable batch mode
+.IP
+\fB\-\-series\fR=\fISERIES\fR
+Selects the Ubuntu series to operate on (default:
+current development series)
+.IP
+\fB\-\-retry\fR
+Retry builds (give\-back).
+.IP
+\fB\-\-rescore\fR=\fIPRIORITY\fR
+Rescore builds to <priority>.
+.IP
+\fB\-\-arch2\fR=\fIARCHITECTURE\fR
+Affect only 'architecture' (can be used several
+times). Valid architectures are: amd64, sparc,
+powerpc, i386, armel, ia64, lpia, hppa.
 
 .SH AUTHORS
 \fBubuntu-build\fR was written by Martin Pitt <martin.pitt@canonical.com>, and

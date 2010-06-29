@@ -1,0 +1,45 @@
+.TH MASSFILE "1" "June 2010" "ubuntu-dev-tools"
+.SH NAME
+\fBmassfile\fR \- script for massfiling bugs against Ubuntu packages
+
+.SH SYNOPSIS
+\fBmassfile\fR <path to instructions file> <path to list file>
+
+.SH DESCRIPTION
+\fBmassfile\fR is a script for massfiling bugs against Ubuntu packages in Launchpad. It requires an instructions file describing the contents of the bug report and a list file which lists the packages which the bug will be filed against.
+
+Templates for both files can be found in /usr/share/doc/ubuntu-dev-tools/examples.
+
+.SH EXAMPLES
+\fBmassfile.instructions\fR - file designating the contents of the bug report
+
+ subject: [UNMETDEPS] $pack has unmet dependencies
+ assignee: 
+ status: confirmed
+ subscribers: motu
+ tags: unmetdeps
+ buglist-url: http://bugs.launchpad.net/ubuntu/+bugs?field.tag=unmetdeps
+ text:
+  A run of 
+  .
+   LC_ALL=C apt-cache \-i unmet | grep ^Package | cut \-d' ' \-f2 | grep
+   \-v dbgsym | sort \-u | xargs apt-cache showsrc | grep ^Directory |
+   sed 's/Package\:\ //g' | grep verse | cut \-d'/' \-f4
+  indicates that the source package $pack has binary packages that are
+  not installable (on AMD64) at the moment.
+  .
+  Please have a look and make sure it's installable again.
+
+\fBmassfile.list\fR - file designating the packages affected
+
+Each package should be listed on a new line as follows:
+
+ z88dk
+ zope-quotafolder
+
+.SH AUTHORS
+\fBmassfile\fR was written by Iain Lane <iain@orangesquash.org.uk>, Daniel Hahler <ubuntu@thequod.de>. and Markus Korn <thekorn@gmx.de>.
+
+This manual page was written by Andrew Starr-Bochicchio <a.starr.b@gmail.com>.
+.PP
+Both are released under the terms of the GNU General Public License, version 3.

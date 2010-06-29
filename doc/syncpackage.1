@@ -1,8 +1,9 @@
-.TH SYNCPACKAGE "1" "15 April 2008" "ubuntu-dev-tools"
+.TH SYNCPACKAGE "1" "June 2010" "ubuntu-dev-tools"
 .SH NAME
 syncpackage \- helper to prepare .changes file to upload synced packages
 .SH SYNOPSIS
-.B syncpacage\fR \fB<.dsc file>\fR \fB<target release>\fR
+.B syncpackage
+[\fIoptions\fR] \fI<.dsc URL/path or package name>\fR
 .SH DESCRIPTION
 \fBsyncpackage\fR generates a changes file to be directly uploaded to Ubuntu
 primary archive or PPA starting from a pristine Debian package.
@@ -10,15 +11,42 @@ primary archive or PPA starting from a pristine Debian package.
 \fBsyncpackage\fR allows you to upload files with the same checksums of the
 Debian ones, as the common script used by Ubuntu archive administrators does,
 this way you can preserve source files integrity between the two distributions.
+.PP
+\fBsyncpackage\fR will detect source tarballs with mismatching checksums and will automatically create fake syncs instead.
 .SH OPTIONS
-.B <.dsc file>
-This is the .dsc file to generate .changes file against.
 .TP
-.B <target release>
-This is the release that you would like the source package to be synced into.
-This should always be the latest development release of Ubuntu.
+\fB\-h\fR, \fB\-\-help\fR
+Show help message and exit
+.TP
+\fB\-d\fR DIST, \fB\-\-distribution\fR=\fIDIST\fR
+Debian distribution to sync from.
+.TP
+\fB\-r\fR RELEASE, \fB\-\-release\fR=\fIRELEASE\fR
+Specify target Ubuntu release.
+.TP
+\fB\-V\fR DEBVERSION, \fB\-\-debian\-version\fR=\fIDEBVERSION\fR
+Specify the version to sync from.
+.TP
+\fB\-c\fR COMPONENT, \fB\-\-component\fR=\fICOMPONENT\fR
+Specify the component to sync from.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+print more information
+.TP
+\fB\-u\fR UPLOADER, \fB\-\-uploader\fR=\fIUPLOADER\fR
+Use UPLOADER as the name and email address of the
+maintainer for this upload instead of evaluating
+DEBFULLNAME and DEBEMAIL.
+.TP
+\fB\-k\fR KEYID, \fB\-\-key\fR=\fIKEYID\fR
+Specify the key ID to be used for signing.
+.TP
+\fB\-b\fR BUG, \fB\-\-bug\fR=\fIBUG\fR
+Mark a Launchpad bug as being fixed by this upload
+.PP
 .SH AUTHOR
-.B requestsync
+\fBsyncpackage\fR was written by Martin Pitt <martin.pitt@canonical.com> and Benjamin Drung <bdrung@ubuntu.com>.
+.PP
 This manual page were written by Luca Falavigna <dktrkranz@ubuntu.com>
 .PP
-It is released under GNU General Public License, version 3.
+Both are released under GNU General Public License, version 3.
