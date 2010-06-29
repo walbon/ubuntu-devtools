@@ -11,6 +11,8 @@ primary archive or PPA starting from a pristine Debian package.
 \fBsyncpackage\fR allows you to upload files with the same checksums of the
 Debian ones, as the common script used by Ubuntu archive administrators does,
 this way you can preserve source files integrity between the two distributions.
+.PP
+\fBsyncpackage\fR will detect source tarballs with mismatching checksums and will automatically create fake syncs instead.
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
