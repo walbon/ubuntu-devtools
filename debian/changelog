@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
 
+  [ Andrew Starr-Bochicchio ]
   * syncpackage: Update manpage to reflect current usage. (Closes: #587142,
     LP: #598477)
   * ubuntu-build: Update manpage to reflect current usage. (LP: #490535)
@@ -9,7 +10,10 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * setup-packaging-environment: Add manpage.
   * ubuntu-iso: Add manpage.
 
- -- Andrew Starr-Bochicchio <a.starr.b@gmail.com>  Sat, 26 Jun 2010 14:40:48 -0400
+  [ Benjamin Drung ]
+  * Bump Standards-Version to 3.9.0 (no changes required).
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 29 Jun 2010 16:42:21 +0200
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
