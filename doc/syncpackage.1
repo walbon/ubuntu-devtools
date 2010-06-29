@@ -2,7 +2,7 @@
 .SH NAME
 syncpackage \- helper to prepare .changes file to upload synced packages
 .SH SYNOPSIS
-.B syncpacage\fR \fB[OPTIONS]\fR \fB<.dsc file>\fR
+.B syncpacage\fR \fB<.dsc file>\fR \fB<target release>\fR
 .SH DESCRIPTION
 \fBsyncpackage\fR generates a changes file to be directly uploaded to Ubuntu
 primary archive or PPA starting from a pristine Debian package.
@@ -14,38 +14,11 @@ this way you can preserve source files integrity between the two distributions.
 .B <.dsc file>
 This is the .dsc file to generate .changes file against.
 .TP
-.B -h, --help
-Show help message and exit
-.TP
-.B -d DIST, --distribution=DIST
-Debian distribution to sync from
-.TP
-.B -r RELEASE, --release=RELEASE
-Specify target Ubuntu release
-.TP
-.B -V DEBVERSION, --debian-version=DEBVERSION
-Specify the version to sync
-.TP
-.B -c COMPONENT, --component=COMPONENT
-Specify the component to sync from
-.TP
-.B -n UPLOADER_NAME, --uploader-name=UPLOADER_NAME
-Use UPLOADER_NAME as the name of the maintainer for this upload instead of
-evaluating DEBFULLNAME environment variable
-.TP
-.B -e UPLOADER_EMAIL, --uploader-email=UPLOADER_EMAIL
-Use UPLOADER_EMAIL as email address of the maintainer for this upload instead
-of evaluating DEBEMAIL environment variable
-.TP
-.B -k KEYID, --key=KEYID
-Specify the key ID to be used for signing
-.TP
-.B -b BUG, --bug=BUG
-Mark a Launchpad bug as being fixed by this upload
-.TP
-.B -v, --verbose
-Display more information
+.B <target release>
+This is the release that you would like the source package to be synced into.
+This should always be the latest development release of Ubuntu.
 .SH AUTHOR
+.B requestsync
 This manual page were written by Luca Falavigna <dktrkranz@ubuntu.com>
 .PP
 It is released under GNU General Public License, version 3.
