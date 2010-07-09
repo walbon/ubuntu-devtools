@@ -200,7 +200,7 @@ def main(bug_numbers, package, version, section, update, uploader_email, key, ve
 		bug.subscribe(person=launchpad.me)
 		print "subscribed me"
 		changes_file = dsc_file[:-4] + "_source.changes"
-		subprocess.check_call(["dput", changes_file])
+		subprocess.check_call(["dput", "ubuntu", changes_file])
 
 def usage():
 	print """ack-sync <bug numbers>
