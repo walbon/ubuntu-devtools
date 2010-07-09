@@ -117,7 +117,8 @@ def test_install(dist, dsc_file):
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
-def main(bug_numbers, package, version, section, update, uploader_email, key, verbose=False, silent=False):
+def main(bug_numbers, all_package, all_version, all_section, update,
+         all_uploader_email, key, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
 	# TODO: use release-info (once available)
 	dist = launchpad.distributions["ubuntu"].current_series.name
@@ -133,7 +134,9 @@ def main(bug_numbers, package, version, section, update, uploader_email, key, ve
 	for bug_number in bug_numbers:
 		bug = launchpad.bugs[bug_number]
 		uploader_name = bug.owner.display_name
-		if uploader_email is None:
+		if all_uploader_email is not None:
+			uploader_email = all_uploader_email
+		else:
 			try:
 				uploader_email =  bug.owner.preferred_email_address.email
 			except ValueError:
@@ -142,18 +145,23 @@ def main(bug_numbers, package, version, section, update, uploader_email, key, ve
 				sys.exit(PRIVATE_USER_EMAIL)
 
 		task = list(bug.bug_tasks)[0]
-	
-		if package is None or len(bug_numbers) > 1:
+
+		if all_package is not None:
+			package = all_package
+		else:
 			package = task.bug_target_name.split(" ")[0]
 			if package == "ubuntu":
 				# no source package was defined. Guessing that the second word in
 				# the title is the package name
 				package = bug.title.split(" ")[1]
-		if version is None or len(bug_numbers) > 1:
+		if all_version is not None:
+			version = all_version
+		else:
 			version = get_version(bug.title)
 		print "package:", package
 		print "version:", version
-		dsc_file = get_source(package, version, section, dist, uploader_name, uploader_email, bug_number, key)
+		dsc_file = get_source(package, version, all_section, dist,
+		                      uploader_name, uploader_email, bug_number, key)
 
 		# extract source
 		subprocess.check_call(["dpkg-source", "-x", dsc_file])
