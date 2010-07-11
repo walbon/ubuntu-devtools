@@ -408,11 +408,9 @@ class PersonTeam(BaseWrapper):
             )
 
 	def __init__(self, *args):
-		# Don't share _upload_{pkg,comp} between different PersonTeams
-		if '_upload_pkg' not in self.__dict__:
-			self._upload_pkg = dict()
-		if '_upload_comp' not in self.__dict__:
-			self._upload_comp = dict()
+		# Don't share _upload between different PersonTeams
+		if '_upload' not in self.__dict__:
+			self._upload = dict()
 
 	def __str__(self):
 		return u'%s (%s)' % (self.display_name, self.name)
@@ -440,54 +438,40 @@ class PersonTeam(BaseWrapper):
 		'''
 		return any(t.name == team for t in self.super_teams)
 
-	def canUploadPackage(self, archive, distroseries, package, component):
+	def canUploadPackage(self, archive, distroseries, package, component, pocket='Release'):
 		'''Check if the person or team has upload rights for the source
-                package to the specified 'archive' and 'distrorelease' either
-                through package sets, component or or per-package upload rights.
-		Either a source package name or a component has the specified.
+		package to the specified 'archive' and 'distrorelease'.
 
+		A source package name and a component have to be specified.
 		'archive' has to be a Archive object.
-                'distroseries' has to be an DistroSeries object.
+		'distroseries' has to be an DistroSeries object.
 		'''
 		if not isinstance(archive, Archive):
 			raise TypeError("'%r' is not an Archive object." % archive)
-                if not isinstance(distroseries, DistroSeries):
-                        raise TypeError("'%r' is not a DistroSeries object." % distroseries)
+		if not isinstance(distroseries, DistroSeries):
+			raise TypeError("'%r' is not a DistroSeries object." % distroseries)
 		if package is not None and not isinstance(package, basestring):
 			raise TypeError('A source package name expected.')
 		if component is not None and not isinstance(component, basestring):
 			raise TypeError('A component name expected.')
 		if package is None and component is None:
 			raise ValueError('Either a source package name or a component has to be specified.')
+		if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+			raise PocketDoesNotExistError("Pocket '%s' does not exist." % pocket)
 
-		upload_comp = self._upload_comp.get((archive, component))
-		upload_pkg = self._upload_pkg.get((archive, package))
+		canUpload = self._upload.get((archive, distroseries, pocket, package, component))
 
-		if upload_comp is None and upload_pkg is None:
-                        # archive.isSourceUploadAllowed() checks only package sets permission
-                        if package is not None and archive.isSourceUploadAllowed(
-                            distroseries=distroseries(), person=self(), sourcepackagename=package):
-                                # TODO: also cache the release it applies to
-                                self._upload_pkg[(archive, package)] = True
-                                return True
-                        # check for component or per-package upload rights
-			for perm in archive.getPermissionsForPerson(person=self()):
-				if perm.permission != 'Archive Upload Rights':
-					continue
-				if component and perm.component_name == component:
-					self._upload_comp[(archive, component)] = True
-					return True
-				if package and perm.source_package_name == package:
-					self._upload_pkg[(archive, package)] = True
-					return True
-			# don't have upload rights
-			if package:
-				self._upload_pkg[(archive, package)] = False
-			if component:
-				self._upload_comp[(archive, component)] = False
-			return False
-		else:
-			return upload_comp or upload_pkg
+		if canUpload is None:
+			canUpload = archive.checkUpload(
+					component=component,
+					distroseries=distroseries(),
+					person=self(),
+					pocket=pocket,
+					sourcepackagename=package,
+					)
+			self._upload[(archive, distroseries, pocket, package, component)] = canUpload
+
+		return canUpload
 
 
 class Build(BaseWrapper):
