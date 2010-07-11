@@ -10,6 +10,7 @@ Upstream Authors:
 	Daniel Holbach <daniel.holbach@ubuntu.com>
 	Emmet Hikory <persia@ubuntu.com>
 	Iain Lane <iain@orangesquash.org.uk>
+	James Westby <james.westby@ubuntu.com>
 	Jamin W. Collins <jcollins@asgardsrealm.net>
 	Jonathan Davies <jpds@ubuntu.com>
 	Jordan Mantha <mantha@ubuntu.com>
@@ -35,6 +36,7 @@ Copyright:
 	(C) 2006-2007, Albin Tonnerre <lut1n.tne@gmail.com>
 	(C) 2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
 	(C) 2008, Iain Lane <iain@orangesquash.org.uk>
+	© 2009, James Westby <james.westby@ubuntu.com>
 	(C) Jamin W. Collins <jcollins@asgardsrealm.net>
 	(C) 2008-2009, Jonathan Davies <jpds@ubuntu.com>
 	(C) Jordan Mantha <mantha@ubuntu.com>
@@ -54,9 +56,10 @@ Copyright:
 
 Licenses:
 
-404main, check-symbols,  dgetlp, lp-project-upload, lp-set-dup, pbuilder-dist,
-pbuilder-dist-simple, requestsync, reverse-build-depends, submittodebian, ubuntuiso,
-and update-maintainer are licensed under the GNU General Public License, version 2:
+404main, check-symbols, dgetlp, import-bug-from-debian, lp-project-upload,
+lp-set-dup, pbuilder-dist, pbuilder-dist-simple, requestsync,
+reverse-build-depends, submittodebian, ubuntuiso, and update-maintainer are
+licensed under the GNU General Public License, version 2:
 
     This package is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -90,7 +93,8 @@ License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following scripts can be used, at your option, regarding any later
 version of the previously specified license: 404main, dch-repeat, dgetlp,
-get-build-deps, lp-project-upload, lp-set-dup, manage-credentials, mk-sbuild-lv,
-pbuilder-dist, pull-debian-debdiff, pull-debian-source, pull-lp-source,
-pull-revu-source, reverse-build-depends, setup-packaging-environment, submittodebian,
-suspicious-source, syncpackage, ubuntu-build, what-patch.
+get-build-deps, import-bug-from-debian, lp-project-upload, lp-set-dup,
+manage-credentials, mk-sbuild-lv, pbuilder-dist, pull-debian-debdiff,
+pull-debian-source, pull-lp-source, pull-revu-source, reverse-build-depends,
+setup-packaging-environment, submittodebian, suspicious-source, syncpackage,
+ubuntu-build, what-patch.
