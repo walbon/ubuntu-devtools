@@ -16,8 +16,9 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * Add "import-bug-from-debian" written by James Westby.
+  * Add python-soappy to Recommends.
 
- -- Michael Bienia <geser@ubuntu.com>  Sun, 11 Jul 2010 20:28:54 +0200
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 11 Jul 2010 20:32:49 +0200
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
