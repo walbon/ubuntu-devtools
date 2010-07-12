@@ -86,7 +86,7 @@ def build_source(dist, dsc_file):
 		else:
 			if not os.path.isdir("buildresult"):
 				os.makedirs("buildresult")
-			cmd = ["sudo", "env", "DIST=" + dist, pbuilder, "--build",
+			cmd = ["sudo", "-E", "DIST=" + dist, pbuilder, "--build",
 					"--buildresult", "buildresult", dsc_file]
 			subprocess.check_call(LogCall(cmd))
 	except subprocess.CalledProcessError:
