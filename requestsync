@@ -81,8 +81,6 @@ if __name__ == '__main__':
 		from ubuntutools.lp.lpapicache import Distribution
 		# See if we have LP credentials and exit if we don't - cannot continue in this case
 
-		hasLP = True
-
 		try:
 			Launchpad.login()
 		except IOError:
@@ -143,7 +141,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 
         # Stop if Ubuntu has already the version from Debian or a newer version
-	if (ubuntu_version >= debian_version) and hasLP:
+	if (ubuntu_version >= debian_version) and options.lpapi:
 		# try rmadison
 		import ubuntutools.requestsync.mail
 		try:
