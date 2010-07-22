@@ -462,13 +462,21 @@ class PersonTeam(BaseWrapper):
 		canUpload = self._upload.get((archive, distroseries, pocket, package, component))
 
 		if canUpload is None:
-			canUpload = archive.checkUpload(
-					component=component,
-					distroseries=distroseries(),
-					person=self(),
-					pocket=pocket,
-					sourcepackagename=package,
-					)
+			# checkUpload() throws an exception if the person can't upload
+			try:
+				archive.checkUpload(
+						component=component,
+						distroseries=distroseries(),
+						person=self(),
+						pocket=pocket,
+						sourcepackagename=package,
+						)
+				canUpload = True
+			except HTTPError, e:
+				if e.response.status == 403:
+					canUpload = False
+				else:
+					raise e
 			self._upload[(archive, distroseries, pocket, package, component)] = canUpload
 
 		return canUpload
