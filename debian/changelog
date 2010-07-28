@@ -13,6 +13,8 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * Bump Standards-Version to 3.9.0 (no changes required).
   * Switch to dpkg-source 3.0 (native) format.
+  * syncpackage: Fix extraction of upstream version for debian versions that
+    contain more than one dash.
 
   [ Michael Bienia ]
   * Add "import-bug-from-debian" written by James Westby.
@@ -20,7 +22,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * requestsync: Fix bug where the variable 'hasLP' is not always set
     (lp: #607874).
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 20 Jul 2010 19:44:18 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 28 Jul 2010 16:23:58 +0200
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 

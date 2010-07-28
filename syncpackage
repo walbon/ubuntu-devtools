@@ -151,6 +151,21 @@ def add_fixed_bugs(changes, bugs, verbose=False):
 
 	return "\n".join(changes + [""])
 
+def extract_upstream_version(debian_version):
+	# remove last part separated by a dash (1.0-2 -> 1.0)
+	parts = debian_version.split('-')
+	if len(parts) > 1:
+		del parts[-1]
+	upstream_version = '-'.join(parts)
+
+	# remove epoch
+	parts = upstream_version.split(':')
+	if len(parts) > 1:
+		del parts[0]
+	upstream_version = ':'.join(parts)
+
+	return upstream_version
+
 def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbose=False):
 	assert dscurl.endswith(".dsc")
 	dscname = os.path.basename(dscurl)
@@ -238,7 +253,7 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 		map(lambda f: f.download(verbose), fakesync_files)
 
 	# change into package directory
-	directory = srcpkg + '-' + strip_epoch(new_ver).split('-')[0]
+	directory = srcpkg + '-' + extract_upstream_version(new_ver)
 	if verbose:
 		print "cd " + directory
 	os.chdir(directory)
