@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 
 # Copyright © 2009 James Westby <james.westby@ubuntu.com>
 #
@@ -20,16 +21,12 @@
 #
 # ##################################################################
 
-from launchpadlib.launchpad import (
-        STAGING_SERVICE_ROOT,
-        EDGE_SERVICE_ROOT,
-        )
 from optparse import OptionParser
 import re
 import SOAPpy
 import sys
 import subprocess
-import ubuntutools.lp.libsupport as lp_libsupport
+from ubuntutools.lp.libsupport import (get_launchpad, translate_api_web)
 
 bug_re = re.compile(r"bug=(\d+)")
 
@@ -51,14 +48,12 @@ parser.add_option("-b", "--browserless",
 (options, args) = parser.parse_args()
 
 if options.dry_run:
-    lp_server = STAGING_SERVICE_ROOT
-    lp_web_base = "https://staging.launchpad.net/"
+    lp_server = 'staging'
 else:
-    lp_server = EDGE_SERVICE_ROOT
-    lp_web_base = "https://staging.launchpad.net/"
+    lp_server = 'edge'
 
 try:
-    lp = lp_libsupport.get_launchpad("ubuntu-dev-tools", lp_server)
+    lp = get_launchpad("ubuntu-dev-tools", lp_server)
 except IOError, msg:
     print msg
     print "No credentials, can't continue"
@@ -66,7 +61,7 @@ except IOError, msg:
 
 debian = lp.distributions['debian']
 ubuntu = lp.distributions['ubuntu']
-lp_debbugs = lp.bugs[262256].bug_watches[0].bug_tracker
+lp_debbugs = lp.bug_trackers.getByName(name='debbugs')
 
 bug_nums = []
 
@@ -86,7 +81,7 @@ bugs = debbugs.get_status(*bug_nums)
 if len(bug_nums) > 1:
     bugs = bugs[0]
 
-import pdb; pdb.set_trace()
+#import pdb; pdb.set_trace()
 for bug in bugs:
     bug = bug.value
     package = bug.package
@@ -102,7 +97,7 @@ for bug in bugs:
     d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
     d_task.bug_watch = d_watch
     d_task.lp_save()
-    web_url = "%s/ubuntu/+source/%s/+bug/%d" % (lp_web_base, package, u_bug.id)
+    web_url = translate_api_web(u_bug.self_link)
     print "Opened %s" % web_url
     if not options.browserless:
         subprocess.call(["xdg-open", web_url])
