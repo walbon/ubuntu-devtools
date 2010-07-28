@@ -37,6 +37,15 @@ Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild.sources).
 Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
 official Ubuntu repositories for the supported architectures).
 .TP
+.B \-\-debootstrap\-include=alpha,beta
+Pass along a comma separated list of packages to debootstrap's --include
+argument. See debootstrap (8) for more details.
+.TP
+.B \-\-debootstrap\-exclude=alpha,beta
+Pass along a comma separated list of packages to debootstrap's --exclude
+argument. WARNING: be careful using this option as you can end up
+excluding essential package. See debootstrap (8) for more details.
+.TP
 .B \-\-distro=DISTRO
 Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
 and "debian".
@@ -65,6 +74,12 @@ Do not include the \-updates pocket in the installed sources.list.
 .TP
 .B DEBOOTSTRAP_MIRROR
 Mirror location (same as \-\-debootstrap-mirror)
+.TP
+.B DEBOOTSTRAP_INCLUDE
+Comma separated list of packages to include when bootstrapping (same as \-\-debootstrap-include)
+.TP
+.B DEBOOTSTRAP_EXCLUDE
+Comma separated list of packages to exclude when bootstrapping (same as \-\-debootstrap-exclude; see warning above)
 .TP
 .B SOURCE_CHROOTS_DIR
 use SOURCE_CHROOTS_DIR as home of schroot source directories. (default

@@ -20,7 +20,11 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * requestsync: Fix bug where the variable 'hasLP' is not always set
     (lp: #607874).
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 20 Jul 2010 19:44:18 +0200
+  [ Steve Beattie ]
+  * mk-schroot: add debootstrap include/exclude options
+  * mk-schroot.1: document added options
+
+ -- Steve Beattie <sbeattie@ubuntu.com>  Tue, 27 Jul 2010 16:02:52 -0700
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
