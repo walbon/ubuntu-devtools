@@ -119,7 +119,7 @@ def test_install(dist, dsc_file):
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
 def get_email_from_file(name):
-	filename = os.path.expanduser("~/ack-sync-email.list")
+	filename = os.path.expanduser("~/.ack-sync-email.list")
 	if os.path.isfile(filename):
 		csvfile = open(filename)
 		csv_reader = csv.reader(csvfile)
