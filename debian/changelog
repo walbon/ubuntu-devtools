@@ -13,8 +13,8 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * Bump Standards-Version to 3.9.1 (no changes required).
   * Switch to dpkg-source 3.0 (native) format.
-  * syncpackage: Fix extraction of upstream version for debian versions that
-    contain more than one dash.
+  * syncpackage: Use Version class from python-debian to fix extraction of
+    upstream version for debian versions that contain more than one dash.
 
   [ Michael Bienia ]
   * ubuntutools/lpapi/lpapicache.py: Use the new LP API method
@@ -24,7 +24,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * requestsync: Fix bug where the variable 'hasLP' is not always set
     (lp: #607874).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 28 Jul 2010 16:23:58 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 30 Jul 2010 00:44:55 +0200
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 

@@ -19,7 +19,7 @@
 #
 # ##################################################################
 
-import apt_pkg
+import debian.debian_support
 import hashlib
 import optparse
 import os
@@ -75,17 +75,31 @@ class File(object):
 			urllib.urlretrieve(self.url, self.name)
 
 
-def strip_epoch(version):
-	'''Removes the epoch from a Debian version string.
+class Version(debian.debian_support.Version):
+	def strip_epoch(self):
+		'''Removes the epoch from a Debian version string.
 	
-	strip_epoch(1:1.52-1) will return "1.52-1" and strip_epoch(1.1.3-1) will
-	return "1.1.3-1".'''
+		strip_epoch(1:1.52-1) will return "1.52-1" and strip_epoch(1.1.3-1) will
+		return "1.1.3-1".'''
 
-	parts = version.split(':')
-	if len(parts) > 1:
-		del parts[0]
-	version = ':'.join(parts)
-	return version
+		parts = self.full_version.split(':')
+		if len(parts) > 1:
+			del parts[0]
+		version_without_epoch = ':'.join(parts)
+		return version_without_epoch
+
+	def get_related_debian_version(self):
+		related_debian_version = self.full_version
+		uidx = related_debian_version.find('ubuntu')
+		if uidx > 0:
+			related_debian_version = related_debian_version[:uidx]
+		uidx = related_debian_version.find('build')
+		if uidx > 0:
+			related_debian_version = related_debian_version[:uidx]
+		return Version(related_debian_version)
+
+	def is_modified_in_ubuntu(self):
+		return self.full_version.find('ubuntu') > 0
 
 def remove_signature(dscname, verbose=False):
 	'''Removes the signature from a .dsc file if the .dsc file is signed.'''
@@ -151,21 +165,6 @@ def add_fixed_bugs(changes, bugs, verbose=False):
 
 	return "\n".join(changes + [""])
 
-def extract_upstream_version(debian_version):
-	# remove last part separated by a dash (1.0-2 -> 1.0)
-	parts = debian_version.split('-')
-	if len(parts) > 1:
-		del parts[-1]
-	upstream_version = '-'.join(parts)
-
-	# remove epoch
-	parts = upstream_version.split(':')
-	if len(parts) > 1:
-		del parts[0]
-	upstream_version = ':'.join(parts)
-
-	return upstream_version
-
 def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbose=False):
 	assert dscurl.endswith(".dsc")
 	dscname = os.path.basename(dscurl)
@@ -178,21 +177,20 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 	else:
 		urllib.urlretrieve(dscurl, dscname)
 	dscfile = open(dscname).readlines()
-	new_ver = filter(lambda l: l.startswith("Version:"), dscfile)[0][8:].strip()
+	new_ver = Version(filter(lambda l: l.startswith("Version:"), dscfile)[0][8:].strip())
 
 	try:
 		ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
-		ubuntu_ver = ubuntu_source.getVersion()
+		ubuntu_ver = Version(ubuntu_source.getVersion())
 		ubuntu_dsc = filter(lambda f: f.endswith(".dsc"), ubuntu_source.sourceFileUrls())
 		assert len(ubuntu_dsc) == 1
 		ubuntu_dsc = ubuntu_dsc[0]
 	except udtexceptions.PackageNotFoundException:
-		ubuntu_ver = '~'
+		ubuntu_ver = Version('~')
 		ubuntu_dsc = None
 
 	# No need to continue if version is not greater than current one
-	apt_pkg.init()
-	if not apt_pkg.check_dep(new_ver, '>', ubuntu_ver):
+	if new_ver <= ubuntu_ver:
 		raise Exception('%s version %s is not greater than already available %s' % (srcpkg, new_ver, ubuntu_ver))
 	if verbose:
 		print 'Source %s: current version %s, new version %s' % (srcpkg, ubuntu_ver, new_ver)
@@ -212,8 +210,7 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 	# do we need the orig.tar.gz?
 	need_orig = True
 	fakesync_files = []
-	if ubuntu_ver.find('-') > 0 and new_ver.find('-') > 0 and \
-		ubuntu_ver.split('-')[0] == new_ver.split('-')[0]:
+	if ubuntu_ver.upstream_version == new_ver.upstream_version:
 		# We need to check if all .orig*.tar.* tarballs exist in Ubuntu
 		need_orig = False
 		for source_file in source_files:
@@ -233,16 +230,9 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 	if verbose:
 		print 'needs orig.tar.gz', need_orig
 
-	uidx = ubuntu_ver.find('ubuntu')
-	if uidx > 0:
-		cur_ver = ubuntu_ver[:uidx]
+	if ubuntu_ver.is_modified_in_ubuntu():
 		print 'WARNING! Overwriting modified Ubuntu version %s, setting current version to %s' % (ubuntu_ver, cur_ver)
-	else:
-		cur_ver = ubuntu_ver
-
-	uidx = cur_ver.find('build')
-	if uidx > 0:
-		cur_ver = cur_ver[:uidx]
+	cur_ver = ubuntu_ver.get_related_debian_version()
 
 	# extract package
 	subprocess.check_call(['dpkg-source', '-x', dscname])
@@ -253,7 +243,7 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 		map(lambda f: f.download(verbose), fakesync_files)
 
 	# change into package directory
-	directory = srcpkg + '-' + extract_upstream_version(new_ver)
+	directory = srcpkg + '-' + new_ver.upstream_version
 	if verbose:
 		print "cd " + directory
 	os.chdir(directory)
@@ -265,8 +255,8 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 
 	if len(fakesync_files) == 0:
 		# create the changes file
-		changes_file = "%s_%s_source.changes" % (srcpkg, strip_epoch(new_ver))
-		cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver,
+		changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
+		cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver.full_version,
 				"-DDistribution=" + release,
 				"-DOrigin=debian/" + debian_dist,
 				"-e" + uploader]
@@ -301,14 +291,14 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 		subprocess.check_call(cmd)
 	else:
 		# Create fakesync changelog entry
-		new_ver += "fakesync1"
-		changes_file = "%s_%s_source.changes" % (srcpkg, strip_epoch(new_ver))
+		new_ver = Version(new_version.full_version + "fakesync1")
+		changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
 		if len(bugs) > 0:
 			message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
 					(", ".join(map(lambda b: "#" + str(b), bugs)))
 		else:
 			message = "Fake sync due to mismatching orig tarball."
-		cmd = ["dch", "-v", new_ver, "-D", release, message]
+		cmd = ["dch", "-v", new_ver.full_version, "-D", release, message]
 		env = {"DEBFULLNAME": name, "DEBEMAIL": email}
 
 		# update the Maintainer field
@@ -316,7 +306,7 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 		subprocess.check_call(["update-maintainer"])
 		
 		# Build source package
-		cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver]
+		cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
 		if need_orig:
 			cmd += ['-sa']
 		if not keyid is None:
@@ -330,20 +320,21 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None, verbos
 def get_debian_dscurl(package, dist, release, version=None, component=None):
 	if dist is None:
 		dist="unstable"
+	if type(version) == str:
+		version = Version(version)
 
 	if version is None or component is None:
 		debian_srcpkg = getDebianSrcPkg(package, dist)
 		try:
-			ubuntu_version = getUbuntuSrcPkg(package, release).getVersion()
+			ubuntu_version = Version(getUbuntuSrcPkg(package, release).getVersion())
 		except udtexceptions.PackageNotFoundException:
-			ubuntu_version = '~'
-		apt_pkg.init()
-		if apt_pkg.check_dep(ubuntu_version, ">=", debian_srcpkg.getVersion()):
+			ubuntu_version = Version('~')
+		if ubuntu_version >= Version(debian_srcpkg.getVersion()):
 			# The LP importer is maybe out of date
 			debian_srcpkg = ubuntutools_requestsync_mail_getDebianSrcPkg(package, dist)
 
 		if version is None:
-			version = debian_srcpkg.getVersion()
+			version = Version(debian_srcpkg.getVersion())
 		if component is None:
 			component = debian_srcpkg.getComponent()
 
@@ -354,7 +345,7 @@ def get_debian_dscurl(package, dist, release, version=None, component=None):
 	else:
 		group = package[0]
 
-	dsc_file = package + "_" + strip_epoch(version) + ".dsc"
+	dsc_file = package + "_" + version.strip_epoch() + ".dsc"
 	dscurl = os.path.join("http://ftp.debian.org/debian/pool", component, group, package, dsc_file)
 	return dscurl
 
