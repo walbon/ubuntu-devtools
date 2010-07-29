@@ -16,6 +16,7 @@
 #
 # See file /usr/share/common-licenses/GPL-3 for more details.
 
+import csv
 import getopt
 import lazr.restfulclient
 import os
@@ -117,6 +118,16 @@ def test_install(dist, dsc_file):
 	except subprocess.CalledProcessError:
 		print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
 
+def get_email_from_file(name):
+	filename = os.path.expanduser("~/ack-sync-email.list")
+	if os.path.isfile(filename):
+		csvfile = open(filename)
+		csv_reader = csv.reader(csvfile)
+		for row in csv_reader:
+			if row[0] == name:
+				return row[1]
+	return None
+
 def main(bug_numbers, all_package, all_version, all_section, update,
          all_uploader_email, key, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
@@ -140,9 +151,13 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			try:
 				uploader_email =  bug.owner.preferred_email_address.email
 			except ValueError:
-				if not silent:
-					print >> sys.stderr, "E: Bug owner does not have a public email address. Specify uploader with '-e'."
-				sys.exit(PRIVATE_USER_EMAIL)
+				uploader_email = get_email_from_file(uploader_name)
+				if uploader_email is None:
+					if not silent:
+						print >> sys.stderr, "E: Bug owner does not have a public email address. Specify uploader with '-e'."
+					sys.exit(PRIVATE_USER_EMAIL)
+				elif not silent:
+					print "Taking email address from local file: " + uploader_email
 
 		task = list(bug.bug_tasks)[0]
 
