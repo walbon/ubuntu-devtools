@@ -241,10 +241,10 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 	if verbose:
 		print '%s: D: needs source tarball: %s' % (script_name, str(need_orig))
 
+	cur_ver = ubuntu_ver.get_related_debian_version()
 	if ubuntu_ver.is_modified_in_ubuntu():
 		print '%s: Warning: Overwriting modified Ubuntu version %s, setting current version to %s' % \
-				(script_name, ubuntu_ver, cur_ver)
-	cur_ver = ubuntu_ver.get_related_debian_version()
+				(script_name, ubuntu_ver.full_version, cur_ver.full_version)
 
 	# extract package
 	cmd = ['dpkg-source', '-x', dscname]
