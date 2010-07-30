@@ -166,9 +166,14 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		else:
 			package = task.bug_target_name.split(" ")[0]
 			if package == "ubuntu":
-				# no source package was defined. Guessing that the second word in
-				# the title is the package name
-				package = bug.title.split(" ")[1]
+				words = bug.title.split(" ")
+				# no source package was defined. Guessing that the second or
+				# third word in the title is the package name, because most
+				# titles start with "Please sync <package>" or "Sync <package>"
+				if words[0].lower() == "please":
+					package = words[2]
+				else:
+					package = words[1]
 		if all_version is not None:
 			version = all_version
 		else:
