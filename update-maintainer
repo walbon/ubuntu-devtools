@@ -26,10 +26,19 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import optparse
 import os
 import re
 import sys
 import ubuntutools.packages
+
+script_name = os.path.basename(sys.argv[0])
+usage = "%s [options]" % (script_name)
+epilog = "See %s(1) for more info." % (script_name)
+parser = optparse.OptionParser(usage=usage, epilog=epilog)
+parser.add_option("-q", "--quiet", help="print no informational messages",
+		dest="quiet", action="store_true", default=False)
+(options, args) = parser.parse_args()
 
 valid_locations = ["debian/control.in", "control.in", "debian/control", "control"]
 control_file_found = False
@@ -67,13 +76,15 @@ maintainer_name = maintainer_field[0][1]
 maintainer_mail = maintainer_field[0][2]
 
 if maintainer_mail.find("@ubuntu.com") != -1:
-	print "Maintainer email is set to an @ubuntu.com address - doing nothing."
+	if not options.quiet:
+		print "Maintainer email is set to an @ubuntu.com address - doing nothing."
 	sys.exit(0)
 
 # Check if Maintainer field is as approved in TB decision.
 if 'Ubuntu Developers' in maintainer_name and \
 	'<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
-	print "Ubuntu Developers is already set as maintainer."
+	if not options.quiet:
+		print "Ubuntu Developers is already set as maintainer."
 	sys.exit(0)
 
 if not (ubuntutools.packages.checkIsInDebian(package_name, 'unstable') or ubuntutools.packages.checkIsInDebian(package_name, 'experimental')):
@@ -105,14 +116,16 @@ if not "lists.ubuntu.com" in original_maintainer:
 	original_maintainer_fields = re.findall('(.*Original-Maintainer): (.*)', file_contents)
 	if len(original_maintainer_fields) > 0:
 		for original_maintainer_field in original_maintainer_fields:
-			print "Removing existing %s: %s" % original_maintainer_field
+			if not options.quiet:
+				print "Removing existing %s: %s" % original_maintainer_field
 		file_contents = re.sub('.*Original-Maintainer: .*\n', "", file_contents)
 	final_addition = "Maintainer: " + target_maintainer + "\nXSBC-Original-Maintainer: " + original_maintainer
 else:
 	final_addition = "Maintainer: " + target_maintainer
 
-print "The original maintainer for this package is: " + original_maintainer
-print "Resetting as: " + target_maintainer
+if not options.quiet:
+	print "The original maintainer for this package is: " + original_maintainer
+	print "Resetting as: " + target_maintainer
 
 # Replace text.
 debian_control_file = open(control_file, "w")

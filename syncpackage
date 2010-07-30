@@ -325,6 +325,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 
 		# update the Maintainer field
 		cmd = ["update-maintainer"]
+		if not verbose:
+			cmd.append("-q")
 		if verbose:
 			print_command(script_name, cmd)
 		subprocess.check_call(cmd)
