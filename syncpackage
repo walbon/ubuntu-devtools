@@ -283,7 +283,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 			cmd += ["-q"]
 		if verbose:
 			print_command(script_name, cmd + [">", "../" + changes_file])
-		changes = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+		changes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+				env={"DEB_VENDOR": "Ubuntu"}).communicate()[0]
 
 		# Add additional bug numbers
 		if len(bugs) > 0:
