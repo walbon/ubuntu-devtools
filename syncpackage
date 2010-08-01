@@ -412,7 +412,7 @@ if __name__ == "__main__":
 				(script_name)
 		sys.exit(1)
 	elif len(args) > 1:
-		print >> sys.stderr, "%: Error: Multiple .dsc URLs/paths or package names specified: %s" % \
+		print >> sys.stderr, "%s: Error: Multiple .dsc URLs/paths or package names specified: %s" % \
 				(script_name, ", ".join(args))
 		sys.exit(1)
 
