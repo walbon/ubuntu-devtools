@@ -154,7 +154,7 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 				uploader_email = get_email_from_file(uploader_name)
 				if uploader_email is None:
 					if not silent:
-						print >> sys.stderr, "E: Bug owner does not have a public email address. Specify uploader with '-e'."
+						print >> sys.stderr, "E: Bug owner '%s' does not have a public email address. Specify uploader with '-e'." % (uploader_name)
 					sys.exit(PRIVATE_USER_EMAIL)
 				elif not silent:
 					print "Taking email address from local file: " + uploader_email
