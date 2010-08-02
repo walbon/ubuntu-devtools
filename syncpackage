@@ -143,8 +143,7 @@ def dsc_getfiles(dscurl):
 		sys.exit(1)
 
 	files = []
-	for f in dcs['Files']:
-		(checksum, size, fname) = l.split()
+	for f in dsc['Files']:
 		url = os.path.join(basepath, f['name'])
 		if not f['name'].endswith('.dsc'):
 			files.append(File(url, f['md5sum'], f['size']))
