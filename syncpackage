@@ -19,6 +19,7 @@
 #
 # ##################################################################
 
+import debian.deb822
 import debian.debian_support
 import hashlib
 import optparse
@@ -130,27 +131,23 @@ def remove_signature(dscname, script_name=None, verbose=False):
 		f.writelines(unsigned_file)
 		f.close()
 
-def dsc_getfiles(dsc):
+def dsc_getfiles(dscurl):
 	'''Return list of files in a .dsc file (excluding the .dsc file itself).'''
 
-	basepath = os.path.dirname(dsc)
-	f = urllib.urlopen(dsc)
+	basepath = os.path.dirname(dscurl)
+	dsc = debian.deb822.Dsc(urllib.urlopen(dscurl))
+
+	if 'Files' not in dsc:
+		print >> sys.stderr, "%s: Error: No Files field found in the dcs file. Please check %s!" % \
+				(script_name, os.path.basename(dscurl))
+		sys.exit(1)
+
 	files = []
-
-	# skip until 'Files:'
-	for l in f:
-		if l.strip() == 'Files:':
-			break
-
-	for l in f:
-		if not l.startswith(' '):
-			break
+	for f in dcs['Files']:
 		(checksum, size, fname) = l.split()
-		url = os.path.join(basepath, fname)
-		if not fname.endswith('.dsc'):
-			files.append(File(url, checksum, size))
-
-	f.close()
+		url = os.path.join(basepath, f['name'])
+		if not f['name'].endswith('.dsc'):
+			files.append(File(url, f['md5sum'], f['size']))
 	return files
 
 def add_fixed_bugs(changes, bugs, script_name=None, verbose=False):
@@ -183,8 +180,12 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 		dscfile = dscurl
 	else:
 		urllib.urlretrieve(dscurl, dscname)
-	dscfile = open(dscname).readlines()
-	new_ver = Version(filter(lambda l: l.startswith("Version:"), dscfile)[0][8:].strip())
+	dscfile = debian.deb822.Dsc(file(dscname))
+	if "Version" not in dscfile:
+		print >> sys.stderr, "%s: Error: No Version field found in the dcs file. Please check %s!" % \
+				(script_name, dscname)
+		sys.exit(1)
+	new_ver = Version(dscfile["Version"])
 
 	try:
 		ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
