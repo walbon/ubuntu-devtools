@@ -35,6 +35,7 @@ Recommends: bzr,
             libwww-perl,
             pbuilder | cowdancer | sbuild,
             perl-modules,
+            python-magic,
             python-soappy,
             reportbug (>= 3.39ubuntu1)
 Suggests: qemu-kvm-extras-static

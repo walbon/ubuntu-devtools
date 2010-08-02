@@ -1,61 +1,110 @@
-#!/bin/bash
+#!/usr/bin/python
+
+# Copyright (c) 2010, Benjamin Drung <bdrung@ubuntu.com>
 #
-# Copyright 2007 (C) Siegfried-A. Gevatter <rainct@ubuntu.com>
-# Based upon a script by Martin Pitt <martin.pitt@ubuntu.com>
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# See file /usr/share/common-licenses/GPL for more details.
-#
-# This script outputs a list of files which are not common source files. This
-# should be run in the root of a source tree to find files which might not be
-# the "preferred form of modification" that the GPL and other licenses require.
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-FILES="*.h *.c *.cc *.cpp *.py *.sh *.txt *.text *.3 *.m4 *.xml *.html *.php \
-       *.php3 *.php4 *.class *.form *.module  *.cfg *.conf *.config *.odt \
-       *.odp *.tex *.sla *.scd Makefile Makefile.am Makefile.in configure \
-       configure.ac  *.diff *.debdiff *.patch *.dpatch config.sub config.guess \
-       depcomp *.docbook  *.desktop *.menu AUTHORS INSTALL NEWS README TODO \
-       COPYING LICENSE ChangeLog *.ui *.glade *.gladep *.po *.pot *.ts *.pro \
-       *.svg *.png *.bmp *.gif *.xpm *.hh *.in *.cs *.1 *.2 *.3 *.4 *.5 *.6 \
-       *.7 *.8 *.9 *.hs *.el *.css"
+import magic
+import optparse
+import os
+import sys
 
-IGNORE=".bzr CVS .svn debian .git"
+default_whitelisted_mimetypes = [
+	"application/xml",
+	"application/x-elc",
+	"application/x-empty",
+	"application/x-symlink",
+	"audio/x-wav",
+	"image/gif",
+	"image/jpeg",
+	"image/png",
+	"image/svg+xml",
+	"image/x-icns",
+	"image/x-ico",
+	"image/x-ms-bmp",
+	"image/x-portable-pixmap",
+	"message/rfc822",
+	"text/html",
+	"text/plain",
+	"text/rtf",
+	"text/troff",
+	"text/x-asm",
+	"text/x-c",
+	"text/x-c++",
+	"text/x-diff",
+	"text/x-fortran",
+	"text/x-java",
+	"text/x-lisp",
+	"text/x-m4",
+	"text/x-makefile",
+	"text/x-msdos-batch",
+	"text/x-pascal",
+	"text/x-perl",
+	"text/x-php",
+	"text/x-po",
+	"text/x-shellscript",
+	"text/x-tex",
+	"text/x-texinfo",
+]
 
+default_whitelisted_extensions = [
+	".rsa"
+]
 
-COMMAND=(find ! \( )
+def main(whitelisted_mimetypes, whitelisted_extensions, directory, verbose=False):
+	ms = magic.open(magic.MAGIC_MIME_TYPE)
+	ms.load()
 
-firstDone=False
-for pattern in $FILES
-do
-    if [[ $firstDone != True ]]; then
-        COMMAND+=( -name $pattern); firstDone=True
-    else
-        COMMAND+=( -o -name $pattern)
-    fi
-done
+	for root, dirs, files in os.walk(directory):
+		for f in files:
+			mimetype = ms.file(os.path.join(root, f))
+			if mimetype not in whitelisted_mimetypes:
+				if not filter(lambda x: f.lower().endswith(x), whitelisted_extensions):
+					if verbose:
+						print "%s (%s)" % (os.path.join(root, f), mimetype)
+					else:
+						print os.path.join(root, f)
+		for d in (".bzr", "CVS", ".git", ".svn"):
+			if d in dirs:
+				dirs.remove(d)
 
-COMMAND+=( \) \( )
+if __name__ == "__main__":
+	script_name = os.path.basename(sys.argv[0])
+	usage = "%s [options]" % (script_name)
+	epilog = "See %s(1) for more info." % (script_name)
+	parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-firstDone=False
-for pattern in $IGNORE
-do
-    if [[ $firstDone != True ]]; then
-        COMMAND+=( -name $pattern -prune); firstDone=True
-    else
-        COMMAND+=( -o -name $pattern -prune)
-    fi
-done
+	parser.add_option("-v", "--verbose", help="print more information",
+			dest="verbose", action="store_true", default=False)
+	parser.add_option("-d", "--directory",
+			help="check the files in the specified directory",
+			dest="directory", default=".")
+	parser.add_option("-m", "--mimetype", metavar="MIMETYPE",
+			help="Add MIMETYPE to list of whitelisted mimetypes.",
+			dest="whitelisted_mimetypes", action="append",
+			default=default_whitelisted_mimetypes)
+	parser.add_option("-e", "--extension", metavar="EXTENSION",
+			help="Add EXTENSION to list of whitelisted extensions.",
+			dest="whitelisted_extensions", action="append",
+			default=default_whitelisted_extensions)
 
-COMMAND+=( -o -type f -print \))
-COMMAND="${COMMAND[@]}"
+	(options, args) = parser.parse_args()
 
-$COMMAND    # Execute the command
+	if len(args) != 0:
+		print >> sys.stderr, "%s: This script does not take any additional parameters." % \
+				(script_name)
+		sys.exit(1)
+
+	whitelisted_extensions = map(lambda x: x.lower(), options.whitelisted_extensions)
+	main(options.whitelisted_mimetypes, whitelisted_extensions,
+			options.directory, options.verbose)
