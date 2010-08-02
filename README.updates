@@ -39,10 +39,9 @@ ubuntu-dev-tools package in Ubuntu.
    For a full list of tags, please see: 'bzr tags'. This is so we can track
    which Bazaar revision is in which release and makes bug triaging easier.
 
-7) Create the new source package, without the .bzr directory (this is to
-   reduce the size of the tarball):
+7) Create the new source package:
 
-    debuild -S -sa -I.bzr
+    bzr bd -S
 
 8) Upload the package to Ubuntu with dput as normal:
 
