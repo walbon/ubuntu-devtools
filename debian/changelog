@@ -13,6 +13,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * Bump Standards-Version to 3.9.1 (no changes required).
   * Switch to dpkg-source 3.0 (native) format.
+  * Switch to simple dh7 rule.
   * syncpackage:
     - Use Version class from python-debian to fix extraction of upstream
       version for debian versions that contain more than one dash.
@@ -30,7 +31,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * requestsync: Fix bug where the variable 'hasLP' is not always set
     (lp: #607874).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 02 Aug 2010 20:26:17 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 02 Aug 2010 20:40:21 +0200
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 

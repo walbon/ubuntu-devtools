@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from distutils.core import setup
+import glob
 import os
 import re
 
@@ -53,4 +54,5 @@ setup(name='ubuntu-dev-tools',
               'ubuntutools/lp',
               'ubuntutools/requestsync',
              ],
+    data_files=[('share/man/man1',  glob.glob("doc/*.1"))]
 )
