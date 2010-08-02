@@ -18,7 +18,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
       version for debian versions that contain more than one dash.
     - Prepend script name to every output
     - Output every executed command in verbose mode
-    - Print propper error message if dsc file is malformed.
+    - Print proper error message if the dsc file is malformed.
   * update-maintainer: Add a --quiet option.
 
   [ Michael Bienia ]
