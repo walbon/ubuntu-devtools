@@ -1,7 +1,8 @@
 Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Ubuntu Developers <ubuntu-dev-team@lists.alioth.debian.org>
+Uploaders: Luca Falavigna <dktrkranz@debian.org>
 Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
 Build-Depends: debhelper (>= 7),
