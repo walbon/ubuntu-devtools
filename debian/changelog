@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.101) unstable; urgency=low
 
   [ Andrew Starr-Bochicchio ]
   * syncpackage: Update manpage to reflect current usage. (Closes: #587142,
@@ -35,7 +35,7 @@ ubuntu-dev-tools (0.101) UNRELEASED; urgency=low
   * mk-schroot: add debootstrap include/exclude options
   * mk-schroot.1: document added options
 
- -- Steve Beattie <sbeattie@ubuntu.com>  Tue, 27 Jul 2010 16:02:52 -0700
+ -- Luca Falavigna <dktrkranz@debian.org>  Wed, 04 Aug 2010 10:06:44 +0000
 
 ubuntu-dev-tools (0.100) maverick; urgency=low
 
