@@ -138,7 +138,7 @@ def dsc_getfiles(dscurl):
 	dsc = debian.deb822.Dsc(urllib.urlopen(dscurl))
 
 	if 'Files' not in dsc:
-		print >> sys.stderr, "%s: Error: No Files field found in the dcs file. Please check %s!" % \
+		print >> sys.stderr, "%s: Error: No Files field found in the dsc file. Please check %s!" % \
 				(script_name, os.path.basename(dscurl))
 		sys.exit(1)
 
@@ -181,7 +181,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 		urllib.urlretrieve(dscurl, dscname)
 	dscfile = debian.deb822.Dsc(file(dscname))
 	if "Version" not in dscfile:
-		print >> sys.stderr, "%s: Error: No Version field found in the dcs file. Please check %s!" % \
+		print >> sys.stderr, "%s: Error: No Version field found in the dsc file. Please check %s!" % \
 				(script_name, dscname)
 		sys.exit(1)
 	new_ver = Version(dscfile["Version"])
