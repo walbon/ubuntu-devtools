@@ -112,6 +112,8 @@ function usage()
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
+    echo "  --debootstrap-include=list Comma separated list of packages to include"
+    echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
     echo "  --distro=DISTRO            Install specific distro:"
     echo "                                 'ubuntu'(default), or 'debian'"
     echo "  --type=SCHROOT_TYPE        Define the schroot type:"
@@ -126,6 +128,8 @@ function usage()
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
+    echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
+    echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
     echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
     exit 1
@@ -135,7 +139,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,personality:,distro:,vg:,type:" -- "$@"`
+OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,personality:,distro:,vg:,type:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -177,6 +181,14 @@ while :; do
             ;;
         --debootstrap-mirror)
             DEBOOTSTRAP_MIRROR="$2"
+            shift 2
+            ;;
+        --debootstrap-include)
+            DEBOOTSTRAP_INCLUDE="$2"
+            shift 2
+            ;;
+        --debootstrap-exclude)
+            DEBOOTSTRAP_EXCLUDE="$2"
             shift 2
             ;;
         --distro)
@@ -362,6 +374,14 @@ debian)
     ;;
 esac
 
+if [ -n "$DEBOOTSTRAP_INCLUDE" ] ; then
+    debootstrap_opts="--include=$DEBOOTSTRAP_INCLUDE"
+fi
+
+if [ -n "$DEBOOTSTRAP_EXCLUDE" ] ; then
+    debootstrap_opts="$debootstrap_opts --exclude=$DEBOOTSTRAP_EXCLUDE"
+fi
+
 DEBOOTSTRAP_COMMAND=debootstrap
 # Use qemu-kvm-extras-static for foreign chroots
 if [ "$CHROOT_ARCH" != "$HOST_ARCH" ] ; then
@@ -402,7 +422,7 @@ case "$SCHROOT_TYPE" in
 esac
 
 # debootstrap the chroot
-sudo "$DEBOOTSTRAP_COMMAND" --arch="$CHROOT_ARCH" $variant_opt "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
+sudo "$DEBOOTSTRAP_COMMAND" --arch="$CHROOT_ARCH" $variant_opt $debootstrap_opts "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
 
 # Update the package sources
 TEMP_SOURCES=`mktemp -t sources-XXXXXX`
