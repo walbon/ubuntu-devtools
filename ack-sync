@@ -128,6 +128,28 @@ def get_email_from_file(name):
 				return row[1]
 	return None
 
+def unsubscribe_sponsors(launchpad, bug):
+	succeeded_unsubscribe = True
+	ums = launchpad.people['ubuntu-main-sponsors']
+	uus = launchpad.people['ubuntu-universe-sponsors']
+	try:
+		bug.unsubscribe(person=ums)
+	except lazr.restfulclient.errors.HTTPError, http_error:
+		print "failed to unsubscribe ubuntu-main-sponsors: " + http_error.content
+		succeeded_unsubscribe = False
+	try:
+		bug.unsubscribe(person=uus)
+	except lazr.restfulclient.errors.HTTPError, http_error:
+		print "failed to unsubscribe ubuntu-universe-sponsors: " + http_error.content
+		succeeded_unsubscribe = False
+	if succeeded_unsubscribe:
+		print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
+
+	us = launchpad.people['ubuntu-sponsors']
+	bug.unsubscribe(person=us)
+	print "ubuntu-sponsors unsubscribed"
+
+
 def main(bug_numbers, all_package, all_version, all_section, update,
          all_uploader_email, key, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
@@ -161,6 +183,20 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 
 		task = list(bug.bug_tasks)[0]
 
+		if task.assignee == None:
+			task.assignee = launchpad.me
+			print "assigned me"
+			task.lp_save()
+		elif task.assignee != launchpad.me:
+			print >> sys.stderr, "E: %s is already assigned to https://launchpad.net/bugs/%i" % \
+					(task.assignee.display_name, bug.id)
+			sys.exit(1)
+		unsubscribe_sponsors(launchpad, bug)
+		if task.importance == "Undecided":
+			task.importance = "Wishlist"
+			print "importance set to Wishlist"
+			task.lp_save()
+
 		if all_package is not None:
 			package = all_package
 		else:
@@ -192,7 +228,6 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			test_install(dist, dsc_file)
 
 		print bug.title
-		print task.assignee
 		print task.status
 		print "Uploader:", uploader_name + " <" + uploader_email + ">"
 		try:
@@ -200,30 +235,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		except KeyboardInterrupt:
 			continue
 
-		succeeded_unsubscribe = True
-		ums = launchpad.people['ubuntu-main-sponsors']
-		uus = launchpad.people['ubuntu-universe-sponsors']
-		try:
-			bug.unsubscribe(person=ums)
-		except lazr.restfulclient.errors.HTTPError, http_error:
-			print "failed to unsubscribe ubuntu-main-sponsors: " + http_error.content
-			succeeded_unsubscribe = False
-		try:
-			bug.unsubscribe(person=uus)
-		except lazr.restfulclient.errors.HTTPError, http_error:
-			print "failed to unsubscribe ubuntu-universe-sponsors: " + http_error.content
-			succeeded_unsubscribe = False
-		if succeeded_unsubscribe:
-			print "ubuntu-{main,universe}-sponsors unsubscribed (for backward compatibility)"
-
-		us = launchpad.people['ubuntu-sponsors']
-		bug.unsubscribe(person=us)
-		print "ubuntu-sponsors unsubscribed"
 		task.assignee = None
 		print "unassigned me"
-		if task.importance == "Undecided":
-			task.importance = "Wishlist"
-			print "importance set to Wishlist"
 		task.lp_save()
 		bug.subscribe(person=launchpad.me)
 		print "subscribed me"
