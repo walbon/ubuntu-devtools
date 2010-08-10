@@ -7,7 +7,11 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   [ Kees Cook ]
   * mk-sbuild: update examples to include "-A".
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 10 Aug 2010 11:46:32 -0700
+  [ Benjamin Drung ]
+  * suspicious-source: whitelist font source formats. Thanks to Nicolas
+    Spalinger for the patch (LP: #365147).
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 10 Aug 2010 23:13:05 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 
