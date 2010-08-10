@@ -24,6 +24,8 @@ else
 	headers="/usr/include/asm-generic/errno*.h"
 fi
 
+code="$1"
+
 if echo "$code" | egrep -qs "^[0-9]+$"; then
 	# Input is a number, search for a particular matching code
 	egrep -h "^#define\s.*\s+$code\s+/" $headers | sed 's/^#define\s*//'
