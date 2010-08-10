@@ -2,7 +2,7 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
 
   [ Dustin Kirkland ]
   * errno, doc/errno.1, debian/control, debian/copyright, setup.py:
-    - add an errno utility, LP: #61226
+    - add an errno utility, LP: #612267
 
  -- Dustin Kirkland <kirkland@ubuntu.com>  Tue, 10 Aug 2010 11:41:10 -0400
 
