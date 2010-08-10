@@ -17,8 +17,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Header finding trick from Kees Cook <kees@ubuntu.com>
-headers=$(echo "#include <asm/errno.h>" | gcc -E - | grep "\.h" | awk -F\" '{print $2}' | sort -u)
+if $(which gcc >/dev/null); then
+	# Header finding trick from Kees Cook <kees@ubuntu.com>
+	headers=$(echo "#include <asm/errno.h>" | gcc -E - | grep "\.h" | awk -F\" '{print $2}' | sort -u)
+else
+	headers="/usr/include/asm-generic/errno*.h"
+fi
 
 if echo "$code" | egrep -qs "^[0-9]+$"; then
 	# Input is a number, search for a particular matching code
