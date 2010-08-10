@@ -75,7 +75,7 @@ licensed under the GNU General Public License, version 2:
 On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
-dch-repeat, get-branches, get-build-deps, grab-attachments, grab-merge,
+dch-repeat, errno, get-branches, get-build-deps, grab-attachments, grab-merge,
 hugdaylist, manage-credentials, massfile, merge-changelog, mk-sbuild,
 pbuilder-dist-simple, pull-debian-debdiff, pull-debian-source, pull-lp-source,
 pull-revu-source, setup-packaging-environment, suspicious-source, ubuntu-build
