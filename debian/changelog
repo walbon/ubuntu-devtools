@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
+
+  * mk-sbuild: update examples to include "-A".
+
+ -- Kees Cook <kees@ubuntu.com>  Tue, 10 Aug 2010 11:46:32 -0700
+
 ubuntu-dev-tools (0.101) unstable; urgency=low
 
   [ Andrew Starr-Bochicchio ]

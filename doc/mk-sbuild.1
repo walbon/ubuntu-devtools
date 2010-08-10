@@ -113,7 +113,7 @@ To CHANGE the golden image: \fBsudo schroot \-c ${CHROOT_NAME}\-source \-u root\
 .TP
 To ENTER an image snapshot: \fBschroot \-c ${CHROOT_NAME}\fR
 .TP
-To BUILD within a snapshot: \fBsbuild \-d ${SCHROOT_NAME} PACKAGE*.dsc\fR
+To BUILD within a snapshot: \fBsbuild \-A \-d ${SCHROOT_NAME} PACKAGE*.dsc\fR
 .TP
 for example, to update the packages in a golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root -- sh \-c "apt-get \-qq update && apt-get \-qy upgrade && apt-get clean" </dev/null\fR
 
