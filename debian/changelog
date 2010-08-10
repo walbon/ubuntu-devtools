@@ -1,5 +1,10 @@
 ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
 
+  [ Dustin Kirkland ]
+  * errno, doc/errno.1, debian/control, debian/copyright, setup.py:
+    - add an errno utility, LP: #612267
+
+  [ Kees Cook ]
   * mk-sbuild: update examples to include "-A".
 
  -- Kees Cook <kees@ubuntu.com>  Tue, 10 Aug 2010 11:46:32 -0700
