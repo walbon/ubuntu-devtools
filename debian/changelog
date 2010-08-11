@@ -10,8 +10,9 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * suspicious-source: whitelist font source formats. Thanks to Nicolas
     Spalinger for the patch (LP: #365147).
+  * Update the man page of suspicious-source to match the rewrite.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 10 Aug 2010 23:13:05 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 12 Aug 2010 01:11:45 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 
