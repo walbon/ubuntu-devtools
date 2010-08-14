@@ -12,8 +12,10 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
     Spalinger for the patch (LP: #365147).
   * Update the man page of suspicious-source to match the rewrite.
   * syncpackage: Don't upload orig tarball if not needed.
+  * update-maintainer: Don't change the Maintainer field if the email is set
+    to a @lists.ubuntu.com address.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 14 Aug 2010 18:19:53 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 14 Aug 2010 19:55:36 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 
