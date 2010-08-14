@@ -278,7 +278,9 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 				"-DOrigin=debian/" + debian_dist,
 				"-e" + uploader]
 		if need_orig:
-			cmd += ['-sa']
+			cmd.append("-sa")
+		else:
+			cmd.append("-sd")
 		if not verbose:
 			cmd += ["-q"]
 		if verbose:
