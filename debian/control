@@ -82,6 +82,8 @@ Description: useful tools for Ubuntu developers
     has.
   - setup-packaging-environment - assistant to get an Ubuntu installation
     ready for packaging work.
+  - sponsor-patch - Downloads a patch from a Launchpad bug, patches the source
+    package, and uploads it (to Ubuntu or a PPA)
   - submittodebian - automatically send your changes to Debian as a bug report.
   - suspicious-source - outputs a list of files which are not common source
     files.
