@@ -111,8 +111,13 @@ class BugTask(object):
 		distro_series = dist.getSeries(name_or_version=series)
 		published = archive.getPublishedSources(source_name=self.package,
 				distro_series=distro_series, status=status, exact_match=True)
-		# Take latest published source
-		return published[0]
+
+		latest_source = None
+		for source in published:
+			if source.pocket in ('Release', 'Security', 'Updates', 'Proposed'):
+				latest_source = source
+				break
+		return latest_source
 
 	def get_version(self):
 		return debian.debian_support.Version(self.get_source().source_package_version)
