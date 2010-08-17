@@ -71,6 +71,13 @@ class BugTask(object):
 			result += " (" + self.series + ")"
 		return result
 
+	def get_previous_version(self):
+		if self.is_merge():
+			previous_version = self.get_latest_released_version()
+		else:
+			previous_version = self.get_version()
+		return previous_version
+
 	def get_series(self, latest_release=False):
 		if self.series is None or latest_release:
 			return self.launchpad.distributions[self.project].current_series.name
@@ -445,16 +452,13 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 
 		# Build source package
 		cmd = ["debuild", "--no-lintian", "-S"]
-		if task.is_merge():
-			ubuntu_version = task.get_latest_released_version()
-			cmd.append("-v" + ubuntu_version.full_version)
-			if ubuntu_version.upstream_version == changelog.upstream_version \
-					and upload == "ubuntu":
-				cmd.append("-sd")
-			else:
-				cmd.append("-sa")
+		previous_version = task.get_previous_version()
+		cmd.append("-v" + previous_version.full_version)
+		if previous_version.upstream_version == changelog.upstream_version \
+				and upload == "ubuntu":
+			cmd.append("-sd")
 		else:
-			cmd.append("-v" + task.get_version().full_version)
+			cmd.append("-sa")
 		if not keyid is None:
 			cmd += ["-k" + keyid]
 		Print.command(cmd)
