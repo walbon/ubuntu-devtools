@@ -469,6 +469,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 		Print.command(cmd)
 		if subprocess.call(cmd) != 0:
 			Print.error("Failed to build source tarball.")
+			# TODO: Add a "retry" option
 			ask_for_manual_fixing()
 			continue
 
@@ -527,7 +528,6 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 
 			# build package
 			dist = re.sub("-.*$", "", changelog.distributions)
-			# TODO: Find a solution for sudo password blocking.
 			# TODO: Do not rely on a specific pbuilder configuration.
 			cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
 					"--distribution", dist, "--buildresult", buildresult,
@@ -536,6 +536,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 			if subprocess.call(cmd) != 0:
 				Print.error("Failed to build %s from source." % \
 						(os.path.basename(new_dsc_file)))
+				# TODO: Add "retry" and "update" option
 				ask_for_manual_fixing()
 				continue
 
