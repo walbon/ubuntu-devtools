@@ -512,7 +512,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 						% (changelog.distributions, ", ".join(allowed)))
 				ask_for_manual_fixing()
 				continue
-		elif upload.startwith("ppa/"):
+		elif upload and upload.startwith("ppa/"):
 			allowed = supported_series + [devel_series]
 			if changelog.distributions not in allowed:
 				Print.error("%s is not an allowed series. It needs to be one of %s." \
