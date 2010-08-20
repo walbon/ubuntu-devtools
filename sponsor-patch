@@ -499,9 +499,10 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 			ask_for_manual_fixing()
 			continue
 
-		# TODO: Do not hard code series!
-		supported_series = ["dapper", "hardy", "jaunty", "karmic", "lucid"]
-		devel_series = "maverick"
+		ubuntu = launchpad.distributions['ubuntu']
+		devel_series = ubuntu.current_series.name
+		supported_series = [series.name for series in ubuntu.series
+				if series.active and series.name != devel_series]
 		# Make sure that the target is correct
 		if upload == "ubuntu":
 			allowed = map(lambda s: s + "-proposed", supported_series) + \
