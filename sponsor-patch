@@ -22,6 +22,7 @@ import optparse
 import os
 import pwd
 import re
+import shutil
 import subprocess
 import sys
 import urllib
@@ -58,6 +59,9 @@ class BugTask(object):
 			if url.endswith(".dsc"):
 				dsc_file = filename
 		return os.path.join(os.getcwd(), dsc_file)
+
+	def get_branch_link(self):
+		return "lp:" + self.project + "/" + self.get_series() + "/" + self.package
 
 	def get_long_info(self):
 		return "Bug task: " + str(self.bug_task) + "\n" + \
@@ -145,6 +149,9 @@ class Patch(object):
 		cmd = ["diffstat", "-l", "-p0", self.full_path]
 		changed_files = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 		self.changed_files = filter(lambda l: l != "", changed_files.split("\n"))
+
+	def get_name(self):
+		return self.patch_file
 
 	def get_strip_level(self):
 		strip_level = None
@@ -307,40 +314,50 @@ def ask_for_manual_fixing():
 		print "Abort."
 		sys.exit(USER_ABORT)
 
-def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
-	if "SPONSOR_PATCH_WORKDIR" in os.environ:
-		# FIXME: add command line parameter
-		workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
-		if not os.path.isdir(workdir):
-			os.makedirs(workdir)
-		Print.command(["cd", workdir])
-		os.chdir(workdir)
-	else:
-		workdir = os.getcwd()
-
-	script_name = os.path.basename(sys.argv[0])
-	launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(script_name, "production")
-	bug = launchpad.bugs[bug_number]
-
+def get_patch_or_branch(bug):
+	patch = None
+	branch = None
 	attached_patches = filter(lambda a: a.type == "Patch", bug.attachments)
-	if len(attached_patches) == 0:
+	linked_branches = map(lambda b: b.branch, bug.linked_branches)
+	if len(attached_patches) == 0 and len(linked_branches) == 0:
 		if len(bug.attachments) == 0:
-			Print.error("No attachment found on bug #%i." % (bug_number))
+			Print.error("No attachment and no linked branch found on bug #%i." % \
+					(bug.id))
 		else:
-			Print.error(("No attached patch found. Go to https://launchpad.net/bugs/%i"
-					" and mark an attachment as patch.") % (bug_number))
+			Print.error(("No attached patch and no linked branch found. Go to"
+					" https://launchpad.net/bugs/%i and mark an attachment as"
+					" patch.") % (bug.id))
 		sys.exit(1)
-	if len(attached_patches) > 1:
-		Print.normal("https://launchpad.net/bugs/%i has %i patches attached:" % \
-				(bug_number, len(attached_patches)))
-		for i in xrange(len(attached_patches)):
-			print "%i) %s" % (i + 1, attached_patches[i].title)
-		selected = input_number("Which patch do you want to download",
-				1, len(attached_patches), len(attached_patches))
-		patch = attached_patches[selected - 1]
-	else:
+	elif len(attached_patches) == 1 and len(linked_branches) == 0:
 		patch = attached_patches[0]
+	elif len(attached_patches) == 0 and len(linked_branches) == 1:
+		branch = linked_branches[0].bzr_identity
+	else:
+		if len(attached_patches) == 0:
+			Print.normal("https://launchpad.net/bugs/%i has %i branches linked:" % \
+					(bug.id, len(linked_branches)))
+		elif len(linked_branches) == 0:
+			Print.normal("https://launchpad.net/bugs/%i has %i patches attached:" % \
+					(bug.id, len(attached_patches)))
+		else:
+			Print.normal("https://launchpad.net/bugs/%i has %i branch(es) linked and %i patch(es) attached:" % \
+					(bug.id, len(linked_branches), len(attached_patches)))
+		i = 0
+		for linked_branch in linked_branches:
+			i += 1
+			print "%i) %s" % (i, linked_branch.display_name)
+		for attached_patch in attached_patches:
+			i += 1
+			print "%i) %s" % (i, attached_patch.title)
+		selected = input_number("Which branch or patch do you want to download",
+				1, i, i)
+		if selected <= len(linked_branches):
+			branch = linked_branches[selected - 1].bzr_identity
+		else:
+			patch = attached_patches[selected - len(linked_branches) - 1]
+	return (patch, branch)
 
+def download_patch(patch):
 	patch_file = re.sub(" ", "_", patch.title)
 	if not reduce(lambda r, x: r or patch.title.endswith(x), (".debdiff", ".diff", ".patch"), False):
 		Print.info("Patch %s does not have a proper file extension." % (patch.title))
@@ -350,7 +367,80 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 	f = open(patch_file, "w")
 	f.write(patch.data.open().read())
 	f.close()
-	patch = Patch(patch_file)
+	return Patch(patch_file)
+
+def download_branch(branch):
+	dir_name = os.path.basename(branch)
+	if os.path.isdir(dir_name):
+		shutil.rmtree(dir_name)
+	cmd = ["bzr", "branch", branch]
+	Print.command(cmd)
+	if subprocess.call(cmd) != 0:
+		Print.error("Failed to download branch %s." % (branch))
+		sys.exit(1)
+	return dir_name
+
+def merge_branch(branch):
+	edit = False
+	cmd = ["bzr", "merge", branch]
+	Print.command(cmd)
+	if subprocess.call(cmd) != 0:
+		Print.error("Failed to merge branch %s." % (branch))
+		ask_for_manual_fixing()
+		edit = True
+	return edit
+
+def extract_source(dsc_file, verbose=False):
+	cmd = ["dpkg-source", "-x", dsc_file]
+	if not verbose:
+		cmd.insert(1, "-q")
+	Print.command(cmd)
+	if subprocess.call(cmd) != 0:
+		Print.error("Extraction of %s failed." % (os.path.basename(dsc_file)))
+		sys.exit(1)
+
+def apply_patch(task, patch):
+	edit = False
+	if patch.is_debdiff():
+		cmd = ["patch", "--merge", "--force", "-p", str(patch.get_strip_level()),
+				"-i", patch.full_path]
+		Print.command(cmd)
+		if subprocess.call(cmd) != 0:
+			Print.error("Failed to apply debdiff %s to %s %s." % \
+					(patch.get_name(), task.package, task.get_version()))
+			if not edit:
+				ask_for_manual_fixing()
+				edit = True
+	else:
+		# FIXME: edit-patch needs a non-interactive mode
+		# https://launchpad.net/bugs/612566
+		cmd = ["edit-patch", patch.full_path]
+		Print.command(cmd)
+		if subprocess.call(cmd) != 0:
+			Print.error("Failed to apply diff %s to %s %s." % \
+					(patch.get_name(), task.package, task.get_version()))
+			if not edit:
+				ask_for_manual_fixing()
+				edit = True
+	return edit
+
+def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
+	if "SPONSOR_PATCH_WORKDIR" in os.environ:
+		# FIXME: add command line parameter
+		workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
+		if not os.path.isdir(workdir):
+			os.makedirs(workdir)
+			# FIXME: Print nice error message on failure
+		Print.command(["cd", workdir])
+		os.chdir(workdir)
+	else:
+		workdir = os.getcwd()
+
+	script_name = os.path.basename(sys.argv[0])
+	launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(script_name, "production")
+	bug = launchpad.bugs[bug_number]
+
+	(patch, branch) = get_patch_or_branch(bug)
 
 	bug_tasks = map(lambda x: BugTask(x, launchpad), bug.bug_tasks)
 	ubuntu_tasks = filter(lambda x: x.is_ubuntu_task(), bug_tasks)
@@ -378,48 +468,32 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 			task = ubuntu_tasks[selected - 1]
 	Print.info("Selected Ubuntu task: %s" % (task.get_short_info()))
 
-	Print.info("Ubuntu package: %s" % (task.package))
-	if task.is_merge():
-		Print.info("The task is a merge request.")
-
 	dsc_file = task.download_source()
 	assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
 
-	# extract source
-	cmd = ["dpkg-source", "-x", dsc_file]
-	if not verbose:
-		cmd.insert(1, "-q")
-	Print.command(cmd)
-	if subprocess.call(cmd) != 0:
-		Print.error("Extraction of %s failed." % (os.path.basename(dsc_file)))
-		sys.exit(1)
+	if patch:
+		patch = download_patch(patch)
 
-	# change directory
-	directory = task.package + '-' + task.get_version().upstream_version
-	Print.command(["cd", directory])
-	os.chdir(directory)
+		Print.info("Ubuntu package: %s" % (task.package))
+		if task.is_merge():
+			Print.info("The task is a merge request.")
 
-	if patch.is_debdiff():
-		cmd = ["patch", "--merge", "--force", "-p", str(patch.get_strip_level()),
-				"-i", patch.full_path]
-		Print.command(cmd)
-		if subprocess.call(cmd) != 0:
-			Print.error("Failed to apply debdiff %s to %s %s." % \
-					(patch_file, task.package, task.get_version()))
-			if not edit:
-				ask_for_manual_fixing()
-				edit = True
-	else:
-		# FIXME: edit-patch needs a non-interactive mode
-		# https://launchpad.net/bugs/612566
-		cmd = ["edit-patch", patch.full_path]
-		Print.command(cmd)
-		if subprocess.call(cmd) != 0:
-			Print.error("Failed to apply diff %s to %s %s." % \
-					(patch_file, task.package, task.get_version()))
-			if not edit:
-				ask_for_manual_fixing()
-				edit = True
+		extract_source(dsc_file, verbose)
+
+		# change directory
+		directory = task.package + '-' + task.get_version().upstream_version
+		Print.command(["cd", directory])
+		os.chdir(directory)
+
+		edit |= apply_patch(task, patch)
+	elif branch:
+		branch_dir = download_branch(task.get_branch_link())
+
+		# change directory
+		Print.command(["cd", branch_dir])
+		os.chdir(branch_dir)
+
+		edit |= merge_branch(branch)
 
 	while True:
 		if edit:
