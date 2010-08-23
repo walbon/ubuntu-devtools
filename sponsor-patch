@@ -695,3 +695,5 @@ if __name__ == "__main__":
 
 	main(script_name, bug_number, options.build, options.edit, options.keyid,
 			options.upload, options.verbose)
+
+# vim: set noet:
