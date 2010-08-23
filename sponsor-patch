@@ -655,6 +655,22 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 					Print.error("Upload of %s to %s failed." % \
 							(os.path.basename(changes_file), upload))
 					sys.exit(1)
+				if branch:
+					cmd = ['debcommit']
+					Print.command(cmd)
+					if subprocess.call(cmd) != 0:
+						Print.error('Bzr commit failed')
+						sys.exit(1)
+					cmd = ['bzr', 'mark-uploaded']
+					Print.command(cmd)
+					if subprocess.call(cmd) != 0:
+						Print.error('Bzr tagging failed')
+						sys.exit(1)
+					cmd = ['bzr', 'push', ':parent']
+					Print.command(cmd)
+					if subprocess.call(cmd) != 0:
+						Print.error('Bzr push failed')
+						sys.exit(1)
 
 		# Leave while loop if everything worked
 		break
