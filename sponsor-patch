@@ -540,8 +540,11 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 			cmd.append("-sa")
 		if not keyid is None:
 			cmd += ["-k" + keyid]
+		env = os.environ
+		if upload == 'ubuntu':
+			env['DEB_VENDOR'] = 'Ubuntu'
 		Print.command(cmd)
-		if subprocess.call(cmd) != 0:
+		if subprocess.call(cmd, env=env) != 0:
 			Print.error("Failed to build source tarball.")
 			# TODO: Add a "retry" option
 			ask_for_manual_fixing()
