@@ -187,15 +187,17 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			task.assignee = launchpad.me
 			print "assigned me"
 			task.lp_save()
-		elif task.assignee != launchpad.me:
+		if task.assignee != launchpad.me:
 			print >> sys.stderr, "E: %s is already assigned to https://launchpad.net/bugs/%i" % \
 					(task.assignee.display_name, bug.id)
 			sys.exit(1)
+		old_status = task.status
+		task.status = 'In Progress'
 		unsubscribe_sponsors(launchpad, bug)
 		if task.importance == "Undecided":
 			task.importance = "Wishlist"
 			print "importance set to Wishlist"
-			task.lp_save()
+		task.lp_save()
 
 		if all_package is not None:
 			package = all_package
@@ -228,13 +230,14 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			test_install(dist, dsc_file)
 
 		print bug.title
-		print task.status
+		print '%s (was %s)' % (task.status, old_status)
 		print "Uploader:", uploader_name + " <" + uploader_email + ">"
 		try:
 			raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
 		except KeyboardInterrupt:
 			continue
 
+		task.status = 'Fix Committed'
 		task.assignee = None
 		print "unassigned me"
 		task.lp_save()
