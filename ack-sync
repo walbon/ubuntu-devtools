@@ -166,12 +166,15 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 
 	for bug_number in bug_numbers:
 		bug = launchpad.bugs[bug_number]
-		uploader_name = bug.owner.display_name
+		uploader = bug.owner
+		uploader_name = uploader.display_name
 		if all_uploader_email is not None:
 			uploader_email = all_uploader_email
+		elif launchpad.people['ubuntumembers'] in uploader.super_teams:
+			uploader_email = uploader.name + '@ubuntu.com'
 		else:
 			try:
-				uploader_email =  bug.owner.preferred_email_address.email
+				uploader_email =  uploader.preferred_email_address.email
 			except ValueError:
 				uploader_email = get_email_from_file(uploader_name)
 				if uploader_email is None:
