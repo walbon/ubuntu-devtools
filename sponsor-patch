@@ -538,6 +538,8 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 		cmd.append("-v" + previous_version.full_version)
 		if previous_version.upstream_version == changelog.upstream_version \
 				and upload == "ubuntu":
+			# FIXME: Add proper check that catches cases like changed
+			# compression (.tar.gz -> tar.bz2) and multiple orig source tarballs
 			cmd.append("-sd")
 		else:
 			cmd.append("-sa")
