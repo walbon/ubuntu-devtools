@@ -98,7 +98,9 @@ if 'Ubuntu Developers' in maintainer_name and \
 		print "Ubuntu Developers is already set as maintainer."
 	sys.exit(0)
 
-if not (ubuntutools.packages.checkIsInDebian(package_name, 'unstable') or ubuntutools.packages.checkIsInDebian(package_name, 'experimental')):
+if not old_maintainer and not (
+		ubuntutools.packages.checkIsInDebian(package_name, 'unstable')
+		or ubuntutools.packages.checkIsInDebian(package_name, 'experimental')):
 	user_email_address = os.getenv('DEBEMAIL')
 	if not user_email_address:
 		user_email_address = os.getenv('EMAIL')
