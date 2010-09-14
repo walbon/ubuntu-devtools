@@ -22,6 +22,10 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
     Developers address (instead of the calling user) when the package is not
     in Debian.
 
+  [ Iain Lane ]
+  * all: Use production API rather than edge by default. Should be more
+    reliable and was advised by lifeless (LP team).
+
  -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 15 Aug 2010 02:22:08 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low

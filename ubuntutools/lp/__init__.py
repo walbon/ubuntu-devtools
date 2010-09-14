@@ -2,5 +2,5 @@
 ##  ubuntu-dev-tools Launchpad Python modules.
 ##
 
-service = 'edge'
+service = 'production'
 api_version = '1.0'
