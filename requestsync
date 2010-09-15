@@ -103,7 +103,7 @@ if __name__ == '__main__':
 		if lpapi:
 			release = Distribution('ubuntu').getDevelopmentSeries().name
 		else:
-			release = 'maverick'
+			release = 'natty'
 		print >> sys.stderr, 'W: Target release missing - assuming %s' % release
 	elif len(args) == 2:
 		release = args[1]
