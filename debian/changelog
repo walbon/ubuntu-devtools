@@ -33,6 +33,7 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
 
   [ Colin Watson ]
   * Fix NAME section of lp-set-dup(1).
+  * lp-list-bugs: New tool.
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 17 Sep 2010 04:42:53 +0200
 
