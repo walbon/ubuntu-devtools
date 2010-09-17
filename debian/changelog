@@ -31,6 +31,9 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * Add 'natty' to recognized names and make it the default.
 
+  [ Colin Watson ]
+  * Fix NAME section of lp-set-dup(1).
+
  -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 17 Sep 2010 04:42:53 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
