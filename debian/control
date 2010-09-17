@@ -5,8 +5,7 @@ Maintainer: Ubuntu Developers <ubuntu-dev-team@lists.alioth.debian.org>
 Uploaders: Luca Falavigna <dktrkranz@debian.org>
 Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
-Build-Depends: debhelper (>= 7),
-               python (>= 2.5)
+Build-Depends: debhelper (>= 7), python (>= 2.5)
 Build-Depends-Indep: python-support (>= 0.5.3)
 XS-Python-Version: >= 2.5
 Homepage: https://launchpad.net/ubuntu-dev-tools/
@@ -25,8 +24,8 @@ Depends: binutils,
          python-launchpadlib (>= 1.5.7),
          python-lazr.restfulclient,
          sudo,
-         ${python:Depends},
-         ${misc:Depends}
+         ${misc:Depends},
+         ${python:Depends}
 Recommends: bzr,
             ca-certificates,
             debootstrap,
