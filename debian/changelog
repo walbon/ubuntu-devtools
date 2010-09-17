@@ -16,6 +16,8 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
     to a @lists.ubuntu.com address.
   * sponsor-patch: New script to download a patch from a Launchpad bug, patch
     the source package, build, check and uploads it (to Ubuntu or a PPA).
+  * wrap-and-sort: New script to wrap long lines and sort items in packaging
+    files.
 
   [ Stefano Rivera ]
   * update-maintainer: Correctly update the Maintainer field to the new Ubuntu
@@ -29,7 +31,7 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * Add 'natty' to recognized names and make it the default.
 
- -- Michael Bienia <geser@ubuntu.com>  Wed, 15 Sep 2010 09:20:28 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 17 Sep 2010 04:42:53 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 

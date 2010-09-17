@@ -94,3 +94,4 @@ Description: useful tools for Ubuntu developers
   - update-maintainer - script to update maintainer field in ubuntu packages.
   - what-patch - determines what patch system, if any, a source package is
     using.
+  - wrap-and-sort - wrap long lines and sort items in packaging files.
