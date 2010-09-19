@@ -338,9 +338,9 @@ def get_patch_or_branch(bug):
             Print.error("No attachment and no linked branch found on bug #%i." \
                         % (bug.id))
         else:
-            Print.error(("No attached patch and no linked branch found. Go to "
-                         "https://launchpad.net/bugs/%i and mark an attachment "
-                         "as patch.") % (bug.id))
+            Print.error(("No attached patch and no linked branch found. Go " \
+                         "to https://launchpad.net/bugs/%i and mark an " \
+                         "attachment as patch.") % (bug.id))
         sys.exit(1)
     elif len(attached_patches) == 1 and len(linked_branches) == 0:
         patch = attached_patches[0]
@@ -348,13 +348,13 @@ def get_patch_or_branch(bug):
         branch = linked_branches[0].bzr_identity
     else:
         if len(attached_patches) == 0:
-            Print.normal("https://launchpad.net/bugs/%i has %i branches "
+            Print.normal("https://launchpad.net/bugs/%i has %i branches " \
                          "linked:" % (bug.id, len(linked_branches)))
         elif len(linked_branches) == 0:
-            Print.normal("https://launchpad.net/bugs/%i has %i patches"
+            Print.normal("https://launchpad.net/bugs/%i has %i patches" \
                          " attached:" % (bug.id, len(attached_patches)))
         else:
-            Print.normal("https://launchpad.net/bugs/%i has %i branch(es)"
+            Print.normal("https://launchpad.net/bugs/%i has %i branch(es)" \
                          " linked and %i patch(es) attached:" % \
                          (bug.id, len(linked_branches), len(attached_patches)))
         i = 0
@@ -531,7 +531,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
         try:
             new_version = changelog.get_version()
         except IndexError:
-            Print.error("Debian package version could not be determined. "
+            Print.error("Debian package version could not be determined. " \
                         "debian/changelog is probably malformed.")
             ask_for_manual_fixing()
             continue
@@ -539,7 +539,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
         # Check if version of the new package is greater than the version in
         # the archive.
         if new_version <= task.get_version():
-            Print.error("The version %s is not greater than the already "
+            Print.error("The version %s is not greater than the already " \
                         "available %s." % (new_version, task.get_version()))
             ask_for_manual_fixing()
             continue
@@ -579,8 +579,8 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
         new_dsc_file = os.path.join(workdir,
                 task.package + "_" + strip_epoch(new_version) + ".dsc")
         assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
-        assert os.path.isfile(new_dsc_file),
-               "%s does not exist." % (new_dsc_file)
+        assert os.path.isfile(new_dsc_file), "%s does not exist." % \
+                                             (new_dsc_file)
         cmd = ["debdiff", dsc_file, new_dsc_file]
         debdiff_name = task.package + "_" + strip_epoch(new_version) + \
                        ".debdiff"
@@ -613,7 +613,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
             allowed = map(lambda s: s + "-proposed", supported_series) + \
                       [devel_series]
             if changelog.distributions not in allowed:
-                Print.error("%s is not an allowed series. It needs to be one "
+                Print.error("%s is not an allowed series. It needs to be one " \
                             "of %s." % (changelog.distributions,
                                         ", ".join(allowed)))
                 ask_for_manual_fixing()
@@ -621,7 +621,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
         elif upload and upload.startwith("ppa/"):
             allowed = supported_series + [devel_series]
             if changelog.distributions not in allowed:
-                Print.error("%s is not an allowed series. It needs to be one "
+                Print.error("%s is not an allowed series. It needs to be one " \
                             "of %s." % (changelog.distributions,
                                         ", ".join(allowed)))
                 ask_for_manual_fixing()
@@ -673,12 +673,12 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
                 build_name = task.package + "_" + strip_epoch(new_version) + \
                              "_" + architecture + ".build"
                 build_log = os.path.join(buildresult, build_name)
-                print "Please check %s %s carefully:\nfile://%s\nfile://%s\n"
+                print "Please check %s %s carefully:\nfile://%s\nfile://%s\n" \
                       "file://%s" % (task.package, new_version, debdiff_file,
                                      lintian_file, build_log)
-                answer = yes_edit_no_question("Do you want to upload the "
-                                              "package to the official Ubuntu "
-                                              "archive", "yes")
+                answer = yes_edit_no_question("Do you want to upload the " \
+                                              "package to the official " \
+                                              "Ubuntu archive", "yes")
                 if answer == "edit":
                     continue
                 elif answer == "no":
