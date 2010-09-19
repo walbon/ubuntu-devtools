@@ -14,10 +14,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import debian.changelog
-import debian.deb822
-import debian.debian_support
-import launchpadlib.launchpad
 import optparse
 import os
 import pwd
@@ -26,6 +22,13 @@ import shutil
 import subprocess
 import sys
 import urllib
+
+import debian.changelog
+import debian.deb822
+import debian.debian_support
+import launchpadlib.launchpad
+
+import ubuntutools.update_maintainer
 
 USER_ABORT = 2
 
@@ -502,11 +505,10 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
 		edit = True
 
 		# update the Maintainer field
-		cmd = ["update-maintainer"]
-		if not verbose:
-			cmd.append("-q")
-		Print.command(cmd)
-		subprocess.check_call(cmd)
+		Print.command(["update-maintainer"])
+		if ubuntutools.update_maintainer.update_maintainer(verbose) != 0:
+			Print.error("update-maintainer script failed.")
+			sys.exit(1)
 
 		# Get new version of package
 		changelog = debian.changelog.Changelog(file("debian/changelog"))
