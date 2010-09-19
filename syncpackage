@@ -400,7 +400,7 @@ if __name__ == "__main__":
 	parser.add_option("-V", "--debian-version",
 			help="Specify the version to sync from.", dest="debversion", default=None)
 	parser.add_option("-c", "--component",
-			help="Specify the component to sync from.", dest="component", default=None)
+			help="Specify the Debian component to sync from.", dest="component", default=None)
 	parser.add_option("-v", "--verbose", help="print more information",
 			dest="verbose", action="store_true", default=False)
 	parser.add_option("-n", "--uploader-name", dest="uploader_name",
@@ -441,6 +441,11 @@ if __name__ == "__main__":
 	if args[0].endswith(".dsc"):
 		dscurl = args[0]
 	else:
+		if options.component not in (None, "main", "contrib", "non-free"):
+			print >> sys.stderr, "%s: Error: %s is not a valid Debian component." \
+					" It should be one of main, contrib, or non-free." % \
+					(script_name, options.component)
+			sys.exit(1)
 		dscurl = get_debian_dscurl(args[0], options.dist, options.release,
 				options.debversion, options.component)
 
