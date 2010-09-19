@@ -60,6 +60,7 @@ Description: useful tools for Ubuntu developers
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - hugdaylist - compile HugDay lists from bug list URLs.
   - import-bug-from-debian - copy a bug from the Debian BTS to Launchpad
+  - lp-list-bugs - briefly list status of Launchpad bugs.
   - lp-project-upload - upload a release tarball to a Launchpad project
   - lp-set-dup - sets the "duplicate of" bug of a bug and its dups.
   - manage-credentials - manage Launchpad token credentials.
