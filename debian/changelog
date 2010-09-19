@@ -11,7 +11,9 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   * suspicious-source: whitelist font source formats. Thanks to Nicolas
     Spalinger for the patch (LP: #365147).
   * Update the man page of suspicious-source to match the rewrite.
-  * syncpackage: Don't upload orig tarball if not needed.
+  * syncpackage:
+    - Don't upload orig tarball if not needed.
+    - Print error message if the download fails (LP: #639899).
   * update-maintainer: Don't change the Maintainer field if the email is set
     to a @lists.ubuntu.com address.
   * sponsor-patch: New script to download a patch from a Launchpad bug, patch
@@ -35,7 +37,7 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   * Fix NAME section of lp-set-dup(1).
   * lp-list-bugs: New tool.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 17 Sep 2010 04:42:53 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 19 Sep 2010 22:07:52 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 

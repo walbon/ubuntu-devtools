@@ -73,7 +73,12 @@ class File(object):
 		if not file_exists:
 			if verbose:
 				print '%s: I: Downloading %s...' % (script_name, self.url)
-			urllib.urlretrieve(self.url, self.name)
+			try:
+				urllib.urlretrieve(self.url, self.name)
+			except IOError as e:
+				print >> sys.stderr, "%s: Error: Failed to download %s [Errno %i]: %s." % \
+						(script_name, self.name, e.errno, e.strerror)
+				sys.exit(1)
 
 
 class Version(debian.debian_support.Version):
@@ -178,7 +183,12 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 	if os.path.exists(os.path.join(basepath, dscname)):
 		dscfile = dscurl
 	else:
-		urllib.urlretrieve(dscurl, dscname)
+		try:
+			urllib.urlretrieve(dscurl, dscname)
+		except IOError as e:
+			print >> sys.stderr, "%s: Error: Failed to download %s [Errno %i]: %s." % \
+					(script_name, dscname, e.errno, e.strerror)
+			sys.exit(1)
 	dscfile = debian.deb822.Dsc(file(dscname))
 	if "Version" not in dscfile:
 		print >> sys.stderr, "%s: Error: No Version field found in the dsc file. Please check %s!" % \
