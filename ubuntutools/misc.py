@@ -22,6 +22,7 @@
 
 # Modules.
 import os
+from subprocess import Popen, PIPE
 
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 
@@ -52,21 +53,20 @@ def system_distribution():
 def host_architecture():
     """ host_architecture -> string
     
-    Detect the host's architecture and return it as a string
-    (i386/amd64/other values). If the architecture can't be determined,
-    print an error message and return None.
+    Detect the host's architecture and return it as a string. If the
+    architecture can't be determined, print an error message and return None.
     
     """
     
-    arch = os.uname()[4].replace('x86_64', 'amd64').replace('i586', 'i386'
-        ).replace('i686', 'i386')
+    arch = Popen(['dpkg', '--print-architecture'], stdout=PIPE, \
+                 stderr=PIPE).communicate()[0].split()
     
-    if not arch or 'not found' in arch:
+    if not arch or 'not found' in arch[0]:
         print 'Error: Not running on a Debian based system; could not ' \
             'detect its architecture.'
         return None
     
-    return arch
+    return arch[0]
 
 def readlist(filename, uniq=True):
     """ readlist(filename, uniq) -> list

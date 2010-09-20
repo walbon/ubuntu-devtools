@@ -8,8 +8,11 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
     - Add Benjamin Drung to Uploaders.
     - Add DM-Upload-Allowed field, this way Benjamin can upload new
       versions on his own.
+  * ubuntutools/misc.py:
+    - Use output of dpkg --print-architecture command to correctly display
+      platform architecture (Closes: #594424).
 
- -- Luca Falavigna <dktrkranz@debian.org>  Mon, 20 Sep 2010 17:46:46 +0200
+ -- Luca Falavigna <dktrkranz@debian.org>  Mon, 20 Sep 2010 18:11:24 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 
