@@ -1,8 +1,15 @@
 ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * sponsor-patch: Fix NameError: global name 'debdiff_filename' is not defined.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 20 Sep 2010 15:47:19 +0200
+  [ Luca Falavigna ]
+  * debian/control:
+    - Add Benjamin Drung to Uploaders.
+    - Add DM-Upload-Allowed field, this way Benjamin can upload new
+      versions on his own.
+
+ -- Luca Falavigna <dktrkranz@debian.org>  Mon, 20 Sep 2010 17:46:46 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 

@@ -2,11 +2,12 @@ Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-dev-team@lists.alioth.debian.org>
-Uploaders: Luca Falavigna <dktrkranz@debian.org>
+Uploaders: Luca Falavigna <dktrkranz@debian.org>, Benjamin Drung <bdrung@ubuntu.com>
 Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Vcs-Browser: http://codebrowse.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk/changes
 Build-Depends: debhelper (>= 7), python (>= 2.5)
 Build-Depends-Indep: python-support (>= 0.5.3)
+DM-Upload-Allowed: yes
 XS-Python-Version: >= 2.5
 Homepage: https://launchpad.net/ubuntu-dev-tools/
 Standards-Version: 3.9.1
