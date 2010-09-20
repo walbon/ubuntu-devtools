@@ -584,7 +584,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
         cmd = ["debdiff", dsc_file, new_dsc_file]
         debdiff_name = task.package + "_" + strip_epoch(new_version) + \
                        ".debdiff"
-        debdiff_file = os.path.join(workdir, debdiff_filename)
+        debdiff_file = os.path.join(workdir, debdiff_name)
         if not verbose:
             cmd.insert(1, "-q")
         Print.command(cmd + [">", debdiff_file])
