@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.102) experimental; urgency=low
 
   [ Dustin Kirkland ]
   * errno, doc/errno.1, debian/control, debian/copyright, setup.py:
@@ -38,7 +38,7 @@ ubuntu-dev-tools (0.102) UNRELEASED; urgency=low
   * Fix NAME section of lp-set-dup(1).
   * lp-list-bugs: New tool.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 20 Sep 2010 00:42:35 +0200
+ -- Luca Falavigna <dktrkranz@debian.org>  Mon, 20 Sep 2010 11:10:04 +0200
 
 ubuntu-dev-tools (0.101) unstable; urgency=low
 
