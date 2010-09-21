@@ -24,6 +24,9 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
      - Move the documentation for --main-only (previously "mainonly") and
        --debug-echo to a new Options section.
 
+  [ Stefano Rivera ]
+  * Add manpages for sponsor-patch and import-bug-from-debian.
+
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 21 Sep 2010 20:43:27 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low

@@ -1,0 +1,82 @@
+.TH sponsor\-patch "1" "September 21 2010" "ubuntu-dev-tools"
+.SH NAME
+sponsor\-patch \- Pull a sponsorship request from Launchpad, test-build
+it, and upload.
+
+.SH SYNOPSIS
+.B sponsor\-patch \fR[\fIoptions\fR] \fIbug
+.br
+.B sponsor\-patch \-h
+
+.SH DESCRIPTION
+\fBsponsor\-patch\fR downloads the patch or Bazaar branch linked to an
+Ubuntu bug \fIbug\fR, applies it, generates a review diff, (optionally)
+test builds it with
+.BR pbuilder (8),
+runs
+.BR lintian (1)
+and, after confirmation, can upload it.
+
+\fBsponsor\-patch\fR can be used for sponsoring patches, merges from
+Debian, and SRUs.
+If \fIbug\fR has multiple patches or branches linked, it will prompt the
+user to select one.
+The same applies to bug tasks.
+
+.nr step 1 1
+Some obvious checks are performed, in particular:
+.IP \n[step]. 4
+.BR update\-maintainer (1)
+is run on the source package to ensure that the \fBMaintainer\fR field
+meets the Ubuntu policy.
+.IP \n+[step].
+The version number must be greater than the current version in the
+archive.
+The \fBchanges\fR file is also correctly generated to list all changes
+since the current version in the archive.
+.IP \n+[step].
+The changelog must automatically close the sponsorship bug.
+.IP \n+[step].
+The changelog target must be valid.
+
+Should any checks (or the build fail), the user has an option to edit
+the patched source and try building it again.
+
+.SH OPTIONS
+.TP
+.BR \-b ", " \-\-build
+Build the package with \fBpbuilder\fR(1). This assumes the common
+configuration, where the \fBDIST\fR environment is read by
+\fBpbuilderrc\fR(5) to select the correct base image.
+.TP
+.BR \-e ", " \-\-edit
+Launch a sub-shell to allow editing of the patched source before
+building.
+.TP
+.B \-k\fIKEY\fR, \fB\-\-key\fR=\fIKEY
+Specify a key ID for signing the upload.
+.TP
+.BR \-s ", " \-\-sponsor
+Shortcut for sponsored uploads. Equivalent to \fB\-b \-u ubuntu\fR.
+.TP
+.B \-u\fIDEST\fR, \fB\-\-upload\fR=\fIDEST
+Upload to \fIDEST\fR with \fBdput\fR(1) (after confirmation).
+.TP
+.BR \-v ", " \-\-verbose
+Print more information.
+.TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+
+.SH SEE ALSO
+.BR bzr (1),
+.BR dput (1),
+.BR lintian (1),
+.BR pbuilder (8),
+.BR update\-maintainer (1)
+
+.SH AUTHORS
+\fBsponsor\-patch\fR was written by Benjamin Drung <bdrung@ubuntu.com>,
+and this manual page was written by Stefano Rivera <stefanor@ubuntu.com>.
+.PP
+Both are released under the terms of the ISC License.
