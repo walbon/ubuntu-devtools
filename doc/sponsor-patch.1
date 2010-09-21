@@ -9,19 +9,22 @@ test-build it, and upload.
 .B sponsor\-patch \-h
 
 .SH DESCRIPTION
-\fBsponsor\-patch\fR downloads the patch or Bazaar branch linked to
-Ubuntu bug \fIbug\fR, applies it, generates a review diff, (optionally)
-test builds it with
+\fBsponsor\-patch\fR downloads the patch or Bazaar branch linked to an
+Ubuntu bug, applies it, generates a review diff, (optionally) test
+builds it with
 .BR pbuilder (8),
 runs
 .BR lintian (1)
-and, after confirmation, can upload it.
+and, after review and confirmation, can upload it.
 
 \fBsponsor\-patch\fR can be used for sponsoring patches, merges from
 Debian, SRUs, and creating debdiffs from patches.
 If \fIbug\fR has multiple patches or branches linked, it will prompt the
 user to select one.
 The same applies to bug tasks.
+If the attached patch is not a debdiff,
+.BR edit-patch (1)
+is used to apply it.
 
 .nr step 1 1
 Some obvious checks are performed, in particular:
@@ -45,11 +48,10 @@ The changelog timestamp is touched.
 Should any checks (or the build fail), the user has an option to edit
 the patched source and try building it again.
 
-The package will be built in the current directory (unless
-.B SPONSOR_PATCH_WORKDIR
-is set).
+The sources and patches will be downloaded into the working directory
+(which defaults to the current directory).
 .BR pbuilder (8)
-output will be placed in \fB./\fIsourcepkg\fB\-buildresult/\fR.
+output will be placed in \fIworkdir\fR/\fIsourcepkg\fB\-buildresult/\fR.
 
 .SH OPTIONS
 .TP
@@ -74,6 +76,10 @@ Upload to \fIDEST\fR with \fBdput\fR(1) (after confirmation).
 .BR \-v ", " \-\-verbose
 Print more information.
 .TP
+.B \-w\fIDIR\fR, \fB\-\-workdir\fR=\fIDIR
+Use the specified working directory, creating it if necessary, instead
+of the current directory. This overrides \fBSPONSOR_PATCH_WORKDIR\fR.
+.TP
 .BR \-h ", " \-\-help
 Display a help message and exit.
 
@@ -81,33 +87,29 @@ Display a help message and exit.
 
 .TP
 .B SPONSOR_PATCH_WORKDIR
-Setting this causes \fBsponsor\-patch\fR to change to this directory
-before starting work.
+The default working directory for \fBsponsor\-patch\fR. If unset and not
+provided on the command line, the current directory is used.
 
 .SH EXAMPLES
-Sponsoring bug \fB1234\fR with a debdiff attached:
-.br
+Test-building and sponsoring an upload of bug \fB1234\fR:
+.IP
+.nf
 .B sponsor\-patch -s 1234
+.fi
 
-Performing a test build of the debdiff attached to bug \fB1234\fR in
-your ppa:
-.br
+.PP
+Performing a test build of bug \fB1234\fR in your ppa:
+.IP
+.nf
 .B sponsor\-patch -u ppa:\fIuser\fR/\fIppa\fB 1234
-
-Adding a changelog to a simple patch and test-building it to review the
-patch:
-.br
-.B sponsor\-patch -se 1234
-.br
-Then add a changelog entry with
-.BR debchange (1),
-.RB "and " "exit 0" .
+.fi
 
 .SH SEE ALSO
 .BR bzr (1),
 .BR debchange (1),
 .BR debdiff (1),
 .BR dput (1),
+.BR edit-patch (1),
 .BR lintian (1),
 .BR pbuilder (8),
 .BR update\-maintainer (1)
