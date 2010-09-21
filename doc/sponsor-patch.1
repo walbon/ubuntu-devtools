@@ -1,7 +1,7 @@
 .TH sponsor\-patch "1" "September 21 2010" "ubuntu-dev-tools"
 .SH NAME
-sponsor\-patch \- Pull a sponsorship request from Launchpad, test-build
-it, and upload.
+sponsor\-patch \- Pull a patch / merge request from Launchpad,
+test-build it, and upload.
 
 .SH SYNOPSIS
 .B sponsor\-patch \fR[\fIoptions\fR] \fIbug
@@ -9,7 +9,7 @@ it, and upload.
 .B sponsor\-patch \-h
 
 .SH DESCRIPTION
-\fBsponsor\-patch\fR downloads the patch or Bazaar branch linked to an
+\fBsponsor\-patch\fR downloads the patch or Bazaar branch linked to
 Ubuntu bug \fIbug\fR, applies it, generates a review diff, (optionally)
 test builds it with
 .BR pbuilder (8),
@@ -18,7 +18,7 @@ runs
 and, after confirmation, can upload it.
 
 \fBsponsor\-patch\fR can be used for sponsoring patches, merges from
-Debian, and SRUs.
+Debian, SRUs, and creating debdiffs from patches.
 If \fIbug\fR has multiple patches or branches linked, it will prompt the
 user to select one.
 The same applies to bug tasks.
@@ -38,9 +38,18 @@ since the current version in the archive.
 The changelog must automatically close the sponsorship bug.
 .IP \n+[step].
 The changelog target must be valid.
+.IP \n+[step].
+The changelog timestamp is touched.
 
+.PP
 Should any checks (or the build fail), the user has an option to edit
 the patched source and try building it again.
+
+The package will be built in the current directory (unless
+.B SPONSOR_PATCH_WORKDIR
+is set).
+.BR pbuilder (8)
+output will be placed in \fB./\fIsourcepkg\fB\-buildresult/\fR.
 
 .SH OPTIONS
 .TP
@@ -68,8 +77,36 @@ Print more information.
 .BR \-h ", " \-\-help
 Display a help message and exit.
 
+.SH ENVIRONMENT
+
+.TP
+.B SPONSOR_PATCH_WORKDIR
+Setting this causes \fBsponsor\-patch\fR to change to this directory
+before starting work.
+
+.SH EXAMPLES
+Sponsoring bug \fB1234\fR with a debdiff attached:
+.br
+.B sponsor\-patch -s 1234
+
+Performing a test build of the debdiff attached to bug \fB1234\fR in
+your ppa:
+.br
+.B sponsor\-patch -u ppa:\fIuser\fR/\fIppa\fB 1234
+
+Adding a changelog to a simple patch and test-building it to review the
+patch:
+.br
+.B sponsor\-patch -se 1234
+.br
+Then add a changelog entry with
+.BR debchange (1),
+.RB "and " "exit 0" .
+
 .SH SEE ALSO
 .BR bzr (1),
+.BR debchange (1),
+.BR debdiff (1),
 .BR dput (1),
 .BR lintian (1),
 .BR pbuilder (8),
