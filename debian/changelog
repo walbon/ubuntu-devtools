@@ -1,7 +1,9 @@
 ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
-  * sponsor-patch: Fix NameError: global name 'debdiff_filename' is not defined.
+  * sponsor-patch:
+    - Fix NameError: global name 'debdiff_filename' is not defined.
+    - Add --workdir parameter to set the working directory.
 
   [ Luca Falavigna ]
   * debian/control:
@@ -27,7 +29,7 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * Add manpages for sponsor-patch and import-bug-from-debian.
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 21 Sep 2010 20:43:27 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 21 Sep 2010 23:52:46 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 

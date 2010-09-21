@@ -441,17 +441,24 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
-def main(script_name, bug_number, build, edit, keyid, upload, verbose=False):
-    if "SPONSOR_PATCH_WORKDIR" in os.environ:
-        # FIXME: add command line parameter
-        workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
-        if not os.path.isdir(workdir):
+def main(script_name, bug_number, build, edit, keyid, upload, workdir,
+         verbose=False):
+    if not workdir:
+        if "SPONSOR_PATCH_WORKDIR" in os.environ:
+            workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
+        else:
+            workdir = os.getcwd()
+    workdir = os.path.expanduser(workdir)
+    if not os.path.isdir(workdir):
+        try:
             os.makedirs(workdir)
-            # FIXME: Print nice error message on failure
+        except os.error, e:
+            Print.error("Failed to create the working directory %s " \
+                        "[Errno %i]: %s." % (workdir, e.errno, e.strerror))
+            sys.exit(1)
+    if workdir != os.getcwd():
         Print.command(["cd", workdir])
         os.chdir(workdir)
-    else:
-        workdir = os.getcwd()
 
     script_name = os.path.basename(sys.argv[0])
     launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
@@ -729,6 +736,8 @@ if __name__ == "__main__":
                       help="Specify an upload destination (default none).")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
+    parser.add_option("-w", "--workdir", dest="workdir", default=None,
+                      help="Specify a working directory.")
 
     (options, args) = parser.parse_args()
     Print.set_verbosity(options.verbose)
@@ -752,4 +761,4 @@ if __name__ == "__main__":
         options.upload = "ubuntu"
 
     main(script_name, bug_number, options.build, options.edit, options.keyid,
-         options.upload, options.verbose)
+         options.upload, options.workdir, options.verbose)
