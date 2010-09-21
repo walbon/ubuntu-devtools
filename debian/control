@@ -27,6 +27,7 @@ Depends: binutils,
          python-lazr.restfulclient,
          sudo,
          ${misc:Depends},
+         ${perl:Depends},
          ${python:Depends}
 Recommends: bzr,
             ca-certificates,
