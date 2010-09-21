@@ -38,7 +38,7 @@ debbugs = SOAPpy.SOAPProxy(url, namespace)
 #debbugs.config.dumpSOAPOut = 1
 #debbugs.config.dumpSOAPIn = 1
 
-parser = OptionParser()
+parser = OptionParser(usage="%prog [option] bug ...")
 parser.add_option("-n", "--dry-run",
         help="Use the staging server so that changes are not permanent",
         dest="dry_run", action="store_true")

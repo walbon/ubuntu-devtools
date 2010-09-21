@@ -1,0 +1,35 @@
+.TH import\-bug\-from\-debian "1" "September 21 2010" "ubuntu-dev-tools"
+.SH NAME
+import\-bug\-from\-debian \- Import bugs from Debian's BTS, and file
+them against Ubuntu in LP.
+
+.SH SYNOPSIS
+.B import\-bug\-from\-debian \fR[\fB\-nb\fR] \fIbug\fR...
+.br
+.B import\-bug\-from\-debian \-h
+
+.SH DESCRIPTION
+\fBimport\-bug\-from\-debian\fR clones bugs from Debian's BTS into
+Launchpad. Each \fIbug\fR listed on the command line has its initial
+report re-filed against the same source package in Ubuntu.
+The Ubuntu bug is linked back to its Debian counterpart.
+
+Each \fIbug\fR may be provided either as a bug number or URL.
+
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+.TP
+.BR \-n ", " \-\-dry\-run
+Use the LP staging server so that changes are not permanent.
+.TP
+.BR \-b ", " \-\-browserless
+Don't open the bug in a browser at the end.
+
+.SH AUTHORS
+\fBimport\-bug\-from\-debian\fR was written by James Westby
+<james.westby@ubuntu.com>,
+and this manual page was written by Stefano Rivera <stefanor@ubuntu.com>.
+.PP
+Both are released under the terms of the GNU General Public License, version 2.
