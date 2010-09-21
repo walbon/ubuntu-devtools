@@ -344,9 +344,12 @@ def main():
 		("sparc64", "sparc")]:
 			args.append('--debootstrap qemu-debootstrap')
 	
-	if 'mainonly' in sys.argv:
+	if 'mainonly' in sys.argv or '--main-only' in sys.argv:
 		app.extra_components = False
-		args.remove('mainonly')
+		if 'mainonly' in sys.argv:
+			args.remove('mainonly')
+		else:
+			args.remove('--main-only')
 	
 	if len(args) < 1:
 		print 'Insufficient number of arguments.'

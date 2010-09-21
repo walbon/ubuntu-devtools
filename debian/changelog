@@ -20,6 +20,9 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
        quotation marks, when needed (LP: #398989).
   * bash_completion/pbuilder-dist:
      - Enable auto-completion for "pbuilder-experimental".
+  * doc/pbuilder-dist.1:
+     - Move the documentation for --main-only (previously "mainonly") and
+       --debug-echo to a new Options section.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 21 Sep 2010 20:43:27 +0200
 
@@ -243,7 +246,7 @@ ubuntu-dev-tools (0.94) lucid; urgency=low
   * mk-sbuild: switch to use qemu-debootstrap for foreign chroots
   * mk-sbuild: allow any foreign chroot (may not work, but we can try)
   * pbuilder-dist: allow any foreign chroot (may not work, but we can try)
-  * docs/pbuilder-dist.1: update manpage to indicate general architecture
+  * doc/pbuilder-dist.1: update manpage to indicate general architecture
   * pbuilder-dist: add self. before target_distro in powerpc check
 
  -- Emmet Hikory <persia@ubuntu.com>  Mon, 08 Mar 2010 20:45:09 +0900

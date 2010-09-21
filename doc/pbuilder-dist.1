@@ -4,11 +4,11 @@
 pbuilder\-dist, cowbuilder\-dist \- multi-distribution pbuilder/cowbuilder wrapper
 
 .SH SYNOPSIS
-\fBpbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] [\fBmainonly\fP]
-\fIoperation\fR [\fI...\fR]
+\fBpbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] \fIoperation\fR
+[\fBoptions\fP] [\fI...\fR]
 
-\fBcowbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] [\fBmainonly\fP]
-\fIoperation\fR [\fI...\fR]
+\fBcowbuilder\-dist\fP \fIdistribution\fR [\fIarchitecture\fR] \fIoperation\fR
+[\fBoptions\fP] [\fI...\fR]
 
 .SH DESCRIPTION
 \fBpbuilder\-dist\fP is a wrapper that makes it easy to use pbuilder with many different 
@@ -41,12 +41,6 @@ install), qemu-static and binfmt-misc will be used.  Note that some
 combinations (e.g. amd64 on an i386 install) require special separate
 kernel handling, and may break in unexpected ways.
 .TP
-\fBmainonly\fP
-If you specify \fBmainonly\fP, only packages from the main (in Debian) or
-main and restricted (in Ubuntu) components will be used. By default, all
-official components are enabled. This only has effect when creating a new
-environment.
-.TP
 \fBoperation\fP
 Replace this with the action you want \fBpbuilder\fP to do (create, update,
 build, clean, login or execute).
@@ -61,11 +55,18 @@ For example, if \fBbuild\fP is the option, you will need to also specify
 a .dsc file. As a special feature, if you specify a .dsc file you can
 skip the \fBbuild\fP option and this script will automatically assume that
 building is the action you want to do.
-.br
-You may also specify \fB--debug-echo\fP so that the \fBpbuilder\fP/
-\fBcowbuilder\fP command which would normally be executed is just printed
-on the standard output instead. This is useful for debugging
-\fBpbuilder-dist\fP.
+
+.SH OPTIONS
+.TP
+\fB--main-only\fP (deprecated: \fBmainonly\fP)
+If you specify this option, only packages from the \fImain\fP (in Debian) or
+\fImain\fP and \fIrestricted\fP (in Ubuntu) components will be used. By
+default, all official components are enabled. This only has effect when
+creating a new environment.
+.TP
+\fB--debug-echo\fP
+The generated \fBpbuilder\fP/\fBcowbuilder\fP command will be printed to the
+standard output instead of being executed. This is useful for debugging.
 
 .SH EXAMPLES
 .TP
@@ -89,14 +90,15 @@ Creates a \fBcowbuilder\fP environment for Debian Experimental.
 
 .SH FILES AND ENVIRONMENT VARIABLES
 By default, \fBpbuilder\-dist\fP will store all the files it generates in
-\fB~/pbuilder/\fP. This can be changed by setting the $PBUILDFOLDER global
-variable. If the directory doesn't exist, it will be created on the run.
+\fB~/pbuilder/\fP. This can be changed by setting the \fBPBUILDFOLDER\fP
+environment variable. If the directory doesn't exist, it will be created on
+the run.
 .PP
 A file with the log of the last operation, called last_operation.log, will be
 saved in the results subdirectory of each build environment.
 .PP
 The default authentication method is \fBsudo\fP. You can change this by
-setting the $PBUILDAUTH variable.
+setting the \fBPBUILDAUTH\fP variable.
 
 .SH BUGS
 If you experience any problem with this script contact me on rainct@ubuntu.com
@@ -109,9 +111,9 @@ with \fBpbuilder\fP or \fBcowbuilder\fP themselves.
 \fBpbuilder\fR, \fBpbuilderrc\fR, \fBcowbuilder\fR
 
 .SH AUTHORS
-\fBpbuilder\-dist\fP was written by Siegfried-A. Gevatter <rainct@ubuntu.com>
-and includes patches by Iain Lane <iain@orangesquash.org.uk>. This manual page
-has been written by Siegfried-A. Gevatter <rainct@ubuntu.com>.
+\fBpbuilder\-dist\fP and this manual page were written by Siegfried-A. Gevatter
+<rainct@ubuntu.com>, with contributions from Iain Lane
+<iain@orangesquash.org.uk>, Emmet Hikory <persia@ubuntu.com> and others.
 
 \fBpbuilder\-dist\fP is released under the GNU General Public License, version
 2 or later.
