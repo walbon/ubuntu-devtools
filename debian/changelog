@@ -12,7 +12,14 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
     - Use output of dpkg --print-architecture command to correctly display
       platform architecture (Closes: #594424).
 
- -- Luca Falavigna <dktrkranz@debian.org>  Mon, 20 Sep 2010 18:11:24 +0200
+  [ Siegfried-Angel Gevatter Pujals ]
+  * pbuilder-dist:
+     - Do not show a warning when "experimental" is used; there is no
+       debootstrap file for it but it should just work anyway.
+  * bash_completion/pbuilder-dist:
+     - Enable auto-completion for "pbuilder-experimental".
+
+ -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Tue, 21 Sep 2010 20:43:27 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 

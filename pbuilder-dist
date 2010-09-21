@@ -124,10 +124,13 @@ class pbuilder_dist:
 		
 		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
 			if os.path.isdir('/usr/share/debootstrap/scripts/'):
-				answer = ask('Warning: Unknown distribution «%s». Do you '\
-					'want to continue [y/N]? ' % distro)
-				if answer not in ('y', 'Y'):
-					sys.exit(0)
+				# Debian experimental doesn't have a debootstrap file but
+				# should work nevertheless.
+				if distro not in debian_distros:
+					answer = ask('Warning: Unknown distribution «%s». Do you ' \
+						'want to continue [y/N]? ' % distro)
+					if answer not in ('y', 'Y'):
+						sys.exit(0)
 			else:
 				print 'Please install package "debootstrap".'
 				sys.exit(1)
