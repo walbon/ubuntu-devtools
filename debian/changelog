@@ -16,6 +16,8 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   * pbuilder-dist:
      - Do not show a warning when "experimental" is used; there is no
        debootstrap file for it but it should just work anyway.
+     - Wrap any extra (user) arguments appended to the pbuilder command with
+       quotation marks, when needed (LP: #398989).
   * bash_completion/pbuilder-dist:
      - Enable auto-completion for "pbuilder-experimental".
 

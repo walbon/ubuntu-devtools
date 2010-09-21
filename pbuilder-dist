@@ -245,8 +245,22 @@ class pbuilder_dist:
 		if remaining_arguments:
 			arguments.extend(remaining_arguments)
 		
+		def quote(argument):
+			""" quote(argument) -> string
+			
+			Try to guess any missing quotes around the arguments so that
+			their meaning doesn't get lost (see LP: #398989).
+			
+			"""
+			
+			if argument.startswith('--'):
+				if '=' in argument:
+					return '%s="%s"' % tuple(argument.split('=', 1))
+				return argument
+			return '"%s"' % argument
+		
 		return '%s /usr/sbin/%s %s' % (self.auth, self.builder,
-			' '.join(arguments))
+			' '.join(map(quote, arguments)))
 
 def ask(question):
 	""" ask(question) -> string
