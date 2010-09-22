@@ -33,7 +33,11 @@ from lazr.restfulclient.resource import Entry
 
 import ubuntutools.lp.libsupport as libsupport
 from ubuntutools.lp import (service, api_version)
-from ubuntutools.lp.udtexceptions import *
+from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
+                                          ArchiveNotFoundException,
+                                          PackageNotFoundException,
+                                          PocketDoesNotExistError,
+                                          SeriesNotFoundException)
 
 __all__ = [
     'Archive',
