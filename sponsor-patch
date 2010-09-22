@@ -181,34 +181,34 @@ class Print(object):
     verbose = False
 
     @classmethod
-    def command(self, cmd):
-        if self.verbose:
+    def command(cls, cmd):
+        if cls.verbose:
             for i in xrange(len(cmd)):
                 if cmd[i].find(" ") >= 0:
                     cmd[i] = '"' + cmd[i] + '"'
             print "%s: I: %s" % (script_name, " ".join(cmd))
 
     @classmethod
-    def debug(self, message):
-        if self.verbose:
+    def debug(cls, message):
+        if cls.verbose:
             print "%s: D: %s" % (script_name, message)
 
     @classmethod
-    def error(self, message):
+    def error(cls, message):
         print >> sys.stderr, "%s: Error: %s" % (script_name, message)
 
     @classmethod
-    def info(self, message):
-        if self.verbose:
+    def info(cls, message):
+        if cls.verbose:
             print "%s: I: %s" % (script_name, message)
 
     @classmethod
-    def normal(self, message):
+    def normal(cls, message):
         print "%s: %s" % (script_name, message)
 
     @classmethod
-    def set_verbosity(self, verbose):
-        self.verbose = verbose
+    def set_verbosity(cls, verbose):
+        cls.verbose = verbose
 
 
 def get_source_package_name(bug_task):
@@ -291,10 +291,11 @@ def edit_source():
     # Spawn shell to allow modifications
     cmd = [get_user_shell()]
     Print.command(cmd)
-    print """An interactive shell in file://%s was launched.
+    print """An interactive shell was launched in
+file://%s
 Edit your files. When you are done, exit the shell. If you wish to abort the
-process, exit the shell such that it returns an exit code other than zero.""" \
-          % (os.getcwd())
+process, exit the shell such that it returns an exit code other than zero.
+""" % (os.getcwd()),
     returncode = subprocess.call(cmd)
     if returncode != 0:
         Print.error("Shell exited with exit value %i." % (returncode))
@@ -373,18 +374,18 @@ def get_patch_or_branch(bug):
     return (patch, branch)
 
 def download_patch(patch):
-    patch_file = re.sub(" ", "_", patch.title)
+    patch_filename = re.sub(" ", "_", patch.title)
     if not reduce(lambda r, x: r or patch.title.endswith(x),
                   (".debdiff", ".diff", ".patch"), False):
         Print.info("Patch %s does not have a proper file extension." % \
                    (patch.title))
-        patch_file += ".patch"
+        patch_filename += ".patch"
 
-    Print.info("Downloading %s." % (patch_file))
-    f = open(patch_file, "w")
-    f.write(patch.data.open().read())
-    f.close()
-    return Patch(patch_file)
+    Print.info("Downloading %s." % (patch_filename))
+    patch_file = open(patch_filename, "w")
+    patch_file.write(patch.data.open().read())
+    patch_file.close()
+    return Patch(patch_filename)
 
 def download_branch(branch):
     dir_name = os.path.basename(branch)
@@ -452,9 +453,9 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
     if not os.path.isdir(workdir):
         try:
             os.makedirs(workdir)
-        except os.error, e:
-            Print.error("Failed to create the working directory %s " \
-                        "[Errno %i]: %s." % (workdir, e.errno, e.strerror))
+        except os.error, error:
+            Print.error("Failed to create the working directory %s [Errno " \
+                        "%i]: %s." % (workdir, error.errno, error.strerror))
             sys.exit(1)
     if workdir != os.getcwd():
         Print.command(["cd", workdir])
@@ -591,17 +592,17 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
         cmd = ["debdiff", dsc_file, new_dsc_file]
         debdiff_name = task.package + "_" + strip_epoch(new_version) + \
                        ".debdiff"
-        debdiff_file = os.path.join(workdir, debdiff_name)
+        debdiff_filename = os.path.join(workdir, debdiff_name)
         if not verbose:
             cmd.insert(1, "-q")
-        Print.command(cmd + [">", debdiff_file])
+        Print.command(cmd + [">", debdiff_filename])
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         debdiff = process.communicate()[0]
 
         # write debdiff file
-        f = open(debdiff_file, "w")
-        f.writelines(debdiff)
-        f.close()
+        debdiff_file = open(debdiff_filename, "w")
+        debdiff_file.writelines(debdiff)
+        debdiff_file.close()
 
         # Make sure that the Launchpad bug will be closed
         changes_file = new_dsc_file[:-4] + "_source.changes"
@@ -663,16 +664,16 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
             assert os.path.isfile(build_changes), "%s does not exist." % \
                                                   (build_changes)
             cmd = ["lintian", "-IE", "--pedantic", "-q", build_changes]
-            lintian_file = os.path.join(workdir,
+            lintian_filename = os.path.join(workdir,
                     task.package + "_" + strip_epoch(new_version) + ".lintian")
-            Print.command(cmd + [">", lintian_file])
+            Print.command(cmd + [">", lintian_filename])
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             report = process.communicate()[0]
 
             # write lintian report file
-            f = open(lintian_file, "w")
-            f.writelines(report)
-            f.close()
+            lintian_file = open(lintian_filename, "w")
+            lintian_file.writelines(report)
+            lintian_file.close()
 
         # Upload package
         if upload:
@@ -681,8 +682,9 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
                              "_" + architecture + ".build"
                 build_log = os.path.join(buildresult, build_name)
                 print "Please check %s %s carefully:\nfile://%s\nfile://%s\n" \
-                      "file://%s" % (task.package, new_version, debdiff_file,
-                                     lintian_file, build_log)
+                      "file://%s" % (task.package, new_version,
+                                     debdiff_filename, lintian_filename,
+                                     build_log)
                 answer = yes_edit_no_question("Do you want to upload the " \
                                               "package to the official " \
                                               "Ubuntu archive", "yes")
