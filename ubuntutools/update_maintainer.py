@@ -36,7 +36,7 @@ def update_maintainer(verbose=False):
 
     # Check changelog file exists.
     for location in valid_locations:
-        if os.path.exists(location):
+        if os.path.isfile(location):
             control_file_found = True
             control_file = location
             break # Stop looking.

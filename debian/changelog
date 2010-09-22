@@ -4,6 +4,8 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   * sponsor-patch:
     - Fix NameError: global name 'debdiff_filename' is not defined.
     - Add --workdir parameter to set the working directory.
+  * ubuntutools/update_maintainer.py: Fix failure if debian/control.in is a
+    directory.
 
   [ Luca Falavigna ]
   * debian/control:
@@ -33,7 +35,7 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   * ubuntutools/lp/libsupport.py: Support production API URLs in
     translate_web_api.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 21 Sep 2010 23:52:46 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Sep 2010 15:52:33 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 
