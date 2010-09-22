@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.103) experimental; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch:
@@ -35,7 +35,7 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   * ubuntutools/lp/libsupport.py: Support production API URLs in
     translate_web_api.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Sep 2010 15:52:33 +0200
+ -- Luca Falavigna <dktrkranz@debian.org>  Wed, 22 Sep 2010 18:13:27 +0200
 
 ubuntu-dev-tools (0.102) experimental; urgency=low
 
