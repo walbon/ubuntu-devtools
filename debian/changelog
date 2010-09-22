@@ -30,6 +30,8 @@ ubuntu-dev-tools (0.103) UNRELEASED; urgency=low
   * Add manpages for sponsor-patch and import-bug-from-debian.
   * hugdaylist, manage-credentials, massfile, merge-changelog,
     ubuntutools/requestsync/common.py: Some pyflakes-induced cleanup.
+  * ubuntutools/lp/libsupport.py: Support production API URLs in
+    translate_web_api.
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 21 Sep 2010 23:52:46 +0200
 

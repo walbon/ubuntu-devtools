@@ -92,8 +92,10 @@ def query_to_dict(query_string):
 def translate_web_api(url, launchpad):
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
     query = query_to_dict(query)
-    if not (("edge" in netloc and "edge" in str(launchpad._root_uri))
-        or ("staging" in netloc and "staging" in str(launchpad._root_uri))):
+
+    differences = set(netloc.split('.')).symmetric_difference(
+            set(launchpad._root_uri.host.split('.')))
+    if ('staging' in differences or 'edge' in differences):
         raise ValueError("url conflict (url: %s, root: %s" %(url, launchpad._root_uri))
     if path.endswith("/+bugs"):
         path = path[:-6]
