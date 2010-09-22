@@ -18,10 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, re, time, logging
-
-from stat import *
-from textwrap import fill
+import sys, re
 
 def usage():
     print '''Usage: merge-changelog <left changelog> <right changelog>

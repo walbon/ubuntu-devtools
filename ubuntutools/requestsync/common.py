@@ -106,7 +106,7 @@ def edit_report(subject, body, changes_required = False):
 
 			# Launch editor
 			try:
-				editor = subprocess.check_call(['sensible-editor', report_file.name])
+				subprocess.check_call(['sensible-editor', report_file.name])
 			except subprocess.CalledProcessError, e:
 				print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % e
 				sys.exit(1)

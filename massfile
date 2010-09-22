@@ -26,8 +26,6 @@
 import os
 import sys
 import email
-import subprocess
-import glob
 
 from ubuntutools.lp.libsupport import get_launchpad, translate_api_web, translate_web_api
 
