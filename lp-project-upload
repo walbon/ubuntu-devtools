@@ -53,7 +53,6 @@ def create_release(project, version):
         print >> sys.stderr, 'Does not support creating releases if no series exists.'
         sys.exit(3)
 
-
     release_date = datetime.date.today().strftime('%Y-%m-%d')
     milestone = series.newMilestone(name=version,
             date_targeted=release_date)
