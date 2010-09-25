@@ -1,12 +1,13 @@
 ubuntu-dev-tools (0.104) experimental; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist:
      - Fix regression where pbuilder would get an empty string as first
        positional argument.
      - Update --debug-echo so that it doesn't hide empty parameters (now
        that they are wrapped around quotes they are significant).
 
- -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sat, 25 Sep 2010 10:44:46 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 25 Sep 2010 13:14:46 +0200
 
 ubuntu-dev-tools (0.103) experimental; urgency=low
 
