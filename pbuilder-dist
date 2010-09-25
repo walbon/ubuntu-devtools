@@ -152,7 +152,7 @@ class pbuilder_dist:
 			if operation.endswith('.dsc'):
 				if os.path.isfile(operation):
 					self.operation = 'build'
-					return operation
+					return [operation]
 				else:
 					print 'Error: Could not find file «%s».' % operation
 					sys.exit(1)
@@ -162,7 +162,7 @@ class pbuilder_dist:
 				sys.exit(1)
 		else:
 			self.operation = operation
-			return ''
+			return []
 	
 	def get_command(self, remaining_arguments = None):
 		""" pbuilder_dist.get_command -> string
@@ -356,7 +356,7 @@ def main():
 		help(1)
 	
 	# Parse the operation
-	args = [app.set_operation(args.pop(0))] + args
+	args = app.set_operation(args.pop(0)) + args
 	
 	if app.operation == 'build' and not '.dsc' in ' '.join(args):
 		print 'Error: You have to specify a .dsc file if you want to build.'
@@ -366,7 +366,7 @@ def main():
 	if not '--debug-echo' in args:
 		sys.exit(os.system(app.get_command(args)))
 	else:
-		print app.get_command((arg for arg in args if arg)).replace(
+		print app.get_command((args)).replace(
 			' --debug-echo', '')
 
 if __name__ == '__main__':
