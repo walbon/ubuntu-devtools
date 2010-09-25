@@ -209,7 +209,7 @@ class pbuilder_dist:
 			arguments.append('--logfile %s' % self.logfile)
 		
 		if os.path.exists('/var/cache/archive/'):
-			arguments.append('--bindmounts "/var/cache/archive/"')		
+			arguments.append('--bindmounts "/var/cache/archive/"')
 
 		localrepo = '/var/cache/archive/%(target_distro)s' % self
 		if os.path.exists(localrepo):
