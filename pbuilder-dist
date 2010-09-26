@@ -259,7 +259,10 @@ class pbuilder_dist:
 				return argument
 			return '"%s"' % argument
 		
-		return '%s /usr/sbin/%s %s' % (self.auth, self.builder,
+		# Export the distribution and architecture information to the
+		# environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
+		return '%s ARCH="%s" DIST="%s" /usr/sbin/%s %s' % (self.auth,
+			self.build_architecture, self.target_distro, self.builder,
 			' '.join(map(quote, arguments)))
 
 def ask(question):

@@ -99,6 +99,11 @@ saved in the results subdirectory of each build environment.
 .PP
 The default authentication method is \fBsudo\fP. You can change this by
 setting the \fBPBUILDAUTH\fP variable.
+.PP
+You may also want to know that \fBpbuilder\-dist\fP exports \fBDIST\fP and
+\fBARCH\fP environment variables to the invoked process, containing the name
+of the distribution and the architecture targeted by the current build. You
+can make use of them, for example, in \fBpbuilderrc\fP.
 
 .SH BUGS
 If you experience any problem with this script contact me on rainct@ubuntu.com
