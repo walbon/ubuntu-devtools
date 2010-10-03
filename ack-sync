@@ -197,7 +197,12 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		else:
 			version = get_version(bug.title)
 
-		if not series.main_archive.isSourceUploadAllowed(person=launchpad.me,
+		src_pkg = series.getSourcePackage(name=package)
+		if src_pkg is None:
+			print "%s is NEW in %s." % (package, dist)
+		if src_pkg is not None and not series.main_archive.checkUpload(
+				component=src_pkg.latest_published_component_name,
+				distroseries=series, person=launchpad.me, pocket='Release',
 				sourcepackagename=package):
 			print >> sys.stderr, ("E: Sorry, you are not allowed to "
 				'upload package "%s" to %s.' % (package, dist))
