@@ -143,7 +143,7 @@ def unsubscribe_sponsors(launchpad, bug):
 
 
 def main(bug_numbers, all_package, all_version, all_section, update,
-         all_uploader_email, key, verbose=False, silent=False):
+         all_uploader_email, key, upload, verbose=False, silent=False):
 	launchpad = get_launchpad("ubuntu-dev-tools")
 	# TODO: use release-info (once available)
 	series = launchpad.distributions["ubuntu"].current_series
@@ -235,19 +235,31 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		print bug.title
 		print '%s (was %s)' % (task.status, old_status)
 		print "Uploader:", uploader_name + " <" + uploader_email + ">"
+		if upload:
+			print "Will upload sync directly, rather than subscribing ubuntu-archive"
 		try:
 			raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
 		except KeyboardInterrupt:
 			continue
 
-		task.status = 'Fix Committed'
-		task.assignee = None
-		print "unassigned me"
-		task.lp_save()
 		bug.subscribe(person=launchpad.me)
 		print "subscribed me"
-		changes_file = dsc_file[:-4] + "_source.changes"
-		subprocess.check_call(["dput", "ubuntu", changes_file])
+		if upload:
+			task.status = 'Fix Committed'
+			task.assignee = None
+			print "unassigned me"
+			task.lp_save()
+			changes_file = dsc_file[:-4] + "_source.changes"
+			subprocess.check_call(["dput", "ubuntu", changes_file])
+		else:
+			task.status = 'Confirmed'
+			task.assignee = None
+			print "unassigned me"
+			task.lp_save()
+			bug.newMessage(content="Sync request ACK'd", subject="ack-sync")
+			bug.subscribe(person=launchpad.people['ubuntu-archive'])
+			print "subscribed ubuntu-archive"
+
 
 def usage():
 	print """ack-sync <bug numbers>
@@ -264,19 +276,23 @@ def usage():
   -S, --with-sbuild         use sbuild instead of pbuilder
   -C, --pbuilder=<command>  use <command> as pbuilder
   -u, --update              updates pbuilder before building
+  -U, --upload              upload the sync immediately rather than ACK-ing it
+                            for the archive admins
   -v, --verbose             be more verbosive
   -V, --version=<version>   set the version"""
 
 if __name__ == '__main__':
 	try:
-		long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent", "update",
-				"verbose", "version=", "with-sbuild", 'pbuilder=', "with-piuparts"]
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uvV:", long_opts)
+		long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent",
+				"update", "upload", "verbose", "version=", "with-sbuild",
+				"pbuilder=", "with-piuparts"]
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:fhk:p:PsSC:uvV:", long_opts)
 	except getopt.GetoptError, e:
 		# will print something like "option -a not recognized"
 		print >> sys.stderr, str(e)
 		sys.exit(COMMAND_LINE_SYNTAX_ERROR)
 
+	upload = False
 	package = None
 	sbuild = False
 	section = None
@@ -314,6 +330,8 @@ if __name__ == '__main__':
 		    pbuilder=a
 		elif o in ("-u", "--update"):
 			update = True
+		elif o in ("-U", "--upload"):
+			upload = True
 		elif o in ("-v", "--verbose"):
 			verbose = True
 		elif o in ("-V", "--version"):
@@ -336,4 +354,5 @@ if __name__ == '__main__':
 			sys.exit(COMMAND_LINE_SYNTAX_ERROR)
 		bug_numbers.append(number)
 
-	main(bug_numbers, package, version, section, update, uploader_email, key, verbose, silent)
+	main(bug_numbers, package, version, section, update, uploader_email, key,
+		upload, verbose, silent)
