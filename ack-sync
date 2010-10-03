@@ -286,7 +286,7 @@ if __name__ == '__main__':
 		long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent",
 				"update", "upload", "verbose", "version=", "with-sbuild",
 				"pbuilder=", "with-piuparts"]
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:fhk:p:PsSC:uvV:", long_opts)
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uUvV:", long_opts)
 	except getopt.GetoptError, e:
 		# will print something like "option -a not recognized"
 		print >> sys.stderr, str(e)
