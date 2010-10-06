@@ -105,7 +105,7 @@ echo "exec $(sed -n -e '/^  $ /s/^  $ dpkg-genchanges/dpkg-buildpackage/p' REPOR
 chmod +x merge-buildpackage
 
 echo "#!/bin/sh" > merge-debuild
-echo "exec $(sed -n -e '/^  $ /s/^  $ dpkg-genchanges/debuild/p' REPORT \"\$@\"" \
+echo "exec $(sed -n -e '/^  $ /s/^  $ dpkg-genchanges/debuild/p' REPORT) \"\$@\"" \
     >> merge-debuild
 chmod +x merge-debuild
 
