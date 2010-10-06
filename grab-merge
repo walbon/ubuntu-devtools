@@ -104,7 +104,12 @@ echo "exec $(sed -n -e '/^  $ /s/^  $ dpkg-genchanges/dpkg-buildpackage/p' REPOR
     >> merge-buildpackage
 chmod +x merge-buildpackage
 
-echo "Run ../merge-genchanges or ../merge-buildpackage when done"
+echo "#!/bin/sh" > merge-debuild
+echo "exec $(sed -n -e '/^  $ /s/^  $ dpkg-genchanges/debuild/p' REPORT \"\$@\"" \
+    >> merge-debuild
+chmod +x merge-debuild
+
+echo "Run ../merge-genchanges , ../merge-buildpackage or ../merge-debuild when done"
 
 if grep "^Vcs-" *.dsc >/dev/null; then
     echo
