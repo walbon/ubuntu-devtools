@@ -1,8 +1,12 @@
 ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
 
+  [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist, doc/pbuilder-dist.1:
      - Export the distribution and architecture information to the environment
        so that it is available in pbuilderrc, etc. (LP: #628933).
+
+  [ Naty Bidart ]
+  * lp-project-upload: Add support handling multiple project series.
 
  -- Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>  Sun, 26 Sep 2010 17:36:59 +0200
 

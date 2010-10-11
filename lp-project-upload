@@ -30,11 +30,30 @@ def create_release(project, version):
     answer = sys.stdin.readline().strip()
     if answer.startswith('n'):
         sys.exit(0)
-    if len(proj.series) != 1:
-        print >> sys.stderr, 'Does not support creating releases if more than one series exists.'
+
+    n_series = len(proj.series)
+    if n_series == 1:
+        series = proj.series[0]
+    elif n_series > 1:
+        msg = 'More than one series exist. Which one would you like to ' \
+              'upload to? Possible series are (listed as index, name):'
+        print msg
+        for idx, serie in enumerate(proj.series):
+            print '\t%i - %s' % (idx, serie.name)
+        print 'Enter series index: '
+        answer = sys.stdin.readline().strip()
+        try:
+            series = proj.series[int(answer)]
+        except (ValueError, IndexError):
+            print >> sys.stderr, 'The series index is invalid (%s).' % answer
+            sys.exit(3)
+        else:
+            print "Using series named '%s'" % series.name
+    else:
+        print >> sys.stderr, 'Does not support creating releases if no series exists.'
         sys.exit(3)
+
     release_date = datetime.date.today().strftime('%Y-%m-%d')
-    series = proj.series[0]
     milestone = series.newMilestone(name=version,
             date_targeted=release_date)
     return milestone.createProductRelease(date_released=release_date)
