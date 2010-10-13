@@ -367,6 +367,8 @@ debian)
     if [ "$RELEASE" = 'unstable' ] || [ "$RELEASE" = 'sid' ]; then
         SKIP_SECURITY=1
     fi
+    # Keep the chroot as minimal as possible
+    BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
     ;;
 *)
     echo "Unknown --distro '$DISTRO': aborting" >&2
