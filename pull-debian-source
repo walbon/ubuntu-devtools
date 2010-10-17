@@ -26,6 +26,7 @@ use AptPkg::Version;
 
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
+my($name)=basename($0);
 my($package)=$ARGV[0] || &usage();
 my($help)=0;
 GetOptions('help' => \$help);
@@ -81,7 +82,7 @@ sub getMadison {
 	my($url)=shift || die("No URL Passed to getMadison: $!\n");
 	chomp $url;
 	my($madison)=get($url);
-	die("Could Not Get $url") unless (defined $madison && $madison!~m/^\s*$/);
+	die("The source package $package isn't available in Debian testing.\nRun $name $package unstable if the package has not yet migrated from Debian unstable to Debian testing.\n") unless ($release=~m/testing/ && $madison!~m/^\s*$/);
 	return $madison;
 }
 sub getDSC {
@@ -131,7 +132,6 @@ sub getDSC {
 
 }
 sub usage {
-	my($name)=basename($0);
 	die("USAGE: $name [-h] <source package> [target release]\n");
 }
 sub invalidRelease {

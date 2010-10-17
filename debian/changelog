@@ -11,7 +11,11 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   [ Kees Cook ]
   * mk-sbuild: use --no-install-recommends on Debian too (Closes: 599699).
 
- -- Kees Cook <kees@ubuntu.com>  Wed, 13 Oct 2010 13:20:53 -0700
+  [ Marco Rodrigues ]
+  * pull-debian-source:
+     - Show message when a package isn't in Debian testing (LP: #529041).
+
+ -- Kees Cook <kees@ubuntu.com>  Sun, 17 Oct 2010 12:07:12 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
 
