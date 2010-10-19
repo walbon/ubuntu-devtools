@@ -125,7 +125,7 @@ def get_email_from_file(name):
 		csvfile = open(filename)
 		csv_reader = csv.reader(csvfile)
 		for row in csv_reader:
-			if row[0] == name:
+			if row and row[0] == name:
 				return row[1]
 	return None
 
@@ -169,7 +169,7 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			try:
 				uploader_email =  uploader.preferred_email_address.email
 			except ValueError:
-				uploader_email = get_email_from_file(uploader_name)
+				uploader_email = get_email_from_file(uploader.name)
 				if uploader_email is None:
 					if not silent:
 						print >> sys.stderr, "E: Bug owner '%s' does not have a public email address. Specify uploader with '-e'." % (uploader_name)
