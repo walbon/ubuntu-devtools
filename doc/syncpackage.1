@@ -13,6 +13,15 @@ Debian ones, as the common script used by Ubuntu archive administrators does,
 this way you can preserve source files integrity between the two distributions.
 .PP
 \fBsyncpackage\fR will detect source tarballs with mismatching checksums and will automatically create fake syncs instead.
+.SH WARNING
+The use of \fBsyncpackage\fR is discouraged by the Ubuntu Archive
+Administrators, as it introduces an unnecessary window for error.
+In future launchpad will offer the ability to directly perform sync
+requests, without a developer having to do an upload.
+Until then, it's advised to use \fBsyncpackage\fR with caution, and
+request syncs via bugs with
+.BR requestsync (1)
+where possible.
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
