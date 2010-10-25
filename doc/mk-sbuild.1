@@ -56,7 +56,8 @@ Specify a volume group, and subsequently use a default SCHROOT_TYPE of
 .TP
 .B \-\-type=SHROOT_TYPE
 Specify a SCHROOT_TYPE.  Supported values are "directory" (default if
-\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified), and "file".
+\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified), 
+"btrfs-snapshot", and "file".
 
 .SH ENVIRONMENT VARIABLES
 .TP
@@ -88,6 +89,11 @@ use SOURCE_CHROOTS_DIR as home of schroot source directories. (default
 .B SOURCE_CHROOTS_TGZ
 use SOURCE_CHROOTS_TGZ as home of schroot source tarballs. (default
 /var/lib/schroot/tarballs)
+.TP
+.B CHROOT_SNAPSHOT_DIR
+use CHROOT_SNAPSHOT_DIR as home of mounted btfrs snapshots (default
+/var/lib/schroot/snapshots)
+
 
 .SH FILES
 .TP
