@@ -315,12 +315,13 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 
 		# remove signature and sign package
 		remove_signature(dscname)
-		cmd = ["debsign", changes_file]
-		if not keyid is None:
-			cmd.insert(1, "-k" + keyid)
-		if verbose:
-			print_command(script_name, cmd)
-		subprocess.check_call(cmd)
+		if keyid is not False:
+			cmd = ["debsign", changes_file]
+			if not keyid is None:
+				cmd.insert(1, "-k" + keyid)
+			if verbose:
+				print_command(script_name, cmd)
+			subprocess.check_call(cmd)
 	else:
 		# Create fakesync changelog entry
 		new_ver = Version(new_ver.full_version + "fakesync1")
@@ -413,6 +414,8 @@ if __name__ == "__main__":
 			default = os.environ["DEBEMAIL"])
 	parser.add_option("-k", "--key", dest="keyid",
 			help="Specify the key ID to be used for signing.", default=None)
+	parser.add_option('-u', '--unsigned', dest='keyid', action='store_false',
+			help='Do not sign the upload')
 	parser.add_option("-b", "--bug", metavar="BUG",
 			help="Mark a Launchpad bug as being fixed by this upload",
 			dest="bugs", action="append", default=list())

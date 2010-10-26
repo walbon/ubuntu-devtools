@@ -18,8 +18,11 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * doc/syncpackage.1:
      - Add a warning that the use of syncpackage is discouraged.
+     - Correct and neaten options.
+  * syncpackage:
+     - Add -u parameter, to disable signing.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Fri, 22 Oct 2010 17:23:58 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Tue, 26 Oct 2010 12:31:55 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
 

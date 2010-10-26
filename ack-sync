@@ -53,7 +53,8 @@ def LogCall(command):
 	logging.info("Running %s", " ".join(command))
 	return command
 
-def get_source(package, version, section, dist, uploader_name, uploader_email, bug, key):
+def get_source(package, version, section, dist, uploader_name, uploader_email,
+               bug, key, upload):
 	if os.path.isdir("/tmpfs"):
 		workdir = "/tmpfs/ack-sync"
 	else:
@@ -69,7 +70,9 @@ def get_source(package, version, section, dist, uploader_name, uploader_email, b
 		cmd += ["-e", uploader_email]
 	if uploader_name is not None:
 		cmd += ["-n", uploader_name]
-	if key is not None:
+	if not upload:
+		cmd += ['-u',]
+	if upload and key is not None:
 		cmd += ["-k", key]
 	subprocess.check_call(cmd)
 
@@ -238,7 +241,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		print "package:", package
 		print "version:", version
 		dsc_file = get_source(package, version, all_section, dist,
-		                      uploader_name, uploader_email, bug_number, key)
+		                      uploader_name, uploader_email, bug_number, key,
+		                      upload)
 
 		# extract source
 		subprocess.check_call(["dpkg-source", "-x", dsc_file])

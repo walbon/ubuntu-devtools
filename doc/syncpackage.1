@@ -27,31 +27,34 @@ where possible.
 \fB\-h\fR, \fB\-\-help\fR
 Show help message and exit
 .TP
-\fB\-d\fR DIST, \fB\-\-distribution\fR=\fIDIST\fR
+\fB\-d\fI DIST\fR, \fB\-\-distribution\fR=\fIDIST\fR
 Debian distribution to sync from.
 .TP
-\fB\-r\fR RELEASE, \fB\-\-release\fR=\fIRELEASE\fR
+\fB\-r\fI RELEASE\fR, \fB\-\-release\fR=\fIRELEASE\fR
 Specify target Ubuntu release.
 .TP
-\fB\-V\fR DEBVERSION, \fB\-\-debian\-version\fR=\fIDEBVERSION\fR
+\fB\-V\fI DEBVERSION\fR, \fB\-\-debian\-version\fR=\fIDEBVERSION\fR
 Specify the version to sync from.
 .TP
-\fB\-c\fR COMPONENT, \fB\-\-component\fR=\fICOMPONENT\fR
+\fB\-c\fI COMPONENT\fR, \fB\-\-component\fR=\fICOMPONENT\fR
 Specify the component to sync from.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 print more information
 .TP
-\fB\-u\fR UPLOADER, \fB\-\-uploader\fR=\fIUPLOADER\fR
+\fB\-n\fI UPLOADER\fR, \fB\-\-uploader\fR=\fIUPLOADER\fR
 Use UPLOADER as the name and email address of the
 maintainer for this upload instead of evaluating
 DEBFULLNAME and DEBEMAIL.
 .TP
-\fB\-k\fR KEYID, \fB\-\-key\fR=\fIKEYID\fR
+\fB\-k\fI KEYID\fR, \fB\-\-key\fR=\fIKEYID\fR
 Specify the key ID to be used for signing.
 .TP
-\fB\-b\fR BUG, \fB\-\-bug\fR=\fIBUG\fR
-Mark a Launchpad bug as being fixed by this upload
+\fB\-u\fR, \fB\-\-unsigned\fR
+Do not sign the upload.
+.TP
+\fB\-b\fI BUG\fR, \fB\-\-bug\fR=\fIBUG\fR
+Mark a Launchpad bug as being fixed by this upload.
 .PP
 .SH AUTHOR
 \fBsyncpackage\fR was written by Martin Pitt <martin.pitt@canonical.com> and Benjamin Drung <bdrung@ubuntu.com>.
