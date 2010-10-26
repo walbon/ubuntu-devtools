@@ -99,6 +99,7 @@ LV_SIZE="5G"
 SNAPSHOT_SIZE="4G"
 SOURCE_CHROOTS_DIR="/var/lib/schroot/chroots"
 SOURCE_CHROOTS_TGZ="/var/lib/schroot/tarballs"
+CHROOT_SNAPSHOT_DIR="/var/lib/schroot/snapshots"
 
 function usage()
 {
@@ -117,7 +118,7 @@ function usage()
     echo "  --distro=DISTRO            Install specific distro:"
     echo "                                 'ubuntu'(default), or 'debian'"
     echo "  --type=SCHROOT_TYPE        Define the schroot type:"
-    echo "                                 'directory'(default), or 'file'"
+    echo "                                 'directory'(default), 'file', or 'btrfs-snapshot'"
     echo "                                 'lvm-snapshot' is selected via --vg"
     echo ""
     echo "Configuration (via ~/.mk-sbuild.rc)"
@@ -125,6 +126,7 @@ function usage()
     echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
     echo "  SOURCE_CHROOTS_DIR         Directory to store directory source chroots"
     echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
+    echo "  CHROOT_SNAPSHOT_DIR        Directory to mount open btrfs snaphshot chroots (default ${CHROOT_SNAPSHOT_DIR})"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
@@ -283,6 +285,15 @@ case "$SCHROOT_TYPE" in
     # Set up some variables for use in the paths and names
     CHROOT_PATH="${SOURCE_CHROOTS_TGZ}/${CHROOT_NAME}.tgz"
     ;;
+"btrfs-snapshot")
+    if [ ! -d "${SOURCE_CHROOTS_DIR}" ]; then
+	sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
+    fi
+    if [ ! -d "${CHROOT_SNAPSHOT_DIR}" ]; then
+	sudo mkdir -p "${CHROOT_SNAPSHOT_DIR}"
+    fi
+    CHROOT_PATH="${SOURCE_CHROOTS_DIR}/${CHROOT_NAME}"
+    ;;
 *)
     echo 'unknown source type!?' >&2
     exit 1
@@ -419,6 +430,14 @@ case "$SCHROOT_TYPE" in
     fi
     sudo mkdir -p "${MNT}"
     ;;
+"btrfs-snapshot")
+    MNT="${CHROOT_PATH}"
+    if sudo btrfs subvolume list "${MNT}" >/dev/null 2>&1; then
+        echo "E: Subvolume ${MNT} already exists; aborting" >&2
+        exit 1
+    fi
+    sudo btrfs subvolume create "${MNT}"
+    ;;
 "file")
     MNT=`mktemp -d -t schroot-XXXXXX`
 esac
@@ -496,6 +515,12 @@ union-type=aufs
 ${SCHROOT_TYPE}=CHROOT_PATH
 EOM
     ;;
+    btrfs-snapshot)
+        cat >> "${TEMP_SCHROOTCONF}" <<EOM
+btrfs-source-subvolume=CHROOT_PATH
+btrfs-snapshot-directory=CHROOT_SNAPSHOT_DIR
+EOM
+    ;;	
     esac
 fi
 if [ ! -z "$personality" ]; then
@@ -509,6 +534,7 @@ cat "$TEMP_SCHROOTCONF" | sed \
         -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
         -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
         -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
+        -e "s|CHROOT_SNAPSHOT_DIR|$CHROOT_SNAPSHOT_DIR|g" \
         | \
         sudo bash -c "cat >> /etc/schroot/schroot.conf"
 rm -f "$TEMP_SCHROOTCONF"
@@ -544,7 +570,7 @@ case "$SCHROOT_TYPE" in
     sudo umount "$MNT"
     rmdir "$MNT"
     ;;
-"directory")
+"directory"|"btrfs-snapshot")
     ;;
 "file")
     cd "$MNT"

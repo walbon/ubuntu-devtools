@@ -22,6 +22,9 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   * syncpackage:
      - Add -u parameter, to disable signing.
 
+  [ Christopher James Halse Rogers ]
+  * mk-sbuild: Add support for btrfs-snapshot based chroots
+
  -- Stefano Rivera <stefanor@ubuntu.com>  Tue, 26 Oct 2010 12:31:55 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
