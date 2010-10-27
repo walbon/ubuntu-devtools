@@ -347,13 +347,15 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid
 		
 		# Build source package
 		cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
+		env = os.environ
+		env['DEB_VENDOR'] = 'Ubuntu'
 		if need_orig:
 			cmd += ['-sa']
-		if not keyid is None:
+		if keyid:
 			cmd += ["-k" + keyid]
 		if verbose:
 			print_command(script_name, cmd)
-		subprocess.check_call(cmd)
+		subprocess.check_call(cmd, env=env)
 
 def get_debian_dscurl(package, dist, release, version=None, component=None):
 	if dist is None:
@@ -414,7 +416,7 @@ if __name__ == "__main__":
 			default = os.environ["DEBEMAIL"])
 	parser.add_option("-k", "--key", dest="keyid",
 			help="Specify the key ID to be used for signing.", default=None)
-	parser.add_option('-u', '--unsigned', dest='keyid', action='store_false',
+	parser.add_option('--dont-sign', dest='keyid', action='store_false',
 			help='Do not sign the upload')
 	parser.add_option("-b", "--bug", metavar="BUG",
 			help="Mark a Launchpad bug as being fixed by this upload",

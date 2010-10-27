@@ -71,7 +71,7 @@ def get_source(package, version, section, dist, uploader_name, uploader_email,
 	if uploader_name is not None:
 		cmd += ["-n", uploader_name]
 	if not upload:
-		cmd += ['-u',]
+		cmd += ['--dont-sign',]
 	if upload and key is not None:
 		cmd += ["-k", key]
 	subprocess.check_call(cmd)
@@ -243,6 +243,9 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		dsc_file = get_source(package, version, all_section, dist,
 		                      uploader_name, uploader_email, bug_number, key,
 		                      upload)
+
+		if dsc_file.endswith('fakesync1.dsc'):
+			upload = True
 
 		# extract source
 		subprocess.check_call(["dpkg-source", "-x", dsc_file])
