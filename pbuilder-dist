@@ -218,6 +218,8 @@ class pbuilder_dist:
 		
 		if self.target_distro in debian_distros:
 			arguments.append('--mirror "ftp://ftp.debian.org/debian"')
+			# work around bug #599695
+			arguments.append('--debootstrapopts --keyring=/usr/share/keyrings/debian-archive-keyring.gpg')
 			components = 'main'
 			if self.extra_components:
 				components += ' contrib non-free'
