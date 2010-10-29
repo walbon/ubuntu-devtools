@@ -25,6 +25,10 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   [ Christopher James Halse Rogers ]
   * mk-sbuild: Add support for btrfs-snapshot based chroots
 
+  [ Iain Lane ]
+  * pbuilder-dist: Explicitly use debian keyring when working with a
+    Debian chroot, working around #599695
+
  -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 27 Oct 2010 23:20:06 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
