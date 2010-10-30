@@ -109,11 +109,14 @@ class Version(debian.debian_support.Version):
         return self.full_version.find('ubuntu') > 0
 
 
+def quote_parameter(parameter):
+    if parameter.find(" ") >= 0:
+        return '"' + parameter + '"'
+    else:
+        return parameter
+
 def print_command(script_name, cmd):
-    for i in xrange(len(cmd)):
-        if cmd[i].find(" ") >= 0:
-            cmd[i] = '"' + cmd[i] + '"'
-    print "%s: I: %s" % (script_name, " ".join(cmd))
+    print "%s: I: %s" % (script_name, " ".join(map(quote_parameter, cmd)))
 
 def remove_signature(dscname, script_name=None, verbose=False):
     '''Removes the signature from a .dsc file if the .dsc file is signed.'''

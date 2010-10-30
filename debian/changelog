@@ -30,9 +30,11 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
     Debian chroot, working around #599695
 
   [ Benjamin Drung ]
-  * syncpackage: Don't crash if environment variables aren't set (LP: #665202).
+  * syncpackage:
+    - Don't crash if environment variables aren't set (LP: #665202).
+    - Don't add quotation marks to changelog entries (LP: #668805).
 
- -- Benjamin Drung <skipper@deep-thought>  Sat, 30 Oct 2010 19:12:08 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 30 Oct 2010 19:56:33 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
 
