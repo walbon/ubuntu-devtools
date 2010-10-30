@@ -216,8 +216,10 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
 
     # No need to continue if version is not greater than current one
     if new_ver <= ubuntu_ver:
-        raise Exception('%s version %s is not greater than already available '
-                        '%s' % (srcpkg, new_ver, ubuntu_ver))
+        parameters = (script_name, srcpkg, new_ver, ubuntu_ver)
+        print >> sys.stderr, ("%s: Error: %s version %s is not greater than "
+                              "already available %s") % parameters
+        sys.exit(1)
     if verbose:
         print '%s: D: Source %s: current version %s, new version %s' % \
               (script_name, srcpkg, ubuntu_ver, new_ver)
