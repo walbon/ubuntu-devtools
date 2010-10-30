@@ -372,7 +372,12 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
             cmd += ["-k" + keyid]
         if verbose:
             print_command(script_name, cmd)
-        subprocess.check_call(cmd, env=env)
+        returncode = subprocess.call(cmd, env=env)
+        if returncode != 0:
+            print >> sys.stderr, ("%s: Error: Source-only build with debuild "
+                                  "failed. Please check build log above.") % \
+                                 (script_name)
+            sys.exit(1)
 
 def get_debian_dscurl(package, dist, release, version=None, component=None):
     if dist is None:
