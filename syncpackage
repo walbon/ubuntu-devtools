@@ -31,430 +31,446 @@ import sys
 import urllib
 
 # ubuntu-dev-tools modules
-from ubuntutools.requestsync.mail import getDebianSrcPkg as ubuntutools_requestsync_mail_getDebianSrcPkg
+from ubuntutools.requestsync.mail import getDebianSrcPkg as requestsync_mail_getDebianSrcPkg
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Launchpad
 
 class File(object):
-	def __init__(self, url, checksum, size):
-		self.url = url
-		self.name = os.path.basename(url)
-		self.checksum = checksum
-		self.size = size
+    def __init__(self, url, checksum, size):
+        self.url = url
+        self.name = os.path.basename(url)
+        self.checksum = checksum
+        self.size = size
 
-	def __repr__(self):
-		return self.name + " (" + self.checksum + " " + self.size + ") source " + \
-				str(bool(self.is_source_file()))
+    def __repr__(self):
+        return self.name + " (" + self.checksum + " " + self.size + \
+               ") source " + str(bool(self.is_source_file()))
 
-	def __eq__(self, other):
-		return self.name == other.name and self.checksum == other.checksum and \
-				self.size == other.size
+    def __eq__(self, other):
+        return self.name == other.name and self.checksum == other.checksum and \
+               self.size == other.size
 
-	def get_name(self):
-		return self.name
+    def get_name(self):
+        return self.name
 
-	def is_source_file(self):
-		return re.match(".*\.orig.*\.tar\..*", self.name)
+    def is_source_file(self):
+        return re.match(".*\.orig.*\.tar\..*", self.name)
 
-	def download(self, script_name=None, verbose=False):
-		'''Download file (by URL)  to the current directory.
+    def download(self, script_name=None, verbose=False):
+        '''Download file (by URL)  to the current directory.
 
-		If the file is already present, this function does nothing.'''
+        If the file is already present, this function does nothing.'''
 
-		file_exists = os.path.exists(self.name)
+        file_exists = os.path.exists(self.name)
 
-		if file_exists:
-			# Check for correct checksum
-			m = hashlib.md5()
-			m.update(open(self.name).read())
-			file_exists = m.hexdigest() == self.checksum
+        if file_exists:
+            # Check for correct checksum
+            m = hashlib.md5()
+            m.update(open(self.name).read())
+            file_exists = m.hexdigest() == self.checksum
 
-		if not file_exists:
-			if verbose:
-				print '%s: I: Downloading %s...' % (script_name, self.url)
-			try:
-				urllib.urlretrieve(self.url, self.name)
-			except IOError as e:
-				print >> sys.stderr, "%s: Error: Failed to download %s [Errno %i]: %s." % \
-						(script_name, self.name, e.errno, e.strerror)
-				sys.exit(1)
+        if not file_exists:
+            if verbose:
+                print '%s: I: Downloading %s...' % (script_name, self.url)
+            try:
+                urllib.urlretrieve(self.url, self.name)
+            except IOError as e:
+                parameters = (script_name, self.name, e.errno, e.strerror)
+                print >> sys.stderr, ("%s: Error: Failed to download %s "
+                                      "[Errno %i]: %s.") % parameters
+                sys.exit(1)
 
 
 class Version(debian.debian_support.Version):
-	def strip_epoch(self):
-		'''Removes the epoch from a Debian version string.
-	
-		strip_epoch(1:1.52-1) will return "1.52-1" and strip_epoch(1.1.3-1) will
-		return "1.1.3-1".'''
+    def strip_epoch(self):
+        '''Removes the epoch from a Debian version string.
 
-		parts = self.full_version.split(':')
-		if len(parts) > 1:
-			del parts[0]
-		version_without_epoch = ':'.join(parts)
-		return version_without_epoch
+        strip_epoch(1:1.52-1) will return "1.52-1" and strip_epoch(1.1.3-1) will
+        return "1.1.3-1".'''
 
-	def get_related_debian_version(self):
-		related_debian_version = self.full_version
-		uidx = related_debian_version.find('ubuntu')
-		if uidx > 0:
-			related_debian_version = related_debian_version[:uidx]
-		uidx = related_debian_version.find('build')
-		if uidx > 0:
-			related_debian_version = related_debian_version[:uidx]
-		return Version(related_debian_version)
+        parts = self.full_version.split(':')
+        if len(parts) > 1:
+            del parts[0]
+        version_without_epoch = ':'.join(parts)
+        return version_without_epoch
 
-	def is_modified_in_ubuntu(self):
-		return self.full_version.find('ubuntu') > 0
+    def get_related_debian_version(self):
+        related_debian_version = self.full_version
+        uidx = related_debian_version.find('ubuntu')
+        if uidx > 0:
+            related_debian_version = related_debian_version[:uidx]
+        uidx = related_debian_version.find('build')
+        if uidx > 0:
+            related_debian_version = related_debian_version[:uidx]
+        return Version(related_debian_version)
+
+    def is_modified_in_ubuntu(self):
+        return self.full_version.find('ubuntu') > 0
 
 
 def print_command(script_name, cmd):
-	for i in xrange(len(cmd)):
-		if cmd[i].find(" ") >= 0:
-			cmd[i] = '"' + cmd[i] + '"'
-	print "%s: I: %s" % (script_name, " ".join(cmd))
+    for i in xrange(len(cmd)):
+        if cmd[i].find(" ") >= 0:
+            cmd[i] = '"' + cmd[i] + '"'
+    print "%s: I: %s" % (script_name, " ".join(cmd))
 
 def remove_signature(dscname, script_name=None, verbose=False):
-	'''Removes the signature from a .dsc file if the .dsc file is signed.'''
+    '''Removes the signature from a .dsc file if the .dsc file is signed.'''
 
-	f = open(dscname)
-	if f.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
-		unsigned_file = []
-		# search until begin of body found
-		for l in f:
-			if l.strip() == "":
-				break
+    f = open(dscname)
+    if f.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
+        unsigned_file = []
+        # search until begin of body found
+        for l in f:
+            if l.strip() == "":
+                break
 
-		# search for end of body
-		for l in f:
-			if l.strip() == "":
-				break
-			unsigned_file.append(l)
+        # search for end of body
+        for l in f:
+            if l.strip() == "":
+                break
+            unsigned_file.append(l)
 
-		f.close()
-		f = open(dscname, "w")
-		f.writelines(unsigned_file)
-		f.close()
+        f.close()
+        f = open(dscname, "w")
+        f.writelines(unsigned_file)
+        f.close()
 
 def dsc_getfiles(dscurl):
-	'''Return list of files in a .dsc file (excluding the .dsc file itself).'''
+    '''Return list of files in a .dsc file (excluding the .dsc file itself).'''
 
-	basepath = os.path.dirname(dscurl)
-	dsc = debian.deb822.Dsc(urllib.urlopen(dscurl))
+    basepath = os.path.dirname(dscurl)
+    dsc = debian.deb822.Dsc(urllib.urlopen(dscurl))
 
-	if 'Files' not in dsc:
-		print >> sys.stderr, "%s: Error: No Files field found in the dsc file. Please check %s!" % \
-				(script_name, os.path.basename(dscurl))
-		sys.exit(1)
+    if 'Files' not in dsc:
+        parameters = (script_name, os.path.basename(dscurl))
+        print >> sys.stderr, ("%s: Error: No Files field found in the dsc "
+                              "file. Please check %s!") % parameters
+        sys.exit(1)
 
-	files = []
-	for f in dsc['Files']:
-		url = os.path.join(basepath, f['name'])
-		if not f['name'].endswith('.dsc'):
-			files.append(File(url, f['md5sum'], f['size']))
-	return files
+    files = []
+    for f in dsc['Files']:
+        url = os.path.join(basepath, f['name'])
+        if not f['name'].endswith('.dsc'):
+            files.append(File(url, f['md5sum'], f['size']))
+    return files
 
 def add_fixed_bugs(changes, bugs, script_name=None, verbose=False):
-	'''Add additional Launchpad bugs to the list of fixed bugs in changes file.'''
+    '''Add additional Launchpad bugs to the list of fixed bugs in changes file.'''
 
-	changes = filter(lambda l: l.strip() != "", changes.split("\n"))
-	# Remove duplicates
-	bugs = set(bugs)
+    changes = filter(lambda l: l.strip() != "", changes.split("\n"))
+    # Remove duplicates
+    bugs = set(bugs)
 
-	for i in xrange(len(changes)):
-		if changes[i].startswith("Launchpad-Bugs-Fixed:"):
-			bugs.update(changes[i][22:].strip().split(" "))
-			changes[i] = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
-			break
-		elif i == len(changes) - 1:
-			# Launchpad-Bugs-Fixed entry does not exist in changes file
-			line = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
-			changes.append(line)
+    for i in xrange(len(changes)):
+        if changes[i].startswith("Launchpad-Bugs-Fixed:"):
+            bugs.update(changes[i][22:].strip().split(" "))
+            changes[i] = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
+            break
+        elif i == len(changes) - 1:
+            # Launchpad-Bugs-Fixed entry does not exist in changes file
+            line = "Launchpad-Bugs-Fixed: %s" % (" ".join(bugs))
+            changes.append(line)
 
-	return "\n".join(changes + [""])
+    return "\n".join(changes + [""])
 
-def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs, keyid=None, verbose=False):
-	assert dscurl.endswith(".dsc")
-	dscname = os.path.basename(dscurl)
-	basepath = os.path.dirname(dscurl)
-	(srcpkg, new_ver) = dscname.split('_')
-	uploader = name + " <" + email + ">"
+def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
+             keyid=None, verbose=False):
+    assert dscurl.endswith(".dsc")
+    dscname = os.path.basename(dscurl)
+    basepath = os.path.dirname(dscurl)
+    (srcpkg, new_ver) = dscname.split('_')
+    uploader = name + " <" + email + ">"
 
-	if os.path.exists(os.path.join(basepath, dscname)):
-		dscfile = dscurl
-	else:
-		try:
-			urllib.urlretrieve(dscurl, dscname)
-		except IOError as e:
-			print >> sys.stderr, "%s: Error: Failed to download %s [Errno %i]: %s." % \
-					(script_name, dscname, e.errno, e.strerror)
-			sys.exit(1)
-	dscfile = debian.deb822.Dsc(file(dscname))
-	if "Version" not in dscfile:
-		print >> sys.stderr, "%s: Error: No Version field found in the dsc file. Please check %s!" % \
-				(script_name, dscname)
-		sys.exit(1)
-	new_ver = Version(dscfile["Version"])
+    if os.path.exists(os.path.join(basepath, dscname)):
+        dscfile = dscurl
+    else:
+        try:
+            urllib.urlretrieve(dscurl, dscname)
+        except IOError as e:
+            parameters = (script_name, dscname, e.errno, e.strerror)
+            print >> sys.stderr, ("%s: Error: Failed to download %s "
+                                  "[Errno %i]: %s.") % parameters
+            sys.exit(1)
+    dscfile = debian.deb822.Dsc(file(dscname))
+    if "Version" not in dscfile:
+        print >> sys.stderr, ("%s: Error: No Version field found in the dsc "
+                              "file. Please check %s!") % (script_name, dscname)
+        sys.exit(1)
+    new_ver = Version(dscfile["Version"])
 
-	try:
-		ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
-		ubuntu_ver = Version(ubuntu_source.getVersion())
-		ubuntu_dsc = filter(lambda f: f.endswith(".dsc"), ubuntu_source.sourceFileUrls())
-		assert len(ubuntu_dsc) == 1
-		ubuntu_dsc = ubuntu_dsc[0]
-	except udtexceptions.PackageNotFoundException:
-		ubuntu_ver = Version('~')
-		ubuntu_dsc = None
+    try:
+        ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
+        ubuntu_ver = Version(ubuntu_source.getVersion())
+        ubuntu_dsc = filter(lambda f: f.endswith(".dsc"),
+                            ubuntu_source.sourceFileUrls())
+        assert len(ubuntu_dsc) == 1
+        ubuntu_dsc = ubuntu_dsc[0]
+    except udtexceptions.PackageNotFoundException:
+        ubuntu_ver = Version('~')
+        ubuntu_dsc = None
 
-	# No need to continue if version is not greater than current one
-	if new_ver <= ubuntu_ver:
-		raise Exception('%s version %s is not greater than already available %s' % \
-				(srcpkg, new_ver, ubuntu_ver))
-	if verbose:
-		print '%s: D: Source %s: current version %s, new version %s' % \
-				(script_name, srcpkg, ubuntu_ver, new_ver)
+    # No need to continue if version is not greater than current one
+    if new_ver <= ubuntu_ver:
+        raise Exception('%s version %s is not greater than already available '
+                        '%s' % (srcpkg, new_ver, ubuntu_ver))
+    if verbose:
+        print '%s: D: Source %s: current version %s, new version %s' % \
+              (script_name, srcpkg, ubuntu_ver, new_ver)
 
-	files = dsc_getfiles(dscurl)
-	source_files = filter(lambda f: f.is_source_file(), files)
-	if verbose:
-		print '%s: D: Files: %s' % (script_name, str(map(lambda x: x.get_name(), files)))
-		print '%s: D: Source files: %s' % (script_name, str(map(lambda x: x.get_name(), source_files)))
-	map(lambda f: f.download(verbose), files)
+    files = dsc_getfiles(dscurl)
+    source_files = filter(lambda f: f.is_source_file(), files)
+    if verbose:
+        print '%s: D: Files: %s' % (script_name, str(map(lambda x: x.get_name(),
+                                                         files)))
+        print '%s: D: Source files: %s' % (script_name,
+                                 str(map(lambda x: x.get_name(), source_files)))
+    map(lambda f: f.download(verbose), files)
 
-	if ubuntu_dsc is None:
-		ubuntu_files = None
-	else:
-		ubuntu_files = dsc_getfiles(ubuntu_dsc)
+    if ubuntu_dsc is None:
+        ubuntu_files = None
+    else:
+        ubuntu_files = dsc_getfiles(ubuntu_dsc)
 
-	# do we need the orig.tar.gz?
-	need_orig = True
-	fakesync_files = []
-	if ubuntu_ver.upstream_version == new_ver.upstream_version:
-		# We need to check if all .orig*.tar.* tarballs exist in Ubuntu
-		need_orig = False
-		for source_file in source_files:
-			ubuntu_file = filter(lambda f: f.get_name() == source_file.get_name(), ubuntu_files)
-			if len(ubuntu_file) == 0:
-				# The source file does not exist in Ubuntu
-				if verbose:
-					print "%s: I: %s does not exist in Ubuntu." % \
-							(script_name, source_file.get_name())
-				need_orig = True
-			elif not ubuntu_file[0] == source_file:
-				# The checksum of the files mismatch -> We need a fake sync
-				print "%s: Warning: The checksum of the file %s mismatch. A fake sync is required." % \
-						(script_name, source_file.get_name())
-				fakesync_files.append(ubuntu_file[0])
-				if verbose:
-					print "%s: D: Ubuntu version: %s" % (script_name, ubuntu_file[0])
-					print "%s: D: Debian version: %s" % (script_name, source_file)
-	if verbose:
-		print '%s: D: needs source tarball: %s' % (script_name, str(need_orig))
+    # do we need the orig.tar.gz?
+    need_orig = True
+    fakesync_files = []
+    if ubuntu_ver.upstream_version == new_ver.upstream_version:
+        # We need to check if all .orig*.tar.* tarballs exist in Ubuntu
+        need_orig = False
+        for source_file in source_files:
+            ubuntu_file = filter(lambda f: f.get_name() == source_file.get_name(),
+                                 ubuntu_files)
+            if len(ubuntu_file) == 0:
+                # The source file does not exist in Ubuntu
+                if verbose:
+                    parameters = (script_name, source_file.get_name())
+                    print "%s: I: %s does not exist in Ubuntu." % parameters
+                need_orig = True
+            elif not ubuntu_file[0] == source_file:
+                # The checksum of the files mismatch -> We need a fake sync
+                parameters = (script_name, source_file.get_name())
+                print ("%s: Warning: The checksum of the file %s mismatch. "
+                       "A fake sync is required.") % parameters
+                fakesync_files.append(ubuntu_file[0])
+                if verbose:
+                    print "%s: D: Ubuntu version: %s" % (script_name,
+                                                         ubuntu_file[0])
+                    print "%s: D: Debian version: %s" % (script_name,
+                                                         source_file)
+    if verbose:
+        print '%s: D: needs source tarball: %s' % (script_name, str(need_orig))
 
-	cur_ver = ubuntu_ver.get_related_debian_version()
-	if ubuntu_ver.is_modified_in_ubuntu():
-		print '%s: Warning: Overwriting modified Ubuntu version %s, setting current version to %s' % \
-				(script_name, ubuntu_ver.full_version, cur_ver.full_version)
+    cur_ver = ubuntu_ver.get_related_debian_version()
+    if ubuntu_ver.is_modified_in_ubuntu():
+        params = (script_name, ubuntu_ver.full_version, cur_ver.full_version)
+        print ('%s: Warning: Overwriting modified Ubuntu version %s, '
+               'setting current version to %s') % params
 
-	# extract package
-	cmd = ['dpkg-source', '-x', dscname]
-	if not verbose:
-		cmd.insert(1, "-q")
-	if verbose:
-		print_command(script_name, cmd)
-	subprocess.check_call(cmd)
+    # extract package
+    cmd = ['dpkg-source', '-x', dscname]
+    if not verbose:
+        cmd.insert(1, "-q")
+    if verbose:
+        print_command(script_name, cmd)
+    subprocess.check_call(cmd)
 
-	# Do a fake sync if required
-	if len(fakesync_files) > 0:
-		# Download Ubuntu files (override Debian source tarballs)
-		map(lambda f: f.download(verbose), fakesync_files)
+    # Do a fake sync if required
+    if len(fakesync_files) > 0:
+        # Download Ubuntu files (override Debian source tarballs)
+        map(lambda f: f.download(verbose), fakesync_files)
 
-	# change into package directory
-	directory = srcpkg + '-' + new_ver.upstream_version
-	if verbose:
-		print_command(script_name, ["cd", directory])
-	os.chdir(directory)
+    # change into package directory
+    directory = srcpkg + '-' + new_ver.upstream_version
+    if verbose:
+        print_command(script_name, ["cd", directory])
+    os.chdir(directory)
 
-	# read Debian distribution from debian/changelog if not specified
-	if debian_dist is None:
-		line = open("debian/changelog").readline()
-		debian_dist = line.split(" ")[2].strip(";")
+    # read Debian distribution from debian/changelog if not specified
+    if debian_dist is None:
+        line = open("debian/changelog").readline()
+        debian_dist = line.split(" ")[2].strip(";")
 
-	if len(fakesync_files) == 0:
-		# create the changes file
-		changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
-		cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver.full_version,
-				"-DDistribution=" + release,
-				"-DOrigin=debian/" + debian_dist,
-				"-e" + uploader]
-		if need_orig:
-			cmd.append("-sa")
-		else:
-			cmd.append("-sd")
-		if not verbose:
-			cmd += ["-q"]
-		if verbose:
-			print_command(script_name, cmd + [">", "../" + changes_file])
-		changes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-				env={"DEB_VENDOR": "Ubuntu"}).communicate()[0]
+    if len(fakesync_files) == 0:
+        # create the changes file
+        changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
+        cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver.full_version,
+               "-DDistribution=" + release,
+               "-DOrigin=debian/" + debian_dist,
+               "-e" + uploader]
+        if need_orig:
+            cmd.append("-sa")
+        else:
+            cmd.append("-sd")
+        if not verbose:
+            cmd += ["-q"]
+        if verbose:
+            print_command(script_name, cmd + [">", "../" + changes_file])
+        changes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                  env={"DEB_VENDOR": "Ubuntu"}).communicate()[0]
 
-		# Add additional bug numbers
-		if len(bugs) > 0:
-			changes = add_fixed_bugs(changes, bugs, verbose)
+        # Add additional bug numbers
+        if len(bugs) > 0:
+            changes = add_fixed_bugs(changes, bugs, verbose)
 
-		# remove extracted (temporary) files
-		if verbose:
-			print_command(script_name, ["cd", ".."])
-		os.chdir('..')
-		shutil.rmtree(directory, True)
+        # remove extracted (temporary) files
+        if verbose:
+            print_command(script_name, ["cd", ".."])
+        os.chdir('..')
+        shutil.rmtree(directory, True)
 
-		# write changes file
-		f = open(changes_file, "w")
-		f.writelines(changes)
-		f.close()
+        # write changes file
+        f = open(changes_file, "w")
+        f.writelines(changes)
+        f.close()
 
-		# remove signature and sign package
-		remove_signature(dscname)
-		if keyid is not False:
-			cmd = ["debsign", changes_file]
-			if not keyid is None:
-				cmd.insert(1, "-k" + keyid)
-			if verbose:
-				print_command(script_name, cmd)
-			subprocess.check_call(cmd)
-	else:
-		# Create fakesync changelog entry
-		new_ver = Version(new_ver.full_version + "fakesync1")
-		changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
-		if len(bugs) > 0:
-			message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
-					(", ".join(map(lambda b: "#" + str(b), bugs)))
-		else:
-			message = "Fake sync due to mismatching orig tarball."
-		cmd = ["dch", "-v", new_ver.full_version, "-D", release, message]
-		env = {"DEBFULLNAME": name, "DEBEMAIL": email}
-		if verbose:
-			print_command(script_name, cmd)
-		subprocess.check_call(cmd, env=env)
+        # remove signature and sign package
+        remove_signature(dscname)
+        if keyid is not False:
+            cmd = ["debsign", changes_file]
+            if not keyid is None:
+                cmd.insert(1, "-k" + keyid)
+            if verbose:
+                print_command(script_name, cmd)
+            subprocess.check_call(cmd)
+    else:
+        # Create fakesync changelog entry
+        new_ver = Version(new_ver.full_version + "fakesync1")
+        changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
+        if len(bugs) > 0:
+            message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
+                      (", ".join(map(lambda b: "#" + str(b), bugs)))
+        else:
+            message = "Fake sync due to mismatching orig tarball."
+        cmd = ["dch", "-v", new_ver.full_version, "-D", release, message]
+        env = {"DEBFULLNAME": name, "DEBEMAIL": email}
+        if verbose:
+            print_command(script_name, cmd)
+        subprocess.check_call(cmd, env=env)
 
-		# update the Maintainer field
-		cmd = ["update-maintainer"]
-		if not verbose:
-			cmd.append("-q")
-		if verbose:
-			print_command(script_name, cmd)
-		subprocess.check_call(cmd)
-		
-		# Build source package
-		cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
-		env = os.environ
-		env['DEB_VENDOR'] = 'Ubuntu'
-		if need_orig:
-			cmd += ['-sa']
-		if keyid:
-			cmd += ["-k" + keyid]
-		if verbose:
-			print_command(script_name, cmd)
-		subprocess.check_call(cmd, env=env)
+        # update the Maintainer field
+        cmd = ["update-maintainer"]
+        if not verbose:
+            cmd.append("-q")
+        if verbose:
+            print_command(script_name, cmd)
+        subprocess.check_call(cmd)
+        
+        # Build source package
+        cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
+        env = os.environ
+        env['DEB_VENDOR'] = 'Ubuntu'
+        if need_orig:
+            cmd += ['-sa']
+        if keyid:
+            cmd += ["-k" + keyid]
+        if verbose:
+            print_command(script_name, cmd)
+        subprocess.check_call(cmd, env=env)
 
 def get_debian_dscurl(package, dist, release, version=None, component=None):
-	if dist is None:
-		dist="unstable"
-	if type(version) == str:
-		version = Version(version)
+    if dist is None:
+        dist="unstable"
+    if type(version) == str:
+        version = Version(version)
 
-	if version is None or component is None:
-		debian_srcpkg = getDebianSrcPkg(package, dist)
-		try:
-			ubuntu_version = Version(getUbuntuSrcPkg(package, release).getVersion())
-		except udtexceptions.PackageNotFoundException:
-			ubuntu_version = Version('~')
-		if ubuntu_version >= Version(debian_srcpkg.getVersion()):
-			# The LP importer is maybe out of date
-			debian_srcpkg = ubuntutools_requestsync_mail_getDebianSrcPkg(package, dist)
+    if version is None or component is None:
+        debian_srcpkg = getDebianSrcPkg(package, dist)
+        try:
+            ubuntu_version = Version(getUbuntuSrcPkg(package, release).getVersion())
+        except udtexceptions.PackageNotFoundException:
+            ubuntu_version = Version('~')
+        if ubuntu_version >= Version(debian_srcpkg.getVersion()):
+            # The LP importer is maybe out of date
+            debian_srcpkg = requestsync_mail_getDebianSrcPkg(package, dist)
 
-		if version is None:
-			version = Version(debian_srcpkg.getVersion())
-		if component is None:
-			component = debian_srcpkg.getComponent()
+        if version is None:
+            version = Version(debian_srcpkg.getVersion())
+        if component is None:
+            component = debian_srcpkg.getComponent()
 
-	assert component in ("main", "contrib", "non-free")
+    assert component in ("main", "contrib", "non-free")
 
-	if package.startswith("lib"):
-		group = package[0:4]
-	else:
-		group = package[0]
+    if package.startswith("lib"):
+        group = package[0:4]
+    else:
+        group = package[0]
 
-	dsc_file = package + "_" + version.strip_epoch() + ".dsc"
-	dscurl = os.path.join("http://ftp.debian.org/debian/pool", component, group, package, dsc_file)
-	return dscurl
+    dsc_file = package + "_" + version.strip_epoch() + ".dsc"
+    dscurl = os.path.join("http://ftp.debian.org/debian/pool", component, group,
+                          package, dsc_file)
+    return dscurl
 
 if __name__ == "__main__":
-	script_name = os.path.basename(sys.argv[0])
-	usage = "%s [options] <.dsc URL/path or package name>" % (script_name)
-	epilog = "See %s(1) for more info." % (script_name)
-	parser = optparse.OptionParser(usage=usage, epilog=epilog)
+    script_name = os.path.basename(sys.argv[0])
+    usage = "%s [options] <.dsc URL/path or package name>" % (script_name)
+    epilog = "See %s(1) for more info." % (script_name)
+    parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-	parser.add_option("-d", "--distribution", type = "string",
-			dest = "dist", default = None,
-			help = "Debian distribution to sync from.")
-	parser.add_option("-r", "--release",
-			help="Specify target Ubuntu release.", dest="release", default=None)
-	parser.add_option("-V", "--debian-version",
-			help="Specify the version to sync from.", dest="debversion", default=None)
-	parser.add_option("-c", "--component",
-			help="Specify the Debian component to sync from.", dest="component", default=None)
-	parser.add_option("-v", "--verbose", help="print more information",
-			dest="verbose", action="store_true", default=False)
-	parser.add_option("-n", "--uploader-name", dest="uploader_name",
-			help="Use UPLOADER_NAME as the name of the maintainer "
-			     "for this upload instead of evaluating DEBFULLNAME.",
-			default = os.environ["DEBFULLNAME"])
-	parser.add_option("-e", "--uploader-email", dest="uploader_email",
-			help="Use UPLOADER_EMAIL as email address of the maintainer "
-			     "for this upload instead of evaluating DEBEMAIL.",
-			default = os.environ["DEBEMAIL"])
-	parser.add_option("-k", "--key", dest="keyid",
-			help="Specify the key ID to be used for signing.", default=None)
-	parser.add_option('--dont-sign', dest='keyid', action='store_false',
-			help='Do not sign the upload')
-	parser.add_option("-b", "--bug", metavar="BUG",
-			help="Mark a Launchpad bug as being fixed by this upload",
-			dest="bugs", action="append", default=list())
+    parser.add_option("-d", "--distribution", type="string",
+                      dest="dist", default=None,
+                      help="Debian distribution to sync from.")
+    parser.add_option("-r", "--release", dest="release", default=None,
+                      help="Specify target Ubuntu release.")
+    parser.add_option("-V", "--debian-version", dest="debversion", default=None,
+                      help="Specify the version to sync from.")
+    parser.add_option("-c", "--component", dest="component", default=None,
+                      help="Specify the Debian component to sync from.")
+    parser.add_option("-v", "--verbose", help="print more information",
+                      dest="verbose", action="store_true", default=False)
+    parser.add_option("-n", "--uploader-name", dest="uploader_name",
+                      help="Use UPLOADER_NAME as the name of the maintainer "
+                           "for this upload instead of evaluating DEBFULLNAME.",
+                      default=os.environ["DEBFULLNAME"])
+    parser.add_option("-e", "--uploader-email", dest="uploader_email",
+                      help="Use UPLOADER_EMAIL as email address of the "
+                           "maintainer for this upload instead of evaluating "
+                           "DEBEMAIL.", default=os.environ["DEBEMAIL"])
+    parser.add_option("-k", "--key", dest="keyid", default=None,
+                      help="Specify the key ID to be used for signing.")
+    parser.add_option('--dont-sign', dest='keyid', action='store_false',
+                      help='Do not sign the upload')
+    parser.add_option("-b", "--bug", metavar="BUG",
+                      help="Mark a Launchpad bug as being fixed by this upload",
+                      dest="bugs", action="append", default=list())
 
-	(options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-	if len(args) == 0:
-		print >> sys.stderr, "%s: Error: No .dsc URL/path or package name specified." % \
-				(script_name)
-		sys.exit(1)
-	elif len(args) > 1:
-		print >> sys.stderr, "%s: Error: Multiple .dsc URLs/paths or package names specified: %s" % \
-				(script_name, ", ".join(args))
-		sys.exit(1)
+    if len(args) == 0:
+        print >> sys.stderr, ("%s: Error: No .dsc URL/path or package name "
+                             "specified.") % (script_name)
+        sys.exit(1)
+    elif len(args) > 1:
+        parameters = (script_name, ", ".join(args))
+        print >> sys.stderr, ("%s: Error: Multiple .dsc URLs/paths or "
+                              "package names specified: %s") % parameters
+        sys.exit(1)
 
-	invalid_bug_numbers = filter(lambda x: not x.isdigit(), options.bugs)
-	if len(invalid_bug_numbers) > 0:
-		print >> sys.stderr, "%s: Error: Invalid bug number(s) specified: %s" % \
-				(script_name, ", ".join(invalid_bug_numbers))
-		sys.exit(1)
+    invalid_bug_numbers = filter(lambda x: not x.isdigit(), options.bugs)
+    if len(invalid_bug_numbers) > 0:
+        print >> sys.stderr, "%s: Error: Invalid bug number(s) specified: %s" \
+                             % (script_name, ", ".join(invalid_bug_numbers))
+        sys.exit(1)
 
-	Launchpad.login_anonymously()
-	if options.release is None:
-		options.release = Launchpad.distributions["ubuntu"].current_series.name
+    Launchpad.login_anonymously()
+    if options.release is None:
+        options.release = Launchpad.distributions["ubuntu"].current_series.name
 
-	if args[0].endswith(".dsc"):
-		dscurl = args[0]
-	else:
-		if options.component not in (None, "main", "contrib", "non-free"):
-			print >> sys.stderr, "%s: Error: %s is not a valid Debian component." \
-					" It should be one of main, contrib, or non-free." % \
-					(script_name, options.component)
-			sys.exit(1)
-		dscurl = get_debian_dscurl(args[0], options.dist, options.release,
-				options.debversion, options.component)
+    if args[0].endswith(".dsc"):
+        dscurl = args[0]
+    else:
+        if options.component not in (None, "main", "contrib", "non-free"):
+            parameters = (script_name, options.component)
+            print >> sys.stderr, ("%s: Error: %s is not a valid Debian "
+                                  "component. It should be one of main, "
+                                  "contrib, or non-free.") % parameters
+            sys.exit(1)
+        dscurl = get_debian_dscurl(args[0], options.dist, options.release,
+                                   options.debversion, options.component)
 
-	if options.verbose:
-		print "%s: D: .dsc url: %s" % (script_name, dscurl)
-	sync_dsc(script_name, dscurl, options.dist, options.release, options.uploader_name,
-			options.uploader_email, options.bugs, options.keyid, options.verbose)
+    if options.verbose:
+        print "%s: D: .dsc url: %s" % (script_name, dscurl)
+    sync_dsc(script_name, dscurl, options.dist, options.release,
+             options.uploader_name, options.uploader_email, options.bugs,
+             options.keyid, options.verbose)
