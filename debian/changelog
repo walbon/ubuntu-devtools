@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.105) experimental; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
   * pbuilder-dist, doc/pbuilder-dist.1:
@@ -37,7 +37,7 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
       newer version.
     - Print an error message if the source-only build fails (LP: #668749).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 30 Oct 2010 20:34:55 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 30 Oct 2010 20:58:30 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
 
