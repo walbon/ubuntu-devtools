@@ -9,7 +9,7 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   * lp-project-upload: Add support handling multiple project series.
 
   [ Kees Cook ]
-  * mk-sbuild: use --no-install-recommends on Debian too (Closes: 599699).
+  * mk-sbuild: use --no-install-recommends on Debian too (Closes: #599699).
 
   [ Marco Rodrigues ]
   * pull-debian-source:
