@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
     if options.uploader_name is None:
         if "DEBFULLNAME" in os.environ:
-            options.uploader_name = ["DEBFULLNAME"]
+            options.uploader_name = os.environ["DEBFULLNAME"]
         else:
             print >> sys.stderr, ("%s: Error: No uploader name specified. You "
                                   "must pass the --uploader-name option or set "
@@ -465,7 +465,7 @@ if __name__ == "__main__":
 
     if options.uploader_email is None:
         if "DEBEMAIL" in os.environ:
-            options.uploader_email = ["DEBEMAIL"]
+            options.uploader_email = os.environ["DEBEMAIL"]
         else:
             print >> sys.stderr, ("%s: Error: No uploader email address "
                                   "specified. You must pass the "
