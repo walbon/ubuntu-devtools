@@ -555,7 +555,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
         cmd = ["dch", "--maintmaint", "--edit", ""]
         Print.command(cmd)
         if subprocess.call(cmd) != 0:
-            Print.info("Failed to update timetamp in debian/changelog.")
+            Print.info("Failed to update timestamp in debian/changelog.")
 
         # Build source package
         if patch:
