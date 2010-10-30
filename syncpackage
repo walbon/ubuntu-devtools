@@ -422,11 +422,11 @@ if __name__ == "__main__":
     parser.add_option("-n", "--uploader-name", dest="uploader_name",
                       help="Use UPLOADER_NAME as the name of the maintainer "
                            "for this upload instead of evaluating DEBFULLNAME.",
-                      default=os.environ["DEBFULLNAME"])
+                      default=None)
     parser.add_option("-e", "--uploader-email", dest="uploader_email",
                       help="Use UPLOADER_EMAIL as email address of the "
                            "maintainer for this upload instead of evaluating "
-                           "DEBEMAIL.", default=os.environ["DEBEMAIL"])
+                           "DEBEMAIL.", default=None)
     parser.add_option("-k", "--key", dest="keyid", default=None,
                       help="Specify the key ID to be used for signing.")
     parser.add_option('--dont-sign', dest='keyid', action='store_false',
@@ -452,6 +452,26 @@ if __name__ == "__main__":
         print >> sys.stderr, "%s: Error: Invalid bug number(s) specified: %s" \
                              % (script_name, ", ".join(invalid_bug_numbers))
         sys.exit(1)
+
+    if options.uploader_name is None:
+        if "DEBFULLNAME" in os.environ:
+            options.uploader_name = ["DEBFULLNAME"]
+        else:
+            print >> sys.stderr, ("%s: Error: No uploader name specified. You "
+                                  "must pass the --uploader-name option or set "
+                                  "the DEBFULLNAME environment variable.") % \
+                                 (script_name)
+            sys.exit(1)
+
+    if options.uploader_email is None:
+        if "DEBEMAIL" in os.environ:
+            options.uploader_email = ["DEBEMAIL"]
+        else:
+            print >> sys.stderr, ("%s: Error: No uploader email address "
+                                  "specified. You must pass the "
+                                  "--uploader-email option or set the DEBEMAIL"
+                                  " environment variable.") % (script_name)
+            sys.exit(1)
 
     Launchpad.login_anonymously()
     if options.release is None:

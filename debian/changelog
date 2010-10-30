@@ -29,7 +29,10 @@ ubuntu-dev-tools (0.105) UNRELEASED; urgency=low
   * pbuilder-dist: Explicitly use debian keyring when working with a
     Debian chroot, working around #599695
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 27 Oct 2010 23:20:06 +0200
+  [ Benjamin Drung ]
+  * syncpackage: Don't crash if environment variables aren't set (LP: #665202).
+
+ -- Benjamin Drung <skipper@deep-thought>  Sat, 30 Oct 2010 19:12:08 +0200
 
 ubuntu-dev-tools (0.104) experimental; urgency=low
 
