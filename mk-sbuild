@@ -492,7 +492,6 @@ else
 
 [CHROOT_NAME]
 description=CHROOT_NAME
-priority=3
 groups=sbuild,root,admin
 root-groups=root,sbuild,admin
 # Uncomment these lines to allow "sbuild" and "admin" users to access

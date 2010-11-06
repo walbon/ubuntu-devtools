@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
+
+  * mk-sbuild: drop "priority" option; sbuild no longer uses it.
+
+ -- Kees Cook <kees@ubuntu.com>  Fri, 05 Nov 2010 17:36:28 -0700
+
 ubuntu-dev-tools (0.105) experimental; urgency=low
 
   [ Siegfried-Angel Gevatter Pujals ]
