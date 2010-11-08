@@ -279,7 +279,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			task.assignee = None
 			print "unassigned me"
 			task.lp_save()
-			bug.newMessage(content="Sync request ACK'd", subject="ack-sync")
+			content = "%s %s builds. Sync request ACK'd." % (package, version)
+			bug.newMessage(content=content, subject="ack-sync")
 			bug.subscribe(person=launchpad.people['ubuntu-archive'])
 			print "subscribed ubuntu-archive"
 
