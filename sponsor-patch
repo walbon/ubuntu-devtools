@@ -409,7 +409,7 @@ def merge_branch(branch):
     return edit
 
 def extract_source(dsc_file, verbose=False):
-    cmd = ["dpkg-source", "-x", dsc_file]
+    cmd = ["dpkg-source", "--no-preparation", "-x", dsc_file]
     if not verbose:
         cmd.insert(1, "-q")
     Print.command(cmd)

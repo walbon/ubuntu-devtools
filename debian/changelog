@@ -1,8 +1,13 @@
 ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
 
+  [ Kees Cook ]
   * mk-sbuild: drop "priority" option; sbuild no longer uses it.
 
- -- Kees Cook <kees@ubuntu.com>  Fri, 05 Nov 2010 17:36:28 -0700
+  [ Benjamin Drung ]
+  * sponsor-patch: Call dpkg-source with --no-preparation to not apply patches
+    if the packages uses the 3.0 (quilt) format.
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 20 Nov 2010 22:03:07 +0100
 
 ubuntu-dev-tools (0.105) experimental; urgency=low
 
