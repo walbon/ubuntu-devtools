@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.106) experimental; urgency=low
 
   [ Kees Cook ]
   * mk-sbuild: drop "priority" option; sbuild no longer uses it.
@@ -11,7 +11,7 @@ ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
   [ Michael Bienia ]
   * pull-debian-source: Fix logical error in abort check (lp: #678072).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 21 Nov 2010 15:40:55 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 21 Nov 2010 15:41:43 +0100
 
 ubuntu-dev-tools (0.105) experimental; urgency=low
 
