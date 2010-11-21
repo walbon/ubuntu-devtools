@@ -74,7 +74,7 @@ sub getURL{
 	$package=lc($package);
 	$package=~s/\+/%2b/g;
 	$release=lc($release);
-	my($baseURL)='http://qa.debian.org/madison.php?text=on';
+	my($baseURL)='http://qa.debian.org/madison.php?text=on&a=source';
 	my($url)=$baseURL . '&package=' . $package . '&s=' . $release;
 	return $url;
 }
@@ -82,7 +82,7 @@ sub getMadison {
 	my($url)=shift || die("No URL Passed to getMadison: $!\n");
 	chomp $url;
 	my($madison)=get($url);
-	die("The source package $package isn't available in Debian testing.\nRun $name $package unstable if the package has not yet migrated from Debian unstable to Debian testing.\n") unless ($release=~m/testing/ && $madison!~m/^\s*$/);
+	die("The source package $package isn't available in Debian testing.\nRun $name $package unstable if the package has not yet migrated from Debian unstable to Debian testing.\n") if ($release=~m/testing/ && $madison=~m/^\s*$/);
 	return $madison;
 }
 sub getDSC {

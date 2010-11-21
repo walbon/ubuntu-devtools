@@ -7,7 +7,10 @@ ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
   * sponsor-patch: Call dpkg-source with --no-preparation to not apply patches
     if the packages uses the 3.0 (quilt) format.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 20 Nov 2010 22:03:07 +0100
+  [ Michael Bienia ]
+  * pull-debian-source: Fix logical error in abort check (lp: #678072).
+
+ -- Michael Bienia <geser@ubuntu.com>  Sun, 21 Nov 2010 14:46:12 +0100
 
 ubuntu-dev-tools (0.105) experimental; urgency=low
 
