@@ -6,11 +6,12 @@ ubuntu-dev-tools (0.106) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * sponsor-patch: Call dpkg-source with --no-preparation to not apply patches
     if the packages uses the 3.0 (quilt) format.
+  * debian/control: Use shorter addresses for VCS-* fields.
 
   [ Michael Bienia ]
   * pull-debian-source: Fix logical error in abort check (lp: #678072).
 
- -- Michael Bienia <geser@ubuntu.com>  Sun, 21 Nov 2010 14:46:12 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 21 Nov 2010 15:40:55 +0100
 
 ubuntu-dev-tools (0.105) experimental; urgency=low
 
