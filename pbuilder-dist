@@ -28,7 +28,7 @@
 # configurations. For example, a symlink called pbuilder-hardy will assume
 # that the target distribution is always meant to be Ubuntu Hardy.
 
-import sys
+from sys import exit, argv, stderr
 import os
 
 import ubuntutools.misc
@@ -80,8 +80,8 @@ class pbuilder_dist:
 		paths = set(os.environ['PATH'].split(':'))
 		paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
 		if not any(os.path.exists(os.path.join(p, builder)) for p in paths):
-			print 'Error: Could not find "%s".' % builder
-			sys.exit(1)
+			print >> stderr, 'Error: Could not find "%s".' % builder
+			exit(1)
 		
 		##############################################################
 		
@@ -117,21 +117,22 @@ class pbuilder_dist:
 		"""
 		
 		if not distro.isalpha():
-			print 'Error: «%s» is an invalid distribution codename.' % distro
-			sys.exit(1)
+			print >> stderr, ('Error: "%s" is an invalid distribution codename.'
+			                  % distro)
+			exit(1)
 		
 		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
 			if os.path.isdir('/usr/share/debootstrap/scripts/'):
 				# Debian experimental doesn't have a debootstrap file but
 				# should work nevertheless.
 				if distro not in debian_distros:
-					answer = ask('Warning: Unknown distribution «%s». Do you ' \
+					answer = ask('Warning: Unknown distribution "%s". Do you ' \
 						'want to continue [y/N]? ' % distro)
 					if answer not in ('y', 'Y'):
-						sys.exit(0)
+						exit(0)
 			else:
-				print 'Please install package "debootstrap".'
-				sys.exit(1)
+				print >> stderr, 'Please install package "debootstrap".'
+				exit(1)
 		
 		self.target_distro = distro
 	
@@ -152,12 +153,12 @@ class pbuilder_dist:
 					self.operation = 'build'
 					return [operation]
 				else:
-					print 'Error: Could not find file «%s».' % operation
-					sys.exit(1)
+					print >> stderr, 'Error: Could not find file "%s".' % operation
+					exit(1)
 			else:
-				print 'Error: «%s» is not a recognized argument.' % operation
-				print 'Please use one of those: ' + ', '.join(arguments) + '.'
-				sys.exit(1)
+				print >> stderr, 'Error: "%s" is not a recognized argument.' % operation
+				print >> stderr, 'Please use one of these: %s.' % ', '.join(arguments)
+				exit(1)
 		else:
 			self.operation = operation
 			return []
@@ -191,8 +192,8 @@ class pbuilder_dist:
 		elif self.builder == 'cowbuilder':
 			base = '--basepath "%s-base.cow"' % prefix
 		else:
-			print 'Error: Unrecognized builder "%s".' % self.builder
-			sys.exit(1)
+			print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
+			exit(1)
 		
 		arguments = [
 			'--%s' % self.operation,
@@ -291,7 +292,7 @@ def help(exit_code = 0):
 	
 	print 'See  man pbuilder-dist  for more information.'
 	
-	sys.exit(exit_code)
+	exit(exit_code)
 
 def main():
 	""" main() -> None
@@ -303,19 +304,19 @@ def main():
 	
 	"""
 	
-	script_name = os.path.basename(sys.argv[0])
+	script_name = os.path.basename(argv[0])
 	parts = script_name.split('-')
 	
 	# Copy arguments into another list for save manipulation
-	args = sys.argv[1:]
+	args = argv[1:]
 	
 	if '-' in script_name and (parts[0] != 'pbuilder' and \
 	parts[0] != 'cowbuilder') or len(parts) > 3:
-		print 'Error: «%s» is not a valid name for a «pbuilder-dist» executable.' % script_name
-		sys.exit(1)
+		print >> stderr, 'Error: "%s" is not a valid name for a "pbuilder-dist" executable.' % script_name
+		exit(1)
 	
 	if len(args) < 1:
-		print 'Insufficient number of arguments.'
+		print >> stderr, 'Insufficient number of arguments.'
 		help(1)
 	
 	if args[0] in ('-h', '--help', 'help'):
@@ -347,27 +348,27 @@ def main():
 		("sparc64", "sparc")]:
 			args.append('--debootstrap qemu-debootstrap')
 	
-	if 'mainonly' in sys.argv or '--main-only' in sys.argv:
+	if 'mainonly' in argv or '--main-only' in argv:
 		app.extra_components = False
-		if 'mainonly' in sys.argv:
+		if 'mainonly' in argv:
 			args.remove('mainonly')
 		else:
 			args.remove('--main-only')
 	
 	if len(args) < 1:
-		print 'Insufficient number of arguments.'
+		print >> stderr, 'Insufficient number of arguments.'
 		help(1)
 	
 	# Parse the operation
 	args = app.set_operation(args.pop(0)) + args
 	
 	if app.operation == 'build' and not '.dsc' in ' '.join(args):
-		print 'Error: You have to specify a .dsc file if you want to build.'
-		sys.exit(1)
+		print >> stderr, 'Error: You have to specify a .dsc file if you want to build.'
+		exit(1)
 	
 	# Execute the pbuilder command
 	if not '--debug-echo' in args:
-		sys.exit(os.system(app.get_command(args)))
+		exit(os.system(app.get_command(args)))
 	else:
 		print app.get_command((args)).replace(
 			' --debug-echo', '')
@@ -377,5 +378,5 @@ if __name__ == '__main__':
 	try:
 		main()
 	except KeyboardInterrupt:
-		print 'Manually aborted.'
-		sys.exit(1)
+		print >> stderr, 'Manually aborted.'
+		exit(1)
