@@ -212,9 +212,12 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 					distroseries=series, person=launchpad.me, pocket='Release',
 					sourcepackagename=package)
 				can_upload = True
-			except lazr.restfulclient.errors.HTTPErro, e:
+			except lazr.restfulclient.errors.HTTPError, e:
 				if e.response.status == 403:
 					can_upload = False
+				elif e.response.status == 400:
+					print "W: Package is probably not in Ubuntu. Can't check upload rights."
+					can_upload = True
 				else:
 					raise e
 			if not can_upload:
