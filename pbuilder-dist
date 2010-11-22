@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2007-2010 Siegfried-A. Gevatter <rainct@ubuntu.com>
-# With some changes by Iain Lane <iain@orangesquash.org.uk>
+# With some changes by Iain Lane <iain@orangesquash.org.uk>,
+#                      Stefano Rivera <stefanor@ubuntu.com>
 # Based upon pbuilder-dist-simple by Jamin Collins and Jordan Mantha.
 #
 # ##################################################################
@@ -28,8 +29,9 @@
 # configurations. For example, a symlink called pbuilder-hardy will assume
 # that the target distribution is always meant to be Ubuntu Hardy.
 
-from sys import exit, argv, stderr
 import os
+import subprocess
+from sys import exit, argv, stderr
 
 import ubuntutools.misc
 
@@ -102,10 +104,6 @@ class pbuilder_dist:
 		
 		##############################################################
 	
-	def __getitem__(self, name):
-		
-		return getattr(self, name)
-	
 	def set_target_distro(self, distro):
 		""" pbuilder_dist.set_target_distro(distro) -> None
 		
@@ -175,7 +173,7 @@ class pbuilder_dist:
 			self.chroot_string = self.target_distro
 			self.build_architecture = self.system_architecture
 		else:
-			self.chroot_string = '%(target_distro)s-%(build_architecture)s' % self
+			self.chroot_string = self.target_distro + '-' + self.build_architecture
 		
 		prefix = os.path.join(self.base, self.chroot_string)
 		result = '%s_result/' % prefix
@@ -198,73 +196,69 @@ class pbuilder_dist:
 		arguments = [
 			'--%s' % self.operation,
 			base,
-			'--distribution "%(target_distro)s"' % self,
-			'--buildresult "%s"' % result,
-			'--aptcache "/var/cache/apt/archives/"',
+			'--distribution', self.target_distro,
+			'--buildresult', result,
+			'--aptcache', '/var/cache/apt/archives/',
 			'--override-config',
-			]
+		]
 
 		if self.logfile:
-			arguments.append('--logfile %s' % self.logfile)
+			arguments += ['--logfile', self.logfile]
 		
 		if os.path.exists('/var/cache/archive/'):
-			arguments.append('--bindmounts "/var/cache/archive/"')
+			arguments += ['--bindmounts', '/var/cache/archive/']
 
-		localrepo = '/var/cache/archive/%(target_distro)s' % self
+		localrepo = '/var/cache/archive/' + self.target_distro
 		if os.path.exists(localrepo):
-			arguments.append('--othermirror ' +\
-				'"deb file:///var/cache/archive/ %(target_distro)s/"' % self)
+			arguments += [
+					'--othermirror ',
+					'deb file:///var/cache/archive/ %s/' % self.target_distro,
+			]
 		
 		if self.target_distro in debian_distros:
-			arguments.append('--mirror "ftp://ftp.debian.org/debian"')
+			arguments += ['--mirror', 'http://ftp.debian.org/debian']
 			# work around bug #599695
-			arguments.append('--debootstrapopts --keyring=/usr/share/keyrings/debian-archive-keyring.gpg')
+			arguments += [
+					'--debootstrapopts',
+					'--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
+			]
 			components = 'main'
 			if self.extra_components:
 				components += ' contrib non-free'
 		else:
-			if self.build_architecture in ('amd64','i386'):
-				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
+			if self.build_architecture in ('amd64', 'i386'):
+				arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
 			elif self.build_architecture == 'powerpc' and self.target_distro == 'dapper':
-				arguments.append('--mirror "http://archive.ubuntu.com/ubuntu/"')
+				arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
 			else:
-				arguments.append('--mirror "http://ports.ubuntu.com/ubuntu-ports/"')
+				arguments += ['--mirror',
+				              'http://ports.ubuntu.com/ubuntu-ports/']
 			components = 'main restricted'
 			if self.extra_components:
 				components += ' universe multiverse'
 
-		arguments.append('--components "%s"' % components)
+		arguments += ['--components', components]
 		
 		if self.build_architecture != self.system_architecture:
-			arguments.append('--debootstrapopts --arch="%(build_architecture)s"' % self)
+			arguments += ['--debootstrapopts',
+			              '--arch=' + self.build_architecture]
 		
-		apt_conf_dir = os.path.join(self.base, 'etc/%(target_distro)s/apt.conf' % self)
+		apt_conf_dir = os.path.join(self.base, 'etc/%s/apt.conf' % self.target_distro)
 		if os.path.exists(apt_conf_dir):
-			arguments.append('--aptconfdir "%s"' % apt_conf_dir)
+			arguments += ['--aptconfdir', apt_conf_dir]
 		
 		# Append remaining arguments
 		if remaining_arguments:
 			arguments.extend(remaining_arguments)
 		
-		def quote(argument):
-			""" quote(argument) -> string
-			
-			Try to guess any missing quotes around the arguments so that
-			their meaning doesn't get lost (see LP: #398989).
-			
-			"""
-			
-			if argument.startswith('--'):
-				if '=' in argument:
-					return '%s="%s"' % tuple(argument.split('=', 1))
-				return argument
-			return '"%s"' % argument
-		
 		# Export the distribution and architecture information to the
 		# environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
-		return '%s ARCH="%s" DIST="%s" /usr/sbin/%s %s' % (self.auth,
-			self.build_architecture, self.target_distro, self.builder,
-			' '.join(map(quote, arguments)))
+		return [
+			self.auth,
+			'ARCH=' + self.build_architecture,
+			'DIST=' + self.target_distro,
+			self.builder,
+		] + arguments
 
 def ask(question):
 	""" ask(question) -> string
@@ -368,10 +362,10 @@ def main():
 	
 	# Execute the pbuilder command
 	if not '--debug-echo' in args:
-		exit(os.system(app.get_command(args)))
+		p = subprocess.Popen(app.get_command(args))
+		exit(p.wait())
 	else:
-		print app.get_command((args)).replace(
-			' --debug-echo', '')
+		print app.get_command([arg for arg in args if arg != '--debug-echo'])
 
 if __name__ == '__main__':
 	
