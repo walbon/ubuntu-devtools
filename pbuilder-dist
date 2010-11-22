@@ -77,11 +77,9 @@ class pbuilder_dist:
 		self.builder = builder
 		
 		# Ensure that the used builder is installed
-		for file in os.environ['PATH'].split(':'):
-			if os.path.exists(os.path.join(file, builder)):
-				builder = ''
-				break
-		if builder:
+		paths = set(os.environ['PATH'].split(':'))
+		paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
+		if not any(os.path.exists(os.path.join(p, builder)) for p in paths):
 			print 'Error: Could not find "%s".' % builder
 			sys.exit(1)
 		
