@@ -89,8 +89,13 @@ class pbuilder_dist:
 		
 		self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER', '~/pbuilder/'))
 
-		if not os.path.exists(self.base):
-			os.makedirs(self.base)
+		if not os.path.isdir(self.base):
+			try:
+				os.makedirs(self.base)
+			except os.OSError:
+				print >> stderr, ('Error: Cannot create base directory "%s"'
+				                  % self.base)
+				exit(1)
 		
 		if 'PBUILDAUTH' in os.environ:
 			self.auth = os.environ['PBUILDAUTH']
@@ -182,8 +187,12 @@ class pbuilder_dist:
 			self.logfile = os.path.normpath('%s/last_operation.log' % result)
 		
 		if not os.path.isdir(result):
-			# Create the results directory, if it doesn't exist.
-			os.makedirs(result)
+			try:
+				os.makedirs(result)
+			except os.OSError:
+				print >> stderr, ('Error: Cannot create results directory "%s"'
+				                  % result)
+				exit(1)
 		
 		if self.builder == 'pbuilder':
 			base = '--basetgz "%s-base.tgz"' % prefix

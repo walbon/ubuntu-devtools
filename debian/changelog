@@ -15,6 +15,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     packages. 3.0 (quilt) has optional per-vendor patch series.
   * pbuilder-dist:
     - Refactor to use subprocess.popen instead of os.system (LP: #398974)
+    - Catch OSErrors when creating directories (LP: #671067)
 
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
