@@ -12,12 +12,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # See file /usr/share/common-licenses/GPL for more details.
 #
 # ##################################################################
@@ -35,351 +35,363 @@ from sys import exit, argv, stderr
 
 import ubuntutools.misc
 
-debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', \
-	'testing', 'unstable', 'experimental']
+debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', 'testing',
+                  'unstable', 'experimental']
 
 class pbuilder_dist:
-	
-	def __init__(self, builder):
-		
-		# Base directory where pbuilder will put all the files it creates.
-		self.base = None
-		
-		# Name of the operation which pbuilder should perform.
-		self.operation = None
-		
-		# Wheter additional components should be used or not. That is,
-		# 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
-		# and 'non-free' for Debian.
-		self.extra_components = True
-		
-		# File where the log of the last operation will be saved.
-		self.logfile = None
-		
-		# System architecture
-		self.system_architecture = None
-		
-		# Build architecture
-		self.build_architecture = None
-		
-		# System's distribution
-		self.system_distro = None
-		
-		# Target distribution
-		self.target_distro = None
-		
-		# This is an identificative string which will either take the form
-		# 'distribution' or 'distribution-architecture'.
-		self.chroot_string = None
-		
-		# Authentication method
-		self.auth = 'sudo'
-		
-		# Builder
-		self.builder = builder
-		
-		# Ensure that the used builder is installed
-		paths = set(os.environ['PATH'].split(':'))
-		paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
-		if not any(os.path.exists(os.path.join(p, builder)) for p in paths):
-			print >> stderr, 'Error: Could not find "%s".' % builder
-			exit(1)
-		
-		##############################################################
-		
-		self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER', '~/pbuilder/'))
 
-		if not os.path.isdir(self.base):
-			try:
-				os.makedirs(self.base)
-			except os.OSError:
-				print >> stderr, ('Error: Cannot create base directory "%s"'
-				                  % self.base)
-				exit(1)
-		
-		if 'PBUILDAUTH' in os.environ:
-			self.auth = os.environ['PBUILDAUTH']
-		
-		self.system_architecture = ubuntutools.misc.host_architecture()
-		self.system_distro = ubuntutools.misc.system_distribution()
-		if not self.system_architecture or not self.system_distro:
-			exit(1)
-		
-		self.target_distro = self.system_distro
-		
-		##############################################################
-	
-	def set_target_distro(self, distro):
-		""" pbuilder_dist.set_target_distro(distro) -> None
-		
-		Check if the given target distribution name is correct, if it
-		isn't know to the system ask the user for confirmation before
-		proceeding, and finally either save the value into the appropiate
-		variable or finalize pbuilder-dist's execution.
-		
-		"""
-		
-		if not distro.isalpha():
-			print >> stderr, ('Error: "%s" is an invalid distribution codename.'
-			                  % distro)
-			exit(1)
-		
-		if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/', distro)):
-			if os.path.isdir('/usr/share/debootstrap/scripts/'):
-				# Debian experimental doesn't have a debootstrap file but
-				# should work nevertheless.
-				if distro not in debian_distros:
-					answer = ask('Warning: Unknown distribution "%s". Do you ' \
-						'want to continue [y/N]? ' % distro)
-					if answer not in ('y', 'Y'):
-						exit(0)
-			else:
-				print >> stderr, 'Please install package "debootstrap".'
-				exit(1)
-		
-		self.target_distro = distro
-	
-	def set_operation(self, operation):
-		""" pbuilder_dist.set_operation -> None
-		
-		Check if the given string is a valid pbuilder operation and
-		depending on this either save it into the appropiate variable
-		or finalize pbuilder-dist's execution.
-		
-		"""
-		
-		arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
-		
-		if operation not in arguments:
-			if operation.endswith('.dsc'):
-				if os.path.isfile(operation):
-					self.operation = 'build'
-					return [operation]
-				else:
-					print >> stderr, 'Error: Could not find file "%s".' % operation
-					exit(1)
-			else:
-				print >> stderr, 'Error: "%s" is not a recognized argument.' % operation
-				print >> stderr, 'Please use one of these: %s.' % ', '.join(arguments)
-				exit(1)
-		else:
-			self.operation = operation
-			return []
-	
-	def get_command(self, remaining_arguments = None):
-		""" pbuilder_dist.get_command -> string
-		
-		Generate the pbuilder command which matches the given configuration
-		and return it as a string.
-		
-		"""
-		
-		if not self.build_architecture:
-			self.chroot_string = self.target_distro
-			self.build_architecture = self.system_architecture
-		else:
-			self.chroot_string = self.target_distro + '-' + self.build_architecture
-		
-		prefix = os.path.join(self.base, self.chroot_string)
-		result = '%s_result/' % prefix
-		
-		if not self.logfile and self.operation != 'login':
-			self.logfile = os.path.normpath('%s/last_operation.log' % result)
-		
-		if not os.path.isdir(result):
-			try:
-				os.makedirs(result)
-			except os.OSError:
-				print >> stderr, ('Error: Cannot create results directory "%s"'
-				                  % result)
-				exit(1)
-		
-		if self.builder == 'pbuilder':
-			base = '--basetgz "%s-base.tgz"' % prefix
-		elif self.builder == 'cowbuilder':
-			base = '--basepath "%s-base.cow"' % prefix
-		else:
-			print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
-			exit(1)
-		
-		arguments = [
-			'--%s' % self.operation,
-			base,
-			'--distribution', self.target_distro,
-			'--buildresult', result,
-			'--aptcache', '/var/cache/apt/archives/',
-			'--override-config',
-		]
+    def __init__(self, builder):
 
-		if self.logfile:
-			arguments += ['--logfile', self.logfile]
-		
-		if os.path.exists('/var/cache/archive/'):
-			arguments += ['--bindmounts', '/var/cache/archive/']
+        # Base directory where pbuilder will put all the files it creates.
+        self.base = None
 
-		localrepo = '/var/cache/archive/' + self.target_distro
-		if os.path.exists(localrepo):
-			arguments += [
-					'--othermirror ',
-					'deb file:///var/cache/archive/ %s/' % self.target_distro,
-			]
-		
-		if self.target_distro in debian_distros:
-			arguments += ['--mirror', 'http://ftp.debian.org/debian']
-			# work around bug #599695
-			arguments += [
-					'--debootstrapopts',
-					'--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
-			]
-			components = 'main'
-			if self.extra_components:
-				components += ' contrib non-free'
-		else:
-			if self.build_architecture in ('amd64', 'i386'):
-				arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
-			elif self.build_architecture == 'powerpc' and self.target_distro == 'dapper':
-				arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
-			else:
-				arguments += ['--mirror',
-				              'http://ports.ubuntu.com/ubuntu-ports/']
-			components = 'main restricted'
-			if self.extra_components:
-				components += ' universe multiverse'
+        # Name of the operation which pbuilder should perform.
+        self.operation = None
 
-		arguments += ['--components', components]
-		
-		if self.build_architecture != self.system_architecture:
-			arguments += ['--debootstrapopts',
-			              '--arch=' + self.build_architecture]
-		
-		apt_conf_dir = os.path.join(self.base, 'etc/%s/apt.conf' % self.target_distro)
-		if os.path.exists(apt_conf_dir):
-			arguments += ['--aptconfdir', apt_conf_dir]
-		
-		# Append remaining arguments
-		if remaining_arguments:
-			arguments.extend(remaining_arguments)
-		
-		# Export the distribution and architecture information to the
-		# environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
-		return [
-			self.auth,
-			'ARCH=' + self.build_architecture,
-			'DIST=' + self.target_distro,
-			self.builder,
-		] + arguments
+        # Wheter additional components should be used or not. That is,
+        # 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
+        # and 'non-free' for Debian.
+        self.extra_components = True
+
+        # File where the log of the last operation will be saved.
+        self.logfile = None
+
+        # System architecture
+        self.system_architecture = None
+
+        # Build architecture
+        self.build_architecture = None
+
+        # System's distribution
+        self.system_distro = None
+
+        # Target distribution
+        self.target_distro = None
+
+        # This is an identificative string which will either take the form
+        # 'distribution' or 'distribution-architecture'.
+        self.chroot_string = None
+
+        # Authentication method
+        self.auth = 'sudo'
+
+        # Builder
+        self.builder = builder
+
+        # Ensure that the used builder is installed
+        paths = set(os.environ['PATH'].split(':'))
+        paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
+        if not any(os.path.exists(os.path.join(p, builder)) for p in paths):
+            print >> stderr, 'Error: Could not find "%s".' % builder
+            exit(1)
+
+        ##############################################################
+
+        self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER',
+                                                      '~/pbuilder/'))
+
+        if not os.path.isdir(self.base):
+            try:
+                os.makedirs(self.base)
+            except os.OSError:
+                print >> stderr, ('Error: Cannot create base directory "%s"'
+                                  % self.base)
+                exit(1)
+
+        if 'PBUILDAUTH' in os.environ:
+            self.auth = os.environ['PBUILDAUTH']
+
+        self.system_architecture = ubuntutools.misc.host_architecture()
+        self.system_distro = ubuntutools.misc.system_distribution()
+        if not self.system_architecture or not self.system_distro:
+            exit(1)
+
+        self.target_distro = self.system_distro
+
+        ##############################################################
+
+    def set_target_distro(self, distro):
+        """ pbuilder_dist.set_target_distro(distro) -> None
+
+        Check if the given target distribution name is correct, if it
+        isn't know to the system ask the user for confirmation before
+        proceeding, and finally either save the value into the appropiate
+        variable or finalize pbuilder-dist's execution.
+
+        """
+
+        if not distro.isalpha():
+            print >> stderr, ('Error: "%s" is an invalid distribution codename.'
+                              % distro)
+            exit(1)
+
+        if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/',
+                                           distro)):
+            if os.path.isdir('/usr/share/debootstrap/scripts/'):
+                # Debian experimental doesn't have a debootstrap file but
+                # should work nevertheless.
+                if distro not in debian_distros:
+                    answer = ask(('Warning: Unknown distribution "%s". Do you '
+                                  'want to continue [y/N]? ') % distro)
+                    if answer not in ('y', 'Y'):
+                        exit(0)
+            else:
+                print >> stderr, 'Please install package "debootstrap".'
+                exit(1)
+
+        self.target_distro = distro
+
+    def set_operation(self, operation):
+        """ pbuilder_dist.set_operation -> None
+
+        Check if the given string is a valid pbuilder operation and
+        depending on this either save it into the appropiate variable
+        or finalize pbuilder-dist's execution.
+
+        """
+
+        arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
+
+        if operation not in arguments:
+            if operation.endswith('.dsc'):
+                if os.path.isfile(operation):
+                    self.operation = 'build'
+                    return [operation]
+                else:
+                    print >> stderr, ('Error: Could not find file "%s".'
+                                      % operation)
+                    exit(1)
+            else:
+                print >> stderr, (
+                        'Error: "%s" is not a recognized argument.\n'
+                        'Please use one of these: %s.'
+                    ) % (operation, ', '.join(arguments))
+                exit(1)
+        else:
+            self.operation = operation
+            return []
+
+    def get_command(self, remaining_arguments = None):
+        """ pbuilder_dist.get_command -> string
+
+        Generate the pbuilder command which matches the given configuration
+        and return it as a string.
+
+        """
+
+        if not self.build_architecture:
+            self.chroot_string = self.target_distro
+            self.build_architecture = self.system_architecture
+        else:
+            self.chroot_string = (self.target_distro + '-'
+                                  + self.build_architecture)
+
+        prefix = os.path.join(self.base, self.chroot_string)
+        result = '%s_result/' % prefix
+
+        if not self.logfile and self.operation != 'login':
+            self.logfile = os.path.normpath('%s/last_operation.log' % result)
+
+        if not os.path.isdir(result):
+            try:
+                os.makedirs(result)
+            except os.OSError:
+                print >> stderr, ('Error: Cannot create results directory "%s"'
+                                  % result)
+                exit(1)
+
+        if self.builder == 'pbuilder':
+            base = '--basetgz "%s-base.tgz"' % prefix
+        elif self.builder == 'cowbuilder':
+            base = '--basepath "%s-base.cow"' % prefix
+        else:
+            print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
+            exit(1)
+
+        arguments = [
+            '--%s' % self.operation,
+            base,
+            '--distribution', self.target_distro,
+            '--buildresult', result,
+            '--aptcache', '/var/cache/apt/archives/',
+            '--override-config',
+        ]
+
+        if self.logfile:
+            arguments += ['--logfile', self.logfile]
+
+        if os.path.exists('/var/cache/archive/'):
+            arguments += ['--bindmounts', '/var/cache/archive/']
+
+        localrepo = '/var/cache/archive/' + self.target_distro
+        if os.path.exists(localrepo):
+            arguments += [
+                    '--othermirror ',
+                    'deb file:///var/cache/archive/ %s/' % self.target_distro,
+            ]
+
+        if self.target_distro in debian_distros:
+            arguments += ['--mirror', 'http://ftp.debian.org/debian']
+            # work around bug #599695
+            arguments += [
+                    '--debootstrapopts',
+                    '--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
+            ]
+            components = 'main'
+            if self.extra_components:
+                components += ' contrib non-free'
+        else:
+            if self.build_architecture in ('amd64', 'i386'):
+                arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
+            elif (self.build_architecture == 'powerpc'
+                    and self.target_distro == 'dapper'):
+                arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
+            else:
+                arguments += ['--mirror',
+                              'http://ports.ubuntu.com/ubuntu-ports/']
+            components = 'main restricted'
+            if self.extra_components:
+                components += ' universe multiverse'
+
+        arguments += ['--components', components]
+
+        if self.build_architecture != self.system_architecture:
+            arguments += ['--debootstrapopts',
+                          '--arch=' + self.build_architecture]
+
+        apt_conf_dir = os.path.join(self.base,
+                                    'etc/%s/apt.conf' % self.target_distro)
+        if os.path.exists(apt_conf_dir):
+            arguments += ['--aptconfdir', apt_conf_dir]
+
+        # Append remaining arguments
+        if remaining_arguments:
+            arguments.extend(remaining_arguments)
+
+        # Export the distribution and architecture information to the
+        # environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
+        return [
+            self.auth,
+            'ARCH=' + self.build_architecture,
+            'DIST=' + self.target_distro,
+            self.builder,
+        ] + arguments
 
 def ask(question):
-	""" ask(question) -> string
-	
-	Ask the given question and return the answer. Also catch
-	KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
-	immediately return None if one of those is found.
-	
-	"""
-	
-	try:
-		answer = raw_input(question)
-	except (KeyboardInterrupt, EOFError):
-		print
-		answer = None
-	
-	return answer
+    """ ask(question) -> string
+
+    Ask the given question and return the answer. Also catch
+    KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
+    immediately return None if one of those is found.
+
+    """
+
+    try:
+        answer = raw_input(question)
+    except (KeyboardInterrupt, EOFError):
+        print
+        answer = None
+
+    return answer
 
 def help(exit_code = 0):
-	""" help() -> None
-	
-	Print a help message for pbuilder-dist, and exit with the given code.
-	
-	"""
-	
-	print 'See  man pbuilder-dist  for more information.'
-	
-	exit(exit_code)
+    """ help() -> None
+
+    Print a help message for pbuilder-dist, and exit with the given code.
+
+    """
+
+    print 'See  man pbuilder-dist  for more information.'
+
+    exit(exit_code)
 
 def main():
-	""" main() -> None
-	
-	This is pbuilder-dist's main function. It creates a pbuilder_dist
-	object, modifies all necessary settings taking data from the
-	executable's name and command line options and finally either ends
-	the script and runs pbuilder itself or exists with an error message.
-	
-	"""
-	
-	script_name = os.path.basename(argv[0])
-	parts = script_name.split('-')
-	
-	# Copy arguments into another list for save manipulation
-	args = argv[1:]
-	
-	if '-' in script_name and (parts[0] != 'pbuilder' and \
-	parts[0] != 'cowbuilder') or len(parts) > 3:
-		print >> stderr, 'Error: "%s" is not a valid name for a "pbuilder-dist" executable.' % script_name
-		exit(1)
-	
-	if len(args) < 1:
-		print >> stderr, 'Insufficient number of arguments.'
-		help(1)
-	
-	if args[0] in ('-h', '--help', 'help'):
-		help(0)
-	
-	app = pbuilder_dist(parts[0])
-	
-	if len(parts) > 1 and parts[1] != 'dist' and '.' not in parts[1]:
-		app.set_target_distro(parts[1])
-	else:
-		app.set_target_distro(args.pop(0))
-	
-	if len(parts) > 2:
-		requested_arch = parts[2]
-	elif len(args) > 0 and args[0] in ("alpha", "amd64", "arm", "armeb",
-	"armel", "i386", "lpia", "m68k", "mips", "mipsel", "powerpc", "ppc64",
-	"sh4", "sh4eb", "sparc", "sparc64"):
-		requested_arch = args.pop(0)
-	else:
-		requested_arch = None
-	
-	if requested_arch:
-		app.build_architecture = requested_arch
-		# For some foreign architectures we need to use qemu
-		if requested_arch != app.system_architecture and (app.system_architecture,
-		requested_arch) not in [("amd64", "i386"), ("amd64", "lpia"),
-		("arm", "armel"), ("armel", "arm"), ("i386", "lpia"), ("lpia", "i386"),
-		("powerpc", "ppc64"), ("ppc64", "powerpc"), ("sparc", "sparc64"),
-		("sparc64", "sparc")]:
-			args.append('--debootstrap qemu-debootstrap')
-	
-	if 'mainonly' in argv or '--main-only' in argv:
-		app.extra_components = False
-		if 'mainonly' in argv:
-			args.remove('mainonly')
-		else:
-			args.remove('--main-only')
-	
-	if len(args) < 1:
-		print >> stderr, 'Insufficient number of arguments.'
-		help(1)
-	
-	# Parse the operation
-	args = app.set_operation(args.pop(0)) + args
-	
-	if app.operation == 'build' and not '.dsc' in ' '.join(args):
-		print >> stderr, 'Error: You have to specify a .dsc file if you want to build.'
-		exit(1)
-	
-	# Execute the pbuilder command
-	if not '--debug-echo' in args:
-		p = subprocess.Popen(app.get_command(args))
-		exit(p.wait())
-	else:
-		print app.get_command([arg for arg in args if arg != '--debug-echo'])
+    """ main() -> None
+
+    This is pbuilder-dist's main function. It creates a pbuilder_dist
+    object, modifies all necessary settings taking data from the
+    executable's name and command line options and finally either ends
+    the script and runs pbuilder itself or exists with an error message.
+
+    """
+
+    script_name = os.path.basename(argv[0])
+    parts = script_name.split('-')
+
+    # Copy arguments into another list for save manipulation
+    args = argv[1:]
+
+    if ('-' in script_name and parts[0] not in ('pbuilder', 'cowbuilder')
+            or len(parts) > 3):
+        print >> stderr, ('Error: "%s" is not a valid name for a '
+                          '"pbuilder-dist" executable.') % script_name
+        exit(1)
+
+    if len(args) < 1:
+        print >> stderr, 'Insufficient number of arguments.'
+        help(1)
+
+    if args[0] in ('-h', '--help', 'help'):
+        help(0)
+
+    app = pbuilder_dist(parts[0])
+
+    if len(parts) > 1 and parts[1] != 'dist' and '.' not in parts[1]:
+        app.set_target_distro(parts[1])
+    else:
+        app.set_target_distro(args.pop(0))
+
+    if len(parts) > 2:
+        requested_arch = parts[2]
+    elif len(args) > 0 and args[0] in (
+            'alpha', 'amd64', 'arm', 'armeb', 'armel', 'i386', 'lpia', 'm68k',
+            'mips', 'mipsel', 'powerpc', 'ppc64', 'sh4', 'sh4eb', 'sparc',
+            'sparc64'):
+        requested_arch = args.pop(0)
+    else:
+        requested_arch = None
+
+    if requested_arch:
+        app.build_architecture = requested_arch
+        # For some foreign architectures we need to use qemu
+        if (requested_arch != app.system_architecture
+                and (app.system_architecture, requested_arch) not in [
+                    ('amd64', 'i386'), ('amd64', 'lpia'), ('arm', 'armel'),
+                    ('armel', 'arm'), ('i386', 'lpia'), ('lpia', 'i386'),
+                    ('powerpc', 'ppc64'), ('ppc64', 'powerpc'),
+                    ('sparc', 'sparc64'), ('sparc64', 'sparc')]):
+            args.append('--debootstrap qemu-debootstrap')
+
+    if 'mainonly' in argv or '--main-only' in argv:
+        app.extra_components = False
+        if 'mainonly' in argv:
+            args.remove('mainonly')
+        else:
+            args.remove('--main-only')
+
+    if len(args) < 1:
+        print >> stderr, 'Insufficient number of arguments.'
+        help(1)
+
+    # Parse the operation
+    args = app.set_operation(args.pop(0)) + args
+
+    if app.operation == 'build' and not '.dsc' in ' '.join(args):
+        print >> stderr, ('Error: You have to specify a .dsc file if you want '
+                          'to build.')
+        exit(1)
+
+    # Execute the pbuilder command
+    if not '--debug-echo' in args:
+        p = subprocess.Popen(app.get_command(args)))
+        exit(p.wait())
+    else:
+        print app.get_command([arg for arg in args if arg != '--debug-echo'])
 
 if __name__ == '__main__':
-	
-	try:
-		main()
-	except KeyboardInterrupt:
-		print >> stderr, 'Manually aborted.'
-		exit(1)
+
+    try:
+        main()
+    except KeyboardInterrupt:
+        print >> stderr, 'Manually aborted.'
+        exit(1)
