@@ -18,7 +18,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# See file /usr/share/common-licenses/GPL for more details.
+# See file /usr/share/common-licenses/GPL-2 for more details.
 #
 # ##################################################################
 #
@@ -39,9 +39,7 @@ debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', 'testing',
                   'unstable', 'experimental']
 
 class pbuilder_dist:
-
     def __init__(self, builder):
-
         # Base directory where pbuilder will put all the files it creates.
         self.base = None
 
@@ -108,8 +106,6 @@ class pbuilder_dist:
 
         self.target_distro = self.system_distro
 
-        ##############################################################
-
     def set_target_distro(self, distro):
         """ pbuilder_dist.set_target_distro(distro) -> None
 
@@ -117,9 +113,7 @@ class pbuilder_dist:
         isn't know to the system ask the user for confirmation before
         proceeding, and finally either save the value into the appropiate
         variable or finalize pbuilder-dist's execution.
-
         """
-
         if not distro.isalpha():
             print >> stderr, ('Error: "%s" is an invalid distribution codename.'
                               % distro)
@@ -147,9 +141,7 @@ class pbuilder_dist:
         Check if the given string is a valid pbuilder operation and
         depending on this either save it into the appropiate variable
         or finalize pbuilder-dist's execution.
-
         """
-
         arguments = ('create', 'update', 'build', 'clean', 'login', 'execute')
 
         if operation not in arguments:
@@ -176,9 +168,7 @@ class pbuilder_dist:
 
         Generate the pbuilder command which matches the given configuration
         and return it as a string.
-
         """
-
         if not self.build_architecture:
             self.chroot_string = self.target_distro
             self.build_architecture = self.system_architecture
@@ -277,15 +267,14 @@ class pbuilder_dist:
             self.builder,
         ] + arguments
 
+
 def ask(question):
     """ ask(question) -> string
 
     Ask the given question and return the answer. Also catch
     KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
     immediately return None if one of those is found.
-
     """
-
     try:
         answer = raw_input(question)
     except (KeyboardInterrupt, EOFError):
@@ -298,9 +287,7 @@ def help(exit_code = 0):
     """ help() -> None
 
     Print a help message for pbuilder-dist, and exit with the given code.
-
     """
-
     print 'See  man pbuilder-dist  for more information.'
 
     exit(exit_code)
@@ -312,9 +299,7 @@ def main():
     object, modifies all necessary settings taking data from the
     executable's name and command line options and finally either ends
     the script and runs pbuilder itself or exists with an error message.
-
     """
-
     script_name = os.path.basename(argv[0])
     parts = script_name.split('-')
 
