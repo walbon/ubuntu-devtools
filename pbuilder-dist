@@ -376,20 +376,18 @@ def main():
     # Parse the operation
     args = app.set_operation(args.pop(0)) + args
 
-    if app.operation == 'build' and not '.dsc' in ' '.join(args):
+    if app.operation == 'build' and '.dsc' not in ' '.join(args):
         print >> stderr, ('Error: You have to specify a .dsc file if you want '
                           'to build.')
         exit(1)
 
     # Execute the pbuilder command
     if not '--debug-echo' in args:
-        p = subprocess.Popen(app.get_command(args)))
-        exit(p.wait())
+        exit(subprocess.call(app.get_command(args)))
     else:
         print app.get_command([arg for arg in args if arg != '--debug-echo'])
 
 if __name__ == '__main__':
-
     try:
         main()
     except KeyboardInterrupt:
