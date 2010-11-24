@@ -75,10 +75,13 @@ if __name__ == '__main__':
     dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
     assert dsc_url, 'No .dsc file found'
 
+    env = os.environ
+    env['DEB_VENDOR'] = 'Ubuntu'
+
     # All good - start downloading...
     print 'Fetching the source for %s from %s (%s)...' % (
             package, release.capitalize(), pocket)
-    if subprocess.call(['/usr/bin/dget', '-xu', dsc_url[0]]) == 0:
+    if subprocess.call(['/usr/bin/dget', '-xu', dsc_url[0]], env=env) == 0:
         print 'Success!'
     else:
         print 'Failed to fetch and extrace the source.', \

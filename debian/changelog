@@ -7,11 +7,11 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Sort debian/install as well as debian/*.install
     - Add one-space-indentation option: --short-indent
     - Remove null-entry from trailing comma in sorted lists
-  * ack-sync, dgetlp, grab-merge, syncpackage: Export DEB_VENDOR=Ubuntu when
-    unpacking source packages. 3.0 (quilt) has optional per-vendor patch
+  * dgetlp, grab-merge, pull-lp-source, syncpackage: Export DEB_VENDOR=Ubuntu
+    when unpacking source packages. 3.0 (quilt) has optional per-vendor patch
     series.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 21:04:46 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 21:31:51 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
