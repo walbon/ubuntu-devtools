@@ -66,10 +66,12 @@ class Control(object):
     def _wrap_field(self, control, entry, wrap_always, short_indent, sort=True):
         packages = map(lambda x: x.strip(), control[entry].split(","))
         if sort:
-            packages = sort_list(packages)
+            # Remove duplicate entries
+            packages = set(packages)
             # Not explicitly disallowed by Policy but known to break QA tools:
             if "" in packages:
                 packages.remove("")
+            packages = sort_list(packages)
 
         length = len(entry) + 2 * len(packages) + sum(map(len, packages))
         if wrap_always or length > 80:

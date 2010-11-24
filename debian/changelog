@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * edit-patch: Detect quilt patch-system in 3.0 (quilt) packages without any
     patches yet.
   * wrap-and-sort:
@@ -11,7 +12,10 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     when unpacking source packages. 3.0 (quilt) has optional per-vendor patch
     series.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 21:31:51 +0200
+  [ Benjamin Drung ]
+  * wrap-and-sort: Remove duplicate items from sorted lists.
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 24 Nov 2010 21:00:40 +0100
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
