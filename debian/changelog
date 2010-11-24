@@ -8,7 +8,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Add one-space-indentation option: --short-indent
     - Remove null-entry from trailing comma in sorted lists
 
- -- Stefano Rivera <stefano@rivera.za.net>  Wed, 24 Nov 2010 19:19:49 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 20:02:21 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
