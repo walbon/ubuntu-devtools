@@ -53,21 +53,21 @@ class Control(object):
         f.write(content.encode("utf-8"))
         f.close()
 
-    def wrap_and_sort(self, wrap_allways=True):
+    def wrap_and_sort(self, wrap_always=True):
         for paragraph in self.paragraphs:
             for field in CONTROL_LIST_FIELDS:
                 if field in paragraph:
-                    self._wrap_field(paragraph, field, wrap_allways)
+                    self._wrap_field(paragraph, field, wrap_always)
             if "Uploaders" in paragraph:
-                self._wrap_field(paragraph, "Uploaders", wrap_allways, False)
+                self._wrap_field(paragraph, "Uploaders", wrap_always, False)
 
-    def _wrap_field(self, control, entry, wrap_allways, sort=True):
+    def _wrap_field(self, control, entry, wrap_always, sort=True):
         packages = map(lambda x: x.strip(), control[entry].split(","))
         if sort:
             packages = sort_list(packages)
 
         lenght = len(entry) + 2 * len(packages) + sum(map(len, packages))
-        if wrap_allways or lenght > 80:
+        if wrap_always or lenght > 80:
             indentation = " " * (len(entry) + 2)
             packages_with_indention = map(lambda x: indentation + x, packages)
             control[entry] = ",\n".join(packages_with_indention).strip()
@@ -110,7 +110,7 @@ def sort_list(l):
     param = filter(lambda x: x.startswith("${"), l)
     return sorted(normal) + sorted(param)
 
-def main(script_name, cleanup, wrap_allways, verbose=False):
+def main(script_name, cleanup, wrap_always, verbose=False):
     if not os.path.isdir("debian"):
         print >> sys.stderr, "%s: Error: No debian directory found." % \
                 (script_name)
@@ -122,7 +122,7 @@ def main(script_name, cleanup, wrap_allways, verbose=False):
         if verbose:
             print control_file
         control = Control(control_file, cleanup)
-        control.wrap_and_sort(wrap_allways)
+        control.wrap_and_sort(wrap_always)
         control.save()
 
     copyright_files = filter(os.path.isfile,
@@ -145,9 +145,9 @@ if __name__ == "__main__":
     epilog = "See %s(1) for more info." % (script_name)
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-    parser.add_option("-a", "--wrap-allways",
+    parser.add_option("-a", "--wrap-always",
             help="wrap lists even if they fit into one 80 character long line",
-            dest="wrap_allways", action="store_true", default=False)
+            dest="wrap_always", action="store_true", default=False)
     parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
             dest="cleanup", action="store_false", default=True)
     parser.add_option("-v", "--verbose", help="print more information",
@@ -160,4 +160,4 @@ if __name__ == "__main__":
                 "Unsupported additional parameters specified", ", ".join(args))
         sys.exit(1)
 
-    main(script_name, options.cleanup, options.wrap_allways, options.verbose)
+    main(script_name, options.cleanup, options.wrap_always, options.verbose)
