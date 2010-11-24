@@ -5,8 +5,9 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   * wrap-and-sort:
     - Correct typo in options --wrap-allways -> --wrap-always
     - Sort debian/install as well as debian/*.install
+    - Add one-space-indentation option: --short-indent
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 18:47:21 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 19:15:28 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
