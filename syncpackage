@@ -275,11 +275,13 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
 
     # extract package
     cmd = ['dpkg-source', '-x', dscname]
+    env = os.environ
+    env['DEB_VENDOR'] = 'Ubuntu'
     if not verbose:
         cmd.insert(1, "-q")
     if verbose:
         print_command(script_name, cmd)
-    subprocess.check_call(cmd)
+    subprocess.check_call(cmd, env=env)
 
     # Do a fake sync if required
     if len(fakesync_files) > 0:
