@@ -71,8 +71,8 @@ class Control(object):
             if "" in packages:
                 packages.remove("")
 
-        lenght = len(entry) + 2 * len(packages) + sum(map(len, packages))
-        if wrap_always or lenght > 80:
+        length = len(entry) + 2 * len(packages) + sum(map(len, packages))
+        if wrap_always or length > 80:
             indentation = " "
             if not short_indent:
                 indentation *= (len(entry) + 2)
