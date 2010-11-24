@@ -35,10 +35,14 @@ and debian/*.install.
 \fB\-h\fR, \fB\-\-help\fR
 show this help message and exit
 .TP
-\fB\-a\fR, \fB\-\-wrap\-allways\fR
+\fB\-a\fR, \fB\-\-wrap\-always\fR
 wrap all package lists in the Debian control file
 even if the entries are shorter than 80 characters and could fit in one line
 line
+.TP
+\fB\-s\fR, \fB\-\-short\-indent\fR
+only indent wrapped lines by one space (default is in\-line with the
+field name)
 .TP
 \fB\-n\fR, \fB\-\-no\-cleanup\fR
 do not remove trailing whitespaces
