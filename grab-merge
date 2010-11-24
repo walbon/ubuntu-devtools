@@ -80,7 +80,7 @@ echo
 
 if grep "^generated: " REPORT >/dev/null; then
     VERSION=$(sed -n -e "/^generated:/s/^generated: *//p" REPORT)
-    dpkg-source -x ${MERGE}_${VERSION#*:}.dsc
+    DEB_VENDOR=Ubuntu dpkg-source -x ${MERGE}_${VERSION#*:}.dsc
     echo
 else
     TARBALL=$(sed -n -e "/\.src\.tar\.gz$/p" REPORT)

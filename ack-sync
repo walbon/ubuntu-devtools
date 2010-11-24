@@ -251,7 +251,9 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 			upload = True
 
 		# extract source
-		subprocess.check_call(["dpkg-source", "-x", dsc_file])
+		env = os.environ
+		env['DEB_VENDOR'] = 'Ubuntu'
+		subprocess.check_call(["dpkg-source", "-x", dsc_file], env=env)
 
 		build_source(dist, dsc_file)
 	
