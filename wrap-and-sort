@@ -21,143 +21,143 @@ import os
 import sys
 
 CONTROL_LIST_FIELDS = (
-	"Breaks",
-	"Build-Depends",
-	"Build-Depends-Indep",
-	"Conflicts",
-	"Depends",
-	"Enhances",
-	"Provides",
-	"Recommends",
-	"Replaces",
-	"Suggests",
-	"Xb-Npp-MimeType",
+    "Breaks",
+    "Build-Depends",
+    "Build-Depends-Indep",
+    "Conflicts",
+    "Depends",
+    "Enhances",
+    "Provides",
+    "Recommends",
+    "Replaces",
+    "Suggests",
+    "Xb-Npp-MimeType",
 )
 
 class Control(object):
-	def __init__(self, filename, cleanup):
-		assert os.path.isfile(filename), "%s does not exist." % (filename)
-		self.filename = filename
-		sequence = open(filename)
-		if cleanup:
-			sequence = map(lambda l: l.rstrip(), sequence.readlines())
-		self.paragraphs = list()
-		for paragraph in debian.deb822.Deb822.iter_paragraphs(sequence):
-			self.paragraphs.append(paragraph)
+    def __init__(self, filename, cleanup):
+        assert os.path.isfile(filename), "%s does not exist." % (filename)
+        self.filename = filename
+        sequence = open(filename)
+        if cleanup:
+            sequence = map(lambda l: l.rstrip(), sequence.readlines())
+        self.paragraphs = list()
+        for paragraph in debian.deb822.Deb822.iter_paragraphs(sequence):
+            self.paragraphs.append(paragraph)
 
-	def save(self, filename=None):
-		if filename:
-			self.filename = filename
-		content = u"\n".join(map(lambda x: x.dump(), self.paragraphs))
-		f = open(self.filename, "w")
-		f.write(content.encode("utf-8"))
-		f.close()
+    def save(self, filename=None):
+        if filename:
+            self.filename = filename
+        content = u"\n".join(map(lambda x: x.dump(), self.paragraphs))
+        f = open(self.filename, "w")
+        f.write(content.encode("utf-8"))
+        f.close()
 
-	def wrap_and_sort(self, wrap_allways=True):
-		for paragraph in self.paragraphs:
-			for field in CONTROL_LIST_FIELDS:
-				if field in paragraph:
-					self._wrap_field(paragraph, field, wrap_allways)
-			if "Uploaders" in paragraph:
-				self._wrap_field(paragraph, "Uploaders", wrap_allways, False)
+    def wrap_and_sort(self, wrap_allways=True):
+        for paragraph in self.paragraphs:
+            for field in CONTROL_LIST_FIELDS:
+                if field in paragraph:
+                    self._wrap_field(paragraph, field, wrap_allways)
+            if "Uploaders" in paragraph:
+                self._wrap_field(paragraph, "Uploaders", wrap_allways, False)
 
-	def _wrap_field(self, control, entry, wrap_allways, sort=True):
-		packages = map(lambda x: x.strip(), control[entry].split(","))
-		if sort:
-			packages = sort_list(packages)
+    def _wrap_field(self, control, entry, wrap_allways, sort=True):
+        packages = map(lambda x: x.strip(), control[entry].split(","))
+        if sort:
+            packages = sort_list(packages)
 
-		lenght = len(entry) + 2 * len(packages) + sum(map(len, packages))
-		if wrap_allways or lenght > 80:
-			indentation = " " * (len(entry) + 2)
-			packages_with_indention = map(lambda x: indentation + x, packages)
-			control[entry] = ",\n".join(packages_with_indention).strip()
-		else:
-			control[entry] = ", ".join(packages).strip()
+        lenght = len(entry) + 2 * len(packages) + sum(map(len, packages))
+        if wrap_allways or lenght > 80:
+            indentation = " " * (len(entry) + 2)
+            packages_with_indention = map(lambda x: indentation + x, packages)
+            control[entry] = ",\n".join(packages_with_indention).strip()
+        else:
+            control[entry] = ", ".join(packages).strip()
 
 
 class Install(object):
-	def __init__(self, filename):
-		self.open(filename)
+    def __init__(self, filename):
+        self.open(filename)
 
-	def open(self, filename):
-		assert os.path.isfile(filename), "%s does not exist." % (filename)
-		self.filename = filename
-		self.content = open(filename).readlines()
+    def open(self, filename):
+        assert os.path.isfile(filename), "%s does not exist." % (filename)
+        self.filename = filename
+        self.content = open(filename).readlines()
 
-	def save(self, filename=None):
-		if filename:
-			self.filename = filename
-		f = open(self.filename, "w")
-		f.write("".join(self.content))
-		f.close()
+    def save(self, filename=None):
+        if filename:
+            self.filename = filename
+        f = open(self.filename, "w")
+        f.write("".join(self.content))
+        f.close()
 
-	def sort(self):
-		self.content = sorted(self.content)
+    def sort(self):
+        self.content = sorted(self.content)
 
 
 def remove_trailing_whitespaces(filename):
-	assert os.path.isfile(filename), "%s does not exist." % (filename)
-	content = open(filename).read().rstrip() + "\n"
-	lines = content.split("\n")
-	lines = map(lambda l: l.rstrip(), lines)
-	new_content = "\n".join(lines)
-	f = open(filename, "w")
-	f.write(new_content)
-	f.close()
+    assert os.path.isfile(filename), "%s does not exist." % (filename)
+    content = open(filename).read().rstrip() + "\n"
+    lines = content.split("\n")
+    lines = map(lambda l: l.rstrip(), lines)
+    new_content = "\n".join(lines)
+    f = open(filename, "w")
+    f.write(new_content)
+    f.close()
 
 def sort_list(l):
-	normal = filter(lambda x: not x.startswith("${"), l)
-	param = filter(lambda x: x.startswith("${"), l)
-	return sorted(normal) + sorted(param)
+    normal = filter(lambda x: not x.startswith("${"), l)
+    param = filter(lambda x: x.startswith("${"), l)
+    return sorted(normal) + sorted(param)
 
 def main(script_name, cleanup, wrap_allways, verbose=False):
-	if not os.path.isdir("debian"):
-		print >> sys.stderr, "%s: Error: No debian directory found." % \
-				(script_name)
-		sys.exit(1)
+    if not os.path.isdir("debian"):
+        print >> sys.stderr, "%s: Error: No debian directory found." % \
+                (script_name)
+        sys.exit(1)
 
-	control_files = filter(os.path.isfile,
-			["debian/control", "debian/control.in"])
-	for control_file in control_files:
-		if verbose:
-			print control_file
-		control = Control(control_file, cleanup)
-		control.wrap_and_sort(wrap_allways)
-		control.save()
+    control_files = filter(os.path.isfile,
+            ["debian/control", "debian/control.in"])
+    for control_file in control_files:
+        if verbose:
+            print control_file
+        control = Control(control_file, cleanup)
+        control.wrap_and_sort(wrap_allways)
+        control.save()
 
-	copyright_files = filter(os.path.isfile,
-			["debian/copyright", "debian/copyright.in"])
-	for copyright_file in copyright_files:
-		if verbose:
-			print copyright_file
-		remove_trailing_whitespaces(copyright_file)
+    copyright_files = filter(os.path.isfile,
+            ["debian/copyright", "debian/copyright.in"])
+    for copyright_file in copyright_files:
+        if verbose:
+            print copyright_file
+        remove_trailing_whitespaces(copyright_file)
 
-	for install_file in sorted(glob.glob("debian/*.install")):
-		if verbose:
-			print install_file
-		install = Install(install_file)
-		install.sort()
-		install.save()
+    for install_file in sorted(glob.glob("debian/*.install")):
+        if verbose:
+            print install_file
+        install = Install(install_file)
+        install.sort()
+        install.save()
 
 if __name__ == "__main__":
-	script_name = os.path.basename(sys.argv[0])
-	usage = "%s [options]" % (script_name)
-	epilog = "See %s(1) for more info." % (script_name)
-	parser = optparse.OptionParser(usage=usage, epilog=epilog)
+    script_name = os.path.basename(sys.argv[0])
+    usage = "%s [options]" % (script_name)
+    epilog = "See %s(1) for more info." % (script_name)
+    parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-	parser.add_option("-a", "--wrap-allways",
-			help="wrap lists even if they fit into one 80 character long line",
-			dest="wrap_allways", action="store_true", default=False)
-	parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
-			dest="cleanup", action="store_false", default=True)
-	parser.add_option("-v", "--verbose", help="print more information",
-			dest="verbose", action="store_true", default=False)
+    parser.add_option("-a", "--wrap-allways",
+            help="wrap lists even if they fit into one 80 character long line",
+            dest="wrap_allways", action="store_true", default=False)
+    parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
+            dest="cleanup", action="store_false", default=True)
+    parser.add_option("-v", "--verbose", help="print more information",
+            dest="verbose", action="store_true", default=False)
 
-	(options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-	if len(args) != 0:
-		print >> sys.stderr, "%s: Error: %s: %s" % (script_name,
-				"Unsupported additional parameters specified", ", ".join(args))
-		sys.exit(1)
+    if len(args) != 0:
+        print >> sys.stderr, "%s: Error: %s: %s" % (script_name,
+                "Unsupported additional parameters specified", ", ".join(args))
+        sys.exit(1)
 
-	main(script_name, options.cleanup, options.wrap_allways, options.verbose)
+    main(script_name, options.cleanup, options.wrap_allways, options.verbose)
