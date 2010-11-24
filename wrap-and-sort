@@ -75,7 +75,7 @@ class Control(object):
         if wrap_always or length > 80:
             indentation = " "
             if not short_indent:
-                indentation *= (len(entry) + 2)
+                indentation *= len(entry) + 2
             packages_with_indention = map(lambda x: indentation + x, packages)
             packages_with_indention = ",\n".join(packages_with_indention)
             if short_indent:
