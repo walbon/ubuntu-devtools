@@ -124,7 +124,7 @@ def sort_list(l):
 def main(script_name, cleanup, wrap_always, short_indent, verbose=False):
     if not os.path.isdir("debian"):
         print >> sys.stderr, "%s: Error: No debian directory found." % \
-                (script_name)
+                             (script_name)
         sys.exit(1)
 
     control_files = filter(os.path.isfile,
@@ -159,23 +159,23 @@ if __name__ == "__main__":
     epilog = "See %s(1) for more info." % (script_name)
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-    parser.add_option("-a", "--wrap-always",
-            help="wrap lists even if they fit into one 80 character long line",
-            dest="wrap_always", action="store_true", default=False)
-    parser.add_option("-s", "--short-indent",
-            help="only indent wrapped lines by one space (default is in-line "
-                 "with the field name)",
-                 dest="short_indent", action="store_true", default=False)
+    parser.add_option("-a", "--wrap-always", dest="wrap_always",
+                      help="wrap lists even if they fit into one 80 character "
+                           "long line", action="store_true", default=False)
+    parser.add_option("-s", "--short-indent", dest="short_indent",
+                      help="only indent wrapped lines by one space (default is "
+                           "in-line with the field name)", action="store_true",
+                      default=False)
     parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
-            dest="cleanup", action="store_false", default=True)
+                      dest="cleanup", action="store_false", default=True)
     parser.add_option("-v", "--verbose", help="print more information",
-            dest="verbose", action="store_true", default=False)
+                      dest="verbose", action="store_true", default=False)
 
     (options, args) = parser.parse_args()
 
     if len(args) != 0:
-        print >> sys.stderr, "%s: Error: %s: %s" % (script_name,
-                "Unsupported additional parameters specified", ", ".join(args))
+        print >> sys.stderr, ("%s: Error: Unsupported additional parameters "
+                              "specified: %s") % (script_name, ", ".join(args))
         sys.exit(1)
 
     main(script_name, options.cleanup, options.wrap_always,
