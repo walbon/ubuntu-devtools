@@ -4,8 +4,9 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     patches yet.
   * wrap-and-sort:
     - Correct typo in options --wrap-allways -> --wrap-always
+    - Sort debian/install as well as debian/*.install
 
- -- Stefano Rivera <stefano@rivera.za.net>  Wed, 24 Nov 2010 18:37:49 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 18:47:21 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 

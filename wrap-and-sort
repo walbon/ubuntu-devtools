@@ -132,7 +132,10 @@ def main(script_name, cleanup, wrap_always, verbose=False):
             print copyright_file
         remove_trailing_whitespaces(copyright_file)
 
-    for install_file in sorted(glob.glob("debian/*.install")):
+    install_files = sorted(glob.glob("debian/*.install"))
+    if os.path.isfile("debian/install"):
+        install_files.insert(0, "debian/install")
+    for install_file in install_files:
         if verbose:
             print install_file
         install = Install(install_file)
