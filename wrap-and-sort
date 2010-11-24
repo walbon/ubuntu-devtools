@@ -18,6 +18,7 @@ import debian.deb822
 import glob
 import optparse
 import os
+import os.path
 import sys
 
 CONTROL_LIST_FIELDS = (
@@ -123,33 +124,30 @@ def sort_list(l):
     param = filter(lambda x: x.startswith("${"), l)
     return sorted(normal) + sorted(param)
 
-def main(script_name, cleanup, wrap_always, short_indent, verbose=False):
-    if not os.path.isdir("debian"):
-        print >> sys.stderr, "%s: Error: No debian directory found." % \
-                             (script_name)
-        sys.exit(1)
+def main(options):
+    debdir = lambda x: os.path.join(options.debian_directory, x)
 
     control_files = filter(os.path.isfile,
-            ["debian/control", "debian/control.in"])
+            [debdir("control"), debdir("control.in")])
     for control_file in control_files:
-        if verbose:
+        if options.verbose:
             print control_file
-        control = Control(control_file, cleanup)
-        control.wrap_and_sort(wrap_always, short_indent)
+        control = Control(control_file, options.cleanup)
+        control.wrap_and_sort(options.wrap_always, options.short_indent)
         control.save()
 
     copyright_files = filter(os.path.isfile,
-            ["debian/copyright", "debian/copyright.in"])
+            [debdir("copyright"), debdir("copyright.in")])
     for copyright_file in copyright_files:
-        if verbose:
+        if options.verbose:
             print copyright_file
         remove_trailing_whitespaces(copyright_file)
 
-    install_files = sorted(glob.glob("debian/*.install"))
-    if os.path.isfile("debian/install"):
-        install_files.insert(0, "debian/install")
+    install_files = sorted(glob.glob(debdir("*.install")))
+    if os.path.isfile(debdir("install")):
+        install_files.insert(0, debdir("install"))
     for install_file in install_files:
-        if verbose:
+        if options.verbose:
             print install_file
         install = Install(install_file)
         install.sort()
@@ -166,10 +164,14 @@ if __name__ == "__main__":
                            "long line", action="store_true", default=False)
     parser.add_option("-s", "--short-indent", dest="short_indent",
                       help="only indent wrapped lines by one space (default is "
-                           "in-line with the field name)", action="store_true",
-                      default=False)
+                           "in-line with the field name)",
+                      action="store_true", default=False)
     parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
                       dest="cleanup", action="store_false", default=True)
+    parser.add_option("-d", "--debian-directory",
+                      help="location of the 'debian' directory. "
+                      "Default: ./debian", dest="debian_directory",
+                      metavar="PATH", default="debian")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
 
@@ -180,5 +182,10 @@ if __name__ == "__main__":
                               "specified: %s") % (script_name, ", ".join(args))
         sys.exit(1)
 
-    main(script_name, options.cleanup, options.wrap_always,
-         options.short_indent, options.verbose)
+    if not os.path.isdir(options.debian_directory):
+        print >> sys.stderr, (
+                '%s: Error: Debian directory not found, expecting "%s"'
+                % (script_name, options.debian_directory))
+        sys.exit(1)
+
+    main(options)

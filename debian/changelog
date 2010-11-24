@@ -8,6 +8,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Sort debian/install as well as debian/*.install
     - Add one-space-indentation option: --short-indent
     - Remove null-entry from trailing comma in sorted lists
+    - Add configurable debian directory location
   * dgetlp, grab-merge, pull-lp-source, syncpackage: Export DEB_VENDOR=Ubuntu
     when unpacking source packages. 3.0 (quilt) has optional per-vendor patch
     series.
@@ -15,7 +16,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 24 Nov 2010 21:00:40 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 22:12:57 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
