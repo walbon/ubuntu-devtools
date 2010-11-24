@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
+
+  * edit-patch: Detect quilt patch-system in 3.0 (quilt) packages without any
+    patches yet.
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 17:58:18 +0200
+
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
   [ Kees Cook ]

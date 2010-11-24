@@ -64,12 +64,13 @@ detect_patchsystem() {
     elif [ -e debian/patches/00list ]; then
 	PATCHSYSTEM="dpatch"
 	require_installed dpatch-edit-patch "no dpatch-edit-patch found, is 'dpatch' installed?"
-    elif [ -e debian/patches/series ]; then
+    elif [ -e debian/patches/series -o \( \
+           -e debian/source/format -a "$(cat debian/source/format)" = "3.0 (quilt)" \) ]; then
 	PATCHSYSTEM="quilt"
 	require_installed quilt "no quilt found, is 'quilt' installed?"
     else
-    PATCHSYSTEM="none"
-    PREFIX="debian/applied-patches"
+	PATCHSYSTEM="none"
+	PREFIX="debian/applied-patches"
     fi
 }
 
