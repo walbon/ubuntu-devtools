@@ -77,7 +77,11 @@ class Control(object):
             if not short_indent:
                 indentation *= (len(entry) + 2)
             packages_with_indention = map(lambda x: indentation + x, packages)
-            control[entry] = ",\n".join(packages_with_indention).strip()
+            packages_with_indention = ",\n".join(packages_with_indention)
+            if short_indent:
+                control[entry] = "\n" + packages_with_indention
+            else:
+                control[entry] = packages_with_indention.strip()
         else:
             control[entry] = ", ".join(packages).strip()
 
