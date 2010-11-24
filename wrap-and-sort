@@ -67,6 +67,9 @@ class Control(object):
         packages = map(lambda x: x.strip(), control[entry].split(","))
         if sort:
             packages = sort_list(packages)
+            # Not explicitly disallowed by Policy but known to break QA tools:
+            if "" in packages:
+                packages.remove("")
 
         lenght = len(entry) + 2 * len(packages) + sum(map(len, packages))
         if wrap_always or lenght > 80:
