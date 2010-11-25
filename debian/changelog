@@ -15,8 +15,9 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
+  * syncpackage: Fix error message for failed downloads.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 24 Nov 2010 22:12:57 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 25 Nov 2010 23:48:55 +0100
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 

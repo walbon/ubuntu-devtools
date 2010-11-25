@@ -231,7 +231,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
                                                          files)))
         print '%s: D: Source files: %s' % (script_name,
                                  str(map(lambda x: x.get_name(), source_files)))
-    map(lambda f: f.download(verbose), files)
+    map(lambda f: f.download(script_name, verbose), files)
 
     if ubuntu_dsc is None:
         ubuntu_files = None
@@ -286,7 +286,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     # Do a fake sync if required
     if len(fakesync_files) > 0:
         # Download Ubuntu files (override Debian source tarballs)
-        map(lambda f: f.download(verbose), fakesync_files)
+        map(lambda f: f.download(script_name, verbose), fakesync_files)
 
     # change into package directory
     directory = srcpkg + '-' + new_ver.upstream_version
