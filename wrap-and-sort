@@ -54,7 +54,7 @@ class Control(object):
         f.write(content.encode("utf-8"))
         f.close()
 
-    def wrap_and_sort(self, wrap_always, short_indent):
+    def wrap_and_sort(self, wrap_always, short_indent, sort_paragraphs):
         for paragraph in self.paragraphs:
             for field in CONTROL_LIST_FIELDS:
                 if field in paragraph:
@@ -68,6 +68,11 @@ class Control(object):
                 # Sort, with wildcard entries (such as linux-any) first:
                 archs = sorted(archs, key=lambda x: (1 - int("any" in x), x))
                 paragraph["Architecture"] = " ".join(archs)
+
+        if sort_paragraphs:
+            # Sort with Source package first, by binary Package Name
+            key = lambda x: "" if "Source" in x else x["Package"]
+            self.paragraphs = sorted(self.paragraphs, key=key)
 
     def _wrap_field(self, control, entry, wrap_always, short_indent, sort=True):
         packages = map(lambda x: x.strip(), control[entry].split(","))
@@ -138,7 +143,8 @@ def main(options):
         if options.verbose:
             print control_file
         control = Control(control_file, options.cleanup)
-        control.wrap_and_sort(options.wrap_always, options.short_indent)
+        control.wrap_and_sort(options.wrap_always, options.short_indent,
+                              options.sort_binary_packages)
         control.save()
 
     copyright_files = filter(os.path.isfile,
@@ -171,6 +177,10 @@ if __name__ == "__main__":
                       help="only indent wrapped lines by one space (default is "
                            "in-line with the field name)",
                       action="store_true", default=False)
+    parser.add_option("-b", "--sort-binary-packages",
+                      help="Sort binary package paragraphs by name",
+                      dest="sort_binary_packages", action="store_true",
+                      default=False)
     parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
                       dest="cleanup", action="store_false", default=True)
     parser.add_option("-d", "--debian-directory", dest="debian_directory",
