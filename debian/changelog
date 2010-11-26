@@ -18,8 +18,9 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
   * syncpackage: Fix error message for failed downloads.
+  * sponsor-patch: Support building with sbuild (LP: #681242).
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Fri, 26 Nov 2010 18:38:05 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 26 Nov 2010 19:32:48 +0100
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 

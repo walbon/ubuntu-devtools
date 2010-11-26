@@ -148,6 +148,50 @@ class BugTask(object):
         return self.project == "ubuntu"
 
 
+class Builder(object):
+    def __init__(self, name):
+        self.name = name
+        cmd = ["dpkg-architecture", "-qDEB_BUILD_ARCH_CPU"]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        self.architecture = process.communicate()[0].strip()
+
+    def get_architecture(self):
+        return self.architecture
+
+    def get_name(self):
+        return self.name
+
+
+class Pbuilder(Builder):
+    def __init__(self):
+        Builder.__init__(self, "pbuilder")
+
+    def build(self, dsc_file, dist, result_directory):
+        # TODO: Do not rely on a specific pbuilder configuration.
+        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
+               "--distribution", dist, "--architecture", self.architecture,
+               "--buildresult", result_directory, dsc_file]
+        Print.command(cmd)
+        return subprocess.call(cmd)
+
+
+class Sbuild(Builder):
+    def __init__(self):
+        Builder.__init__(self, "sbuild")
+
+    def build(self, dsc_file, dist, result_directory):
+        workdir = os.getcwd()
+        Print.command(["cd", result_directory])
+        os.chdir(result_directory)
+        cmd = ["sbuild", "--arch-all", "--dist=" + dist,
+               "--arch=" + self.architecture, dsc_file]
+        Print.command(cmd)
+        result = subprocess.call(cmd)
+        Print.command(["cd", workdir])
+        os.chdir(workdir)
+        return result
+
+
 class Patch(object):
     def __init__(self, patch_file):
         self.patch_file = patch_file
@@ -442,7 +486,7 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
-def main(script_name, bug_number, build, edit, keyid, upload, workdir,
+def main(script_name, bug_number, build, edit, keyid, upload, workdir, builder,
          verbose=False):
     workdir = os.path.expanduser(workdir)
     if not os.path.isdir(workdir):
@@ -634,27 +678,21 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
             buildresult = os.path.join(workdir, task.package + "-buildresult")
             if not os.path.isdir(buildresult):
                 os.makedirs(buildresult)
-            cmd = ["dpkg-architecture", "-qDEB_BUILD_ARCH_CPU"]
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            architecture = process.communicate()[0].strip()
 
             # build package
             dist = re.sub("-.*$", "", changelog.distributions)
-            # TODO: Do not rely on a specific pbuilder configuration.
-            cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
-                   "--distribution", dist, "--buildresult", buildresult,
-                   "--architecture", architecture, new_dsc_file]
-            Print.command(cmd)
-            if subprocess.call(cmd) != 0:
-                Print.error("Failed to build %s from source." % \
-                            (os.path.basename(new_dsc_file)))
+            result = builder.build(new_dsc_file, dist, buildresult)
+            if result != 0:
+                Print.error("Failed to build %s from source with %s." % \
+                            (os.path.basename(new_dsc_file),
+                             builder.get_name()))
                 # TODO: Add "retry" and "update" option
                 ask_for_manual_fixing()
                 continue
 
             # Check lintian
             changes_name = task.package + "_" + strip_epoch(new_version) + \
-                           "_" + architecture + ".changes"
+                           "_" + builder.get_architecture() + ".changes"
             build_changes = os.path.join(buildresult, changes_name)
             assert os.path.isfile(build_changes), "%s does not exist." % \
                                                   (build_changes)
@@ -674,7 +712,7 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir,
         if upload:
             if upload == "ubuntu":
                 build_name = task.package + "_" + strip_epoch(new_version) + \
-                             "_" + architecture + ".build"
+                             "_" + builder.get_architecture() + ".build"
                 build_log = os.path.join(buildresult, build_name)
                 print "Please check %s %s carefully:\nfile://%s\nfile://%s\n" \
                       "file://%s" % (task.package, new_version,
@@ -725,8 +763,17 @@ if __name__ == "__main__":
     else:
         default_workdir = os.getcwd()
 
-    parser.add_option("-b", "--build", help="Build the package with pbuilder.",
-                      dest="build", action="store_true", default=False)
+    if "SPONSOR_PATCH_BUILDER" in os.environ:
+        default_builder = os.environ["SPONSOR_PATCH_BUILDER"]
+    else:
+        default_builder = "pbuilder"
+
+    parser.add_option("-b", "--build", dest="build",
+                      help="Build the package with the specified builder.",
+                      action="store_true", default=False)
+    parser.add_option("-B", "--builder", dest="builder",
+                      help="Specify the package builder (default pbuilder)",
+                      default=default_builder)
     parser.add_option("-e", "--edit",
                       help="launch sub-shell to allow editing of the patch",
                       dest="edit", action="store_true", default=False)
@@ -759,9 +806,18 @@ if __name__ == "__main__":
         Print.error("Invalid bug number specified: %s" % (bug_number))
         sys.exit(1)
 
+    if options.builder == "pbuilder":
+        builder = Pbuilder()
+    elif options.builder == "sbuild":
+        builder = Sbuild()
+    else:
+        Print.error("Unsupported builder specified: %s. Only pbuilder and "
+                    "sbuild are supported." % (options.builder))
+        sys.exit(1)
+
     if options.sponsoring:
         options.build = True
         options.upload = "ubuntu"
 
     main(script_name, bug_number, options.build, options.edit, options.keyid,
-         options.upload, options.workdir, options.verbose)
+         options.upload, options.workdir, builder, options.verbose)
