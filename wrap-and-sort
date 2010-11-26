@@ -63,6 +63,10 @@ class Control(object):
             if "Uploaders" in paragraph:
                 self._wrap_field(paragraph, "Uploaders", wrap_always,
                                  short_indent, False)
+            if "Architecture" in paragraph:
+                archs = set(paragraph["Architecture"].split())
+                paragraph["Architecture"] = " ".join(
+                        sorted(archs, key=lambda x: (1 - int("any" in x), x)))
 
     def _wrap_field(self, control, entry, wrap_always, short_indent, sort=True):
         packages = map(lambda x: x.strip(), control[entry].split(","))
