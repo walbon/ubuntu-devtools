@@ -65,8 +65,9 @@ class Control(object):
                                  short_indent, False)
             if "Architecture" in paragraph:
                 archs = set(paragraph["Architecture"].split())
-                paragraph["Architecture"] = " ".join(
-                        sorted(archs, key=lambda x: (1 - int("any" in x), x)))
+                # Sort, with wildcard entries (such as linux-any) first:
+                archs = sorted(archs, key=lambda x: (1 - int("any" in x), x))
+                paragraph["Architecture"] = " ".join(archs)
 
     def _wrap_field(self, control, entry, wrap_always, short_indent, sort=True):
         packages = map(lambda x: x.strip(), control[entry].split(","))
