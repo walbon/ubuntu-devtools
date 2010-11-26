@@ -444,11 +444,6 @@ def apply_patch(task, patch):
 
 def main(script_name, bug_number, build, edit, keyid, upload, workdir,
          verbose=False):
-    if not workdir:
-        if "SPONSOR_PATCH_WORKDIR" in os.environ:
-            workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
-        else:
-            workdir = os.getcwd()
     workdir = os.path.expanduser(workdir)
     if not os.path.isdir(workdir):
         try:
@@ -725,6 +720,11 @@ if __name__ == "__main__":
     epilog = "See %s(1) for more info." % (script_name)
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
+    if "SPONSOR_PATCH_WORKDIR" in os.environ:
+        default_workdir = os.path.abspath(os.environ["SPONSOR_PATCH_WORKDIR"])
+    else:
+        default_workdir = os.getcwd()
+
     parser.add_option("-b", "--build", help="Build the package with pbuilder.",
                       dest="build", action="store_true", default=False)
     parser.add_option("-e", "--edit",
@@ -738,7 +738,8 @@ if __name__ == "__main__":
                       help="Specify an upload destination (default none).")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
-    parser.add_option("-w", "--workdir", dest="workdir", default=None,
+    parser.add_option("-w", "--workdir", dest="workdir",
+                      default=default_workdir,
                       help="Specify a working directory.")
 
     (options, args) = parser.parse_args()
