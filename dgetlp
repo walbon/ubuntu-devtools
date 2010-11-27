@@ -221,12 +221,9 @@ def Download(dscinfo, number, filename, verify=True):
         error(107, "Error: %s", e)
 
 def unpack():
-    # Source format 3.0 can apply patches based on vendor
-    env = os.environ
-    env['DEB_VENDOR'] = 'Ubuntu'
     out = open('/dev/null', 'w')
     err = open('/dev/null', 'w')
-    ret = subprocess.Popen(unpack_cmd.split(), stdout=out, stderr=err, env=env)
+    ret = subprocess.call(unpack_cmd.split(), stdout=out, stderr=err)
     out.close()
     err.close()
     if ret:

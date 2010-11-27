@@ -11,16 +11,15 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Add configurable debian directory location
     - Sort Architecture (LP: #681131)
     - Add --sort-binary-packages and --keep-first (LP: #681119)
-  * dgetlp, grab-merge, pull-lp-source, syncpackage: Export DEB_VENDOR=Ubuntu
-    when unpacking source packages. 3.0 (quilt) has optional per-vendor patch
-    series.
+  * grab-merge, syncpackage: Export DEB_VENDOR=Ubuntu when unpacking source
+    packages. 3.0 (quilt) has optional per-vendor patch series.
 
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
   * syncpackage: Fix error message for failed downloads.
   * sponsor-patch: Support building with sbuild (LP: #681242).
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 27 Nov 2010 09:22:03 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 27 Nov 2010 18:38:32 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
