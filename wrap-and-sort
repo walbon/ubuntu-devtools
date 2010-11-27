@@ -67,7 +67,7 @@ class Control(object):
             if "Architecture" in paragraph:
                 archs = set(paragraph["Architecture"].split())
                 # Sort, with wildcard entries (such as linux-any) first:
-                archs = sorted(archs, key=lambda x: (1 - int("any" in x), x))
+                archs = sorted(archs, key=lambda x: ("any" not in x, x))
                 paragraph["Architecture"] = " ".join(archs)
 
         if sort_paragraphs:
