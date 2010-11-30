@@ -41,9 +41,17 @@ def get_most_recent_debian_version(changelog):
 			return v.full_version
 
 def get_bug_body(changelog):
-	return '''In Ubuntu, we've applied the attached patch to achieve the following:
+	return '''In Ubuntu, the attached patch was applied to achieve the following:
+
+## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
+## Please add all necessary information about why the change needed to go in 
+## Ubuntu, quote policy, spec or any other background material and why it can
+## and should be used in Debian too.
+## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
+
 %s
-We thought you might be interested in doing the same. 
+
+Thanks for considering the patch.
 ''' % ("\n".join([a for a in changelog._blocks[0].changes()]))
 
 def gen_debdiff(changelog):

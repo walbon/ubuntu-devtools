@@ -19,7 +19,11 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   * syncpackage: Fix error message for failed downloads.
   * sponsor-patch: Support building with sbuild (LP: #681242).
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 27 Nov 2010 18:38:32 +0200
+  [ Daniel Holbach ]
+  * submittodebian: rephrase boilerplate text to be more polite, add reminder
+    to explain the patch sufficiently and add necessary information.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 30 Nov 2010 11:55:24 +0100
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
