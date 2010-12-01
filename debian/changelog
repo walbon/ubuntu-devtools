@@ -23,6 +23,10 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   * submittodebian: rephrase boilerplate text to be more polite, add reminder
     to explain the patch sufficiently and add necessary information.
 
+  [ Colin Watson ]
+  * submittodebian: Encourage sending multiple independent pieces of the
+    Ubuntu patch in separate bug reports.
+
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 30 Nov 2010 11:55:24 +0100
 
 ubuntu-dev-tools (0.106) experimental; urgency=low

@@ -44,9 +44,10 @@ def get_bug_body(changelog):
 	return '''In Ubuntu, the attached patch was applied to achieve the following:
 
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
-## Please add all necessary information about why the change needed to go in 
+## Please add all necessary information about why the change needed to go in
 ## Ubuntu, quote policy, spec or any other background material and why it can
-## and should be used in Debian too.
+## and should be used in Debian too.  If the patch is composed of multiple
+## independent pieces, please send them as separate bug reports.
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
 
 %s
