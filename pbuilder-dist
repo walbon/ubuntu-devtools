@@ -190,22 +190,22 @@ class pbuilder_dist:
                                   % result)
                 exit(1)
 
-        if self.builder == 'pbuilder':
-            base = '--basetgz "%s-base.tgz"' % prefix
-        elif self.builder == 'cowbuilder':
-            base = '--basepath "%s-base.cow"' % prefix
-        else:
-            print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
-            exit(1)
-
         arguments = [
             '--%s' % self.operation,
-            base,
             '--distribution', self.target_distro,
             '--buildresult', result,
             '--aptcache', '/var/cache/apt/archives/',
             '--override-config',
         ]
+
+        if self.builder == 'pbuilder':
+            arguments += ['--basetgz', prefix + '-base.tgz']
+        elif self.builder == 'cowbuilder':
+            arguments += ['--basepath', prefix + '-base.cow']
+        else:
+            print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
+            exit(1)
+
 
         if self.logfile:
             arguments += ['--logfile', self.logfile]
