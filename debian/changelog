@@ -17,6 +17,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Refactor to use subprocess.popen instead of os.system (LP: #398974)
     - Catch OSErrors when creating directories (LP: #671067)
     - Set HOME so pbuilder reads .pbuilderrc
+  * Use dpkg-vendor in ubuntutools.misc.system_distribution(), cache result.
 
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.

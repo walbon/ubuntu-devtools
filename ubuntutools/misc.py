@@ -26,6 +26,7 @@ from subprocess import Popen, PIPE
 
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 
+_system_distribution = None
 def system_distribution():
     """ system_distro() -> string
 
@@ -33,21 +34,22 @@ def system_distribution():
     name of the distribution can't be determined, print an error message
     and return None.
     """
-    # We try to avoid calling the "lsb_release" as looking up the value
-    # directly is faster. However, Debian doesn't have /etc/lsb-release
-    # so we need to fallback to the former there.
-    if os.path.isfile('/etc/lsb-release'):
-        for line in open('/etc/lsb-release'):
-            line = line.strip()
-            if line.startswith('DISTRIB_CODENAME'):
-                return line[17:]
-    else:
-        import commands
-        output = commands.getoutput('lsb_release -cs')
-        if output:
-            return output
-    print 'Error: Could not determine what distribution you are running.'
-    return None
+    global _system_distribution
+    if _system_distribution is None:
+        try:
+            if os.path.isfile('/usr/bin/dpkg-vendor'):
+                p = Popen(('dpkg-vendor', '--query', 'vendor'), stdout=PIPE)
+            else:
+                p = Popen(('lsb_release', '-cs'), stdout=PIPE)
+            output = p.communicate()[0]
+        except OSError:
+            print 'Error: Could not determine what distribution you are running.'
+            return None
+        if p.returncode != 0:
+            print 'Error determininng system distribution'
+            return None
+        _system_distribution = output.strip()
+    return _system_distribution
 
 def host_architecture():
     """ host_architecture -> string
