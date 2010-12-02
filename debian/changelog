@@ -13,6 +13,13 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Add --sort-binary-packages and --keep-first (LP: #681119)
   * grab-merge, syncpackage: Export DEB_VENDOR=Ubuntu when unpacking source
     packages. 3.0 (quilt) has optional per-vendor patch series.
+  * pbuilder-dist:
+    - Refactor to use subprocess.popen instead of os.system (LP: #398974)
+    - Catch OSErrors when creating directories (LP: #671067)
+    - Set HOME so pbuilder reads .pbuilderrc
+    - Add bidirectional workarounds for LP: #599695 (pbuilder uses the host
+      apt keyring). Complain if the target's keyring isn't installed.
+  * Use dpkg-vendor in ubuntutools.misc.system_distribution(), cache result.
 
   [ Benjamin Drung ]
   * wrap-and-sort: Remove duplicate items from sorted lists.
@@ -27,7 +34,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   * submittodebian: Encourage sending multiple independent pieces of the
     Ubuntu patch in separate bug reports.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 30 Nov 2010 11:55:24 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 02 Dec 2010 09:36:48 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 
