@@ -363,7 +363,7 @@ def main():
                     ('armel', 'arm'), ('i386', 'lpia'), ('lpia', 'i386'),
                     ('powerpc', 'ppc64'), ('ppc64', 'powerpc'),
                     ('sparc', 'sparc64'), ('sparc64', 'sparc')]):
-            args.append('--debootstrap qemu-debootstrap')
+            args += ['--debootstrap', 'qemu-debootstrap']
 
     if 'mainonly' in argv or '--main-only' in argv:
         app.extra_components = False
