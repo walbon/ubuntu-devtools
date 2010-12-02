@@ -123,7 +123,7 @@ def needSponsorship(name, component, release):
 	Ask the user if he has upload permissions for the package or the
 	component.
 	'''
-	
+
 	while True:
 		print "Do you have upload permissions for the '%s' component " \
 			"or the package '%s' in Ubuntu %s?" % (component, name, release)
@@ -166,7 +166,7 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
  done
 
 %s''' % (status, subscribe, bugtext)
-	
+
 	# prepare sign command
 	gpg_command = None
 	for cmd in ('gpg', 'gpg2', 'gnome-gpg'):

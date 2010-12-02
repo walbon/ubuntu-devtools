@@ -139,7 +139,7 @@ class BaseWrapper(object):
 				return fetch(data)
 			else:
 				raise NotImplementedError("Don't know how to fetch '%s' from LP" % str(data))
-	
+
 	def __call__(self):
 		return self._lpobject
 

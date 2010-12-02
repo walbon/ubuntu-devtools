@@ -37,7 +37,7 @@ then
 	#########################################################
 	# Install the dependencies for the source package the
 	# user is working on.
-	
+
 	if [ -f ../debian/control ]; then
 		cd ..
 	elif [ ! -f ./debian/control ]; then
@@ -48,17 +48,17 @@ package(s) whose build dependencies you want to install in order \
 to use this script."
 		exit 1
 	fi
-	
+
 	filepath="`pwd`/debian/control"
 	missing_dependencies=$(dpkg-checkbuilddeps 2>&1)
-	
+
 	if [ -z "$missing_dependencies" ]; then
 		echo "The build dependencies described in «$filepath» are already satisfied."
 		exit 0
 	fi
-	
+
 	echo "Installing the build dependencies described in «$filepath»..."
-	
+
 	if [ -x /usr/lib/pbuilder/pbuilder-satisfydepends ]
 	then
 		sudo /usr/lib/pbuilder/pbuilder-satisfydepends

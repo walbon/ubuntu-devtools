@@ -126,7 +126,7 @@ sub getDSC {
 
 	}
 
-	my @vers = reverse sort AptPkg::Version::CmpVersion keys %urls;	
+	my @vers = reverse sort AptPkg::Version::CmpVersion keys %urls;
 
 	return $urls{$vers[0]} or die("Unable To Find Source Package On Madison\n");
 

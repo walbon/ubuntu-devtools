@@ -519,7 +519,7 @@ EOM
 btrfs-source-subvolume=CHROOT_PATH
 btrfs-snapshot-directory=CHROOT_SNAPSHOT_DIR
 EOM
-    ;;	
+    ;;
     esac
 fi
 if [ ! -z "$personality" ]; then

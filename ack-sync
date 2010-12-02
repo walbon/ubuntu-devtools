@@ -256,7 +256,7 @@ def main(bug_numbers, all_package, all_version, all_section, update,
 		subprocess.check_call(["dpkg-source", "-x", dsc_file], env=env)
 
 		build_source(dist, dsc_file)
-	
+
 		if piuparts:
 			test_install(dist, dsc_file)
 
