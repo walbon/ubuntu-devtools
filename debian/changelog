@@ -17,6 +17,8 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
     - Refactor to use subprocess.popen instead of os.system (LP: #398974)
     - Catch OSErrors when creating directories (LP: #671067)
     - Set HOME so pbuilder reads .pbuilderrc
+    - Add bidirectional workarounds for LP: #599695 (pbuilder uses the host
+      apt keyring). Complain if the target's keyring isn't installed.
   * Use dpkg-vendor in ubuntutools.misc.system_distribution(), cache result.
 
   [ Benjamin Drung ]
@@ -32,7 +34,7 @@ ubuntu-dev-tools (0.107) UNRELEASED; urgency=low
   * submittodebian: Encourage sending multiple independent pieces of the
     Ubuntu patch in separate bug reports.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 02 Dec 2010 09:29:56 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 02 Dec 2010 09:36:48 +0200
 
 ubuntu-dev-tools (0.106) experimental; urgency=low
 

@@ -222,11 +222,6 @@ class pbuilder_dist:
 
         if self.target_distro in debian_distros:
             arguments += ['--mirror', 'http://ftp.debian.org/debian']
-            # work around bug #599695
-            arguments += [
-                    '--debootstrapopts',
-                    '--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
-            ]
             components = 'main'
             if self.extra_components:
                 components += ' contrib non-free'
@@ -242,6 +237,28 @@ class pbuilder_dist:
             components = 'main restricted'
             if self.extra_components:
                 components += ' universe multiverse'
+
+        # Work around LP:#599695
+        if (ubuntutools.misc.system_distribution() == 'Debian'
+                and self.target_distro not in debian_distros):
+            if not os.path.exists(
+                    '/usr/share/keyrings/ubuntu-archive-keyring.gpg'):
+                print >> stderr, 'Error: ubuntu-keyring not installed'
+                exit(1)
+            arguments += [
+                    '--debootstrapopts',
+                    '--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg',
+            ]
+        elif (ubuntutools.misc.system_distribution() == 'Ubuntu'
+                and self.target_distro in debian_distros):
+            if not os.path.exists(
+                    '/usr/share/keyrings/debian-archive-keyring.gpg'):
+                print >> stderr, 'Error: debian-archive-keyring not installed'
+                exit(1)
+            arguments += [
+                    '--debootstrapopts',
+                    '--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
+            ]
 
         arguments += ['--components', components]
 
