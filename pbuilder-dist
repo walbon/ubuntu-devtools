@@ -262,6 +262,7 @@ class pbuilder_dist:
         # environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
         return [
             self.auth,
+            'HOME=' + os.path.expanduser('~'),
             'ARCH=' + self.build_architecture,
             'DIST=' + self.target_distro,
             self.builder,
