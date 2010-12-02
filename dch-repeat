@@ -9,7 +9,7 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -137,7 +137,7 @@ warn "package: '$opt_package\n" if ($opt_verbose);
 if (!defined($opt_source_release)) {
     if ($opt_target_release eq $opt_devel_release) {
         die "No more recent release than '$opt_devel_release' to take changelog from\n";
-    } 
+    }
     foreach my $i (0 .. $#releases) {
         if ($releases[$i] eq $opt_target_release) {
             $opt_source_release = $releases[$i+1];

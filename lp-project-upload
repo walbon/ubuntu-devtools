@@ -60,7 +60,7 @@ def create_release(project, version):
 
 def edit_file(prefix, description):
     (fd, f) = tempfile.mkstemp(prefix=prefix+'.')
-    os.write(fd, '\n\n#------\n# Please enter the %s here. Lines which start with "#" are ignored.\n' % 
+    os.write(fd, '\n\n#------\n# Please enter the %s here. Lines which start with "#" are ignored.\n' %
             description)
     os.close(fd)
     subprocess.call(['sensible-editor', f])

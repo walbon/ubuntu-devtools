@@ -23,7 +23,7 @@ import sys, re
 def usage():
     print '''Usage: merge-changelog <left changelog> <right changelog>
 
-merge-changelog takes two changelogs that once shared a common source, 
+merge-changelog takes two changelogs that once shared a common source,
 merges them back together, and prints the merged result to stdout.  This
 is useful if you need to manually merge a ubuntu package with a new
 Debian release of the package.
@@ -56,7 +56,7 @@ def merge_changelog(left_changelog, right_changelog):
 
     for left_ver, left_text in left_cl:
         print left_text
-        
+
     return False
 
 def read_changelog(filename):
@@ -255,7 +255,7 @@ def deb_cmp(x, y):
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         usage()
-    
+
     left_changelog = sys.argv[1]
     right_changelog = sys.argv[2]
 

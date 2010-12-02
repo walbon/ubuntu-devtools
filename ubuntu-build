@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# 
+#
 #   ubuntu-build - command line interface for Launchpad buildd operations.
 #
 #   Copyright (C) 2007 Canonical Ltd.
@@ -43,7 +43,7 @@ valid_archs =  set(["armel", "amd64", "hppa", "i386",
 # Prepare our option parser.
 optParser = OptionParser(usage)
 
-# Retry options 
+# Retry options
 retryRescoreOptions = OptionGroup(optParser, "Retry and rescore options",
     "These options may only be used with the 'retry' and 'rescore' operations.")
 retryRescoreOptions.add_option("-a", "--arch", type = "string",

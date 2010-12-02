@@ -318,13 +318,13 @@ ubuntu-dev-tools (0.97) lucid; urgency=low
   * pull-lp-source: Use (anonymously) the LP API to get the URL for the .dsc
     file instead of screen scraping.
   * Apply patch from Julian Andres Klode for the python-apt 0.8 API transition
-    (Closes: #572091) 
+    (Closes: #572091)
   * ubuntutools/requestsync/mail.py: Fix some more encoding issues
     (lp: #557828).
-  
+
   [ Michael Vogt ]
   * edit-patch:
-    - fix quilt mode when dpkg already applied all the patches 
+    - fix quilt mode when dpkg already applied all the patches
       (LP: #556297)
 
  -- Michael Bienia <geser@ubuntu.com>  Thu, 08 Apr 2010 12:59:59 +0200
@@ -338,7 +338,7 @@ ubuntu-dev-tools (0.96) lucid; urgency=low
   * mk-sbuild: Really don't use build-arm-chroot
 
   [ Daniel Holbach ]
-  * hugdaylist, requestsync, doc/requestsync.1: 
+  * hugdaylist, requestsync, doc/requestsync.1:
     ubuntu-{main,universe}-sponsors → ubuntu-sponsors,
     {ubuntu,motu}-release → ubuntu-release.
   * ubuntutools/ppaput.py: removed, not necessary any more.
@@ -511,7 +511,7 @@ ubuntu-dev-tools (0.86) lucid; urgency=low
   * ubuntutools/requestsync/common.py: convert the changelog into a unicode
     string (lp: #498349)
   * ubuntutools/requestsync/mail.py: rmadison() returns now the most recent
-    source line (Closes: #560758) 
+    source line (Closes: #560758)
 
   [ Iain Lane ]
   * pull-debian-source: Return the most recent source line. Depend on
@@ -564,7 +564,7 @@ ubuntu-dev-tools (0.83) lucid; urgency=low
     default release if we aren't using it. (LP: #477670)
   * pull-lp-source: Detect more failure conditions and give a nice error
     instead of a trace
-  * buildd, requestsync, grab-attachments, hugdaylist, update-maintainer: 
+  * buildd, requestsync, grab-attachments, hugdaylist, update-maintainer:
     Detect & bail if we don't have credentials and need them. These scripts
     cannot continue under those circumstances.
 
@@ -627,7 +627,7 @@ ubuntu-dev-tools (0.81) karmic; urgency=low
   * requestsync: Give an error message if no changelog entries - happens if,
     for example, the new package's changelog hasn't yet been published on p.d.o
   * update-maintainer: Also check if package is in experimental when looking
-    who to update maintainer to. 
+    who to update maintainer to.
   * update-maintainer: Prefer updating control.in to control; this is used by
     some Debian packages, notably those maintained by pkg-gnome.
   * debian/control: Update standards-version to 3.8.3, no changes
@@ -649,7 +649,7 @@ ubuntu-dev-tools (0.81) karmic; urgency=low
 ubuntu-dev-tools (0.80) karmic; urgency=low
 
   * mk-sbuild-lv: Export http_proxy. LP: #416438
-   
+
  -- Michael Terry <michael.terry@canonical.com>  Thu, 10 Sep 2009 10:53:30 -0400
 
 ubuntu-dev-tools (0.79) karmic; urgency=low
@@ -745,7 +745,7 @@ ubuntu-dev-tools (0.75) karmic; urgency=low
   * requestsync:
     - Fix check for sponsorship when a new package should get synced.
     - Add "done" as last email command when emailing the sync request
-      to stop parsing of the email body for further email commands 
+      to stop parsing of the email body for further email commands
       (lp: #372555)
 
   [ Jonathan Davies ]
@@ -825,7 +825,7 @@ ubuntu-dev-tools (0.74) karmic; urgency=low
       simpler
   * buildd
     - Check if user has upload privileges instead of checking for team
-      membership when seeing if operations are permitted 
+      membership when seeing if operations are permitted
 
   [ Colin Watson ]
   * update-maintainer:
@@ -1087,7 +1087,7 @@ ubuntu-dev-tools (0.56) jaunty; urgency=low
   * requestsync: Catch credentials error to hide traceback.
   * Moved common.py to ubuntutools/ subdirectory to avoid possible conflicts
     in Python packaging and fixed all imports as necessary.
-  * debian/ubuntu-dev-tools.install: Removed common.py entry. 
+  * debian/ubuntu-dev-tools.install: Removed common.py entry.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Sat, 17 Jan 2009 11:32:33 +0000
 
@@ -1109,7 +1109,7 @@ ubuntu-dev-tools (0.54) jaunty; urgency=low
     - When credentials are not found, ask user to see
       manage-credentials manpage.
     - Load all token files for the consumer specified in the above
-      directory as necessary. 
+      directory as necessary.
 
  -- Jonathan Davies <jpds@ubuntu.com>  Wed, 14 Jan 2009 19:39:35 +0000
 
@@ -1120,7 +1120,7 @@ ubuntu-dev-tools (0.53) jaunty; urgency=low
      - Add information about manage-credentials.
 
   [ Daniel Holbach ]
-  * debian/control: replace 'sb-release' with lsb-release, make package 
+  * debian/control: replace 'sb-release' with lsb-release, make package
     installable again.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 14 Jan 2009 16:27:34 +0100
@@ -1156,7 +1156,7 @@ ubuntu-dev-tools (0.52) jaunty; urgency=low
 
   [ Jonathan Davies ]
   * buildd: Don't show arch override message if operation to perform is
-    'status'. 
+    'status'.
   * requestsync: If package is new, check the Ubuntu Archive team's bug list
     for possible duplicate requests.
   * doc/manage-credentials.1: Written up.
@@ -1189,7 +1189,7 @@ ubuntu-dev-tools (0.51) jaunty; urgency=low
     - Implemented sleeps to --lp bug reporting in case of a slow
       Launchpad to stop mass bug filing (LP: #311289).
 
- -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000 
+ -- Jonathan Davies <jpds@ubuntu.com>  Tue, 30 Dec 2008 15:51:55 +0000
 
 ubuntu-dev-tools (0.50.1) jaunty; urgency=low
 
@@ -1337,7 +1337,7 @@ ubuntu-dev-tools (0.43ubuntu1) intrepid; urgency=low
 
   [ Jonathan Patrick Davies ]
   * common.py:
-    - If loading a cookie file raises an exception exit. 
+    - If loading a cookie file raises an exception exit.
     - Improve cookie file writing.
     - New function: isLPTeamMember() - checks if the user is a member of the
       Launchpad team using cookies for authentication.
@@ -1399,7 +1399,7 @@ ubuntu-dev-tools (0.40ubuntu3) intrepid; urgency=low
 
 ubuntu-dev-tools (0.40ubuntu2) intrepid; urgency=low
 
-  * requestsync: Correct print statement redirect to sys,stderr. 
+  * requestsync: Correct print statement redirect to sys,stderr.
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Mon, 18 Aug 2008 10:59:59 +0100
 
@@ -1439,7 +1439,7 @@ ubuntu-dev-tools (0.39ubuntu1) intrepid; urgency=low
      - Add functions mkdir and readlist.
 
   [ Iain Lane ]
-  * pull-lp-source: Better handle errors when going to LP 
+  * pull-lp-source: Better handle errors when going to LP
 
  -- Jonathan Patrick Davies <jpds@ubuntu.com>  Thu, 14 Aug 2008 12:21:45 +0100
 
@@ -1648,7 +1648,7 @@ ubuntu-dev-tools (0.30) hardy; urgency=low
 ubuntu-dev-tools (0.29) hardy; urgency=low
 
   * grab-attachments, setup.py: added grab-attachments tool. You give it bug
-    numbers, it gets you their attachments. Useful for sponsoring. 
+    numbers, it gets you their attachments. Useful for sponsoring.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 10 Mar 2008 11:31:50 +0100
 
@@ -1846,7 +1846,7 @@ ubuntu-dev-tools (0.23) hardy; urgency=low
   * debian/control: bumped python-launchpad-bugs requirement to newest version
     and made it a Recommends. All scripts in ubuntu-dev-tools using it fail
     gracefully if it's not installed.
-  * hugdaylist: 
+  * hugdaylist:
     - make use of text connector.
     - commentary in wiki output.
 
@@ -1902,7 +1902,7 @@ ubuntu-dev-tools (0.22) hardy; urgency=low
     -Always pass -u option to rmadison now that it defaults to ubuntu
 
   [ Siegfried-Angel Gevatter Pujals (RainCT) ]
-  * Add dgetlp script (for «dgetting» from Launchpad) 
+  * Add dgetlp script (for «dgetting» from Launchpad)
 
   [ Lucas Nussbaum ]
   * Enabled support for Bugs/Debian/Usertagging in submittodebian
@@ -1910,7 +1910,7 @@ ubuntu-dev-tools (0.22) hardy; urgency=low
   [ Michael Vogt ]
   * debian/control:
     - depend on reportbug (>= 3.39ubuntu1) to have working usertag support
-  
+
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 20 Nov 2007 12:15:20 +0100
 
 ubuntu-dev-tools (0.21) hardy; urgency=low
@@ -2012,7 +2012,7 @@ ubuntu-dev-tools (0.15) gutsy; urgency=low
 
 ubuntu-dev-tools (0.14) gutsy; urgency=low
 
-  * massfile: 
+  * massfile:
     - fixed bug where to find example files,
     - made url get checked beforehand.
     - fixed bug, where description and summary were not updated with the

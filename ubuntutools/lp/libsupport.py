@@ -8,7 +8,7 @@
 #   modify it under the terms of the GNU General Public License
 #   as published by the Free Software Foundation; either version 3
 #   of the License, or (at your option) any later version.
-# 
+#
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -43,7 +43,7 @@ def find_credentials(consumer, files, level=None):
     """ search for credentials matching 'consumer' in path for given access level. """
     if Credentials is None:
         raise ImportError
-        
+
     for f in files:
         cred = Credentials()
         try:
@@ -51,12 +51,12 @@ def find_credentials(consumer, files, level=None):
         except:
             continue
         if cred.consumer.key == consumer:
-            return cred        
-    
+            return cred
+
     raise IOError("No credentials found for '%s', please see the " \
             "manage-credentials manpage for help on how to create " \
             "one for this consumer." % consumer)
-    
+
 def get_credentials(consumer, cred_file=None, level=None):
     files = list()
 
@@ -74,13 +74,13 @@ def get_credentials(consumer, cred_file=None, level=None):
         files.append(x)
 
     return find_credentials(consumer, files, level)
-    
+
 def get_launchpad(consumer, server=service, cache=None,
                   cred_file=None, level=None):
     credentials = get_credentials(consumer, cred_file, level)
     cache = cache or os.environ.get("LPCACHE", None)
     return Launchpad(credentials, server, cache, version=api_version)
-    
+
 def query_to_dict(query_string):
     result = dict()
     options = filter(None, query_string.split("&"))
@@ -88,7 +88,7 @@ def query_to_dict(query_string):
         key, value = opt.split("=")
         result.setdefault(key, set()).add(value)
     return result
-        
+
 def translate_web_api(url, launchpad):
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
     query = query_to_dict(query)
@@ -106,10 +106,10 @@ def translate_web_api(url, launchpad):
     query = urllib.urlencode(query)
     url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"), query, fragment))
     return url
-    
+
 def translate_api_web(self_url):
     return self_url.replace("api.", "").replace("%s/" % (api_version), "")
-    
+
 LEVEL = {
     0: "UNAUTHORIZED",
     1: "READ_PUBLIC",
@@ -117,7 +117,7 @@ LEVEL = {
     3: "READ_PRIVATE",
     4: "WRITE_PRIVATE"
 }
-    
+
 def approve_application(credentials, email, password, level, web_root,
         context):
     authorization_url = credentials.get_request_token(context, web_root)
@@ -133,7 +133,7 @@ def approve_application(credentials, email, password, level, web_root,
     params = {level: 1,
         "oauth_token": credentials._request_token.key,
         "lp.context": context or ""}
-           
+
     lp_creds = ":".join((email, password))
     basic_auth = "Basic %s" %(lp_creds.encode('base64'))
     headers = {'Authorization': basic_auth}

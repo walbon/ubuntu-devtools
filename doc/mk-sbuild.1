@@ -6,7 +6,7 @@ mk\-sbuild \- creates chroots via schroot and sbuild
 .SH SYNOPSIS
 \fBmk\-sbuild\fR [\fB\-\-arch=ARCH\fR] [\fB\-\-name=NAME\fR]
 [\fB\-\-personality=PERSONALITY\fR] [\fB\-\-debug\fR] [\fB\-\-source\-template=FILE\fR]
-[\fB\-\-debootstrap\-mirror=URL\fR] [\fB\-\-distro=DISTRO\fR] 
+[\fB\-\-debootstrap\-mirror=URL\fR] [\fB\-\-distro=DISTRO\fR]
 [\fB\-\-vg=VOLUME_GROUP\fR] [\fB\-\-type=SCHROOT_TYPE\fR] <\fBRelease\fR>
 
 .SH DESCRIPTION
@@ -56,7 +56,7 @@ Specify a volume group, and subsequently use a default SCHROOT_TYPE of
 .TP
 .B \-\-type=SHROOT_TYPE
 Specify a SCHROOT_TYPE.  Supported values are "directory" (default if
-\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified), 
+\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified),
 "btrfs-snapshot", and "file".
 
 .SH ENVIRONMENT VARIABLES

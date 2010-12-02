@@ -8,7 +8,7 @@
 #   modify it under the terms of the GNU General Public License
 #   as published by the Free Software Foundation; either version 3
 #   of the License, or (at your option) any later version.
-# 
+#
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -48,7 +48,7 @@ def checkSourceExists(package, release):
     """
         Check that a package exists by opening its
         https://launchpad.net/ubuntu/+source/package page.
-        
+
         Return the package's page URL and it's current version in the requested
         release.
     """
@@ -93,11 +93,11 @@ def packageComponent(package, release):
         '-s', release, package], stdout = subprocess.PIPE)
     out = madison.communicate()[0]
     assert (madison.returncode == 0)
-    
+
     for l in out.splitlines():
         (pkg, version, rel, builds) = l.split('|')
         component = 'main'
-        if rel.find('/') != -1: 
+        if rel.find('/') != -1:
             component = rel.split('/')[1]
 
     return component.strip()
@@ -113,5 +113,5 @@ def checkIsInDebian(package, distro):
         assert out
     except AssertionError:
         out = False
-    
+
     return out

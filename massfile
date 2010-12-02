@@ -13,7 +13,7 @@
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; version 3.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,11 +34,11 @@ def read_config():
     instructions = email.message_from_file(instructions_file)
     instructions_file.close()
     instr = dict()
-    
+
     for field in "subject", "assignee", "subscribers", "tags", "text", \
                  "buglist-url", "status":
         instr[field] = instructions.get(field)
-    
+
     return instr
 
 def read_list():
@@ -83,29 +83,28 @@ def file_bug(config):
     try:
         summary = config["subject"].replace("$pack", config["sourcepackage"])
         description = config["text"].replace("$pack", config["sourcepackage"])
-        
 
         product_url = "%subuntu/+source/%s" %(launchpad._root_uri, config["sourcepackage"])
         tags = filter(None, map(lambda t: t.strip("\n").strip(), config["tags"].split(",")))
         bug = launchpad.bugs.createBug(description=description, title=summary,
             target=product_url, tags=tags)
-        
+
         print "Successfully filed bug %i: %s" %(bug.id, translate_api_web(bug.self_link))
-        
+
         subscribers = filter(None, map(lambda t: t.strip("\n").strip(), config["subscribers"].split(",")))
         for sub in subscribers:
             subscribe_url = "%s~%s" %(launchpad._root_uri, sub)
             bug.subscribe(person=subscribe_url)
-            
+
         #newly created bugreports have one task
         task = bug.bug_tasks[0]
-        
+
         if config["status"]:
             status = config["status"].capitalize()
         else:
             status = "Confirmed"
         task.status = status
-        
+
         assignee = config["assignee"]
         if assignee:
             assignee_url = "%s~%s" %(launchpad._root_uri, assignee)
@@ -117,12 +116,12 @@ def file_bug(config):
 def read_buglist(url):
     if not url:
         return set()
-        
+
     if len(url.split("?", 1)) == 2:
         # search options not supported, because there is no mapping web ui options <-> API options
         print >> sys.stderr, "Options in url are not supported, url: %s" %url
         sys.exit(1)
-        
+
     launchpad = get_launchpad("ubuntu-dev-tools")
     packages = set()
 
@@ -132,10 +131,10 @@ def read_buglist(url):
     api_url = api_url.split("?", 1)[0]
     project = launchpad.load(api_url)
     buglist = project.searchTasks()
-    
+
     for bug in buglist:
         packages.add(bug.bug_target_name)
-        
+
     return packages
 
 def main():
@@ -145,13 +144,13 @@ def main():
     config = read_config()
     pack_list = read_list()
     buglist = read_buglist(config["buglist-url"])
-	
+
     for pack in pack_list:
         if pack not in buglist:
             config["sourcepackage"] = pack
             file_bug(config)
 
-	
+
 if __name__ == '__main__':
     main()
 

@@ -1,16 +1,16 @@
 subject: [UNMETDEPS] $pack has unmet dependencies
-assignee: 
+assignee:
 status: confirmed
 subscribers: motu
 tags: unmetdeps
 buglist-url: http://bugs.launchpad.net/ubuntu/+bugs?field.tag=unmetdeps
 text:
- A run of 
+ A run of
  .
   LC_ALL=C apt-cache -i unmet | grep ^Package | cut -d' ' -f2 | grep
   -v dbgsym | sort -u | xargs apt-cache showsrc | grep ^Directory |
   sed 's/Package\:\ //g' | grep verse | cut -d'/' -f4
- indicates that the source package $pack has binary packages that are not 
+ indicates that the source package $pack has binary packages that are not
  installable (on AMD64) at the moment.
  .
  Please have a look and make sure it's installable again.

@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# 
+#
 #   update-maintainer - this script is used to update the Maintainer field of an
 #                       Ubuntu package, as approved by the Ubuntu Technical
 #                       Board at:

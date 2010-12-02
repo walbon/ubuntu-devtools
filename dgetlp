@@ -30,7 +30,7 @@
 import sys, os
 from optparse import OptionParser
 import urllib2
-import hashlib 
+import hashlib
 import subprocess
 import GnuPGInterface
 from cStringIO import StringIO

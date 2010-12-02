@@ -84,7 +84,7 @@ EOM
 
     echo '***********************************************'
     echo '* Before continuing, you MUST restart your    *'
-    echo '* session to gain "sbuild" group permissions! *' 
+    echo '* session to gain "sbuild" group permissions! *'
     echo '***********************************************'
     exit 0
 fi

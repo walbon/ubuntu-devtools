@@ -14,13 +14,13 @@ Templates for both files can be found in /usr/share/doc/ubuntu-dev-tools/example
 \fBmassfile.instructions\fR - file designating the contents of the bug report
 
  subject: [UNMETDEPS] $pack has unmet dependencies
- assignee: 
+ assignee:
  status: confirmed
  subscribers: motu
  tags: unmetdeps
  buglist-url: http://bugs.launchpad.net/ubuntu/+bugs?field.tag=unmetdeps
  text:
-  A run of 
+  A run of
   .
    LC_ALL=C apt-cache \-i unmet | grep ^Package | cut \-d' ' \-f2 | grep
    \-v dbgsym | sort \-u | xargs apt-cache showsrc | grep ^Directory |
