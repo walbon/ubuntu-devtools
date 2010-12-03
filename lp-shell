@@ -23,7 +23,7 @@ from optparse import OptionParser
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.uris import lookup_service_root
 
-instance = 'edge'
+instance = 'production'
 valid_api_versions = ('beta', '1.0', 'devel')
 api_version = '1.0'
 
@@ -40,7 +40,7 @@ if len(args) >= 1:
         instance = lookup_service_root(args[0])
     except ValueError, err:
         print 'E: %s' % (err)
-        print 'I: Falling back to "edge".'
+        print 'I: Falling back to "production".'
 
 if len(args) >= 2:
     if args[1] in valid_api_versions:

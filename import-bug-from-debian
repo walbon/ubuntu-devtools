@@ -50,7 +50,7 @@ parser.add_option("-b", "--browserless",
 if options.dry_run:
     lp_server = 'staging'
 else:
-    lp_server = 'edge'
+    lp_server = 'production'
 
 try:
     lp = get_launchpad("ubuntu-dev-tools", lp_server)
