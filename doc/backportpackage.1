@@ -9,6 +9,9 @@ backportpackage \- helper to test package backports
 creates a no-change backport of that package to a previous release,
 uploading the resulting backport for testing.
 .PP
+The backported package is fetched and built in a temporary directory
+in \fB/tmp\fR, which is removed once the script finishes running.
+.PP
 \fIbackportpackage\fR is only recommended for testing backports in a
 PPA, not uploading backports to the Ubuntu archive.
 .SH AUTHOR
