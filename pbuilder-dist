@@ -216,7 +216,7 @@ class pbuilder_dist:
         localrepo = '/var/cache/archive/' + self.target_distro
         if os.path.exists(localrepo):
             arguments += [
-                    '--othermirror ',
+                    '--othermirror',
                     'deb file:///var/cache/archive/ %s/' % self.target_distro,
             ]
 

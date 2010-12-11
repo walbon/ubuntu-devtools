@@ -2,8 +2,9 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   * lp-shell, import-bug-from-debian:
     Use the 'production' LP instance instead of 'edge' (which is going away).
+  * pbuilder-dist: Fix typo in local archive support, introduced in 0.107.
 
- -- Michael Bienia <geser@ubuntu.com>  Fri, 03 Dec 2010 13:44:53 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 11 Dec 2010 12:33:37 +0200
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
