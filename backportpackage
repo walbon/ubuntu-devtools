@@ -43,6 +43,7 @@ def parse(args):
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
+    os.environ['DEB_VENDOR'] = 'Ubuntu'
 
     _, (package, source_release, dest_release, upload) = parse(args[1:])
 
