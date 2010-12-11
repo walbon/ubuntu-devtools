@@ -47,7 +47,7 @@ def main(args):
 
     _, (package, source_release, dest_release, upload) = parse(args[1:])
 
-    tmpdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
         for pocket in ('-updates', '-security', ''):
             try:
