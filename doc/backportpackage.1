@@ -1,0 +1,18 @@
+.TH BACKPORTPACKAGE "1" "December 2010" "ubuntu-dev-tools"
+.SH NAME
+backportpackage \- helper to test package backports
+.SH SYNOPSIS
+.B backportpackage
+\fI<package name> <source release> <dest release> <upload target>\fR
+.SH DESCRIPTION
+\fIbackportpackage\fR fetches a package from one Ubuntu release and
+creates a no-change backport of that package to a previous release,
+uploading the resulting backport for testing.
+.PP
+\fIbackportpackage\fR is only recommended for testing backports in a
+PPA, not uploading backports to the Ubuntu archive.
+.SH AUTHOR
+\fIbackportpackage\fR and this manpage were written by Evan Broder
+<evan@ebroder.net>
+.PP
+Both are released under GNU General Public License, version 2.

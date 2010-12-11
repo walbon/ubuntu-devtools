@@ -1,10 +1,14 @@
 ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * lp-shell, import-bug-from-debian:
     Use the 'production' LP instance instead of 'edge' (which is going away).
   * pbuilder-dist: Fix typo in local archive support, introduced in 0.107.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 11 Dec 2010 12:33:37 +0200
+  [ Evan Broder ]
+  * backportpackage: new script for testing backport requests in a PPA.
+
+ -- Evan Broder <evan@ebroder.net>  Sat, 11 Dec 2010 14:11:54 -0800
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
