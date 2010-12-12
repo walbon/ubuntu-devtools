@@ -50,14 +50,11 @@ def main(args):
     tmpdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
         for pocket in ('-updates', '-security', ''):
-            try:
-                subprocess.check_call(['pull-lp-source', package, source_release + pocket],
-                                      cwd=tmpdir,
-                                      stdout=devnull, stderr=devnull)
+            if 0 == subprocess.call(['pull-lp-source', package, source_release + pocket],
+                                    cwd=tmpdir,
+                                    stdout=devnull, stderr=devnull):
                 logging.info('Found package %s in pocket %s' % (package, source_release + pocket))
                 break
-            except subprocess.CalledProcessError:
-                continue
         else:
             error('Unable to find package %s in release %s' % (package, source_release))
 
@@ -77,16 +74,16 @@ def main(args):
             bp_version += '~ppa1'
         elif upload == 'ubuntu':
             bp_dist += '-backports'
-        if not subprocess.call(['dch',
-                                '--force-bad-version',
-                                '--preserve',
-                                '--newversion', bp_version,
-                                '--distribution', dest_release,
-                                'No-change backport to %s' % dest_release],
-                               cwd=srcdir):
+        if 0 != subprocess.call(['dch',
+                                 '--force-bad-version',
+                                 '--preserve',
+                                 '--newversion', bp_version,
+                                 '--distribution', dest_release,
+                                 'No-change backport to %s' % dest_release],
+                                cwd=srcdir):
             error('Something went wrong updating the package changelog')
-        if not subprocess.check_call(['debuild', '-S', '-sa'],
-                                     cwd=srcdir):
+        if 0 != subprocess.call(['debuild', '-S', '-sa'],
+                                cwd=srcdir):
             error('Something went wrong while building the source package')
 
         if ':' in bp_version:
@@ -100,10 +97,10 @@ def main(args):
             elif answer in ('n', 'no'):
                 return 2
         
-        if not subprocess.check_call(['dput',
-                                      upload,
-                                      '%s_%s_source.changes' % (package, bp_version)],
-                                     cwd=tmpdir):
+        if 0 != subprocess.call(['dput',
+                                 upload,
+                                 '%s_%s_source.changes' % (package, bp_version)],
+                                cwd=tmpdir):
             error('Something went wrong uploading the package %s to %s' % package, upload)
     finally:
         shutil.rmtree(tmpdir)
