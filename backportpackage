@@ -85,7 +85,7 @@ def main(args):
                                 'No-change backport to %s' % dest_release],
                                cwd=srcdir):
             error('Something went wrong updating the package changelog')
-        if not subprocess.check_call(['debuild', '-S'],
+        if not subprocess.check_call(['debuild', '-S', '-sa'],
                                      cwd=srcdir):
             error('Something went wrong while building the source package')
 
