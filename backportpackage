@@ -77,15 +77,17 @@ def main(args):
             bp_version += '~ppa1'
         elif upload == 'ubuntu':
             bp_dist += '-backports'
-        subprocess.check_call(['dch',
-                               '--force-bad-version',
-                               '--preserve',
-                               '--newversion', bp_version,
-                               '--distribution', dest_release,
-                               'No-change backport to %s' % dest_release],
-                              cwd=srcdir)
-        subprocess.check_call(['debuild', '-S'],
-                               cwd=srcdir)
+        if not subprocess.call(['dch',
+                                '--force-bad-version',
+                                '--preserve',
+                                '--newversion', bp_version,
+                                '--distribution', dest_release,
+                                'No-change backport to %s' % dest_release],
+                               cwd=srcdir):
+            error('Something went wrong updating the package changelog')
+        if not subprocess.check_call(['debuild', '-S'],
+                                     cwd=srcdir):
+            error('Something went wrong while building the source package')
 
         if ':' in bp_version:
             bp_version = bp_version[bp_version.find(':')+1:]
@@ -98,10 +100,11 @@ def main(args):
             elif answer in ('n', 'no'):
                 return 2
         
-        subprocess.check_call(['dput',
-                               upload,
-                               '%s_%s_source.changes' % (package, bp_version)],
-                              cwd=tmpdir)
+        if not subprocess.check_call(['dput',
+                                      upload,
+                                      '%s_%s_source.changes' % (package, bp_version)],
+                                     cwd=tmpdir):
+            error('Something went wrong uploading the package %s to %s' % package, upload)
     finally:
         shutil.rmtree(tmpdir)
 
