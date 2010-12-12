@@ -92,7 +92,7 @@ def main(args):
         if ':' in bp_version:
             bp_version = bp_version[bp_version.find(':')+1:]
 
-        print 'Please check the package in %s carefully' % tmpdir
+        print 'Please check the package in file://%s carefully' % tmpdir
         while True:
             answer = raw_input('Do you still want to upload this to %s? [Y/n] ' % upload).strip().lower()
             if answer in ('', 'y', 'yes'):
