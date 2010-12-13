@@ -28,6 +28,7 @@ import debian.deb822
 import debian.debian_support
 import launchpadlib.launchpad
 
+from ubuntutools.builder import getBuilder
 import ubuntutools.update_maintainer
 from ubuntutools.logger import Logger
 
@@ -147,50 +148,6 @@ class BugTask(object):
 
     def is_ubuntu_task(self):
         return self.project == "ubuntu"
-
-
-class Builder(object):
-    def __init__(self, name):
-        self.name = name
-        cmd = ["dpkg-architecture", "-qDEB_BUILD_ARCH_CPU"]
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        self.architecture = process.communicate()[0].strip()
-
-    def get_architecture(self):
-        return self.architecture
-
-    def get_name(self):
-        return self.name
-
-
-class Pbuilder(Builder):
-    def __init__(self):
-        Builder.__init__(self, "pbuilder")
-
-    def build(self, dsc_file, dist, result_directory):
-        # TODO: Do not rely on a specific pbuilder configuration.
-        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
-               "--distribution", dist, "--architecture", self.architecture,
-               "--buildresult", result_directory, dsc_file]
-        Logger.command(cmd)
-        return subprocess.call(cmd)
-
-
-class Sbuild(Builder):
-    def __init__(self):
-        Builder.__init__(self, "sbuild")
-
-    def build(self, dsc_file, dist, result_directory):
-        workdir = os.getcwd()
-        Logger.command(["cd", result_directory])
-        os.chdir(result_directory)
-        cmd = ["sbuild", "--arch-all", "--dist=" + dist,
-               "--arch=" + self.architecture, dsc_file]
-        Logger.command(cmd)
-        result = subprocess.call(cmd)
-        Logger.command(["cd", workdir])
-        os.chdir(workdir)
-        return result
 
 
 class Patch(object):
@@ -732,7 +689,7 @@ if __name__ == "__main__":
     if "SPONSOR_PATCH_BUILDER" in os.environ:
         default_builder = os.environ["SPONSOR_PATCH_BUILDER"]
     else:
-        default_builder = "pbuilder"
+        default_builder = None
 
     parser.add_option("-b", "--build", dest="build",
                       help="Build the package with the specified builder.",
@@ -772,13 +729,8 @@ if __name__ == "__main__":
         Logger.error("Invalid bug number specified: %s" % (bug_number))
         sys.exit(1)
 
-    if options.builder == "pbuilder":
-        builder = Pbuilder()
-    elif options.builder == "sbuild":
-        builder = Sbuild()
-    else:
-        Logger.error("Unsupported builder specified: %s. Only pbuilder and "
-                    "sbuild are supported." % (options.builder))
+    builder = getBuilder(options.builder)
+    if not builder:
         sys.exit(1)
 
     if options.sponsoring:
