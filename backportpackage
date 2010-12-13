@@ -88,7 +88,7 @@ def parse(args):
 
     return opts, args
 
-def find_release_package(workdir, package, opts):
+def find_release_package(package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     series = ubuntu.getSeries(name_or_version=opts.source_release)
@@ -113,7 +113,7 @@ def find_release_package(workdir, package, opts):
 
     return srcpkg
 
-def find_version_package(workdir, package, opts):
+def find_version_package(package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     try:
@@ -127,7 +127,6 @@ def find_version_package(workdir, package, opts):
 
 def fetch_package(workdir, package, opts):
     # Returns the path to the .dsc file that was fetched
-    ubuntu = lp.distributions['ubuntu']
 
     if not opts.source_release and not opts.version:
         opts.source_release = lp.distributions['ubuntu'].current_series.name
@@ -135,9 +134,9 @@ def fetch_package(workdir, package, opts):
     # If source_release is specified, then version is just for
     # verification
     if opts.source_release:
-        srcpkg = find_release_package(workdir, package, opts)
+        srcpkg = find_release_package(package, opts)
     else:
-        srcpkg = find_version_package(workdir, package, opts)
+        srcpkg = find_version_package(package, opts)
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
@@ -206,7 +205,7 @@ def do_backport(workdir, package, dscfile, release, opts):
                 '--force-bad-version',
                 '--preserve',
                 '--newversion', bp_version,
-                '--distribution', release,
+                '--distribution', bp_dist,
                 'No-change backport to %s' % release],
                cwd=srcdir)
     check_call(['debuild', '-S', '-sa'],
