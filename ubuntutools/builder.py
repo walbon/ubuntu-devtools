@@ -93,14 +93,12 @@ class Sbuild(Builder):
         else:
             return 1
 
-        chroot_cmd = ["sudo", "schroot", "-c", chroot, "-u", "root", "--"]
-        commands = [["apt-get", "-q", "update"],
-                    ["apt-get", "-q", "-y", "dist-upgrade"],
-                    ["apt-get", "-q", "-y", "autoremove"],
-                    ["apt-get", "-q", "clean"]]
+        commands = [["sbuild-update"],
+                    ["sbuild-distupgrade"],
+                    ["sbuild-clean", "-a", "-c"]]
         for cmd in commands:
-            Logger.command(chroot_cmd + cmd)
-            ret = subprocess.call(chroot_cmd + cmd)
+            Logger.command(cmd + [chroot])
+            ret = subprocess.call(cmd + [chroot])
             if ret != 0:
                 return ret
 
