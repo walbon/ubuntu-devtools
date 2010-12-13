@@ -541,7 +541,7 @@ def main(script_name, bug_number, update, build, edit, keyid, upload, workdir,
         Logger.command(cmd)
         if subprocess.call(cmd, env=env) != 0:
             Logger.error("Failed to build source tarball.")
-            # TODO: Add a "retry" option
+            # TODO: Add "retry" and "update" option
             ask_for_manual_fixing()
             continue
 
