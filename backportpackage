@@ -41,6 +41,10 @@ def check_call(cmd, *args, **kwargs):
 def parse(args):
     usage = 'Usage: %prog [options] <source package>'
     p = optparse.OptionParser(usage)
+    p.add_option('-u', '--upload',
+                 dest='upload',
+                 help='Specify an upload destination (required)',
+                 metavar='UPLOAD')
     p.add_option('-t', '--to',
                  dest='dest_releases',
                  default=[],
@@ -57,10 +61,6 @@ def parse(args):
                  default=None,
                  help='Package version to backport (or verify)',
                  metavar='VERSION')
-    p.add_option('-u', '--upload',
-                 dest='upload',
-                 help='Specify an upload destination (required)',
-                 metavar='UPLOAD')
     p.add_option('-l', '--launchpad',
                  dest='launchpad',
                  default='production',

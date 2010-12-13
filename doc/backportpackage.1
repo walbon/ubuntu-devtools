@@ -2,20 +2,55 @@
 .SH NAME
 backportpackage \- helper to test package backports
 .SH SYNOPSIS
-.B backportpackage
-\fI<package name> <source release> <dest release> <upload target>\fR
+.TP
+.B backportpackage \fR[\fIadditional options\fR]
+\-\-to <\fIdest release\fR>
+.br
+\-\-upload <\fIupload target\fR>
+.br
+<\fIsource package\fR>
+.PP
+.B backportpackage \-h
+.SH OPTIONS
+.TP
+.BR \-u \fIUPLOAD\fR, \-\-upload=\fIUPLOAD\fR
+\fBRequired\fR. Upload to \fIUPLOAD\fR with \fBdput\fR(1) (after
+confirmation).
+.TP
+.BR \-t \fIDEST\fR, \-\-to=\fIDEST\fR
+\fBRequired\fR. Backport the package to the specified Ubuntu
+release. This option may be specified multiple times, but must be
+specified at least once.
+.TP
+.BR \-f \fISOURCE\fR, \-\-from=\fISOURCE\fR
+Backport the package from the specified Ubuntu release. If neither
+this option nor \fB\-\-version\fR are specified, then
+\fBbackportpackage\fR defaults to the current Ubuntu development
+release.
+.TP
+.BR \-v \fIVERSION\fR, \-\-version=\fIVERSION\fR
+If the \fB\-\-from\fR option is specified, then \fBbackportpackage\fR
+verifies that the current version of \fIsource package\fR in
+\fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
+\fBbackportpackage\fR finds version \fIVERSION\fR of \fIsource
+package\fR, regardless of the release in which it was published (or if
+that version is still current).
+.TP
+.BR \-l \fIINSTANCE\fR, \-\-launchpad=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
 .SH DESCRIPTION
-\fIbackportpackage\fR fetches a package from one Ubuntu release and
+\fBbackportpackage\fR fetches a package from one Ubuntu release and
 creates a no-change backport of that package to a previous release,
 uploading the resulting backport for testing.
 .PP
 The backported package is fetched and built in a temporary directory
 in \fB/tmp\fR, which is removed once the script finishes running.
 .PP
-\fIbackportpackage\fR is only recommended for testing backports in a
+\fBbackportpackage\fR is only recommended for testing backports in a
 PPA, not uploading backports to the Ubuntu archive.
 .SH AUTHOR
-\fIbackportpackage\fR and this manpage were written by Evan Broder
+\fBbackportpackage\fR and this manpage were written by Evan Broder
 <evan@ebroder.net>
 .PP
 Both are released under GNU General Public License, version 2.
