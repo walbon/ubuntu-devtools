@@ -24,8 +24,10 @@ import sys
 import tempfile
 
 from debian.deb822 import Dsc
+import launchpadlib.launchpad
 
 devnull = open('/dev/null', 'r+')
+lp = None
 
 def error(msg, *args, **kwargs):
     logging.error(msg, *args, **kwargs)
@@ -43,8 +45,13 @@ def parse(args):
     p.add_option('-f', '--from',
                  dest='source_release',
                  default=None,
-                 help='Backport from SOURCE release (required)',
+                 help='Backport from SOURCE release (defaults to devel release)',
                  metavar='SOURCE')
+    p.add_option('-v', '--version',
+                 dest='version',
+                 default=None,
+                 help='Package version to backport (verified if source release also specified)',
+                 metavar='VERSION')
     p.add_option('-s', '--source',
                  dest='package',
                  help='Backport SOURCE package (required)',
@@ -53,6 +60,11 @@ def parse(args):
                  dest='upload',
                  help='Specify an upload destination (required)',
                  metavar='UPLOAD')
+    p.add_option('-l', '--launchpad',
+                 dest='launchpad',
+                 default='production',
+                 help='Launchpad instance to connect to (default %default)',
+                 metavar='INSTANCE')
 
     opts, args = p.parse_args(args)
     if len(args):
@@ -61,14 +73,77 @@ def parse(args):
         p.error('You must specify a package to backport')
     if not opts.dest_releases:
         p.error('You must specify at least one destination release')
-    if not opts.source_release:
-        p.error('You must specify the source release')
     if not opts.upload:
         p.error('You must specify an upload destination')
 
     return opts, args
 
+def find_release_package(workdir, opts):
+    ubuntu = lp.distributions['ubuntu']
+    archive = ubuntu.main_archive
+    series = ubuntu.getSeries(name_or_version=opts.source_release)
+    status = 'Published'
+    for pocket in ('Updates', 'Security', 'Release'):
+        try:
+            srcpkg = archive.getPublishedSources(source_name=opts.package,
+                                                 distro_series=series,
+                                                 pocket=pocket,
+                                                 status=status,
+                                                 exact_match=True)[0]
+            break
+        except IndexError:
+            continue
+    else:
+        error('Unable to find package %s in release %s' % (package, opts.source_release))
+
+    if opts.version and opts.version != srcpkg.source_package_version:
+        error('Requested backport of version %s but %s in %s is at version %s' %
+              (opts.version, opts.package, opts.source_release, srcpkg.source_package_version))
+
+    return srcpkg
+
+def find_version_package(workdir, opts):
+    ubuntu = lp.distributions['ubuntu']
+    archive = ubuntu.main_archive
+    try:
+        # Might get more than one (i.e. same version in multiple
+        # releases), but they should all be identical
+        return archive.getPublishedSources(source_name=opts.package,
+                                           version=opts.version)[0]
+    except IndexError:
+        error('Package %s was never published with version %s in Ubuntu' %
+              (opts.package, opts.version))
+
+def fetch_package(workdir, opts):
+    # Returns the path to the .dsc file that was fetched
+    ubuntu = lp.distributions['ubuntu']
+
+    if not opts.source_release and not opts.version:
+        opts.source_release = lp.distributions['ubuntu'].current_series.name
+
+    # If source_release is specified, then version is just for
+    # verification
+    if opts.source_release:
+        srcpkg = find_release_package(workdir, opts)
+    else:
+        srcpkg = find_version_package(workdir, opts)
+
+    for f in srcpkg.sourceFileUrls():
+        if f.endswith('.dsc'):
+            if 0 != subprocess.call(['dget',
+                                     '--download-only',
+                                     '--allow-unauthenticated',
+                                     f],
+                                    cwd=workdir):
+                error('Error went wrong fetching the source package')
+
+            return os.path.join(workdir, os.path.basename(f))
+    else:
+        error('Package %s contains no .dsc file' % opts.package)
+
 def main(args):
+    global lp
+
     logging.basicConfig(level=logging.INFO)
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
@@ -78,22 +153,13 @@ def main(args):
     dest_releases = opts.dest_releases
     upload = opts.upload
 
+    script_name = os.path.basename(sys.argv[0])
+    lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
+                                                            opts.launchpad)
+
     tmpdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
-        for pocket in ('-updates', '-security', ''):
-            if 0 == subprocess.call(['pull-lp-source', package, source_release + pocket],
-                                    cwd=tmpdir,
-                                    stdout=devnull, stderr=devnull):
-                logging.info('Found package %s in pocket %s' % (package, source_release + pocket))
-                break
-        else:
-            error('Unable to find source package %s in release %s' % (package, source_release))
-
-        for dscfile in os.listdir(tmpdir):
-            if dscfile.endswith('.dsc'):
-                break
-        else:
-            error('Unable to find a .dsc file for package %s' % package)
+        dscfile = fetch_package(tmpdir, opts)
 
         dsc = Dsc(open(os.path.join(tmpdir, dscfile)))
         v = dsc['Version']
