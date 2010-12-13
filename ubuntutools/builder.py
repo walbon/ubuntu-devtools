@@ -50,6 +50,11 @@ class Pbuilder(Builder):
         Logger.command(cmd)
         return subprocess.call(cmd)
 
+    def update(self, dist):
+        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--update"]
+        Logger.command(cmd)
+        return subprocess.call(cmd)
+
 
 class Sbuild(Builder):
     def __init__(self):
@@ -66,6 +71,38 @@ class Sbuild(Builder):
         Logger.command(["cd", workdir])
         os.chdir(workdir)
         return result
+
+    def update(self, dist):
+        cmd = ["schroot", "--list"]
+        Logger.command(cmd)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        chroots, _ = p.communicate()
+        chroots = chroots.strip().split()
+        if p.returncode != 0:
+            return p.returncode
+
+        params = {"dist": dist,
+                  "arch": self.architecture}
+        for chroot in ("%(dist)s-%(arch)s-sbuild-source",
+                       "%(dist)s-sbuild-source",
+                       "%(dist)s-%(arch)s-source",
+                       "%(dist)s-source"):
+            chroot = chroot % params
+            if chroot in chroots:
+                break
+        else:
+            return 1
+
+        chroot_cmd = ["sudo", "schroot", "-c", chroot, "-u", "root", "--"]
+        commands = [["apt-get", "-q", "update"],
+                    ["apt-get", "-q", "-y", "dist-upgrade"],
+                    ["apt-get", "-q", "-y", "autoremove"],
+                    ["apt-get", "-q", "clean"]]
+        for cmd in commands:
+            Logger.command(chroot_cmd + cmd)
+            ret = subprocess.call(chroot_cmd + cmd)
+            if ret != 0:
+                return ret
 
 
 def getBuilder(builder=None):
