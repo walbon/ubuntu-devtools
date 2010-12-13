@@ -145,6 +145,61 @@ def fetch_package(workdir, opts):
     else:
         error('Package %s contains no .dsc file' % opts.package)
 
+def get_backport_version(version, upload, release):
+    v = version + ('~%s1' % release)
+    if upload.startswith('ppa:'):
+        v += '~ppa1'
+    return v
+
+def get_backport_dist(upload, release):
+    if upload == 'ubuntu':
+        return '%s-backports' % release
+    else:
+        return release
+
+def do_backport(workdir, dscfile, release, opts):
+    dsc = Dsc(open(os.path.join(workdir, dscfile)))
+    v = dsc['Version']
+
+    check_call(['dpkg-source',
+                '-x',
+                dscfile,
+                opts.package],
+               cwd=workdir)
+    srcdir = os.path.join(workdir, opts.package)
+
+    bp_version = get_backport_version(v, opts.upload, release)
+    bp_dist = get_backport_dist(opts.upload, release)
+
+    check_call(['dch',
+                '--force-bad-version',
+                '--preserve',
+                '--newversion', bp_version,
+                '--distribution', release,
+                'No-change backport to %s' % release],
+               cwd=srcdir)
+    check_call(['debuild', '-S', '-sa'],
+               cwd=srcdir)
+
+    if ':' in bp_version:
+        bp_version = bp_version[bp_version.find(':')+1:]
+
+    print 'Please check the package in file://%s carefully' % workdir
+    prompt = 'Do you want to upload this to %s? [Y/n]' % opts.upload
+    while True:
+        answer = raw_input(prompt).strip().lower()
+        if answer in ('', 'y', 'yes'):
+            check_call(['dput',
+                        opts.upload,
+                        '%s_%s_source.changes' %
+                        (opts.package, bp_version)],
+                       cwd=workdir)
+
+            break
+        elif answer in ('n', 'no'):
+            break
+        shutil.rmtree(srcdir)
+
 def main(args):
     global lp
 
@@ -152,66 +207,19 @@ def main(args):
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
     opts, _ = parse(args[1:])
-    package = opts.package
-    source_release = opts.source_release
-    dest_releases = opts.dest_releases
-    upload = opts.upload
 
     script_name = os.path.basename(sys.argv[0])
     lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
                                                             opts.launchpad)
 
-    tmpdir = tempfile.mkdtemp(prefix='backportpackage-')
+    workdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
-        dscfile = fetch_package(tmpdir, opts)
+        dscfile = fetch_package(workdir, opts)
 
-        dsc = Dsc(open(os.path.join(tmpdir, dscfile)))
-        v = dsc['Version']
-
-        for dest_release in dest_releases:
-            srcdir = os.path.join(tmpdir, package)
-            check_call(['dpkg-source',
-                        '-x',
-                        dscfile,
-                        package],
-                       cwd=tmpdir)
-
-            bp_version = v + ('~%s1' % dest_release)
-            bp_dist = dest_release
-            if upload.startswith('ppa:'):
-                bp_version += '~ppa1'
-            elif upload == 'ubuntu':
-                bp_dist += '-backports'
-            check_call(['dch',
-                        '--force-bad-version',
-                        '--preserve',
-                        '--newversion', bp_version,
-                        '--distribution', dest_release,
-                        'No-change backport to %s' % dest_release],
-                       cwd=srcdir)
-            check_call(['debuild', '-S', '-sa'],
-                       cwd=srcdir)
-
-            if ':' in bp_version:
-                bp_version = bp_version[bp_version.find(':')+1:]
-
-            print 'Please check the package in file://%s carefully' % tmpdir
-            prompt = 'Do you want to upload this to %s? [Y/n]' % upload
-            while True:
-                answer = raw_input(prompt).strip().lower()
-                if answer in ('', 'y', 'yes'):
-                    check_call(['dput',
-                                upload,
-                                '%s_%s_source.changes' %
-                                (package, bp_version)],
-                               cwd=tmpdir)
-
-                    break
-                elif answer in ('n', 'no'):
-                    break
-            shutil.rmtree(srcdir)
+        for release in opts.dest_releases:
+            do_backport(workdir, dscfile, release, opts)
     finally:
-        shutil.rmtree(tmpdir)
+        shutil.rmtree(workdir)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
