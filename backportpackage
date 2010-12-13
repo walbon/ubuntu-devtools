@@ -25,6 +25,7 @@ import tempfile
 from debian.deb822 import Dsc
 import launchpadlib.launchpad
 
+from ubuntutools.builder import getBuilder
 from ubuntutools.logger import Logger
 
 devnull = open('/dev/null', 'r+')
@@ -43,10 +44,6 @@ def check_call(cmd, *args, **kwargs):
 def parse(args):
     usage = 'Usage: %prog [options] <source package>'
     p = optparse.OptionParser(usage)
-    p.add_option('-u', '--upload',
-                 dest='upload',
-                 help='Specify an upload destination (required)',
-                 metavar='UPLOAD')
     p.add_option('-t', '--to',
                  dest='dest_releases',
                  default=[],
@@ -58,6 +55,20 @@ def parse(args):
                  default=None,
                  help='Backport from SOURCE release (default: devel release)',
                  metavar='SOURCE')
+    p.add_option('-b', '--build',
+                 dest='build',
+                 default=False,
+                 action='store_true',
+                 help='Build the package before uploading (default: %default)')
+    p.add_option('-B', '--builder',
+                 dest='builder',
+                 default=None,
+                 help='Specify the package builder (default: pbuilder)',
+                 metavar='BUILDER')
+    p.add_option('-u', '--upload',
+                 dest='upload',
+                 help='Specify an upload destination',
+                 metavar='UPLOAD')
     p.add_option('-v', '--version',
                  dest='version',
                  default=None,
@@ -74,8 +85,6 @@ def parse(args):
         p.error('You must specify a source package')
     if not opts.dest_releases:
         p.error('You must specify at least one destination release')
-    if not opts.upload:
-        p.error('You must specify an upload destination')
 
     return opts, args
 
@@ -143,15 +152,41 @@ def fetch_package(workdir, package, opts):
 
 def get_backport_version(version, upload, release):
     v = version + ('~%s1' % release)
-    if upload.startswith('ppa:'):
+    if upload and upload.startswith('ppa:'):
         v += '~ppa1'
     return v
 
 def get_backport_dist(upload, release):
-    if upload == 'ubuntu':
+    if not upload or upload == 'ubuntu':
         return '%s-backports' % release
     else:
         return release
+
+def do_build(workdir, package, release, bp_version, opts):
+    builder = getBuilder(opts.builder)
+    if not builder:
+        return
+
+    builder.build(os.path.join(workdir,
+                               '%s_%s.dsc' % (package, bp_version)),
+                  release,
+                  workdir)
+
+def do_upload(workdir, package, bp_version, opts):
+    prompt = 'Do you want to upload this to %s? [Y/n]' % opts.upload
+    while True:
+        answer = raw_input(prompt).strip().lower()
+        if answer in ('', 'y', 'yes'):
+            break
+        elif answer in ('n', 'no'):
+            return
+
+    check_call(['dput',
+                opts.upload,
+                '%s_%s_source.changes' %
+                (package, bp_version)],
+               cwd=workdir)
+
 
 def do_backport(workdir, package, dscfile, release, opts):
     dsc = Dsc(open(os.path.join(workdir, dscfile)))
@@ -181,20 +216,12 @@ def do_backport(workdir, package, dscfile, release, opts):
         bp_version = bp_version[bp_version.find(':')+1:]
 
     print 'Please check the package in file://%s carefully' % workdir
-    prompt = 'Do you want to upload this to %s? [Y/n]' % opts.upload
-    while True:
-        answer = raw_input(prompt).strip().lower()
-        if answer in ('', 'y', 'yes'):
-            check_call(['dput',
-                        opts.upload,
-                        '%s_%s_source.changes' %
-                        (package, bp_version)],
-                       cwd=workdir)
+    if opts.build:
+        do_build(workdir, package, release, bp_version, opts)
+    if opts.upload:
+        do_upload(workdir, package, bp_version, opts)
 
-            break
-        elif answer in ('n', 'no'):
-            break
-        shutil.rmtree(srcdir)
+    shutil.rmtree(srcdir)
 
 def main(args):
     global lp
