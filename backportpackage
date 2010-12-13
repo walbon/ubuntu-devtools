@@ -65,6 +65,11 @@ def parse(args):
                  default=None,
                  help='Specify the package builder (default: pbuilder)',
                  metavar='BUILDER')
+    p.add_option('-U', '--update',
+                 dest='update',
+                 default=False,
+                 action='store_true',
+                 help='Update the build environment before attempting to build')
     p.add_option('-u', '--upload',
                  dest='upload',
                  help='Specify an upload destination',
@@ -165,6 +170,9 @@ def do_build(workdir, package, release, bp_version, opts):
     builder = getBuilder(opts.builder)
     if not builder:
         return
+
+    if opts.update:
+        builder.update(release)
 
     builder.build(os.path.join(workdir,
                                '%s_%s.dsc' % (package, bp_version)),

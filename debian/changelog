@@ -7,8 +7,10 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
+  * sponsor-patch: Add --update option to make sure build environment is
+    up to date (LP: #689605)
 
- -- Evan Broder <evan@ebroder.net>  Sat, 11 Dec 2010 14:11:54 -0800
+ -- Evan Broder <evan@ebroder.net>  Mon, 13 Dec 2010 03:57:20 -0800
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
