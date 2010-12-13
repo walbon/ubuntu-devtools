@@ -33,6 +33,11 @@ def error(msg, *args, **kwargs):
     logging.error(msg, *args, **kwargs)
     sys.exit(1)
 
+def check_call(cmd, *args, **kwargs):
+    ret = subprocess.call(cmd, *args, **kwargs)
+    if ret != 0:
+        error('%s returned %d' % (cmd, ret))
+
 def parse(args):
     usage = 'Usage: %prog [options]'
     p = optparse.OptionParser(usage)
@@ -130,13 +135,11 @@ def fetch_package(workdir, opts):
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
-            if 0 != subprocess.call(['dget',
-                                     '--download-only',
-                                     '--allow-unauthenticated',
-                                     f],
-                                    cwd=workdir):
-                error('Error went wrong fetching the source package')
-
+            check_call(['dget',
+                        '--download-only',
+                        '--allow-unauthenticated',
+                        f],
+                       cwd=workdir)
             return os.path.join(workdir, os.path.basename(f))
     else:
         error('Package %s contains no .dsc file' % opts.package)
@@ -166,12 +169,11 @@ def main(args):
 
         for dest_release in dest_releases:
             srcdir = os.path.join(tmpdir, package)
-            if 0 != subprocess.call(['dpkg-source',
-                                     '-x',
-                                     dscfile,
-                                     package],
-                                    cwd=tmpdir):
-                error('Something went wrong unpacking package %s' % package)
+            check_call(['dpkg-source',
+                        '-x',
+                        dscfile,
+                        package],
+                       cwd=tmpdir)
 
             bp_version = v + ('~%s1' % dest_release)
             bp_dist = dest_release
@@ -179,17 +181,15 @@ def main(args):
                 bp_version += '~ppa1'
             elif upload == 'ubuntu':
                 bp_dist += '-backports'
-            if 0 != subprocess.call(['dch',
-                                     '--force-bad-version',
-                                     '--preserve',
-                                     '--newversion', bp_version,
-                                     '--distribution', dest_release,
-                                     'No-change backport to %s' % dest_release],
-                                    cwd=srcdir):
-                error('Something went wrong updating the package changelog')
-            if 0 != subprocess.call(['debuild', '-S', '-sa'],
-                                    cwd=srcdir):
-                error('Something went wrong while building the source package')
+            check_call(['dch',
+                        '--force-bad-version',
+                        '--preserve',
+                        '--newversion', bp_version,
+                        '--distribution', dest_release,
+                        'No-change backport to %s' % dest_release],
+                       cwd=srcdir)
+            check_call(['debuild', '-S', '-sa'],
+                       cwd=srcdir)
 
             if ':' in bp_version:
                 bp_version = bp_version[bp_version.find(':')+1:]
@@ -198,11 +198,10 @@ def main(args):
             while True:
                 answer = raw_input('Do you still want to upload this to %s? [Y/n] ' % upload).strip().lower()
                 if answer in ('', 'y', 'yes'):
-                    if 0 != subprocess.call(['dput',
-                                             upload,
-                                             '%s_%s_source.changes' % (package, bp_version)],
-                                            cwd=tmpdir):
-                        error('Something went wrong uploading the package %s to %s' % package, upload)
+                    check_call(['dput',
+                                upload,
+                                '%s_%s_source.changes' % (package, bp_version)],
+                               cwd=tmpdir)
 
                     break
                 elif answer in ('n', 'no'):
