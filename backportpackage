@@ -39,7 +39,7 @@ def check_call(cmd, *args, **kwargs):
         error('%s returned %d' % (cmd, ret))
 
 def parse(args):
-    usage = 'Usage: %prog [options]'
+    usage = 'Usage: %prog [options] <source package>'
     p = optparse.OptionParser(usage)
     p.add_option('-t', '--to',
                  dest='dest_releases',
@@ -57,10 +57,6 @@ def parse(args):
                  default=None,
                  help='Package version to backport (or verify)',
                  metavar='VERSION')
-    p.add_option('-s', '--source',
-                 dest='package',
-                 help='Backport SOURCE package (required)',
-                 metavar='SOURCE')
     p.add_option('-u', '--upload',
                  dest='upload',
                  help='Specify an upload destination (required)',
@@ -72,10 +68,8 @@ def parse(args):
                  metavar='INSTANCE')
 
     opts, args = p.parse_args(args)
-    if len(args):
-        p.error('Invalid arguments')
-    if not opts.package:
-        p.error('You must specify a package to backport')
+    if len(args) != 1:
+        p.error('You must specify a source package')
     if not opts.dest_releases:
         p.error('You must specify at least one destination release')
     if not opts.upload:
@@ -83,14 +77,14 @@ def parse(args):
 
     return opts, args
 
-def find_release_package(workdir, opts):
+def find_release_package(workdir, package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     series = ubuntu.getSeries(name_or_version=opts.source_release)
     status = 'Published'
     for pocket in ('Updates', 'Security', 'Release'):
         try:
-            srcpkg = archive.getPublishedSources(source_name=opts.package,
+            srcpkg = archive.getPublishedSources(source_name=package,
                                                  distro_series=series,
                                                  pocket=pocket,
                                                  status=status,
@@ -104,23 +98,23 @@ def find_release_package(workdir, opts):
 
     if opts.version and opts.version != srcpkg.source_package_version:
         error('Requested backport of version %s but %s is at version %s' %
-              (opts.version, opts.package, srcpkg.source_package_version))
+              (opts.version, package, srcpkg.source_package_version))
 
     return srcpkg
 
-def find_version_package(workdir, opts):
+def find_version_package(workdir, package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     try:
         # Might get more than one (i.e. same version in multiple
         # releases), but they should all be identical
-        return archive.getPublishedSources(source_name=opts.package,
+        return archive.getPublishedSources(source_name=package,
                                            version=opts.version)[0]
     except IndexError:
         error('Package %s was never published with version %s in Ubuntu' %
-              (opts.package, opts.version))
+              (package, opts.version))
 
-def fetch_package(workdir, opts):
+def fetch_package(workdir, package, opts):
     # Returns the path to the .dsc file that was fetched
     ubuntu = lp.distributions['ubuntu']
 
@@ -130,9 +124,9 @@ def fetch_package(workdir, opts):
     # If source_release is specified, then version is just for
     # verification
     if opts.source_release:
-        srcpkg = find_release_package(workdir, opts)
+        srcpkg = find_release_package(workdir, package, opts)
     else:
-        srcpkg = find_version_package(workdir, opts)
+        srcpkg = find_version_package(workdir, package, opts)
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
@@ -143,7 +137,7 @@ def fetch_package(workdir, opts):
                        cwd=workdir)
             return os.path.join(workdir, os.path.basename(f))
     else:
-        error('Package %s contains no .dsc file' % opts.package)
+        error('Package %s contains no .dsc file' % package)
 
 def get_backport_version(version, upload, release):
     v = version + ('~%s1' % release)
@@ -157,16 +151,16 @@ def get_backport_dist(upload, release):
     else:
         return release
 
-def do_backport(workdir, dscfile, release, opts):
+def do_backport(workdir, package, dscfile, release, opts):
     dsc = Dsc(open(os.path.join(workdir, dscfile)))
     v = dsc['Version']
 
     check_call(['dpkg-source',
                 '-x',
                 dscfile,
-                opts.package],
+                package],
                cwd=workdir)
-    srcdir = os.path.join(workdir, opts.package)
+    srcdir = os.path.join(workdir, package)
 
     bp_version = get_backport_version(v, opts.upload, release)
     bp_dist = get_backport_dist(opts.upload, release)
@@ -192,7 +186,7 @@ def do_backport(workdir, dscfile, release, opts):
             check_call(['dput',
                         opts.upload,
                         '%s_%s_source.changes' %
-                        (opts.package, bp_version)],
+                        (package, bp_version)],
                        cwd=workdir)
 
             break
@@ -206,7 +200,7 @@ def main(args):
     logging.basicConfig(level=logging.INFO)
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
-    opts, _ = parse(args[1:])
+    opts, (package,) = parse(args[1:])
 
     script_name = os.path.basename(sys.argv[0])
     lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
@@ -214,10 +208,10 @@ def main(args):
 
     workdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
-        dscfile = fetch_package(workdir, opts)
+        dscfile = fetch_package(workdir, package, opts)
 
         for release in opts.dest_releases:
-            do_backport(workdir, dscfile, release, opts)
+            do_backport(workdir, package, dscfile, release, opts)
     finally:
         shutil.rmtree(workdir)
 
