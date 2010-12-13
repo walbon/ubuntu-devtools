@@ -78,4 +78,4 @@ def getBuilder(builder=None):
         return Sbuild()
 
     Logger.error("Unsupported builder specified: %s. Only pbuilder and "
-                 "sbuild are supported." % (options.builder))
+                 "sbuild are supported." % builder)
