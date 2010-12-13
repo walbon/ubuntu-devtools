@@ -23,7 +23,7 @@ import subprocess
 import sys
 import tempfile
 
-from debian.changelog import Changelog
+from debian.deb822 import Dsc
 
 devnull = open('/dev/null', 'r+')
 
@@ -32,12 +32,39 @@ def error(msg, *args, **kwargs):
     sys.exit(1)
 
 def parse(args):
-    usage = 'Usage: %prog <source package> <source release> <dest release> <upload target>'
+    usage = 'Usage: %prog [options]'
     p = optparse.OptionParser(usage)
+    p.add_option('-t', '--to',
+                 dest='dest_releases',
+                 default=[],
+                 action='append',
+                 help='Backport to DEST release (required)',
+                 metavar='DEST')
+    p.add_option('-f', '--from',
+                 dest='source_release',
+                 default=None,
+                 help='Backport from SOURCE release (required)',
+                 metavar='SOURCE')
+    p.add_option('-s', '--source',
+                 dest='package',
+                 help='Backport SOURCE package (required)',
+                 metavar='SOURCE')
+    p.add_option('-u', '--upload',
+                 dest='upload',
+                 help='Specify an upload destination (required)',
+                 metavar='UPLOAD')
 
     opts, args = p.parse_args(args)
-    if len(args) != 4:
+    if len(args):
         p.error('Invalid arguments')
+    if not opts.package:
+        p.error('You must specify a package to backport')
+    if not opts.dest_releases:
+        p.error('You must specify at least one destination release')
+    if not opts.source_release:
+        p.error('You must specify the source release')
+    if not opts.upload:
+        p.error('You must specify an upload destination')
 
     return opts, args
 
@@ -45,7 +72,11 @@ def main(args):
     logging.basicConfig(level=logging.INFO)
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
-    _, (package, source_release, dest_release, upload) = parse(args[1:])
+    opts, _ = parse(args[1:])
+    package = opts.package
+    source_release = opts.source_release
+    dest_releases = opts.dest_releases
+    upload = opts.upload
 
     tmpdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
@@ -56,52 +87,61 @@ def main(args):
                 logging.info('Found package %s in pocket %s' % (package, source_release + pocket))
                 break
         else:
-            error('Unable to find package %s in release %s' % (package, source_release))
+            error('Unable to find source package %s in release %s' % (package, source_release))
 
-        for srcdir in os.listdir(tmpdir):
-            srcdir = os.path.join(tmpdir, srcdir)
-            if os.path.isdir(srcdir):
+        for dscfile in os.listdir(tmpdir):
+            if dscfile.endswith('.dsc'):
                 break
         else:
-            error('Something went wrong unpacking package %s' % package)
+            error('Unable to find a .dsc file for package %s' % package)
 
-        cl = Changelog(open(os.path.join(srcdir, 'debian/changelog')))
-        v = cl.get_version()
+        dsc = Dsc(open(os.path.join(tmpdir, dscfile)))
+        v = dsc['Version']
 
-        bp_version = str(v) + ('~%s1' % dest_release)
-        bp_dist = dest_release
-        if upload.startswith('ppa:'):
-            bp_version += '~ppa1'
-        elif upload == 'ubuntu':
-            bp_dist += '-backports'
-        if 0 != subprocess.call(['dch',
-                                 '--force-bad-version',
-                                 '--preserve',
-                                 '--newversion', bp_version,
-                                 '--distribution', dest_release,
-                                 'No-change backport to %s' % dest_release],
-                                cwd=srcdir):
-            error('Something went wrong updating the package changelog')
-        if 0 != subprocess.call(['debuild', '-S', '-sa'],
-                                cwd=srcdir):
-            error('Something went wrong while building the source package')
+        for dest_release in dest_releases:
+            srcdir = os.path.join(tmpdir, package)
+            if 0 != subprocess.call(['dpkg-source',
+                                     '-x',
+                                     dscfile,
+                                     package],
+                                    cwd=tmpdir):
+                error('Something went wrong unpacking package %s' % package)
 
-        if ':' in bp_version:
-            bp_version = bp_version[bp_version.find(':')+1:]
+            bp_version = v + ('~%s1' % dest_release)
+            bp_dist = dest_release
+            if upload.startswith('ppa:'):
+                bp_version += '~ppa1'
+            elif upload == 'ubuntu':
+                bp_dist += '-backports'
+            if 0 != subprocess.call(['dch',
+                                     '--force-bad-version',
+                                     '--preserve',
+                                     '--newversion', bp_version,
+                                     '--distribution', dest_release,
+                                     'No-change backport to %s' % dest_release],
+                                    cwd=srcdir):
+                error('Something went wrong updating the package changelog')
+            if 0 != subprocess.call(['debuild', '-S', '-sa'],
+                                    cwd=srcdir):
+                error('Something went wrong while building the source package')
 
-        print 'Please check the package in file://%s carefully' % tmpdir
-        while True:
-            answer = raw_input('Do you still want to upload this to %s? [Y/n] ' % upload).strip().lower()
-            if answer in ('', 'y', 'yes'):
-                break
-            elif answer in ('n', 'no'):
-                return 2
-        
-        if 0 != subprocess.call(['dput',
-                                 upload,
-                                 '%s_%s_source.changes' % (package, bp_version)],
-                                cwd=tmpdir):
-            error('Something went wrong uploading the package %s to %s' % package, upload)
+            if ':' in bp_version:
+                bp_version = bp_version[bp_version.find(':')+1:]
+
+            print 'Please check the package in file://%s carefully' % tmpdir
+            while True:
+                answer = raw_input('Do you still want to upload this to %s? [Y/n] ' % upload).strip().lower()
+                if answer in ('', 'y', 'yes'):
+                    if 0 != subprocess.call(['dput',
+                                             upload,
+                                             '%s_%s_source.changes' % (package, bp_version)],
+                                            cwd=tmpdir):
+                        error('Something went wrong uploading the package %s to %s' % package, upload)
+
+                    break
+                elif answer in ('n', 'no'):
+                    break
+            shutil.rmtree(srcdir)
     finally:
         shutil.rmtree(tmpdir)
 
