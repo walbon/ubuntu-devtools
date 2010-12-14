@@ -1,10 +1,15 @@
 ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * lp-shell, import-bug-from-debian:
     Use the 'production' LP instance instead of 'edge' (which is going away).
   * pbuilder-dist: Fix typo in local archive support, introduced in 0.107.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 11 Dec 2010 12:33:37 +0200
+  [ Benjamin Drung ]
+  * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
+    (LP: #681114).
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 14 Dec 2010 18:21:37 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 

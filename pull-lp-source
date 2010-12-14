@@ -28,6 +28,7 @@
 import os
 import sys
 import subprocess
+import urllib
 from optparse import OptionParser
 
 # ubuntu-dev-tools modules.
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     # All good - start downloading...
     print 'Fetching the source for %s from %s (%s)...' % (
             package, release.capitalize(), pocket)
-    if subprocess.call(['/usr/bin/dget', '-xu', dsc_url[0]]) == 0:
+    if subprocess.call(['/usr/bin/dget', '-xu', urllib.unquote(dsc_url[0])]) == 0:
         print 'Success!'
     else:
         print 'Failed to fetch and extrace the source.', \
