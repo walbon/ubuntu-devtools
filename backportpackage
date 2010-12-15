@@ -167,10 +167,10 @@ def do_build(workdir, package, release, bp_version, opts):
     if not builder:
         return
 
-    builder.build(os.path.join(workdir,
-                               '%s_%s.dsc' % (package, bp_version)),
-                  release,
-                  workdir)
+    return builder.build(os.path.join(workdir,
+                                      '%s_%s.dsc' % (package, bp_version)),
+                         release,
+                         workdir)
 
 def do_upload(workdir, package, bp_version, opts):
     prompt = 'Do you want to upload this to %s? [Y/n]' % opts.upload
@@ -217,7 +217,8 @@ def do_backport(workdir, package, dscfile, release, opts):
 
     print 'Please check the package in file://%s carefully' % workdir
     if opts.build:
-        do_build(workdir, package, release, bp_version, opts)
+        if 0 != do_build(workdir, package, release, bp_version, opts):
+            error('Package failed to build; aborting')
     if opts.upload:
         do_upload(workdir, package, bp_version, opts)
 
