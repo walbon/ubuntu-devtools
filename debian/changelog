@@ -9,6 +9,9 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
     (LP: #681114).
 
+  [ Colin Watson ]
+  * grep-merges: New tool.
+
  -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 14 Dec 2010 18:21:37 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low

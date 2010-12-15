@@ -62,6 +62,7 @@ Description: useful tools for Ubuntu developers
   - grab-attachments - download all bug attachments from a Launchpad bug
     report.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
+  - grep-merges - search for pending merges from Debian.
   - hugdaylist - compile HugDay lists from bug list URLs.
   - import-bug-from-debian - copy a bug from the Debian BTS to Launchpad
   - lp-list-bugs - briefly list status of Launchpad bugs.

@@ -81,11 +81,11 @@ On Debian and Ubuntu systems, the complete text of the GNU General Public
 License v2 can be found in `/usr/share/common-licenses/GPL-2'.
 
 dch-repeat, errno, get-branches, get-build-deps, grab-attachments, grab-merge,
-hugdaylist, lp-list-bugs, manage-credentials, massfile, merge-changelog,
-mk-sbuild, pbuilder-dist-simple, pull-debian-debdiff, pull-debian-source,
-pull-lp-source, pull-revu-source, setup-packaging-environment,
-suspicious-source, ubuntu-build and what-patch are licensed under the GNU
-General Public License, version 3:
+grep-merges, hugdaylist, lp-list-bugs, manage-credentials, massfile,
+merge-changelog, mk-sbuild, pbuilder-dist-simple, pull-debian-debdiff,
+pull-debian-source, pull-lp-source, pull-revu-source,
+setup-packaging-environment, suspicious-source, ubuntu-build and what-patch
+are licensed under the GNU General Public License, version 3:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -101,8 +101,8 @@ License v3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 The following scripts can be used, at your option, regarding any later
 version of the previously specified license: 404main, dch-repeat, dgetlp,
-get-build-deps, import-bug-from-debian, lp-list-bugs, lp-project-upload,
-lp-set-dup, manage-credentials, mk-sbuild-lv, pbuilder-dist,
-pull-debian-debdiff, pull-debian-source, pull-lp-source, pull-revu-source,
-reverse-build-depends, setup-packaging-environment, submittodebian,
-suspicious-source, syncpackage, ubuntu-build, what-patch.
+get-build-deps, grep-merges, import-bug-from-debian, lp-list-bugs,
+lp-project-upload, lp-set-dup, manage-credentials, mk-sbuild-lv,
+pbuilder-dist, pull-debian-debdiff, pull-debian-source, pull-lp-source,
+pull-revu-source, reverse-build-depends, setup-packaging-environment,
+submittodebian, suspicious-source, syncpackage, ubuntu-build, what-patch.
