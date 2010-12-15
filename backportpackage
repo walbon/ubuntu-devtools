@@ -21,6 +21,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib
 
 from debian.deb822 import Dsc
 import launchpadlib.launchpad
@@ -143,7 +144,7 @@ def fetch_package(workdir, package, opts):
             check_call(['dget',
                         '--download-only',
                         '--allow-unauthenticated',
-                        f],
+                        urllib.unquote(f)],
                        cwd=workdir)
             return os.path.join(workdir, os.path.basename(f))
     else:
