@@ -3,15 +3,21 @@
 grep\-merges \- search for outstanding merges from Debian
 .SH SYNOPSIS
 .B grep\-merges
-.RI [ pattern ]
+.RI [ string ]
 .SH DESCRIPTION
 .B grep\-merges
 searches merges.ubuntu.com for pending merges from Debian.
 If a
-.I pattern
+.I string
 is given, it will list all merges whose source package name, last changelog
-author, or last uploader match that pattern.
+author, or last uploader contain that string.
 Otherwise, it will list all merges.
+.SH EXAMPLES
+.nf
+$ grep\-merges cjwatson
+tzsetup Colin Watson <cjwatson@ubuntu.com>
+console-setup   Colin Watson <cjwatson@ubuntu.com>
+.fi
 .SH AUTHOR
 .B grep\-merges
 and this manual page were written by Colin Watson <cjwatson@ubuntu.com>.
