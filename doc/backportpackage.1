@@ -6,7 +6,7 @@ backportpackage \- helper to test package backports
 .B backportpackage \fR[\fIadditional options\fR]
 \-\-upload <\fIupload target\fR>
 .br
-<\fIsource package\fR>
+<\fIsource package name or .dsc URL/file\fR>
 .PP
 .B backportpackage \-h
 .SH OPTIONS
@@ -42,7 +42,8 @@ If the \fB\-\-source\fR option is specified, then
 package\fR in \fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
 \fBbackportpackage\fR finds version \fIVERSION\fR of \fIsource
 package\fR, regardless of the release in which it was published (or if
-that version is still current).
+that version is still current). This option is ignored if a .dsc URL
+or path is passed in instead of a source package name.
 .TP
 .B \-w \fIWORKDIR\fR, \-\-workdir=\fIWORKDIR\fR
 If \fIWORKDIR\fR is specified, then all files are downloaded,
@@ -54,13 +55,14 @@ deleted before \fIbackportpackage\fR exits.
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
 .SH DESCRIPTION
-\fBbackportpackage\fR fetches a package from one Ubuntu release and
-creates a no-change backport of that package to a previous release,
-optionally doing a test build of the package and/or uploading the
-resulting backport for testing.
+\fBbackportpackage\fR fetches a package from one Ubuntu release or
+from a specified .dsc path or URL and creates a no-change backport of
+that package to a previous release, optionally doing a test build of
+the package and/or uploading the resulting backport for testing.
 .PP
-The backported package is fetched and built in a temporary directory
-in \fB/tmp\fR, which is removed once the script finishes running.
+Unless a working directory is specified, the backported package is
+fetched and built in a temporary directory in \fB/tmp\fR, which is
+removed once the script finishes running.
 .PP
 \fBbackportpackage\fR is only recommended for testing backports in a
 PPA, not uploading backports to the Ubuntu archive.
@@ -68,7 +70,7 @@ PPA, not uploading backports to the Ubuntu archive.
 .TP
 .B UBUNTUTOOLS_BUILDER
 The default builder for Ubuntu development tools that support it
-(including \fBbackportpackage\fR. Supported are \fBpbuilder\fR(8) and
+(including \fBbackportpackage\fR). Supported are \fBpbuilder\fR(8) and
 \fBsbuild\fR(1). If unset and not provided on the command line,
 \fBpbuilder\fR(8) is used.
 .SH EXAMPLES
@@ -85,7 +87,16 @@ test-build both locally, leaving all build products in the current
 working directory:
 .IP
 .nf
-.B backportpackage -b -s maverick -d karmic -d lucid -w . squashfs-tools
+.B backportpackage -b -s maverick -d karmic -d lucid -w . \\\\
+.B "  "squashfs-tools
+.fi
+.PP
+Fetch a package from a PPA, backport it to Hardy, then upload it back
+to the same PPA:
+.IP
+.nf
+.B backportpackage -d hardy -u ppa:\fIuser\fR/\fIppa\fR \\\\
+.B "  "https://launchpad.net/\fIsome/file.dsc\fR
 .fi
 .SH AUTHOR
 \fBbackportpackage\fR and this manpage were written by Evan Broder

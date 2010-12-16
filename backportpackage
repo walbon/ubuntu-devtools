@@ -41,7 +41,7 @@ def check_call(cmd, *args, **kwargs):
         error('%s returned %d' % (cmd, ret))
 
 def parse(args):
-    usage = 'Usage: %prog [options] <source package>'
+    usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
     p = optparse.OptionParser(usage)
     p.add_option('-d', '--destination',
                  dest='dest_releases',
@@ -86,7 +86,7 @@ def parse(args):
 
     opts, args = p.parse_args(args)
     if len(args) != 1:
-        p.error('You must specify a source package')
+        p.error('You must specify a single source package or a .dsc URL/path')
     if not opts.upload and not opts.build:
         p.error('Nothing to do')
 
@@ -129,9 +129,7 @@ def find_version_package(lp, package, version):
         error('Version %s of package %s was never published in Ubuntu' %
               (version, package))
 
-def fetch_package(lp, workdir, package, version, source_release):
-    # Returns the path to the .dsc file that was fetched
-
+def dscurl_from_package(lp, workdir, package, version, source_release):
     if not source_release and not version:
         source_release = lp.distributions['ubuntu'].current_series.name
 
@@ -144,14 +142,33 @@ def fetch_package(lp, workdir, package, version, source_release):
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
-            check_call(['dget',
-                        '--download-only',
-                        '--allow-unauthenticated',
-                        urllib.unquote(f)],
-                       cwd=workdir)
-            return os.path.join(workdir, os.path.basename(f))
+            return urllib.unquote(f)
     else:
         error('Package %s contains no .dsc file' % package)
+
+def dscurl_from_dsc(package):
+    path = os.path.abspath(os.path.expanduser(package))
+    if os.path.exists(path):
+        return 'file://%s' % path
+    else:
+        # Can't resolve it as a local path? Let's just hope it's good
+        # as-is
+        return package
+
+def fetch_package(lp, workdir, package, version, source_release):
+    # Returns the path to the .dsc file that was fetched
+
+    if package.endswith('.dsc'):
+        dsc = dscurl_from_dsc(package)
+    else:
+        dsc = dscurl_from_package(lp, workdir, package, version, source_release)
+
+    check_call(['dget',
+                '--download-only',
+                '--allow-unauthenticated',
+                dsc],
+               cwd=workdir)
+    return os.path.join(workdir, os.path.basename(dsc))
 
 def get_backport_version(version, upload, release):
     v = version + ('~%s1' % release)
@@ -191,10 +208,7 @@ def do_upload(workdir, package, bp_version, upload):
                cwd=workdir)
 
 
-def do_backport(workdir, package, dscfile, release, build, builder, upload):
-    dsc = Dsc(open(os.path.join(workdir, dscfile)))
-    v = dsc['Version']
-
+def do_backport(workdir, package, dscfile, version, release, build, builder, upload):
     check_call(['dpkg-source',
                 '-x',
                 dscfile,
@@ -202,7 +216,7 @@ def do_backport(workdir, package, dscfile, release, build, builder, upload):
                cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
-    bp_version = get_backport_version(v, upload, release)
+    bp_version = get_backport_version(version, upload, release)
     bp_dist = get_backport_dist(upload, release)
 
     check_call(['dch',
@@ -230,7 +244,7 @@ def do_backport(workdir, package, dscfile, release, build, builder, upload):
 def main(args):
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
-    opts, (package,) = parse(args[1:])
+    opts, (package_or_dsc,) = parse(args[1:])
 
     script_name = os.path.basename(sys.argv[0])
     lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
@@ -254,14 +268,19 @@ def main(args):
     try:
         dscfile = fetch_package(lp,
                                 workdir,
-                                package,
+                                package_or_dsc,
                                 opts.version,
                                 opts.source_release)
+
+        dsc = Dsc(open(os.path.join(workdir, dscfile)))
+        package = dsc['Source']
+        version = dsc['Version']
 
         for release in opts.dest_releases:
             do_backport(workdir,
                         package,
                         dscfile,
+                        version,
                         release,
                         opts.build,
                         opts.builder,
