@@ -86,6 +86,8 @@ def parse(args):
         p.error('You must specify a source package')
     if not opts.dest_releases:
         p.error('You must specify at least one destination release')
+    if not opts.upload or opts.build:
+        p.error('Nothing to do')
 
     return opts, args
 
