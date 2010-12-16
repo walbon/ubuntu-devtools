@@ -88,10 +88,10 @@ def parse(args):
 
     return opts, args
 
-def find_release_package(lp, package, opts):
+def find_release_package(lp, package, version, source_release):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
-    series = ubuntu.getSeries(name_or_version=opts.source_release)
+    series = ubuntu.getSeries(name_or_version=source_release)
     status = 'Published'
     for pocket in ('Updates', 'Security', 'Release'):
         try:
@@ -105,38 +105,38 @@ def find_release_package(lp, package, opts):
             continue
     else:
         error('Unable to find package %s in release %s' %
-              (package, opts.source_release))
+              (package, source_release))
 
-    if opts.version and opts.version != srcpkg.source_package_version:
+    if version and version != srcpkg.source_package_version:
         error('Requested backport of version %s but %s is at version %s' %
-              (opts.version, package, srcpkg.source_package_version))
+              (version, package, srcpkg.source_package_version))
 
     return srcpkg
 
-def find_version_package(lp, package, opts):
+def find_version_package(lp, package, version):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     try:
         # Might get more than one (i.e. same version in multiple
         # releases), but they should all be identical
         return archive.getPublishedSources(source_name=package,
-                                           version=opts.version)[0]
+                                           version=version)[0]
     except IndexError:
-        error('Package %s was never published with version %s in Ubuntu' %
-              (package, opts.version))
+        error('Version %s of package %s was never published in Ubuntu' %
+              (version, package))
 
-def fetch_package(lp, workdir, package, opts):
+def fetch_package(lp, workdir, package, version, source_release):
     # Returns the path to the .dsc file that was fetched
 
-    if not opts.source_release and not opts.version:
-        opts.source_release = lp.distributions['ubuntu'].current_series.name
+    if not source_release and not version:
+        source_release = lp.distributions['ubuntu'].current_series.name
 
     # If source_release is specified, then version is just for
     # verification
-    if opts.source_release:
-        srcpkg = find_release_package(lp, package, opts)
+    if source_release:
+        srcpkg = find_release_package(lp, package, version, source_release)
     else:
-        srcpkg = find_version_package(lp, package, opts)
+        srcpkg = find_version_package(lp, package, version)
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
@@ -161,8 +161,8 @@ def get_backport_dist(upload, release):
     else:
         return release
 
-def do_build(workdir, package, release, bp_version, opts):
-    builder = getBuilder(opts.builder)
+def do_build(workdir, package, release, bp_version, builder):
+    builder = getBuilder(builder)
     if not builder:
         return
 
@@ -171,8 +171,8 @@ def do_build(workdir, package, release, bp_version, opts):
                          release,
                          workdir)
 
-def do_upload(workdir, package, bp_version, opts):
-    prompt = 'Do you want to upload this to %s? [Y/n]' % opts.upload
+def do_upload(workdir, package, bp_version, upload):
+    prompt = 'Do you want to upload this to %s? [Y/n]' % upload
     while True:
         answer = raw_input(prompt).strip().lower()
         if answer in ('', 'y', 'yes'):
@@ -181,13 +181,13 @@ def do_upload(workdir, package, bp_version, opts):
             return
 
     check_call(['dput',
-                opts.upload,
+                upload,
                 '%s_%s_source.changes' %
                 (package, bp_version)],
                cwd=workdir)
 
 
-def do_backport(workdir, package, dscfile, release, opts):
+def do_backport(workdir, package, dscfile, release, build, builder, upload):
     dsc = Dsc(open(os.path.join(workdir, dscfile)))
     v = dsc['Version']
 
@@ -198,8 +198,8 @@ def do_backport(workdir, package, dscfile, release, opts):
                cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
-    bp_version = get_backport_version(v, opts.upload, release)
-    bp_dist = get_backport_dist(opts.upload, release)
+    bp_version = get_backport_version(v, upload, release)
+    bp_dist = get_backport_dist(upload, release)
 
     check_call(['dch',
                 '--force-bad-version',
@@ -215,11 +215,11 @@ def do_backport(workdir, package, dscfile, release, opts):
         bp_version = bp_version[bp_version.find(':')+1:]
 
     print 'Please check the package in file://%s carefully' % workdir
-    if opts.build:
-        if 0 != do_build(workdir, package, release, bp_version, opts):
+    if build:
+        if 0 != do_build(workdir, package, release, bp_version, builder):
             error('Package failed to build; aborting')
-    if opts.upload:
-        do_upload(workdir, package, bp_version, opts)
+    if upload:
+        do_upload(workdir, package, bp_version, upload)
 
     shutil.rmtree(srcdir)
 
@@ -234,10 +234,20 @@ def main(args):
 
     workdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
-        dscfile = fetch_package(lp, workdir, package, opts)
+        dscfile = fetch_package(lp,
+                                workdir,
+                                package,
+                                opts.version,
+                                opts.source_release)
 
         for release in opts.dest_releases:
-            do_backport(workdir, package, dscfile, release, opts)
+            do_backport(workdir,
+                        package,
+                        dscfile,
+                        release,
+                        opts.build,
+                        opts.builder,
+                        opts.upload)
     finally:
         shutil.rmtree(workdir)
 
