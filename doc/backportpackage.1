@@ -4,7 +4,7 @@ backportpackage \- helper to test package backports
 .SH SYNOPSIS
 .TP
 .B backportpackage \fR[\fIadditional options\fR]
-\-\-to <\fIdest release\fR>
+\-\-destination <\fIdest release\fR>
 .br
 \-\-upload <\fIupload target\fR>
 .br
@@ -13,12 +13,12 @@ backportpackage \- helper to test package backports
 .B backportpackage \-h
 .SH OPTIONS
 .TP
-.B \-t \fIDEST\fR, \-\-to=\fIDEST\fR
+.B \-d \fIDEST\fR, \-\-destination=\fIDEST\fR
 \fBRequired\fR. Backport the package to the specified Ubuntu
 release. This option may be specified multiple times, but must be
 specified at least once.
 .TP
-.B \-f \fISOURCE\fR, \-\-from=\fISOURCE\fR
+.B \-s \fISOURCE\fR, \-\-source=\fISOURCE\fR
 Backport the package from the specified Ubuntu release. If neither
 this option nor \fB\-\-version\fR are specified, then
 \fBbackportpackage\fR defaults to the current Ubuntu development
@@ -39,9 +39,9 @@ Use the specified builder to build the package. Supported are
 Upload to \fIUPLOAD\fR with \fBdput\fR(1) (after confirmation).
 .TP
 .B \-v \fIVERSION\fR, \-\-version=\fIVERSION\fR
-If the \fB\-\-from\fR option is specified, then \fBbackportpackage\fR
-verifies that the current version of \fIsource package\fR in
-\fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
+If the \fB\-\-source\fR option is specified, then
+\fBbackportpackage\fR verifies that the current version of \fIsource
+package\fR in \fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
 \fBbackportpackage\fR finds version \fIVERSION\fR of \fIsource
 package\fR, regardless of the release in which it was published (or if
 that version is still current).

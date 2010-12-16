@@ -45,13 +45,13 @@ def check_call(cmd, *args, **kwargs):
 def parse(args):
     usage = 'Usage: %prog [options] <source package>'
     p = optparse.OptionParser(usage)
-    p.add_option('-t', '--to',
+    p.add_option('-d', '--destination',
                  dest='dest_releases',
                  default=[],
                  action='append',
                  help='Backport to DEST release (required)',
                  metavar='DEST')
-    p.add_option('-f', '--from',
+    p.add_option('-s', '--source',
                  dest='source_release',
                  default=None,
                  help='Backport from SOURCE release (default: devel release)',
