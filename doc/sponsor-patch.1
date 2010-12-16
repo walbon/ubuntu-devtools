@@ -61,7 +61,7 @@ by \fBpbuilderrc\fR(5) to select the correct base image.
 .B \-B \fIBUILDER\fR, \fB\-\-builder\fR=\fIBUILDER
 Use the specify builder to build the package.
 Supported are \fBpbuilder\fR(8) and \fBsbuild\fR(1).
-This overrides \fBSPONSOR_PATCH_BUILDER\fR.
+This overrides \fBUBUNTUTOOLS_BUILDER\fR and \fBSPONSOR_PATCH_BUILDER\fR.
 The default is \fBpbuilder\fR(8).
 .TP
 .BR \-e ", " \-\-edit
@@ -90,10 +90,16 @@ Display a help message and exit.
 .SH ENVIRONMENT
 
 .TP
-.B SPONSOR_PATCH_BUILDER
-The default builder for \fBsponsor\-patch\fR.
+.B UBUNTUTOOLS_BUILDER
+The default builder for Ubuntu development tools that support it (including
+\fBsponsor\-patch\fR).
 Supported are \fBpbuilder\fR(8) and \fBsbuild\fR(1).
 If unset and not provided on the command line, \fBpbuilder\fR(8) is used.
+
+.TP
+.B SPONSOR_PATCH_BUILDER
+The default builder for \fBsponsor\-patch\fR.
+If specified, this overrides \fBUBUNTUTOOLS_BUILDER\fR.
 
 .TP
 .B SPONSOR_PATCH_WORKDIR

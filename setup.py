@@ -16,6 +16,7 @@ if os.path.exists(changelog):
 setup(name='ubuntu-dev-tools',
       version=version,
       scripts=['404main',
+               'backportpackage',
                'check-symbols',
                'dch-repeat',
                'dgetlp',

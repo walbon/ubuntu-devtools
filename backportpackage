@@ -1,0 +1,280 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 2.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL-2 for more details.
+#
+# ##################################################################
+
+import optparse
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib
+
+from debian.deb822 import Dsc
+import launchpadlib.launchpad
+import lsb_release
+
+from ubuntutools.builder import getBuilder
+from ubuntutools.logger import Logger
+
+def error(msg):
+    Logger.error(msg)
+    sys.exit(1)
+
+def check_call(cmd, *args, **kwargs):
+    Logger.command(cmd)
+    ret = subprocess.call(cmd, *args, **kwargs)
+    if ret != 0:
+        error('%s returned %d' % (cmd, ret))
+
+def parse(args):
+    usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
+    p = optparse.OptionParser(usage)
+    p.add_option('-d', '--destination',
+                 dest='dest_releases',
+                 default=[],
+                 action='append',
+                 help='Backport to DEST release (default: current release)',
+                 metavar='DEST')
+    p.add_option('-s', '--source',
+                 dest='source_release',
+                 default=None,
+                 help='Backport from SOURCE release (default: devel release)',
+                 metavar='SOURCE')
+    p.add_option('-b', '--build',
+                 dest='build',
+                 default=False,
+                 action='store_true',
+                 help='Build the package before uploading (default: %default)')
+    p.add_option('-B', '--builder',
+                 dest='builder',
+                 default=None,
+                 help='Specify the package builder (default: pbuilder)',
+                 metavar='BUILDER')
+    p.add_option('-u', '--upload',
+                 dest='upload',
+                 help='Specify an upload destination',
+                 metavar='UPLOAD')
+    p.add_option('-v', '--version',
+                 dest='version',
+                 default=None,
+                 help='Package version to backport (or verify)',
+                 metavar='VERSION')
+    p.add_option('-w', '--workdir',
+                 dest='workdir',
+                 default=None,
+                 help='Specify a working directory (default: temporary dir)',
+                 metavar='WORKDIR')
+    p.add_option('-l', '--launchpad',
+                 dest='launchpad',
+                 default='production',
+                 help='Launchpad instance to connect to (default: %default)',
+                 metavar='INSTANCE')
+
+    opts, args = p.parse_args(args)
+    if len(args) != 1:
+        p.error('You must specify a single source package or a .dsc URL/path')
+    if not opts.upload and not opts.build:
+        p.error('Nothing to do')
+
+    return opts, args
+
+def find_release_package(lp, package, version, source_release):
+    ubuntu = lp.distributions['ubuntu']
+    archive = ubuntu.main_archive
+    series = ubuntu.getSeries(name_or_version=source_release)
+    status = 'Published'
+    for pocket in ('Updates', 'Security', 'Release'):
+        try:
+            srcpkg = archive.getPublishedSources(source_name=package,
+                                                 distro_series=series,
+                                                 pocket=pocket,
+                                                 status=status,
+                                                 exact_match=True)[0]
+            break
+        except IndexError:
+            continue
+    else:
+        error('Unable to find package %s in release %s' %
+              (package, source_release))
+
+    if version and version != srcpkg.source_package_version:
+        error('Requested backport of version %s but %s is at version %s' %
+              (version, package, srcpkg.source_package_version))
+
+    return srcpkg
+
+def find_version_package(lp, package, version):
+    ubuntu = lp.distributions['ubuntu']
+    archive = ubuntu.main_archive
+    try:
+        # Might get more than one (i.e. same version in multiple
+        # releases), but they should all be identical
+        return archive.getPublishedSources(source_name=package,
+                                           version=version)[0]
+    except IndexError:
+        error('Version %s of package %s was never published in Ubuntu' %
+              (version, package))
+
+def dscurl_from_package(lp, workdir, package, version, source_release):
+    if not source_release and not version:
+        source_release = lp.distributions['ubuntu'].current_series.name
+
+    # If source_release is specified, then version is just for verification
+    if source_release:
+        srcpkg = find_release_package(lp, package, version, source_release)
+    else:
+        srcpkg = find_version_package(lp, package, version)
+
+    for f in srcpkg.sourceFileUrls():
+        if f.endswith('.dsc'):
+            return urllib.unquote(f)
+    else:
+        error('Package %s contains no .dsc file' % package)
+
+def dscurl_from_dsc(package):
+    path = os.path.abspath(os.path.expanduser(package))
+    if os.path.exists(path):
+        return 'file://%s' % path
+    else:
+        # Can't resolve it as a local path? Let's just hope it's good as-is
+        return package
+
+def fetch_package(lp, workdir, package, version, source_release):
+    # Returns the path to the .dsc file that was fetched
+
+    if package.endswith('.dsc'):
+        dsc = dscurl_from_dsc(package)
+    else:
+        dsc = dscurl_from_package(lp, workdir, package, version, source_release)
+
+    check_call(['dget', '--download-only', '--allow-unauthenticated', dsc],
+               cwd=workdir)
+    return os.path.join(workdir, os.path.basename(dsc))
+
+def get_backport_version(version, upload, release):
+    v = version + ('~%s1' % release)
+    if upload and upload.startswith('ppa:'):
+        v += '~ppa1'
+    return v
+
+def get_backport_dist(upload, release):
+    if not upload or upload == 'ubuntu':
+        return '%s-backports' % release
+    else:
+        return release
+
+def do_build(workdir, package, release, bp_version, builder):
+    builder = getBuilder(builder)
+    if not builder:
+        return
+
+    return builder.build(os.path.join(workdir,
+                                      '%s_%s.dsc' % (package, bp_version)),
+                         release,
+                         workdir)
+
+def do_upload(workdir, package, bp_version, upload):
+    prompt = 'Do you want to upload this to %s? [Y/n]' % upload
+    while True:
+        answer = raw_input(prompt).strip().lower()
+        if answer in ('', 'y', 'yes'):
+            break
+        elif answer in ('n', 'no'):
+            return
+
+    check_call(['dput', upload, '%s_%s_source.changes' % (package, bp_version)],
+               cwd=workdir)
+
+
+def do_backport(workdir, package, dscfile, version, release, build, builder, upload):
+    check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
+    srcdir = os.path.join(workdir, package)
+
+    bp_version = get_backport_version(version, upload, release)
+    bp_dist = get_backport_dist(upload, release)
+
+    check_call(['dch',
+                '--force-bad-version',
+                '--preserve',
+                '--newversion', bp_version,
+                '--distribution', bp_dist,
+                'No-change backport to %s' % release],
+               cwd=srcdir)
+    check_call(['debuild', '-S', '-sa'], cwd=srcdir)
+
+    if ':' in bp_version:
+        bp_version = bp_version[bp_version.find(':')+1:]
+
+    print 'Please check the package in file://%s carefully' % workdir
+    if build:
+        if 0 != do_build(workdir, package, release, bp_version, builder):
+            error('Package failed to build; aborting')
+    if upload:
+        do_upload(workdir, package, bp_version, upload)
+
+    shutil.rmtree(srcdir)
+
+def main(args):
+    os.environ['DEB_VENDOR'] = 'Ubuntu'
+
+    opts, (package_or_dsc,) = parse(args[1:])
+
+    script_name = os.path.basename(sys.argv[0])
+    lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
+                                                            opts.launchpad)
+
+    if not opts.dest_releases:
+        try:
+            distinfo = lsb_release.get_distro_information()
+            opts.dest_releases = [distinfo['CODENAME']]
+        except:
+            error('No destination release specified and unable to guess yours')
+
+    if opts.workdir:
+        workdir = os.path.expanduser(opts.workdir)
+    else:
+        workdir = tempfile.mkdtemp(prefix='backportpackage-')
+
+    if not os.path.exists(workdir):
+        os.makedirs(workdir)
+
+    try:
+        dscfile = fetch_package(lp,
+                                workdir,
+                                package_or_dsc,
+                                opts.version,
+                                opts.source_release)
+
+        dsc = Dsc(open(os.path.join(workdir, dscfile)))
+        package = dsc['Source']
+        version = dsc['Version']
+
+        for release in opts.dest_releases:
+            do_backport(workdir,
+                        package,
+                        dscfile,
+                        version,
+                        release,
+                        opts.build,
+                        opts.builder,
+                        opts.upload)
+    finally:
+        if not opts.workdir:
+            shutil.rmtree(workdir)
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

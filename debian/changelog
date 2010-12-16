@@ -12,7 +12,10 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   [ Colin Watson ]
   * grep-merges: New tool.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 14 Dec 2010 18:21:37 +0100
+  [ Evan Broder ]
+  * backportpackage: new script for testing backport requests in a PPA.
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 16 Dec 2010 23:40:14 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
