@@ -44,6 +44,12 @@ package\fR in \fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
 package\fR, regardless of the release in which it was published (or if
 that version is still current).
 .TP
+.B \-w \fIWORKDIR\fR, \-\-workdir=\fIWORKDIR\fR
+If \fIWORKDIR\fR is specified, then all files are downloaded,
+unpacked, built into, and otherwise manipulated in
+\fIWORKDIR\fR. Otherwise, a temporary directory is created, which is
+deleted before \fIbackportpackage\fR exits.
+.TP
 .B \-l \fIINSTANCE\fR, \-\-launchpad=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
@@ -67,17 +73,19 @@ The default builder for Ubuntu development tools that support it
 \fBpbuilder\fR(8) is used.
 .SH EXAMPLES
 Test-build in your PPA a backport of znc from the current development
-release to your workstation's release:
+release to your workstation's release, deleting the build products
+afterwards:
 .IP
 .nf
 .B backportpackage -u ppa:\fIuser\fR/\fIppa\fB znc
 .fi
 .PP
 Backport squashfs-tools from Maverick to both Karmic and Lucid and
-test-build both locally:
+test-build both locally, leaving all build products in the current
+working directory:
 .IP
 .nf
-.B backportpackage -b -s maverick -d karmic -d lucid squashfs-tools
+.B backportpackage -b -s maverick -d karmic -d lucid -w . squashfs-tools
 .fi
 .SH AUTHOR
 \fBbackportpackage\fR and this manpage were written by Evan Broder

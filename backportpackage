@@ -73,6 +73,11 @@ def parse(args):
                  default=None,
                  help='Package version to backport (or verify)',
                  metavar='VERSION')
+    p.add_option('-w', '--workdir',
+                 dest='workdir',
+                 default=None,
+                 help='Specify a working directory (default: temporary dir)',
+                 metavar='WORKDIR')
     p.add_option('-l', '--launchpad',
                  dest='launchpad',
                  default='production',
@@ -238,7 +243,14 @@ def main(args):
         except:
             error('No destination release specified and unable to guess yours')
 
-    workdir = tempfile.mkdtemp(prefix='backportpackage-')
+    if opts.workdir:
+        workdir = os.path.expanduser(opts.workdir)
+    else:
+        workdir = tempfile.mkdtemp(prefix='backportpackage-')
+
+    if not os.path.exists(workdir):
+        os.makedirs(workdir)
+
     try:
         dscfile = fetch_package(lp,
                                 workdir,
@@ -255,7 +267,8 @@ def main(args):
                         opts.builder,
                         opts.upload)
     finally:
-        shutil.rmtree(workdir)
+        if not opts.workdir:
+            shutil.rmtree(workdir)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
