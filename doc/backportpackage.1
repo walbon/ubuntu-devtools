@@ -65,6 +65,20 @@ The default builder for Ubuntu development tools that support it
 (including \fBbackportpackage\fR. Supported are \fBpbuilder\fR(8) and
 \fBsbuild\fR(1). If unset and not provided on the command line,
 \fBpbuilder\fR(8) is used.
+.SH EXAMPLES
+Test-build in your PPA a backport of znc from the current development
+release to your workstation's release:
+.IP
+.nf
+.B backportpackage -u ppa:\fIuser\fR/\fIppa\fB znc
+.fi
+.PP
+Backport squashfs-tools from Maverick to both Karmic and Lucid and
+test-build both locally:
+.IP
+.nf
+.B backportpackage -b -s maverick -d karmic -d lucid squashfs-tools
+.fi
 .SH AUTHOR
 \fBbackportpackage\fR and this manpage were written by Evan Broder
 <evan@ebroder.net>
