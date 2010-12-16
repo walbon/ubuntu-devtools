@@ -29,9 +29,6 @@ import launchpadlib.launchpad
 from ubuntutools.builder import getBuilder
 from ubuntutools.logger import Logger
 
-devnull = open('/dev/null', 'r+')
-lp = None
-
 def error(msg):
     Logger.error(msg)
     sys.exit(1)
@@ -86,12 +83,12 @@ def parse(args):
         p.error('You must specify a source package')
     if not opts.dest_releases:
         p.error('You must specify at least one destination release')
-    if not opts.upload or opts.build:
+    if not opts.upload and not opts.build:
         p.error('Nothing to do')
 
     return opts, args
 
-def find_release_package(package, opts):
+def find_release_package(lp, package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     series = ubuntu.getSeries(name_or_version=opts.source_release)
@@ -116,7 +113,7 @@ def find_release_package(package, opts):
 
     return srcpkg
 
-def find_version_package(package, opts):
+def find_version_package(lp, package, opts):
     ubuntu = lp.distributions['ubuntu']
     archive = ubuntu.main_archive
     try:
@@ -128,7 +125,7 @@ def find_version_package(package, opts):
         error('Package %s was never published with version %s in Ubuntu' %
               (package, opts.version))
 
-def fetch_package(workdir, package, opts):
+def fetch_package(lp, workdir, package, opts):
     # Returns the path to the .dsc file that was fetched
 
     if not opts.source_release and not opts.version:
@@ -137,9 +134,9 @@ def fetch_package(workdir, package, opts):
     # If source_release is specified, then version is just for
     # verification
     if opts.source_release:
-        srcpkg = find_release_package(package, opts)
+        srcpkg = find_release_package(lp, package, opts)
     else:
-        srcpkg = find_version_package(package, opts)
+        srcpkg = find_version_package(lp, package, opts)
 
     for f in srcpkg.sourceFileUrls():
         if f.endswith('.dsc'):
@@ -227,8 +224,6 @@ def do_backport(workdir, package, dscfile, release, opts):
     shutil.rmtree(srcdir)
 
 def main(args):
-    global lp
-
     os.environ['DEB_VENDOR'] = 'Ubuntu'
 
     opts, (package,) = parse(args[1:])
@@ -239,7 +234,7 @@ def main(args):
 
     workdir = tempfile.mkdtemp(prefix='backportpackage-')
     try:
-        dscfile = fetch_package(workdir, package, opts)
+        dscfile = fetch_package(lp, workdir, package, opts)
 
         for release in opts.dest_releases:
             do_backport(workdir, package, dscfile, release, opts)
