@@ -51,7 +51,8 @@ class Pbuilder(Builder):
         return subprocess.call(cmd)
 
     def update(self, dist):
-        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--update"]
+        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--update",
+               "--distribution", dist, "--architecture", self.architecture]
         Logger.command(cmd)
         return subprocess.call(cmd)
 
