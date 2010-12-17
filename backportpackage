@@ -190,7 +190,7 @@ def do_build(workdir, package, release, bp_version, builder):
     if opts.update:
         if 0 != builder.update(release):
             error('Failed to update %s chroot for %s.' % \
-                      (release, builder.get_name()))
+                  (release, builder.get_name()))
 
     return builder.build(os.path.join(workdir,
                                       '%s_%s.dsc' % (package, bp_version)),
