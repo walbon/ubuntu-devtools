@@ -5,12 +5,19 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
     Use the 'production' LP instance instead of 'edge' (which is going away).
   * pbuilder-dist: Fix typo in local archive support, introduced in 0.107.
 
+  [ Benjamin Drung ]
+  * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
+    (LP: #681114).
+
+  [ Colin Watson ]
+  * grep-merges: New tool.
+
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
   * sponsor-patch: Add --update option to make sure build environment is
     up to date (LP: #689605)
 
- -- Evan Broder <evan@ebroder.net>  Mon, 13 Dec 2010 03:57:20 -0800
+ -- Evan Broder <evan@ebroder.net>  Fri, 17 Dec 2010 01:46:50 -0800
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 

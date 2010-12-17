@@ -138,8 +138,7 @@ def dscurl_from_package(lp, workdir, package, version, source_release):
     if not source_release and not version:
         source_release = lp.distributions['ubuntu'].current_series.name
 
-    # If source_release is specified, then version is just for
-    # verification
+    # If source_release is specified, then version is just for verification
     if source_release:
         srcpkg = find_release_package(lp, package, version, source_release)
     else:
@@ -156,8 +155,7 @@ def dscurl_from_dsc(package):
     if os.path.exists(path):
         return 'file://%s' % path
     else:
-        # Can't resolve it as a local path? Let's just hope it's good
-        # as-is
+        # Can't resolve it as a local path? Let's just hope it's good as-is
         return package
 
 def fetch_package(lp, workdir, package, version, source_release):
@@ -168,10 +166,7 @@ def fetch_package(lp, workdir, package, version, source_release):
     else:
         dsc = dscurl_from_package(lp, workdir, package, version, source_release)
 
-    check_call(['dget',
-                '--download-only',
-                '--allow-unauthenticated',
-                dsc],
+    check_call(['dget', '--download-only', '--allow-unauthenticated', dsc],
                cwd=workdir)
     return os.path.join(workdir, os.path.basename(dsc))
 
@@ -211,19 +206,12 @@ def do_upload(workdir, package, bp_version, upload):
         elif answer in ('n', 'no'):
             return
 
-    check_call(['dput',
-                upload,
-                '%s_%s_source.changes' %
-                (package, bp_version)],
+    check_call(['dput', upload, '%s_%s_source.changes' % (package, bp_version)],
                cwd=workdir)
 
 
 def do_backport(workdir, package, dscfile, version, release, build, builder, upload):
-    check_call(['dpkg-source',
-                '-x',
-                dscfile,
-                package],
-               cwd=workdir)
+    check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
     bp_version = get_backport_version(version, upload, release)
@@ -236,8 +224,7 @@ def do_backport(workdir, package, dscfile, version, release, build, builder, upl
                 '--distribution', bp_dist,
                 'No-change backport to %s' % release],
                cwd=srcdir)
-    check_call(['debuild', '-S', '-sa'],
-               cwd=srcdir)
+    check_call(['debuild', '-S', '-sa'], cwd=srcdir)
 
     if ':' in bp_version:
         bp_version = bp_version[bp_version.find(':')+1:]

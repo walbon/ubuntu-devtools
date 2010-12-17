@@ -1,0 +1,46 @@
+#! /usr/bin/python
+#
+# grep-merges - search for pending merges from Debian
+#
+# Copyright (C) 2010 Canonical Ltd.
+# Authors:
+#  - Colin Watson <cjwatson@ubuntu.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import urllib2
+import json
+
+if len(sys.argv) > 1:
+    match = sys.argv[1]
+else:
+    match = None
+
+for component in ('main', 'main-manual',
+                  'restricted', 'restricted-manual',
+                  'universe', 'universe-manual',
+                  'multiverse', 'multiverse-manual'):
+    page = urllib2.urlopen('http://merges.ubuntu.com/%s.json' % component)
+    for merge in json.load(page):
+        package = merge['source_package']
+        author, uploader = '', ''
+        if 'user' in merge:
+            author = merge['user']
+        if 'uploader' in merge:
+            uploader = '(%s)' % merge['uploader']
+        pretty_uploader = ' '.join((author, uploader)).strip()
+        if (match is None or
+            match in package or match in author or match in uploader):
+            print '%s\t%s' % (package, pretty_uploader)
