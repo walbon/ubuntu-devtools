@@ -15,6 +15,51 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+class Question(object):
+    def __init__(self, options, show_help=True):
+        assert len(options) >= 2
+        self.options = map(lambda s: s.lower(), options)
+        self.show_help = show_help
+
+    def get_options(self):
+        if len(self.options) == 2:
+            options = self.options[0] + " or " + self.options[1]
+        else:
+            options = ", ".join(self.options[:-1]) + ", or " + self.options[-1]
+        return options
+
+    def ask(self, question, default=None):
+        if default is None:
+            default = self.options[0]
+        assert default in self.options
+
+        separator = " ["
+        for option in self.options:
+            if option == default:
+                question += separator + option[0].upper()
+            else:
+                question += separator + option[0]
+            separator = "|"
+        if self.show_help:
+            question += "|?"
+        question += "]? "
+
+        selected = None
+        while selected not in self.options:
+            selected = raw_input(question).strip().lower()
+            if selected == "":
+                selected = default
+            else:
+                for option in self.options:
+                    # Example: User typed "y" instead of "yes".
+                    if selected == option[0]:
+                        selected = option
+            if selected not in self.options:
+                print "Please answer the question with " + \
+                      self.get_options() + "."
+        return selected
+
+
 def input_number(question, min_number, max_number, default=None):
     if default:
         question += " [%i]? " % (default)
@@ -34,45 +79,4 @@ def input_number(question, min_number, max_number, default=None):
             except ValueError:
                 print "Please input a number."
     assert type(selected) == int
-    return selected
-
-def boolean_question(question, default):
-    if default is True:
-        question += " [Y/n]? "
-    else:
-        question += " [y/N]? "
-    selected = None
-    while type(selected) != bool:
-        selected = raw_input(question).strip().lower()
-        if selected == "":
-            selected = default
-        elif selected in ("y", "yes"):
-            selected = True
-        elif selected in ("n", "no"):
-            selected = False
-        else:
-            print "Please answer the question with yes or no."
-    return selected
-
-def yes_edit_no_question(question, default):
-    assert default in ("yes", "edit", "no")
-    if default == "yes":
-        question += " [Y/e/n]? "
-    elif default == "edit":
-        question += " [y/E/n]? "
-    else:
-        question += " [y/e/N]? "
-    selected = None
-    while selected not in ("yes", "edit", "no"):
-        selected = raw_input(question).strip().lower()
-        if selected == "":
-            selected = default
-        elif selected in ("y", "yes"):
-            selected = "yes"
-        elif selected in ("e", "edit"):
-            selected = "edit"
-        elif selected in ("n", "no"):
-            selected = "no"
-        else:
-            print "Please answer the question with yes, edit, or no."
     return selected

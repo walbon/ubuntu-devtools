@@ -28,12 +28,14 @@ import launchpadlib.launchpad
 
 import ubuntutools.update_maintainer
 from ubuntutools.logger import Logger
-from ubuntutools.question import input_number, boolean_question, yes_edit_no_question
+from ubuntutools.question import Question, input_number
 
 from ubuntutools.sponsor_patch.bugtask import BugTask
 from ubuntutools.sponsor_patch.patch import Patch
 
-USER_ABORT = 2
+def user_abort():
+    print "User abort."
+    sys.exit(2)
 
 def get_source_package_name(bug_task):
     package = None
@@ -87,9 +89,9 @@ def strip_epoch(version):
     return version_without_epoch
 
 def ask_for_manual_fixing():
-    if not boolean_question("Do you want to resolve this issue manually", True):
-        print "Abort."
-        sys.exit(USER_ABORT)
+    question = Question(["yes", "no"], False)
+    if question.ask("Do you want to resolve this issue manually", True) == "no":
+        user_abort()
 
 def get_patch_or_branch(bug):
     patch = None
@@ -447,14 +449,13 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
                       "file://%s" % (task.package, new_version,
                                      debdiff_filename, lintian_filename,
                                      build_log)
-                answer = yes_edit_no_question("Do you want to upload the " \
-                                              "package to the official " \
-                                              "Ubuntu archive", "yes")
+                question = Question(["yes", "edit", "no"])
+                answer = question.ask("Do you want to upload the package to " \
+                                      "the official Ubuntu archive", "yes")
                 if answer == "edit":
                     continue
                 elif answer == "no":
-                    print "Abort."
-                    sys.exit(USER_ABORT)
+                    user_abort()
                 cmd = ["dput", "--force", upload, changes_file]
                 Logger.command(cmd)
                 if subprocess.call(cmd) != 0:
