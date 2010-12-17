@@ -15,6 +15,10 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
 
+  [ Bilal Akhtar ]
+  * pbuilder-dist: Override the default build result location if
+    --buildresult is specified.	
+
  -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 16 Dec 2010 23:40:14 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
