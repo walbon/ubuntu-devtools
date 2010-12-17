@@ -541,7 +541,7 @@ def main(script_name, bug_number, update, build, edit, keyid, upload, workdir,
         Logger.command(cmd)
         if subprocess.call(cmd, env=env) != 0:
             Logger.error("Failed to build source tarball.")
-            # TODO: Add "retry" and "update" option
+            # TODO: Add a "retry" option
             ask_for_manual_fixing()
             continue
 
@@ -618,7 +618,7 @@ def main(script_name, bug_number, update, build, edit, keyid, upload, workdir,
                 Logger.error("Failed to build %s from source with %s." % \
                             (os.path.basename(new_dsc_file),
                              builder.get_name()))
-                # TODO: Add "retry" option
+                # TODO: Add "retry" and "update" option
                 ask_for_manual_fixing()
                 continue
 
