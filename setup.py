@@ -59,6 +59,7 @@ setup(name='ubuntu-dev-tools',
     packages=['ubuntutools',
               'ubuntutools/lp',
               'ubuntutools/requestsync',
+              'ubuntutools/sponsor_patch',
              ],
     data_files=[('share/man/man1',  glob.glob("doc/*.1"))]
 )

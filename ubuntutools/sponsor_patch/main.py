@@ -90,7 +90,8 @@ def strip_epoch(version):
 
 def ask_for_manual_fixing():
     question = Question(["yes", "no"], False)
-    if question.ask("Do you want to resolve this issue manually", True) == "no":
+    answer = question.ask("Do you want to resolve this issue manually", "yes")
+    if answer == "no":
         user_abort()
 
 def get_patch_or_branch(bug):
@@ -395,30 +396,44 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
 
         if build:
             dist = re.sub("-.*$", "", changelog.distributions)
-
-            if update:
-                ret = builder.update(dist)
-                if ret != 0:
-                    Logger.error("Failed to update %s chroot for %s." % \
-                                 (dist, builder.get_name()))
-                    ask_for_manual_fixing()
-                    continue
-                # We want to update the build environment only once, but not
-                # after every manual fix.
-                update = False
-
             buildresult = os.path.join(workdir, task.package + "-buildresult")
             if not os.path.isdir(buildresult):
                 os.makedirs(buildresult)
 
-            # build package
-            result = builder.build(new_dsc_file, dist, buildresult)
-            if result != 0:
-                Logger.error("Failed to build %s from source with %s." % \
-                            (os.path.basename(new_dsc_file),
-                             builder.get_name()))
-                # TODO: Add "retry" and "update" option
-                ask_for_manual_fixing()
+            successful_built = False
+            while not successful_built:
+                if update:
+                    ret = builder.update(dist)
+                    if ret != 0:
+                        Logger.error("Failed to update %s chroot for %s." % \
+                                     (dist, builder.get_name()))
+                        ask_for_manual_fixing()
+                        break
+                    # We want to update the build environment only once, but not
+                    # after every manual fix.
+                    update = False
+
+                # build package
+                result = builder.build(new_dsc_file, dist, buildresult)
+                if result != 0:
+                    Logger.error("Failed to build %s from source with %s." % \
+                                (os.path.basename(new_dsc_file),
+                                 builder.get_name()))
+                    question = Question(["yes", "update", "retry", "no"])
+                    answer =  question.ask("Do you want to resolve this issue "
+                                           "manually", "yes")
+                    if answer == "yes":
+                        break
+                    elif answer == "update":
+                        update = True
+                        continue
+                    elif answer == "retry":
+                        continue
+                    else:
+                        user_abort()
+                successful_built = True
+            if not successful_built:
+                # We want to do a manual fix if the build failed.
                 continue
 
             # Check lintian
