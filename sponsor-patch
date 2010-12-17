@@ -598,21 +598,24 @@ def main(script_name, bug_number, update, build, edit, keyid, upload, workdir,
                 continue
 
         if build:
+            dist = re.sub("-.*$", "", changelog.distributions)
+
             if update:
-                ret = builder.update()
+                ret = builder.update(dist)
                 if ret != 0:
                     Logger.error("Failed to update %s chroot for %s." % \
-                                     (changelog.distributions,
-                                      builder.get_name()))
+                                 (dist, builder.get_name()))
                     ask_for_manual_fixing()
                     continue
+                # We want to update the build environment only once, but not
+                # after every manual fix.
+                update = False
 
             buildresult = os.path.join(workdir, task.package + "-buildresult")
             if not os.path.isdir(buildresult):
                 os.makedirs(buildresult)
 
             # build package
-            dist = re.sub("-.*$", "", changelog.distributions)
             result = builder.build(new_dsc_file, dist, buildresult)
             if result != 0:
                 Logger.error("Failed to build %s from source with %s." % \
