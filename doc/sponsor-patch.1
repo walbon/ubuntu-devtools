@@ -60,7 +60,7 @@ by \fBpbuilderrc\fR(5) to select the correct base image.
 .TP
 .B \-B \fIBUILDER\fR, \fB\-\-builder\fR=\fIBUILDER
 Use the specify builder to build the package.
-Supported are \fBpbuilder\fR(8) and \fBsbuild\fR(1).
+Supported are \fBpbuilder\fR(8), \fBpbuilder-dist\fR(1), and \fBsbuild\fR(1).
 This overrides \fBUBUNTUTOOLS_BUILDER\fR and \fBSPONSOR_PATCH_BUILDER\fR.
 The default is \fBpbuilder\fR(8).
 .TP
@@ -93,7 +93,7 @@ Display a help message and exit.
 .B UBUNTUTOOLS_BUILDER
 The default builder for Ubuntu development tools that support it (including
 \fBsponsor\-patch\fR).
-Supported are \fBpbuilder\fR(8) and \fBsbuild\fR(1).
+Supported are \fBpbuilder\fR(8), \fBpbuilder-dist\fR(1), and \fBsbuild\fR(1).
 If unset and not provided on the command line, \fBpbuilder\fR(8) is used.
 
 .TP
@@ -128,6 +128,7 @@ Performing a test build of bug \fB1234\fR in your PPA:
 .BR edit-patch (1),
 .BR lintian (1),
 .BR pbuilder (8),
+.BR pbuilder-dist (1),
 .BR sbuild (1),
 .BR update\-maintainer (1)
 
