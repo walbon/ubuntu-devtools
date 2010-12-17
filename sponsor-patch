@@ -717,7 +717,7 @@ if __name__ == "__main__":
                       help="Specify an upload destination (default none).")
     parser.add_option("-U", "--update", dest="update", default=False,
                       action="store_true",
-                      help="Update builder chroot before building")
+                      help="Update the build environment before building.")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
     parser.add_option("-w", "--workdir", dest="workdir",
