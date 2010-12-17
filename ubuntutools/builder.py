@@ -50,15 +50,17 @@ class Pbuilder(Builder):
         Logger.command(cmd)
         return subprocess.call(cmd)
 
+
 class Pbuilderdist(Builder):
     def __init__(self):
-	Builder.__init__(self, "pbuilder-dist")
+        Builder.__init__(self, "pbuilder-dist")
 
     def build(self, dsc_file, dist, result_directory):
-	cmd = ["pbuilder-dist", dist, self.architecture,
-	      "build", dsc_file, "--buildresult", result_directory]
-	Logger.command(cmd)
-	return subprocess.call(cmd)
+        cmd = ["pbuilder-dist", dist, self.architecture,
+               "build", dsc_file, "--buildresult", result_directory]
+        Logger.command(cmd)
+        return subprocess.call(cmd)
+
 
 class Sbuild(Builder):
     def __init__(self):
@@ -84,9 +86,9 @@ def getBuilder(builder=None):
     if builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':
-	return Pbuilderdist()
+        return Pbuilderdist()
     elif builder == 'sbuild':
         return Sbuild()
 
-    Logger.error("Unsupported builder specified: %s. Only pbuilder, pbuilder-dist and "
-                 "sbuild are supported." % builder)
+    Logger.error("Unsupported builder specified: %s. Only pbuilder, "
+                 "pbuilder-dist and sbuild are supported." % builder)

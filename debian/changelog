@@ -17,7 +17,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   [ Bilal Akhtar ]
   * pbuilder-dist: Override the default build result location if
-    --buildresult is specified.	
+    --buildresult is specified.
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Thu, 16 Dec 2010 23:40:14 +0100
 

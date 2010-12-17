@@ -177,13 +177,13 @@ class pbuilder_dist:
                                   + self.build_architecture)
 
         prefix = os.path.join(self.base, self.chroot_string)
-	if '--buildresult' not in remaining_arguments:
+        if '--buildresult' not in remaining_arguments:
             result = '%s_result/' % prefix
-	else:
-	    location_of_arg = remaining_arguments.index('--buildresult')
-	    result = remaining_arguments[location_of_arg+1]
-	    remaining_arguments.pop(location_of_arg+1)
-	    remaining_arguments.pop(location_of_arg)
+        else:
+            location_of_arg = remaining_arguments.index('--buildresult')
+            result = remaining_arguments[location_of_arg+1]
+            remaining_arguments.pop(location_of_arg+1)
+            remaining_arguments.pop(location_of_arg)
 
         if not self.logfile and self.operation != 'login':
             self.logfile = os.path.normpath('%s/last_operation.log' % result)
