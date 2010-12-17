@@ -14,6 +14,8 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
+  * sponsor-patch: Add --update option to make sure build environment is
+    up to date (LP: #689605)
 
   [ Bilal Akhtar ]
   * pbuilder-dist: Override the default build result location if

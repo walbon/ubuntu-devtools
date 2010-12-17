@@ -409,8 +409,8 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
-def main(script_name, bug_number, build, edit, keyid, upload, workdir, builder,
-         verbose=False):
+def main(script_name, bug_number, update, build, edit, keyid, upload, workdir,
+         builder, verbose=False):
     workdir = os.path.expanduser(workdir)
     if not os.path.isdir(workdir):
         try:
@@ -598,12 +598,24 @@ def main(script_name, bug_number, build, edit, keyid, upload, workdir, builder,
                 continue
 
         if build:
+            dist = re.sub("-.*$", "", changelog.distributions)
+
+            if update:
+                ret = builder.update(dist)
+                if ret != 0:
+                    Logger.error("Failed to update %s chroot for %s." % \
+                                 (dist, builder.get_name()))
+                    ask_for_manual_fixing()
+                    continue
+                # We want to update the build environment only once, but not
+                # after every manual fix.
+                update = False
+
             buildresult = os.path.join(workdir, task.package + "-buildresult")
             if not os.path.isdir(buildresult):
                 os.makedirs(buildresult)
 
             # build package
-            dist = re.sub("-.*$", "", changelog.distributions)
             result = builder.build(new_dsc_file, dist, buildresult)
             if result != 0:
                 Logger.error("Failed to build %s from source with %s." % \
@@ -706,6 +718,9 @@ if __name__ == "__main__":
                       dest="sponsoring", action="store_true", default=False)
     parser.add_option("-u", "--upload", dest="upload", default=None,
                       help="Specify an upload destination (default none).")
+    parser.add_option("-U", "--update", dest="update", default=False,
+                      action="store_true",
+                      help="Update the build environment before building.")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
     parser.add_option("-w", "--workdir", dest="workdir",
@@ -737,5 +752,6 @@ if __name__ == "__main__":
         options.build = True
         options.upload = "ubuntu"
 
-    main(script_name, bug_number, options.build, options.edit, options.keyid,
-         options.upload, options.workdir, builder, options.verbose)
+    main(script_name, bug_number, options.update, options.build, options.edit,
+         options.keyid, options.upload, options.workdir, builder,
+         options.verbose)
