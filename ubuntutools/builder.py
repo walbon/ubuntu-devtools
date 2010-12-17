@@ -67,6 +67,11 @@ class Pbuilderdist(Builder):
         Logger.command(cmd)
         return subprocess.call(cmd)
 
+    def update(self, dist):
+        cmd = ["pbuilder-dist", dist, self.architecture, "update"]
+        Logger.command(cmd)
+        return subprocess.call(cmd)
+
 
 class Sbuild(Builder):
     def __init__(self):
