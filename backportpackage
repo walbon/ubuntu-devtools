@@ -185,7 +185,7 @@ def fetch_package(lp, workdir, package, version, source_release):
 
 def get_backport_version(version, suffix, upload, release):
     v = version + ('~%s1' % release)
-    if suffix:
+    if suffix is not None:
         v += suffix
     elif upload and upload.startswith('ppa:'):
         v += '~ppa1'
