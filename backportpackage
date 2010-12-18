@@ -57,6 +57,11 @@ def parse(args):
                  default=None,
                  help='Backport from SOURCE release (default: devel release)',
                  metavar='SOURCE')
+    p.add_option('-S', '--suffix',
+                 dest='suffix',
+                 default=None,
+                 help='Suffix to append to version number (default: ~ppa1)',
+                 metavar='SUFFIX')
     p.add_option('-b', '--build',
                  dest='build',
                  default=False,
@@ -173,9 +178,11 @@ def fetch_package(lp, workdir, package, version, source_release):
                cwd=workdir)
     return os.path.join(workdir, os.path.basename(dsc))
 
-def get_backport_version(version, upload, release):
+def get_backport_version(version, suffix, upload, release):
     v = version + ('~%s1' % release)
-    if upload and upload.startswith('ppa:'):
+    if suffix:
+        v += suffix
+    elif upload and upload.startswith('ppa:'):
         v += '~ppa1'
     return v
 
@@ -210,12 +217,12 @@ def do_upload(workdir, package, bp_version, upload):
         check_call(['dput', upload, changes_file], cwd=workdir)
 
 
-def do_backport(workdir, package, dscfile, version, release, build, builder,
-                update, upload):
+def do_backport(workdir, package, dscfile, version, suffix, release, build,
+                builder, update, upload):
     check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
-    bp_version = get_backport_version(version, upload, release)
+    bp_version = get_backport_version(version, suffix, upload, release)
     bp_dist = get_backport_dist(upload, release)
 
     check_call(['dch',
@@ -278,6 +285,7 @@ def main(args):
                         package,
                         dscfile,
                         version,
+                        suffix,
                         release,
                         opts.build,
                         opts.builder,

@@ -22,6 +22,16 @@ this option nor \fB\-\-version\fR are specified, then
 \fBbackportpackage\fR defaults to the current Ubuntu development
 release.
 .TP
+.B \-S \fISUFFIX\fR, \-\-suffix=\fISUFFIX\fR
+Add the specified suffix to the version number when
+backporting. \fBbackportpackage\fR will always append
+~\fIDESTINATION\fR1 to the original version number, and if
+\fISUFFIX\fR is specified, it is appended to that, to get version
+numbers of the form
+\fIORIGINAL_VERSION\fR~\fIDESTINATION\fR1\fISUFFIX\fR. If the
+backported package is being uploaded to a PPA, then \fISUFFIX\fR
+defaults to \fB~ppa1\fR, otherwise the default is blank.
+.TP
 .B \-b, \-\-build
 Build the package with the specified builder before uploading. Note
 for \fBpbuilder\fR(8) users: This assumes the common configuration,
