@@ -9,6 +9,8 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
     (LP: #681114).
   * sponsor-patch: Allow updating the build environment if the build failed.
+  * ubuntu-iso: Exit nonzero rather than crash if a wrong parameter is passed
+    (LP: #637020).
 
   [ Colin Watson ]
   * grep-merges: New tool.
@@ -24,7 +26,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
     --buildresult is specified.
   * sponsor-patch: Support building with pbuilder-dist.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Fri, 17 Dec 2010 22:47:30 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 18 Dec 2010 12:57:29 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 

@@ -30,7 +30,8 @@ def extract(iso, path):
     stdout, stderr = pipe.communicate()
 
     if pipe.returncode != 0:
-        raise Exception, stderr
+        sys.stderr.write(stderr)
+        sys.exit(pipe.returncode)
 
     return stdout
 
