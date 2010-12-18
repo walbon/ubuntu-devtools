@@ -219,7 +219,7 @@ def do_upload(workdir, package, bp_version, upload, prompt):
     if prompt or upload == 'ubuntu':
         question = 'Do you want to upload the package to %s' % upload
         answer = YesNoQuestion().ask(question, "yes")
-        if answer != "yes":
+        if answer == "no":
             return
 
     changes_file = '%s_%s_source.changes' % (package, bp_version)
