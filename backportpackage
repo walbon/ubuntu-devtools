@@ -199,8 +199,10 @@ def do_build(workdir, package, release, bp_version, builder, update):
                          workdir)
 
 def do_upload(workdir, package, bp_version, upload):
-    answer = YesNoQuestion().ask('Do you want to upload %s %s to %s' % \
-                                 (package, bp_version, upload), "yes")
+    print 'Please check %s %s in file://%s carefully!' % \
+          (package, bp_version, workdir)
+    question = 'Do you want to upload the package to %s' % upload
+    answer = YesNoQuestion().ask(question, "yes")
     if answer == "yes":
         changes_file = '%s_%s_source.changes' % (package, bp_version)
         check_call(['dput', upload, changes_file], cwd=workdir)
@@ -226,7 +228,6 @@ def do_backport(workdir, package, dscfile, version, release, build, builder,
     if ':' in bp_version:
         bp_version = bp_version[bp_version.find(':')+1:]
 
-    print 'Please check the package in file://%s carefully' % workdir
     if build:
         if 0 != do_build(workdir, package, release, bp_version, builder, update):
             error('Package failed to build; aborting')
