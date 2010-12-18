@@ -105,8 +105,8 @@ def parse(args):
     opts, args = p.parse_args(args)
     if len(args) != 1:
         p.error('You must specify a single source package or a .dsc URL/path')
-    if not opts.upload and not opts.build:
-        p.error('Nothing to do')
+    if not opts.upload and not opts.workdir:
+        p.error('Please specify either a working dir or an upload target')
 
     return opts, args
 
