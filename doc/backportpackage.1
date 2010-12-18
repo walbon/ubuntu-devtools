@@ -12,15 +12,25 @@ backportpackage \- helper to test package backports
 .SH OPTIONS
 .TP
 .B \-d \fIDEST\fR, \-\-destination=\fIDEST\fR
-\fBRequired\fR. Backport the package to the specified Ubuntu
-release. If this option is unspecified, then \fBbackportpackage\fR
-defaults to the release on which it is currently running.
+Backport the package to the specified Ubuntu release. If this option
+is unspecified, then \fBbackportpackage\fR defaults to the release on
+which it is currently running.
 .TP
 .B \-s \fISOURCE\fR, \-\-source=\fISOURCE\fR
 Backport the package from the specified Ubuntu release. If neither
 this option nor \fB\-\-version\fR are specified, then
 \fBbackportpackage\fR defaults to the current Ubuntu development
 release.
+.TP
+.B \-S \fISUFFIX\fR, \-\-suffix=\fISUFFIX\fR
+Add the specified suffix to the version number when
+backporting. \fBbackportpackage\fR will always append
+~\fIDESTINATION\fR1 to the original version number, and if
+\fISUFFIX\fR is specified, it is appended to that, to get version
+numbers of the form
+\fIORIGINAL_VERSION\fR~\fIDESTINATION\fR1\fISUFFIX\fR. If the
+backported package is being uploaded to a PPA, then \fISUFFIX\fR
+defaults to \fB~ppa1\fR, otherwise the default is blank.
 .TP
 .B \-b, \-\-build
 Build the package with the specified builder before uploading. Note
@@ -38,6 +48,10 @@ Update the build environment before attempting to build.
 .TP
 .B \-u \fIUPLOAD\fR, \-\-upload=\fIUPLOAD\fR
 Upload to \fIUPLOAD\fR with \fBdput\fR(1) (after confirmation).
+.TP
+.B \-y, \-\-yes
+Do not prompt before uploading to a PPA. For everyone's safety, this
+option is ignored if \fIUPLOAD\fR is \fBubuntu\fR.
 .TP
 .B \-v \fIVERSION\fR, \-\-version=\fIVERSION\fR
 If the \fB\-\-source\fR option is specified, then
