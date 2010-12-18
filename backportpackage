@@ -285,7 +285,7 @@ def main(args):
                         package,
                         dscfile,
                         version,
-                        suffix,
+                        opts.suffix,
                         release,
                         opts.build,
                         opts.builder,
