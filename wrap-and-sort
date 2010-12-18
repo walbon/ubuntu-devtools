@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>,
+#               2010, Stefano Rivera <stefanor@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
