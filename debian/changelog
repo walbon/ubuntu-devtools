@@ -6,6 +6,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   * pbuilder-dist:
     - Fix typo in local archive support, introduced in 0.107.
     - Warn user if they run sudo pbuilder-dist (LP: #691999).
+  * Drop unnecessary debian/pycompat
 
   [ Benjamin Drung ]
   * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
@@ -28,7 +29,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
     --buildresult is specified.
   * sponsor-patch: Support building with pbuilder-dist.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 18 Dec 2010 22:08:01 +0200
+ -- Stefano Rivera <stefano@rivera.za.net>  Sun, 19 Dec 2010 01:29:22 +0200
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
