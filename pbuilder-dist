@@ -88,12 +88,16 @@ class pbuilder_dist:
         self.base = os.path.expanduser(os.environ.get('PBUILDFOLDER',
                                                       '~/pbuilder/'))
 
+        if 'SUDO_USER' in os.environ:
+            print >> stderr, ("Warning: pbuilder-dist running under sudo. "
+                              "This is probably not what you want. "
+                              "pbuilder-dist will use sudo itself, "
+                              "when necessary.")
+        if os.stat(os.environ['HOME']).st_uid != os.getuid():
+            print >> stderr, "Error: You don't own $HOME"
+            exit(1)
+
         if not os.path.isdir(self.base):
-            if 'SUDO_USER' in os.environ:
-                print >> stderr, ("Warning: pbuilder-dist running under sudo. "
-                                  "This is probably not what you want. "
-                                  "pbuilder-dist will use sudo itself, "
-                                  "when necessary.")
             try:
                 os.makedirs(self.base)
             except os.OSError:
