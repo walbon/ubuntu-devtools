@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.108) experimental; urgency=low
 
   [ Stefano Rivera ]
   * lp-shell, import-bug-from-debian:
@@ -29,7 +29,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
     --buildresult is specified.
   * sponsor-patch: Support building with pbuilder-dist.
 
- -- Stefano Rivera <stefano@rivera.za.net>  Sun, 19 Dec 2010 01:29:22 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Sun, 19 Dec 2010 00:57:38 +0100
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 
