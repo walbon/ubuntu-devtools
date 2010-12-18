@@ -12,6 +12,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   [ Colin Watson ]
   * grep-merges: New tool.
+  * ubuntu-iso(1): Fix typo.
 
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
