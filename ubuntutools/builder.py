@@ -35,11 +35,23 @@ class Builder(object):
         if not os.path.isdir(result_directory):
             os.makedirs(result_directory)
 
+    def build_failure(self, returncode, dsc_file):
+        if returncode != 0:
+            Logger.error("Failed to build %s from source with %s." % \
+                         (os.path.basename(dsc_file), self.name))
+        return returncode
+
     def get_architecture(self):
         return self.architecture
 
     def get_name(self):
         return self.name
+
+    def update_failure(self, returncode, dist):
+        if returncode != 0:
+            Logger.error("Failed to update %s chroot for %s." % \
+                         (dist, self.name))
+        return returncode
 
 
 class Pbuilder(Builder):
@@ -53,13 +65,15 @@ class Pbuilder(Builder):
                "--distribution", dist, "--architecture", self.architecture,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
-        return subprocess.call(cmd)
+        returncode = subprocess.call(cmd)
+        return self.build_failure(returncode, dsc_file)
 
     def update(self, dist):
         cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--update",
                "--distribution", dist, "--architecture", self.architecture]
         Logger.command(cmd)
-        return subprocess.call(cmd)
+        returncode = subprocess.call(cmd)
+        return self.update_failure(returncode, dist)
 
 
 class Pbuilderdist(Builder):
@@ -71,12 +85,14 @@ class Pbuilderdist(Builder):
         cmd = ["pbuilder-dist", dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
-        return subprocess.call(cmd)
+        returncode = subprocess.call(cmd)
+        return self.build_failure(returncode, dsc_file)
 
     def update(self, dist):
         cmd = ["pbuilder-dist", dist, self.architecture, "update"]
         Logger.command(cmd)
-        return subprocess.call(cmd)
+        returncode = subprocess.call(cmd)
+        return self.update_failure(returncode, dist)
 
 
 class Sbuild(Builder):
@@ -91,10 +107,10 @@ class Sbuild(Builder):
         cmd = ["sbuild", "--arch-all", "--dist=" + dist,
                "--arch=" + self.architecture, dsc_file]
         Logger.command(cmd)
-        result = subprocess.call(cmd)
+        returncode = subprocess.call(cmd)
         Logger.command(["cd", workdir])
         os.chdir(workdir)
-        return result
+        return self.build_failure(returncode, dsc_file)
 
     def update(self, dist):
         cmd = ["schroot", "--list"]
@@ -124,7 +140,8 @@ class Sbuild(Builder):
             Logger.command(cmd + [chroot])
             ret = subprocess.call(cmd + [chroot])
             if ret != 0:
-                return ret
+                return self.update_failure(ret, dist)
+        return 0
 
 
 def getBuilder(builder=None):

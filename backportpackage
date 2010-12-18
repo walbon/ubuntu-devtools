@@ -205,8 +205,7 @@ def do_build(workdir, package, release, bp_version, builder, update):
 
     if update:
         if 0 != builder.update(release):
-            error('Failed to update %s chroot for %s.' % \
-                  (release, builder.get_name()))
+            sys.exit(1)
 
     return builder.build(os.path.join(workdir,
                                       '%s_%s.dsc' % (package, bp_version)),
@@ -248,7 +247,7 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
 
     if build:
         if 0 != do_build(workdir, package, release, bp_version, builder, update):
-            error('Package failed to build; aborting')
+            sys.exit(1)
     if upload:
         do_upload(workdir, package, bp_version, upload, prompt)
 

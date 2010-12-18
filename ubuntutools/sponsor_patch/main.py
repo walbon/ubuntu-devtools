@@ -403,8 +403,6 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
                 if update:
                     ret = builder.update(dist)
                     if ret != 0:
-                        Logger.error("Failed to update %s chroot for %s." % \
-                                     (dist, builder.get_name()))
                         ask_for_manual_fixing()
                         break
                     # We want to update the build environment only once, but not
@@ -414,9 +412,6 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
                 # build package
                 result = builder.build(new_dsc_file, dist, buildresult)
                 if result != 0:
-                    Logger.error("Failed to build %s from source with %s." % \
-                                (os.path.basename(new_dsc_file),
-                                 builder.get_name()))
                     question = Question(["yes", "update", "retry", "no"])
                     answer =  question.ask("Do you want to resolve this issue "
                                            "manually", "yes")
