@@ -18,6 +18,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
 
   [ Evan Broder ]
   * backportpackage: new script for testing backport requests in a PPA.
+    - Include -y option to skip prompts (LP: #691895)
   * sponsor-patch: Add --update option to make sure build environment is
     up to date (LP: #689605)
 

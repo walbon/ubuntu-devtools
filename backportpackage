@@ -81,6 +81,11 @@ def parse(args):
                  dest='upload',
                  help='Specify an upload destination',
                  metavar='UPLOAD')
+    p.add_option('-y', '--yes',
+                 dest='prompt',
+                 default=True,
+                 action='store_false',
+                 help='Do not prompt before uploading to a PPA')
     p.add_option('-v', '--version',
                  dest='version',
                  default=None,
@@ -207,18 +212,21 @@ def do_build(workdir, package, release, bp_version, builder, update):
                          release,
                          os.path.join(workdir, "buildresult"))
 
-def do_upload(workdir, package, bp_version, upload):
+def do_upload(workdir, package, bp_version, upload, prompt):
     print 'Please check %s %s in file://%s carefully!' % \
           (package, bp_version, workdir)
-    question = 'Do you want to upload the package to %s' % upload
-    answer = YesNoQuestion().ask(question, "yes")
-    if answer == "yes":
-        changes_file = '%s_%s_source.changes' % (package, bp_version)
-        check_call(['dput', upload, changes_file], cwd=workdir)
+    if prompt or upload == 'ubuntu':
+        question = 'Do you want to upload the package to %s' % upload
+        answer = YesNoQuestion().ask(question, "yes")
+        if answer != "yes":
+            return
+
+    changes_file = '%s_%s_source.changes' % (package, bp_version)
+    check_call(['dput', upload, changes_file], cwd=workdir)
 
 
 def do_backport(workdir, package, dscfile, version, suffix, release, build,
-                builder, update, upload):
+                builder, update, upload, prompt):
     check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
@@ -241,7 +249,7 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
         if 0 != do_build(workdir, package, release, bp_version, builder, update):
             error('Package failed to build; aborting')
     if upload:
-        do_upload(workdir, package, bp_version, upload)
+        do_upload(workdir, package, bp_version, upload, prompt)
 
     shutil.rmtree(srcdir)
 
@@ -290,7 +298,8 @@ def main(args):
                         opts.build,
                         opts.builder,
                         opts.update,
-                        opts.upload)
+                        opts.upload,
+                        opts.prompt)
     finally:
         if not opts.workdir:
             shutil.rmtree(workdir)
