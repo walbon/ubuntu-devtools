@@ -31,6 +31,10 @@ class Builder(object):
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         self.architecture = process.communicate()[0].strip()
 
+    def build_preparation(self, result_directory):
+        if not os.path.isdir(result_directory):
+            os.makedirs(result_directory)
+
     def get_architecture(self):
         return self.architecture
 
@@ -43,6 +47,7 @@ class Pbuilder(Builder):
         Builder.__init__(self, "pbuilder")
 
     def build(self, dsc_file, dist, result_directory):
+        self.build_preparation(result_directory)
         # TODO: Do not rely on a specific pbuilder configuration.
         cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
                "--distribution", dist, "--architecture", self.architecture,
@@ -62,6 +67,7 @@ class Pbuilderdist(Builder):
         Builder.__init__(self, "pbuilder-dist")
 
     def build(self, dsc_file, dist, result_directory):
+        self.build_preparation(result_directory)
         cmd = ["pbuilder-dist", dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
@@ -78,6 +84,7 @@ class Sbuild(Builder):
         Builder.__init__(self, "sbuild")
 
     def build(self, dsc_file, dist, result_directory):
+        self.build_preparation(result_directory)
         workdir = os.getcwd()
         Logger.command(["cd", result_directory])
         os.chdir(result_directory)

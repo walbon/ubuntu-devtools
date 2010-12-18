@@ -196,7 +196,7 @@ def do_build(workdir, package, release, bp_version, builder, update):
     return builder.build(os.path.join(workdir,
                                       '%s_%s.dsc' % (package, bp_version)),
                          release,
-                         workdir)
+                         os.path.join(workdir, "buildresult"))
 
 def do_upload(workdir, package, bp_version, upload):
     print 'Please check %s %s in file://%s carefully!' % \

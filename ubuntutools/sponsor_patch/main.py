@@ -396,9 +396,7 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
 
         if build:
             dist = re.sub("-.*$", "", changelog.distributions)
-            buildresult = os.path.join(workdir, task.package + "-buildresult")
-            if not os.path.isdir(buildresult):
-                os.makedirs(buildresult)
+            buildresult = os.path.join(workdir, "buildresult")
 
             successful_built = False
             while not successful_built:
