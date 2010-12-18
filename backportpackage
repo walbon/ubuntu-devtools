@@ -182,12 +182,12 @@ def get_backport_dist(upload, release):
     else:
         return release
 
-def do_build(workdir, package, release, bp_version, builder):
+def do_build(workdir, package, release, bp_version, builder, update):
     builder = getBuilder(builder)
     if not builder:
         return
 
-    if opts.update:
+    if update:
         if 0 != builder.update(release):
             error('Failed to update %s chroot for %s.' % \
                   (release, builder.get_name()))
@@ -210,7 +210,8 @@ def do_upload(workdir, package, bp_version, upload):
                cwd=workdir)
 
 
-def do_backport(workdir, package, dscfile, version, release, build, builder, upload):
+def do_backport(workdir, package, dscfile, version, release, build, builder,
+                update, upload):
     check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
     srcdir = os.path.join(workdir, package)
 
@@ -231,7 +232,7 @@ def do_backport(workdir, package, dscfile, version, release, build, builder, upl
 
     print 'Please check the package in file://%s carefully' % workdir
     if build:
-        if 0 != do_build(workdir, package, release, bp_version, builder):
+        if 0 != do_build(workdir, package, release, bp_version, builder, update):
             error('Package failed to build; aborting')
     if upload:
         do_upload(workdir, package, bp_version, upload)
@@ -281,6 +282,7 @@ def main(args):
                         release,
                         opts.build,
                         opts.builder,
+                        opts.update,
                         opts.upload)
     finally:
         if not opts.workdir:
