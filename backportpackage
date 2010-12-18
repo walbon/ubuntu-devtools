@@ -42,7 +42,7 @@ def check_call(cmd, *args, **kwargs):
     Logger.command(cmd)
     ret = subprocess.call(cmd, *args, **kwargs)
     if ret != 0:
-        error('%s returned %d' % (cmd, ret))
+        error('%s returned %d.' % (cmd, ret))
 
 def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
@@ -105,9 +105,9 @@ def parse(args):
 
     opts, args = p.parse_args(args)
     if len(args) != 1:
-        p.error('You must specify a single source package or a .dsc URL/path')
+        p.error('You must specify a single source package or a .dsc URL/path.')
     if not opts.upload and not opts.workdir:
-        p.error('Please specify either a working dir or an upload target')
+        p.error('Please specify either a working dir or an upload target!')
 
     return opts, args
 
@@ -127,11 +127,11 @@ def find_release_package(lp, package, version, source_release):
         except IndexError:
             continue
     else:
-        error('Unable to find package %s in release %s' %
+        error('Unable to find package %s in release %s.' %
               (package, source_release))
 
     if version and version != srcpkg.source_package_version:
-        error('Requested backport of version %s but %s is at version %s' %
+        error('Requested backport of version %s but %s is at version %s.' %
               (version, package, srcpkg.source_package_version))
 
     return srcpkg
@@ -145,7 +145,7 @@ def find_version_package(lp, package, version):
         return archive.getPublishedSources(source_name=package,
                                            version=version)[0]
     except IndexError:
-        error('Version %s of package %s was never published in Ubuntu' %
+        error('Version %s of package %s was never published in Ubuntu.' %
               (version, package))
 
 def dscurl_from_package(lp, workdir, package, version, source_release):
@@ -162,7 +162,7 @@ def dscurl_from_package(lp, workdir, package, version, source_release):
         if f.endswith('.dsc'):
             return urllib.unquote(f)
     else:
-        error('Package %s contains no .dsc file' % package)
+        error('Package %s contains no .dsc file.' % package)
 
 def dscurl_from_dsc(package):
     path = os.path.abspath(os.path.expanduser(package))
@@ -267,7 +267,7 @@ def main(args):
             distinfo = lsb_release.get_distro_information()
             opts.dest_releases = [distinfo['CODENAME']]
         except:
-            error('No destination release specified and unable to guess yours')
+            error('No destination release specified and unable to guess yours.')
 
     if opts.workdir:
         workdir = os.path.expanduser(opts.workdir)
