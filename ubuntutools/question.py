@@ -60,6 +60,11 @@ class Question(object):
         return selected
 
 
+class YesNoQuestion(Question):
+    def __init__(self):
+        Question.__init__(self, ["yes", "no"], False)
+
+
 def input_number(question, min_number, max_number, default=None):
     if default:
         question += " [%i]? " % (default)

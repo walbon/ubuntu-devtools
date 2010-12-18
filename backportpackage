@@ -29,6 +29,7 @@ import lsb_release
 
 from ubuntutools.builder import getBuilder
 from ubuntutools.logger import Logger
+from ubuntutools.question import YesNoQuestion
 
 def error(msg):
     Logger.error(msg)
@@ -198,16 +199,11 @@ def do_build(workdir, package, release, bp_version, builder, update):
                          workdir)
 
 def do_upload(workdir, package, bp_version, upload):
-    prompt = 'Do you want to upload this to %s? [Y/n]' % upload
-    while True:
-        answer = raw_input(prompt).strip().lower()
-        if answer in ('', 'y', 'yes'):
-            break
-        elif answer in ('n', 'no'):
-            return
-
-    check_call(['dput', upload, '%s_%s_source.changes' % (package, bp_version)],
-               cwd=workdir)
+    answer = YesNoQuestion().ask('Do you want to upload %s %s to %s' % \
+                                 (package, bp_version, upload), "yes")
+    if answer == "yes":
+        changes_file = '%s_%s_source.changes' % (package, bp_version)
+        check_call(['dput', upload, changes_file], cwd=workdir)
 
 
 def do_backport(workdir, package, dscfile, version, release, build, builder,

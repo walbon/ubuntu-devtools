@@ -28,7 +28,7 @@ import launchpadlib.launchpad
 
 import ubuntutools.update_maintainer
 from ubuntutools.logger import Logger
-from ubuntutools.question import Question, input_number
+from ubuntutools.question import Question, YesNoQuestion, input_number
 
 from ubuntutools.sponsor_patch.bugtask import BugTask
 from ubuntutools.sponsor_patch.patch import Patch
@@ -89,8 +89,8 @@ def strip_epoch(version):
     return version_without_epoch
 
 def ask_for_manual_fixing():
-    question = Question(["yes", "no"], False)
-    answer = question.ask("Do you want to resolve this issue manually", "yes")
+    answer = YesNoQuestion().ask("Do you want to resolve this issue manually",
+                                 "yes")
     if answer == "no":
         user_abort()
 
