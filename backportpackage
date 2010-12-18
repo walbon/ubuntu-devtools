@@ -241,7 +241,7 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
                 '--distribution', bp_dist,
                 'No-change backport to %s' % release],
                cwd=srcdir)
-    check_call(['debuild', '-S', '-sa'], cwd=srcdir)
+    check_call(['debuild', '--no-lintian', '-S', '-sa'], cwd=srcdir)
 
     if ':' in bp_version:
         bp_version = bp_version[bp_version.find(':')+1:]
