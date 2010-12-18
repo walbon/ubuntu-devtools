@@ -3,7 +3,9 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * lp-shell, import-bug-from-debian:
     Use the 'production' LP instance instead of 'edge' (which is going away).
-  * pbuilder-dist: Fix typo in local archive support, introduced in 0.107.
+  * pbuilder-dist:
+    - Fix typo in local archive support, introduced in 0.107.
+    - Warn user if they run sudo pbuilder-dist (LP: #691999).
 
   [ Benjamin Drung ]
   * pull-lp-source: Unquote URI to get "+" instead of "%2B" in the file name
@@ -26,7 +28,7 @@ ubuntu-dev-tools (0.108) UNRELEASED; urgency=low
     --buildresult is specified.
   * sponsor-patch: Support building with pbuilder-dist.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Sat, 18 Dec 2010 12:57:29 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 18 Dec 2010 22:08:01 +0200
 
 ubuntu-dev-tools (0.107) experimental; urgency=low
 

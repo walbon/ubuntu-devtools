@@ -89,6 +89,11 @@ class pbuilder_dist:
                                                       '~/pbuilder/'))
 
         if not os.path.isdir(self.base):
+            if 'SUDO_USER' in os.environ:
+                print >> stderr, ("Warning: pbuilder-dist running under sudo. "
+                                  "This is probably not what you want. "
+                                  "pbuilder-dist will use sudo itself, "
+                                  "when necessary.")
             try:
                 os.makedirs(self.base)
             except os.OSError:
