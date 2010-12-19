@@ -1,0 +1,63 @@
+.\" Copyright (C) 2010 Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License
+.\" as published by the Free Software Foundation; either version 2
+.\" of the License, or (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" See file /usr/share/common-licenses/GPL-2 for more details.
+.\"
+.TH ubuntu\-dev\-tools "5" "December 19 2010" "ubuntu\-dev\-tools"
+.SH NAME
+ubuntu\-dev\-tools \- Configuration for the ubuntu\-dev\-tools package.
+
+.SH DESCRIPTION
+The \fBubuntu\-dev\-tools\fR package is similar in scope to the
+.BR devscripts (1)
+package, providing a collection of scripts which may be of use
+to Ubuntu and Debian developers or others wishing to build Debian packages.
+
+Some of these scripts have options which may be configured on a
+system\-wide and per\-user basis.
+These options are configured in
+.BR devscripts.conf (5).
+
+All variables are described in the script's manpages. Package\-wide
+variables begin with "\fIUBUNTUTOOLS\fR" and are listed below.
+
+Every script which reads the configuration files can be forced to ignore
+them by using \fB\-\-no\-conf\fR as the \fIfirst\fR command\-line
+option.
+
+.SH ENVIRONMENT
+Several scripts use the following environment variables:
+
+.TP
+.B UBUMAIL
+Overrides \fBDEBEMAIL\fR and \fBDEBFULLNAME\fR when the target is
+clearly Ubuntu.
+
+.TP
+.BR DEBEMAIL ", " DEBFULLNAME
+As in
+.BR devscripts (1).
+
+.SH PACKAGE\-WIDE VARIABLES
+The currently recognised package\-wide variables are:
+
+.TP
+.B UBUNTUTOOLS_BUILDER
+This specifies the preferred test\-builder, one of
+.BR pbuilder " (default), " sbuild ", " pbuilder\-dist .
+
+.SH SEE ALSO
+.BR devscripts (1),
+.BR devscripts.conf (5)
+
+.SH AUTHORS
+This manpage was written by Stefano Rivera <stefanor@ubuntu.com>.
