@@ -25,6 +25,12 @@ import sys
 
 from ubuntutools.common import memoize_noargs
 
+defaults = {
+    'BUILDER': 'pbuilder',
+    'UPDATE_BUILDER': False,
+    'LPINSTANCE': 'production',
+}
+
 @memoize_noargs
 def get_devscripts_config():
     """Read the devscripts configuration files, and return the values as a
@@ -67,6 +73,8 @@ def get_value(key, default=None, prefix=None, compat_vars=[]):
                 value = value == 'yes'
             return value
 
+    if key in defaults:
+        return defaults[key]
     return default
 
 def ubu_email(name=None, email=None, export=True):

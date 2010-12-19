@@ -83,13 +83,19 @@ removed once the script finishes running.
 .PP
 \fBbackportpackage\fR is only recommended for testing backports in a
 PPA, not uploading backports to the Ubuntu archive.
-.SH ENVIRONMENT
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the
+.BR ubuntu\-dev\-tools (5)
+configuration files:
 .TP
-.B UBUNTUTOOLS_BUILDER
-The default builder for Ubuntu development tools that support it
-(including \fBbackportpackage\fR). Supported are \fBpbuilder\fR(8),
-\fBpbuilder-dist\fR(1), and \fBsbuild\fR(1).
-If unset and not provided on the command line, \fBpbuilder\fR(8) is used.
+.BR BACKPORTPACKAGE_BUILDER ", " UBUNTUTOOLS_BUILDER
+The default value for \fB\-\-builder\fR.
+.TP
+.BR BACKPORTPACKAGE_UPDATE_BUILDER ", " UBUNTUTOOLS_UPDATE_BUILDER
+The default value for \fB--update\fR.
+.TP
+.BR BACKPORTPACKAGE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--launchpad\fR.
 .SH EXAMPLES
 Test-build in your PPA a backport of znc from the current development
 release to your workstation's release, deleting the build products
@@ -115,6 +121,8 @@ to the same PPA:
 .B backportpackage -d hardy -u ppa:\fIuser\fR/\fIppa\fR \\\\
 .B "  "https://launchpad.net/\fIsome/file.dsc\fR
 .fi
+.SH SEE ALSO
+.BR ubuntu\-dev\-tools (5)
 .SH AUTHOR
 \fBbackportpackage\fR and this manpage were written by Evan Broder
 <evan@ebroder.net>
