@@ -31,6 +31,8 @@ def get_devscripts_config():
     dictionary
     """
     config = {}
+    if len(sys.argv) > 1 and sys.argv[1] in ('--no-conf', '--noconf'):
+        return config
     var_re = re.compile(r'^\s*([A-Z_]+?)=(.+)$')
     for fn in ('/etc/devscripts.conf', '~/.devscripts'):
         f = open(os.path.expanduser(fn), 'r')
