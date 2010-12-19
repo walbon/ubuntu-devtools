@@ -32,3 +32,13 @@ import sys
 if os.environ.has_key('https_proxy'):
     print >> sys.stderr, "Ignoring https_proxy (no support in urllib/urllib2; see LP #122551)"
     del os.environ['https_proxy']
+
+
+def memoize_noargs(func):
+    "Simple memoization wrapper, for functions without arguments"
+    func.cache = None
+    def wrapper():
+        if func.cache is None:
+            func.cache = func()
+        return func.cache
+    return wrapper

@@ -1,9 +1,11 @@
 ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
 
   * Convert debian/copyright to DEP5, make sure all scripts are listed
-   (LP: #692003)
+    (LP: #692003)
+  * Support reading configuration variables from devscripts configuration
+    files. (LP: #681693)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 19 Dec 2010 02:26:12 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 19 Dec 2010 20:41:06 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
