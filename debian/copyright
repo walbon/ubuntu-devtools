@@ -1,108 +1,213 @@
-This package was re-debianized by Daniel Holbach <daniel.holbach@ubuntu.com> on
-Fri, 01 Jun 2007 11:30:08 +0200.
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Name: Ubuntu Developer Tools
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Source: https://launchpad.net/ubuntu-dev-tools
 
-Upstream Authors:
+Files: *,
+       backportpackage,
+       bash_completion/pbuilder-dist,
+       check-symbols,
+       doc/backportpackage.1,
+       doc/check-symbols.1,
+       doc/errno.1,
+       doc/requestsync.1,
+       doc/ubuntu-iso.1,
+       lp-shell,
+       requestsync,
+       setup.py,
+       ubuntu-iso,
+       ubuntutools/requestsync/common.py,
+       ubuntutools/requestsync/lp.py,
+       ubuntutools/requestsync/mail.py
+Copyright: 2007,      Albert Damen <albrt@gmx.net>
+           2010,      Benjamin Drung <bdrung@ubuntu.com>
+           2007-2010, Canonical Ltd.
+           2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
+           2010,      Dustin Kirkland <kirkland@ubuntu.com>
+           2010,      Evan Broder <evan@ebroder.net>
+           2006-2007, Luke Yelavich <themuso@ubuntu.com>
+           2009-2010, Michael Bienia <geser@ubuntu.com>
+           2008,      Stephan Hermann <sh@sourcecode.de>
+           2007,      Steve Kowalik <stevenk@ubuntu.com>
+License: GPL-2
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, version 2 of the License.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in the /usr/share/common-licenses/GPL-2 file.
 
-	Albert Damen <albrt@gmx.net>
-	Albin Tonnerre <lut1n.tne@gmail.com>
-	Benjamin Drung <bdrung@ubuntu.com>
-	Bryce Harrington <bryce@ubuntu.com>
-	Colin Watson <cjwatson@ubuntu.com>
-	Daniel Hahler <ubuntu@thequod.de>
-	Daniel Holbach <daniel.holbach@ubuntu.com>
-	Dustin Kirkland <kirkland@ubuntu.com>
-	Emmet Hikory <persia@ubuntu.com>
-	Iain Lane <iain@orangesquash.org.uk>
-	James Westby <james.westby@ubuntu.com>
-	Jamin W. Collins <jcollins@asgardsrealm.net>
-	Jonathan Davies <jpds@ubuntu.com>
-	Jordan Mantha <mantha@ubuntu.com>
-	Kees Cook <kees@ubuntu.com>
-	Luke Yelavich <themuso@ubuntu.com>
-	Markus Korn <thekorn@gmx.de>
-	Martin Pitt <martin.pitt@ubuntu.com>
-	Matt Zimmerman <mdz@ubuntu.com>
-	Michael Bienia <geser@ubuntu.com>
-	Pete Savage <petesavage@ubuntu.com>
-	Scott Moser <smoser@ubuntu.com>
-	Scott James Remnant <scott@ubuntu.com>
-	Siegfried-A. Gevatter <rainct@ubuntu.com>
-	Soren Hansen <soren@ubuntu.com>
-	Stefano Rivera <stefanor@ubuntu.com>
-	Steve Kowalik <stevenk@ubuntu.com>
-	Terence Simpson <stdin@stdin.me.uk>
-	Nathan Handler <nhandler@ubuntu.com>
+Files: 404main,
+       dgetlp,
+       doc/404main.1,
+       doc/dgetlp.1,
+       doc/import-bug-from-debian.1,
+       doc/lp-project-upload.1,
+       doc/lp-set-dup.1,
+       doc/lp-shell.1,
+       doc/pbuilder-dist-simple.1,
+       doc/pbuilder-dist.1,
+       doc/reverse-build-depends.1,
+       doc/submittodebian.1,
+       import-bug-from-debian,
+       lp-project-upload,
+       lp-set-dup,
+       pbuilder-dist,
+       pbuilder-dist-simple,
+       reverse-build-depends,
+       submittodebian,
+Copyright: 2007-2010, Canonical Ltd.
+           2009,      James Westby <james.westby@ubuntu.com>
+           2008,      Jamin W. Collins <jcollins@asgardsrealm.net>
+           2008,      Jordan Mantha <mantha@ubuntu.com>
+           2008-2009, Patrick Schoenfeld <schoenfeld@in-medias-res.com>
+           2006-2007, Pete Savage <petesavage@ubuntu.com>
+           2009,      Ryan Kavanagh <ryanakca@kubuntu.org>
+           2007,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+           2010,      Stefano Rivera <stefanor@ubuntu.com>
+           2008,      Terence Simpson <tsimpson@ubuntu.com>
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in the /usr/share/common-licenses/GPL-2 file.
 
+Files: ack-sync,
+       doc/edit-patch.1,
+       doc/get-branches.1,
+       doc/grab-attachments.1,
+       doc/grab-merge.1,
+       doc/hugdaylist.1,
+       doc/massfile.1,
+       doc/merge-changelog.1,
+       doc/setup-packaging-environment.1,
+       doc/syncpackage.1,
+       edit-patch,
+       errno,
+       get-branches,
+       grab-attachments,
+       grab-merge,
+       hugdaylist,
+       massfile,
+       merge-changelog,
+       setup-packaging-environment,
+       syncpackage,
+Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
+           2007-2010, Canonical Ltd.
+           2010,      Dustin Kirkland <kirkland@ubuntu.com>
+           2008,      Jonathan Patrick Davies <jpds@ubuntu.com>
+           2008-2010, Martin Pitt <martin.pitt@canonical.com>
+           2009,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+           2010,      Stefano Rivera <stefanor@ubuntu.com>
+License: GPL-3
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, version 3 of the License.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
+
+Files:
+       dch-repeat,
+       doc/dch-repeat.1,
+       doc/get-build-deps.1,
+       doc/grep-merges.1,
+       doc/lp-list-bugs.1,
+       doc/manage-credentials.1,
+       doc/mk-sbuild.1,
+       doc/pull-debian-debdiff.1,
+       doc/pull-debian-source.1,
+       doc/pull-lp-source.1,
+       doc/pull-revu-source.1,
+       doc/ubuntu-build.1,
+       doc/update-maintainer.1,
+       doc/what-patch.1,
+       get-build-deps,
+       grep-merges,
+       lp-list-bugs,
+       manage-credentials,
+       mk-sbuild,
+       pull-debian-debdiff,
+       pull-debian-source,
+       pull-lp-source,
+       pull-revu-source,
+       ubuntu-build,
+       ubuntutools/common.py,
+       ubuntutools/lp/libsupport.py,
+       ubuntutools/lp/lpapicache.py,
+       ubuntutools/misc.py,
+       ubuntutools/packages.py,
+       ubuntutools/update_maintainer.py,
+       update-maintainer,
+       what-patch,
+Copyright: 2007,      Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
+           2007-2010, Canonical Ltd.
+           2008-2009, Iain Lane <iain@orangesquash.org.uk>
+           2006,      John Dong <jdong@ubuntu.com>
+           2009,      Jonathan Davies <jpds@ubuntu.com>
+           2007-2008, Kees Cook <kees@ubuntu.com>
+           2009,      Markus Korn <thekorn@gmx.de>
+           2009-2010, Michael Bienia <geser@ubuntu.com>
+           2009,      Nathan Handler <nhandler@ubuntu.com>
+           2007-2008, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+License: GPL-3+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
+
+Files:
+       doc/sponsor-patch.1,
+       doc/suspicious-source.1,
+       doc/wrap-and-sort.1,
+       sponsor-patch,
+       suspicious-source,
+       ubuntutools/builder.py,
+       ubuntutools/logger.py,
+       ubuntutools/question.py,
+       ubuntutools/sponsor_patch/bugtask.py,
+       ubuntutools/sponsor_patch/main.py,
+       ubuntutools/sponsor_patch/patch.py,
+       wrap-and-sort,
 Copyright:
-
-	© 2006-2010, Canonical Ltd.
-	© 2007, Albert Damen <albrt@gmx.net>
-	© 2006-2007, Albin Tonnerre <lut1n.tne@gmail.com>
-	© 2010, Benjamin Drung <bdrung@ubuntu.com>
-	© 2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
-	© 2010, Dustin Kirkland <kirkland@ubuntu.com>
-	© 2008, Iain Lane <iain@orangesquash.org.uk>
-	© 2009, James Westby <james.westby@ubuntu.com>
-	© Jamin W. Collins <jcollins@asgardsrealm.net>
-	© 2008-2009, Jonathan Davies <jpds@ubuntu.com>
-	© Jordan Mantha <mantha@ubuntu.com>
-	© 2006-2008, Kees Cook <kees@ubuntu.com>
-	© 2006-2007, Luke Yelavich <themuso@ubuntu.com>
-	© 2009, Markus Korn <thekorn@gmx.de>
-	© 2007, Martin Pitt <martin.pitt@ubuntu.com>
-	© 2006-2007, Michael Bienia <geser@ubuntu.com>
-	© 2008, 2009, Nathan Handler <nhandler@ubuntu.com>
-	© Patrick Schoenfeld <schoenfeld@debian.org>
-	© 2006-2007, Pete Savage <petesavage@ubuntu.com>
-	© 2009-2010 Ryan Kavanagh <ryanakca@kubuntu.org>
-	© 2007-2010, Siegfried-A. Gevatter <rainct@ubuntu.com>
-	© 2010, Stefano Rivera <stefanor@ubuntu.com>
-	© 2008, Stephan Hermann <sh@sourcecode.de>
-	© 2007 Steve Kowalik <stevenk@ubuntu.com>
-	© 2007-2008, Terence Simpson <stdin@stdin.me.uk>
-
-Licenses:
-
-404main, check-symbols, dgetlp, import-bug-from-debian, lp-project-upload,
-lp-set-dup, pbuilder-dist, pbuilder-dist-simple, requestsync,
-reverse-build-depends, submittodebian, ubuntuiso, and update-maintainer are
-licensed under the GNU General Public License, version 2:
-
-    This package is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, at version 2.
-
-    This package is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-On Debian and Ubuntu systems, the complete text of the GNU General Public
-License v2 can be found in `/usr/share/common-licenses/GPL-2'.
-
-dch-repeat, errno, get-branches, get-build-deps, grab-attachments, grab-merge,
-grep-merges, hugdaylist, lp-list-bugs, manage-credentials, massfile,
-merge-changelog, mk-sbuild, pbuilder-dist-simple, pull-debian-debdiff,
-pull-debian-source, pull-lp-source, pull-revu-source,
-setup-packaging-environment, suspicious-source, ubuntu-build and what-patch
-are licensed under the GNU General Public License, version 3:
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, at version 3.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-On Debian and Ubuntu systems, the complete text of the GNU General Public
-License v3 can be found in `/usr/share/common-licenses/GPL-3'.
-
-The following scripts can be used, at your option, regarding any later
-version of the previously specified license: 404main, dch-repeat, dgetlp,
-get-build-deps, grep-merges, import-bug-from-debian, lp-list-bugs,
-lp-project-upload, lp-set-dup, manage-credentials, mk-sbuild-lv,
-pbuilder-dist, pull-debian-debdiff, pull-debian-source, pull-lp-source,
-pull-revu-source, reverse-build-depends, setup-packaging-environment,
-submittodebian, suspicious-source, syncpackage, ubuntu-build, what-patch.
+           2010,      Benjamin Drung <bdrung@ubuntu.com>
+           2010,      Evan Broder <evan@ebroder.net>
+           2010,      Stefano Rivera <stefanor@ubuntu.com>
+License: ISC
+ Permission to use, copy, modify, and/or distribute this software for any
+ purpose with or without fee is hereby granted, provided that the above
+ copyright notice and this permission notice appear in all copies.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+ REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+ INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ PERFORMANCE OF THIS SOFTWARE.
