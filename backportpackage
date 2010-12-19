@@ -103,6 +103,11 @@ def parse(args):
                  default=get_value('LPINSTANCE'),
                  help='Launchpad instance to connect to (default: %default)',
                  metavar='INSTANCE')
+    p.add_option('--no-conf', '--noconf',
+                 dest='no_configuration',
+                 default=False,
+                 help="Don't read config files, must be the first option given",
+                 action='store_true')
 
     opts, args = p.parse_args(args)
     if len(args) != 1:

@@ -71,6 +71,10 @@ deleted before \fIbackportpackage\fR exits.
 .B \-l \fIINSTANCE\fR, \-\-launchpad=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
+.TP
+.B \-\-no\-conf\fR, \fB\-\-noconf
+Do not read any configuration files.
+This can only be used as the first option given on the command\-line.
 .SH DESCRIPTION
 \fBbackportpackage\fR fetches a package from one Ubuntu release or
 from a specified .dsc path or URL and creates a no-change backport of
