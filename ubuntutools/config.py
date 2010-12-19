@@ -43,26 +43,31 @@ def get_devscripts_config():
         f.close()
     return config
 
-def get_value(key, default=None, prefix=None, compat_keys=[]):
-    """Retrieve a value from the environment or configuration files.
+def get_value(key, default=None, prefix=None, compat_vars=[]):
+    """Retrieve a value from a configuration file.
     keys are prefixed with the script name + _, or prefix.
-    Historical variable names can be supplied via compat_keys, no prefix is
-    applied to them.
+    Historical *environment variable* names can be supplied via compat_keys, no
+    prefix is applied to them.
     """
     if prefix is None:
         prefix = sys.argv[0].upper().replace('-', '_') + '_'
 
-    keys = [prefix + key, 'UBUNTUTOOLS_' + key] + compat_keys
+    config = get_devscripts_config()
+    for k in (prefix + key, 'UBUNTUTOOLS_' + key):
+        if k in config:
+            value = config[k]
+            if value in ('yes', 'no'):
+                value = value == 'yes'
+            return value
 
-    value = default
-    for store in (os.environ, get_devscripts_config()):
-        for k in keys:
-            if k in store:
-                value = store[k]
-                if value in ('yes', 'no'):
-                    value = value == 'yes'
-                return value
-    return value
+    for k in compat_vars:
+        if k in os.environ:
+            value = os.environ[k]
+            if value in ('yes', 'no'):
+                value = value == 'yes'
+            return value
+
+    return default
 
 def ubu_email(name=None, email=None, export=True):
     """Find the developer's Ubuntu e-mail address, and export it in
