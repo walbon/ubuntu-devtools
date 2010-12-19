@@ -37,8 +37,6 @@ def get_devscripts_config():
     dictionary
     """
     config = {}
-    if len(sys.argv) > 1 and sys.argv[1] in ('--no-conf', '--noconf'):
-        return config
     var_re = re.compile(r'^\s*([A-Z_]+?)=(.+)$')
     for fn in ('/etc/devscripts.conf', '~/.devscripts'):
         f = open(os.path.expanduser(fn), 'r')
@@ -49,32 +47,33 @@ def get_devscripts_config():
         f.close()
     return config
 
-def get_value(key, default=None, prefix=None, compat_vars=[]):
-    """Retrieve a value from a configuration file.
+def get_value(key, default=None, prefix=None, compat_keys=[]):
+    """Retrieve a value from the environment or configuration files.
     keys are prefixed with the script name + _, or prefix.
-    Historical *environment variable* names can be supplied via compat_keys, no
-    prefix is applied to them.
+
+    Store Priority: Environment variables, user config file, system config file
+    Variable Priority: PREFIX_KEY, UBUNTUTOOLS_KEY, compat_keys
+
+    Historical variable names can be supplied via compat_keys, no prefix is
+    applied to them.
     """
+    if default is None and key in defaults:
+        default = defaults[key]
+    if len(sys.argv) > 1 and sys.argv[1] in ('--no-conf', '--noconf'):
+        return default
+
     if prefix is None:
         prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_') + '_'
 
-    config = get_devscripts_config()
-    for k in (prefix + key, 'UBUNTUTOOLS_' + key):
-        if k in config:
-            value = config[k]
-            if value in ('yes', 'no'):
-                value = value == 'yes'
-            return value
+    keys = [prefix + key, 'UBUNTUTOOLS_' + key] + compat_keys
 
-    for k in compat_vars:
-        if k in os.environ:
-            value = os.environ[k]
-            if value in ('yes', 'no'):
-                value = value == 'yes'
-            return value
-
-    if key in defaults:
-        return defaults[key]
+    for store in (os.environ, get_devscripts_config()):
+        for k in keys:
+            if k in store:
+                value = store[k]
+                if value in ('yes', 'no'):
+                    value = value == 'yes'
+                return value
     return default
 
 def ubu_email(name=None, email=None, export=True):
