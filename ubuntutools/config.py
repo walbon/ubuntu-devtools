@@ -56,7 +56,7 @@ def get_value(key, default=None, prefix=None, compat_vars=[]):
     prefix is applied to them.
     """
     if prefix is None:
-        prefix = sys.argv[0].upper().replace('-', '_') + '_'
+        prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_') + '_'
 
     config = get_devscripts_config()
     for k in (prefix + key, 'UBUNTUTOOLS_' + key):
