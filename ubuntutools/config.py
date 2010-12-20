@@ -19,7 +19,9 @@ import os
 import os.path
 import pwd
 import re
+import shlex
 import socket
+import StringIO
 import sys
 
 class UDTConfig(object):
@@ -46,20 +48,20 @@ class UDTConfig(object):
         dictionary
         """
         config = {}
-        var_re = re.compile(r'^\s*([A-Z_]+?)=(.+?)\s*$')
         for fn in ('/etc/devscripts.conf', '~/.devscripts'):
-            f = open(os.path.expanduser(fn), 'r')
+            try:
+                f = open(os.path.expanduser(fn), 'r')
+            except IOError:
+                continue
             for line in f:
-                m = var_re.match(line)
-                if m:
-                    value = m.group(2)
-                    # This isn't quite the same as bash's parsing, but
-                    # mostly-compatible for configuration files that aren't
-                    # broken like this: KEY=foo bar
-                    if (len(value) > 2 and value[0] == value[-1]
-                            and value[0] in ("'", '"')):
-                        value = value[1:-1]
-                    config[m.group(1)] = value
+                parsed = shlex.split(line, comments=True)
+                if len(parsed) > 1 and not isinstance(f, StringIO.StringIO):
+                    print >> sys.stderr, (
+                            "W: Cannot parse variable assignment in %s: %s"
+                            % (f.name, line))
+                if len(parsed) >= 1 and '=' in parsed[0]:
+                    key, value = parsed[0].split('=', 1)
+                    config[key] = value
             f.close()
         return config
 

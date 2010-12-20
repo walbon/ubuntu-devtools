@@ -63,6 +63,8 @@ SPACE_SUFFIX=yes
 SINGLE_QUOTE='yes no'
 DOUBLE_QUOTE="yes no"
 QUOTED_QUOTE="it's"
+PAIR_QUOTES="yes "a' no'
+COMMAND_EXECUTION=a b
 INHERIT=user
 REPEAT=no
 REPEAT=yes
@@ -75,6 +77,8 @@ REPEAT=yes
             'SINGLE_QUOTE': 'yes no',
             'DOUBLE_QUOTE': 'yes no',
             'QUOTED_QUOTE': "it's",
+            'PAIR_QUOTES': 'yes a no',
+            'COMMAND_EXECUTION': 'a',
             'INHERIT': 'user',
             'REPEAT': 'yes',
         })
