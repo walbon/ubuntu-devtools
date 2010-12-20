@@ -6,3 +6,4 @@
 /debian/ubuntu-dev-tools.debhelper.log
 /debian/ubuntu-dev-tools.*.debhelper
 /debian/ubuntu-dev-tools.substvars
+ubuntu_dev_tools.egg-info
