@@ -14,8 +14,10 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     DEBEMAIL. (LP: #665202)
   * Add the beginnings of a test suite. (LP: #690386)
     - Switch to setuptools, to support setup.py test.
+  * ubuntutools/common.py: Remove https_proxy unsetting code, working around
+    LP: #94130.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 10:58:53 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 20:54:14 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

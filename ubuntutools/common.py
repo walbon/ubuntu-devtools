@@ -15,16 +15,6 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import os
-import sys
-
-# Clear https_proxy env var as it's not supported in urllib/urllib2; see
-# LP #122551
-if os.environ.has_key('https_proxy'):
-    print >> sys.stderr, "Ignoring https_proxy (no support in urllib/urllib2; see LP #122551)"
-    del os.environ['https_proxy']
-
-
 def memoize_noargs(func):
     "Simple memoization wrapper, for functions without arguments"
     func.cache = None
