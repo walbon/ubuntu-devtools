@@ -138,7 +138,7 @@ def ubu_email(name=None, email=None, export=True):
                 email = os.environ[var].strip()
 
     if not name:
-        gecos_name = pwd.getpwuid(os.getuid())[4].split(',')[0].strip()
+        gecos_name = pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0].strip()
         if gecos_name:
             name = gecos_name
 
@@ -146,7 +146,7 @@ def ubu_email(name=None, email=None, export=True):
         mailname = socket.getfqdn()
         if os.path.isfile('/etc/mailname'):
             mailname = open('/etc/mailname', 'r').read().strip()
-        email = pwd.getpwuid(os.getuid())[0] + '@' + mailname
+        email = pwd.getpwuid(os.getuid()).pw_name + '@' + mailname
 
     if export:
         os.environ['DEBFULLNAME'] = name
