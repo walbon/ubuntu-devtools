@@ -2,6 +2,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
 
   * Convert debian/copyright to DEP5, make sure all scripts are listed
     (LP: #692003)
+  * Drop preinst (pbuilder-dist bash_completion handling), it is not required
+    for any current upgrade path on Debian or Ubuntu.
+  * Switch to dh_python2:
+    - Use X-Python-Version instead of XS-Python-Version.
+    - Use ${python:Breaks} to specify Python version compatibility.
   * Support reading configuration variables from devscripts configuration
     files. (LP: #681693)
     - Added ubuntu-dev-tools.5
