@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from distutils.core import setup
+from setuptools import setup
 import glob
 import os
 import re
@@ -60,6 +60,8 @@ setup(name='ubuntu-dev-tools',
               'ubuntutools/lp',
               'ubuntutools/requestsync',
               'ubuntutools/sponsor_patch',
+              'ubuntutools/test',
              ],
-    data_files=[('share/man/man1',  glob.glob("doc/*.1"))]
+    data_files=[('share/man/man1',  glob.glob("doc/*.1"))],
+    test_suite='ubuntutools.test.discover',
 )

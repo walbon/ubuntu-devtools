@@ -150,7 +150,6 @@ Files:
        pull-lp-source,
        pull-revu-source,
        ubuntu-build,
-       ubuntutools/common.py,
        ubuntutools/lp/libsupport.py,
        ubuntutools/lp/lpapicache.py,
        ubuntutools/misc.py,
@@ -197,6 +196,7 @@ Files:
        ubuntutools/sponsor_patch/bugtask.py,
        ubuntutools/sponsor_patch/main.py,
        ubuntutools/sponsor_patch/patch.py,
+       ubuntutools/test/*,
        wrap-and-sort
 Copyright:
            2010,      Benjamin Drung <bdrung@ubuntu.com>

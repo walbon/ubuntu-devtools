@@ -7,8 +7,10 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Added ubuntu-dev-tools.5
   * Support the combined "Name <email>" format in UBUMAIL, DEBFULLNAME, and
     DEBEMAIL. (LP: #665202)
+  * Add the beginnings of a test suite. (LP: #690386)
+    - Switch to setuptools, to support setup.py test.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 19 Dec 2010 21:15:02 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 10:58:53 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
