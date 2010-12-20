@@ -34,6 +34,8 @@ class UDTConfig(object):
         'UPDATE_BUILDER': False,
         'LPINSTANCE': 'production',
     }
+    # Populated from the configuration files:
+    config = {}
 
     def __init__(self, no_conf=False, prefix=None):
         self.no_conf = no_conf
