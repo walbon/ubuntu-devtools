@@ -87,10 +87,17 @@ removed once the script finishes running.
 .PP
 \fBbackportpackage\fR is only recommended for testing backports in a
 PPA, not uploading backports to the Ubuntu archive.
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
 .SH CONFIGURATION VARIABLES
 The following variables can be set in the environment or in
 .BR ubuntu\-dev\-tools (5)
-configuration files:
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
 .TP
 .BR BACKPORTPACKAGE_BUILDER ", " UBUNTUTOOLS_BUILDER
 The default value for \fB\-\-builder\fR.
