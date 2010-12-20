@@ -108,16 +108,15 @@ REPEAT=yes
         os.environ['UBUNTUTOOLS_BUILDER'] = 'baz'
         self.assertEqual(self.get_value('BUILDER'), 'baz')
 
-    def test_any_environment_precedence(self):
+    def test_general_environment_specific_config_precedence(self):
         config_files['user'] = "TEST_BUILDER=bar"
         os.environ['UBUNTUTOOLS_BUILDER'] = 'foo'
-        self.assertEqual(self.get_value('BUILDER'), 'foo')
+        self.assertEqual(self.get_value('BUILDER'), 'bar')
 
-    def test_compat_environment_precedence(self):
-        config_files['user'] = "TEST_BUILDER=bar"
-        os.environ['BUILDER'] = 'baz'
-        self.assertEqual(self.get_value('BUILDER', compat_keys=['BUILDER']),
-                         'baz')
+    def test_compat_keys(self):
+        config_files['user'] = 'COMPATFOOBAR=bar'
+        self.assertEqual(self.get_value('QUX', compat_keys=['COMPATFOOBAR']),
+                         'bar')
 
     def test_boolean(self):
         config_files['user'] = "TEST_BOOLEAN=yes"

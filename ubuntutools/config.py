@@ -70,8 +70,8 @@ class UDTConfig(object):
         keys are prefixed with the script name, falling back to UBUNTUTOOLS for
         package-wide keys.
 
-        Store Priority: Environment variables, user conf, system conf
         Variable Priority: PREFIX_KEY, UBUNTUTOOLS_KEY, compat_keys
+        Store Priority: Environment variables, user conf, system conf
 
         Historical variable names can be supplied via compat_keys, no prefix is
         applied to them.
@@ -84,8 +84,8 @@ class UDTConfig(object):
             keys.append('UBUNTUTOOLS_' + key)
         keys += compat_keys
 
-        for store in (os.environ, self.config):
-            for k in keys:
+        for k in keys:
+            for store in (os.environ, self.config):
                 if k in store:
                     value = store[k]
                     if value in ('yes', 'no'):
