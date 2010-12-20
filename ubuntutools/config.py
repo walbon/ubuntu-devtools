@@ -118,28 +118,24 @@ def ubu_email(name=None, email=None, export=True):
     if export and not name and not email and 'UBUMAIL' not in os.environ:
         export = False
 
-    for var, target in (
-                        ('UBUMAIL', 'name'),
-                        ('UBUMAIL', 'email'),
+    for var, target in (('UBUMAIL', 'email'),
                         ('DEBFULLNAME', 'name'),
-                        ('DEBEMAIL', 'name'),
                         ('DEBEMAIL', 'email'),
                         ('NAME', 'name'),
                        ):
         if name and email:
             break
-        if var in os.environ and not locals()[target]:
-            if var.endswith('MAIL'):
-                m = name_email_re.match(os.environ[var])
-                if m:
-                    if target == 'name':
-                        name = m.group(1)
-                    elif target == 'email':
-                        email = m.group(2)
-                elif target == 'email':
-                    email = os.environ[var].strip()
-            elif var.endswith('NAME') and target == 'name':
+        if var in os.environ:
+            m = name_email_re.match(os.environ[var])
+            if m:
+                if not name:
+                    name = m.group(1)
+                if not email:
+                    email = m.group(2)
+            elif target == 'name' and not name:
                 name = os.environ[var].strip()
+            elif target == 'email' and not email:
+                email = os.environ[var].strip()
 
     if not name:
         gecos_name = pwd.getpwuid(os.getuid())[4].split(',')[0].strip()
