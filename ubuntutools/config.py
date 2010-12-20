@@ -22,65 +22,70 @@ import re
 import socket
 import sys
 
-from ubuntutools.common import memoize_noargs
+class UDTConfig(object):
 
-defaults = {
-    'BUILDER': 'pbuilder',
-    'UPDATE_BUILDER': False,
-    'LPINSTANCE': 'production',
-}
+    defaults = {
+        'BUILDER': 'pbuilder',
+        'UPDATE_BUILDER': False,
+        'LPINSTANCE': 'production',
+    }
 
-@memoize_noargs
-def get_devscripts_config():
-    """Read the devscripts configuration files, and return the values as a
-    dictionary
-    """
-    config = {}
-    var_re = re.compile(r'^\s*([A-Z_]+?)=(.+?)\s*$')
-    for fn in ('/etc/devscripts.conf', '~/.devscripts'):
-        f = open(os.path.expanduser(fn), 'r')
-        for line in f:
-            m = var_re.match(line)
-            if m:
-                value = m.group(2)
-                # This isn't quite the same as bash's parsing, but
-                # mostly-compatible for configuration files that aren't broken
-                # like this: KEY=foo bar
-                if (len(value) > 2 and value[0] == value[-1]
-                        and value[0] in ("'", '"')):
-                    value = value[1:-1]
-                config[m.group(1)] = value
-        f.close()
-    return config
+    def __init__(self, no_conf=False, prefix=None):
 
-def get_value(key, default=None, prefix=None, compat_keys=[]):
-    """Retrieve a value from the environment or configuration files.
-    keys are prefixed with the script name + _, or prefix.
+        self.no_conf = no_conf
+        if prefix is None:
+            prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_')
+        self.prefix = prefix
+        if not no_conf:
+            self.config = self.parse_devscripts_config()
 
-    Store Priority: Environment variables, user config file, system config file
-    Variable Priority: PREFIX_KEY, UBUNTUTOOLS_KEY, compat_keys
+    def parse_devscripts_config(self):
+        """Read the devscripts configuration files, and return the values as a
+        dictionary
+        """
+        config = {}
+        var_re = re.compile(r'^\s*([A-Z_]+?)=(.+?)\s*$')
+        for fn in ('/etc/devscripts.conf', '~/.devscripts'):
+            f = open(os.path.expanduser(fn), 'r')
+            for line in f:
+                m = var_re.match(line)
+                if m:
+                    value = m.group(2)
+                    # This isn't quite the same as bash's parsing, but
+                    # mostly-compatible for configuration files that aren't
+                    # broken like this: KEY=foo bar
+                    if (len(value) > 2 and value[0] == value[-1]
+                            and value[0] in ("'", '"')):
+                        value = value[1:-1]
+                    config[m.group(1)] = value
+            f.close()
+        return config
 
-    Historical variable names can be supplied via compat_keys, no prefix is
-    applied to them.
-    """
-    if default is None and key in defaults:
-        default = defaults[key]
-    if len(sys.argv) > 1 and sys.argv[1] in ('--no-conf', '--noconf'):
+    def get_value(self, key, default=None, compat_keys=[]):
+        """Retrieve a value from the environment or configuration files.
+        keys are prefixed with the script name, falling back to UBUNTUTOOLS for
+        package-wide keys.
+
+        Store Priority: Environment variables, user conf, system conf
+        Variable Priority: PREFIX_KEY, UBUNTUTOOLS_KEY, compat_keys
+
+        Historical variable names can be supplied via compat_keys, no prefix is
+        applied to them.
+        """
+        if default is None and key in self.defaults:
+            default = self.defaults[key]
+
+        keys = [self.prefix + '_' + key, 'UBUNTUTOOLS_' + key] + compat_keys
+
+        for store in (os.environ, self.config):
+            for k in keys:
+                if k in store:
+                    value = store[k]
+                    if value in ('yes', 'no'):
+                        value = value == 'yes'
+                    return value
         return default
 
-    if prefix is None:
-        prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_') + '_'
-
-    keys = [prefix + key, 'UBUNTUTOOLS_' + key] + compat_keys
-
-    for store in (os.environ, get_devscripts_config()):
-        for k in keys:
-            if k in store:
-                value = store[k]
-                if value in ('yes', 'no'):
-                    value = value == 'yes'
-                return value
-    return default
 
 def ubu_email(name=None, email=None, export=True):
     """Find the developer's Ubuntu e-mail address, and export it in

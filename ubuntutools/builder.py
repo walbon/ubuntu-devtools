@@ -22,7 +22,6 @@
 import os
 import subprocess
 
-from ubuntutools.config import get_value
 from ubuntutools.logger import Logger
 
 class Builder(object):
@@ -145,10 +144,7 @@ class Sbuild(Builder):
         return 0
 
 
-def getBuilder(builder=None):
-    if not builder:
-        builder = get_value('BUILDER')
-
+def getBuilder(builder='pbuilder'):
     if builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':

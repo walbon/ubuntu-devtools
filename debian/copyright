@@ -189,7 +189,6 @@ Files:
        sponsor-patch,
        suspicious-source,
        ubuntutools/builder.py,
-       ubuntutools/common.py,
        ubuntutools/config.py,
        ubuntutools/logger.py,
        ubuntutools/question.py,
