@@ -121,6 +121,7 @@ REPEAT=yes
         config_files['user'] = "TEST_BOOLEAN=no"
         self.assertEqual(self.get_value('BOOLEAN'), False)
 
+
 class UbuEmailTestCase(unittest.TestCase):
     def setUp(self):
         self.cleanEnvironment()
@@ -146,6 +147,24 @@ class UbuEmailTestCase(unittest.TestCase):
         self.assertEqual(os.environ['DEBFULLNAME'], name)
         self.assertEqual(os.environ['DEBEMAIL'], email)
 
+    def test_two_hat_cmdlineoverride(self):
+        os.environ['DEBFULLNAME'] = 'Joe Developer'
+        os.environ['DEBEMAIL']    = 'joe@debian.org'
+        os.environ['UBUMAIL']     = 'joe@ubuntu.com'
+        name = 'Foo Bar'
+        email = 'joe@example.net'
+        self.assertEqual(ubu_email(name, email), (name, email))
+        self.assertEqual(os.environ['DEBFULLNAME'], name)
+        self.assertEqual(os.environ['DEBEMAIL'], email)
+
+    def test_two_hat_noexport(self):
+        os.environ['DEBFULLNAME'] = name   = 'Joe Developer'
+        os.environ['DEBEMAIL']    = demail = 'joe@debian.org'
+        os.environ['UBUMAIL']     = uemail = 'joe@ubuntu.com'
+        self.assertEqual(ubu_email(export=False), (name, uemail))
+        self.assertEqual(os.environ['DEBFULLNAME'], name)
+        self.assertEqual(os.environ['DEBEMAIL'], demail)
+
     def test_two_hat_with_name(self):
         os.environ['DEBFULLNAME'] = 'Joe Developer'
         os.environ['DEBEMAIL']    = 'joe@debian.org'
@@ -159,11 +178,13 @@ class UbuEmailTestCase(unittest.TestCase):
     def test_debfullname_with_email(self):
         name = 'Joe Developer'
         email = 'joe@example.net'
-        os.environ['DEBFULLNAME'] = '%s <%s>' % (name, email)
+        os.environ['DEBFULLNAME'] = orig = '%s <%s>' % (name, email)
         self.assertEqual(ubu_email(), (name, email))
+        self.assertEqual(os.environ['DEBFULLNAME'], orig)
 
     def test_debemail_with_name(self):
         name = 'Joe Developer'
         email = 'joe@example.net'
-        os.environ['DEBEMAIL'] = '%s <%s>' % (name, email)
+        os.environ['DEBEMAIL'] = orig = '%s <%s>' % (name, email)
         self.assertEqual(ubu_email(), (name, email))
+        self.assertEqual(os.environ['DEBEMAIL'], orig)
