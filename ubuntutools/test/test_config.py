@@ -125,6 +125,10 @@ REPEAT=yes
         config_files['user'] = "TEST_BOOLEAN=no"
         self.assertEqual(self.get_value('BOOLEAN'), False)
 
+    def test_nonpackagewide(self):
+        config_files['user'] = 'UBUNTUTOOLS_FOOBAR=a'
+        self.assertEquals(self.get_value('FOOBAR'), None)
+
 
 class UbuEmailTestCase(unittest.TestCase):
     def setUp(self):

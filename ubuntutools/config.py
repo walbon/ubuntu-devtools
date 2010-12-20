@@ -79,7 +79,10 @@ class UDTConfig(object):
         if default is None and key in self.defaults:
             default = self.defaults[key]
 
-        keys = [self.prefix + '_' + key, 'UBUNTUTOOLS_' + key] + compat_keys
+        keys = [self.prefix + '_' + key]
+        if key in self.defaults:
+            keys.append('UBUNTUTOOLS_' + key)
+        keys += compat_keys
 
         for store in (os.environ, self.config):
             for k in keys:
