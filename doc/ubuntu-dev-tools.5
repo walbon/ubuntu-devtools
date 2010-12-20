@@ -51,21 +51,23 @@ As in
 
 .SH PACKAGE\-WIDE VARIABLES
 The currently recognised package\-wide variables are:
-
 .TP
 .B UBUNTUTOOLS_BUILDER
 This specifies the preferred test\-builder, one of
 .BR pbuilder " (default), " sbuild ", " pbuilder\-dist .
-
-.TP
-.B UBUNTUTOOLS_UPDATE_BUILDER
-Whether or not to update the test\-builder before each test build.
-.RB "One of " yes " or " no " (default).
-
 .TP
 .B UBUNTUTOOLS_LPINSTANCE
 The launchpad instance to communicate with. e.g. \fBproduction\fR
 (default) or \fBstaging\fR.
+.TP
+.B UBUNTUTOOLS_UPDATE_BUILDER
+Whether or not to update the test\-builder before each test build.
+.RB "One of " yes " or " no " (default).
+.TP
+.B UBUNTUTOOLS_WORKDIR
+The directory to use for preparing source packages etc.
+When unset, defaults to a directory in \fI/tmp/\fR named after the
+script.
 
 .SH SEE ALSO
 .BR devscripts (1),

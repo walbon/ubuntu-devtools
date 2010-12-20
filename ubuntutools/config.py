@@ -29,10 +29,13 @@ class UDTConfig(object):
     environment variable parsing.
     """
     no_conf = False
+    # Package wide configuration variables.
+    # These are reqired to be used by at least two scripts.
     defaults = {
         'BUILDER': 'pbuilder',
-        'UPDATE_BUILDER': False,
         'LPINSTANCE': 'production',
+        'UPDATE_BUILDER': False,
+        'WORKDIR': None,
     }
     # Populated from the configuration files:
     config = {}
