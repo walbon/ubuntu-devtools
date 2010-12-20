@@ -22,6 +22,7 @@
 import os
 import subprocess
 
+from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
 class Builder(object):
@@ -144,7 +145,10 @@ class Sbuild(Builder):
         return 0
 
 
-def getBuilder(builder='pbuilder'):
+def getBuilder(builder=None):
+    if builder is None:
+        builder = UDTConfig.defaults['BUILDER']
+
     if builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':
