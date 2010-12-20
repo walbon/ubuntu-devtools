@@ -103,7 +103,7 @@ def parse(args):
                  default=None,
                  help='Launchpad instance to connect to (default: production)',
                  metavar='INSTANCE')
-    p.add_option('--no-conf', '--noconf',
+    p.add_option('--no-conf',
                  dest='no_conf',
                  default=False,
                  help="Don't read config files or environment variables",
