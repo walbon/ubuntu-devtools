@@ -11,18 +11,18 @@ backportpackage \- helper to test package backports
 .B backportpackage \-h
 .SH OPTIONS
 .TP
-.B \-d \fIDEST\fR, \-\-destination=\fIDEST\fR
+.B \-d \fIDEST\fR, \fB\-\-destination\fR=\fIDEST\fR
 Backport the package to the specified Ubuntu release. If this option
 is unspecified, then \fBbackportpackage\fR defaults to the release on
 which it is currently running.
 .TP
-.B \-s \fISOURCE\fR, \-\-source=\fISOURCE\fR
+.B \-s \fISOURCE\fR, \fB\-\-source\fR=\fISOURCE\fR
 Backport the package from the specified Ubuntu release. If neither
 this option nor \fB\-\-version\fR are specified, then
 \fBbackportpackage\fR defaults to the current Ubuntu development
 release.
 .TP
-.B \-S \fISUFFIX\fR, \-\-suffix=\fISUFFIX\fR
+.B \-S \fISUFFIX\fR, \fB\-\-suffix\fR=\fISUFFIX\fR
 Add the specified suffix to the version number when
 backporting. \fBbackportpackage\fR will always append
 ~\fIDESTINATION\fR1 to the original version number, and if
@@ -32,7 +32,7 @@ numbers of the form
 backported package is being uploaded to a PPA, then \fISUFFIX\fR
 defaults to \fB~ppa1\fR, otherwise the default is blank.
 .TP
-.B \-b, \-\-build
+.B \-b\fR, \fB\-\-build
 Build the package with the specified builder before uploading. Note
 for \fBpbuilder\fR(8) users: This assumes the common configuration,
 where the \fBDIST\fR environment is read by \fBpbuilderrc\fR(5) to
@@ -43,17 +43,17 @@ Use the specified builder to build the package. Supported are
 \fBpbuilder\fR(8), \fBpbuilder-dist\fR(1), and \fBsbuild\fR(1). This overrides
 \fBUBUNTUTOOLS_BUILDER\fR. The default is \fBpbuilder\fR(8).
 .TP
-.B \-U, \-\-update
+.B \-U\fR, \fB\-\-update
 Update the build environment before attempting to build.
 .TP
-.B \-u \fIUPLOAD\fR, \-\-upload=\fIUPLOAD\fR
+.B \-u \fIUPLOAD\fR, \fB\-\-upload\fR=\fIUPLOAD\fR
 Upload to \fIUPLOAD\fR with \fBdput\fR(1) (after confirmation).
 .TP
-.B \-y, \-\-yes
+.B \-y\fR, \fB\-\-yes
 Do not prompt before uploading to a PPA. For everyone's safety, this
 option is ignored if \fIUPLOAD\fR is \fBubuntu\fR.
 .TP
-.B \-v \fIVERSION\fR, \-\-version=\fIVERSION\fR
+.B \-v \fIVERSION\fR, \fB\-\-version\fR=\fIVERSION\fR
 If the \fB\-\-source\fR option is specified, then
 \fBbackportpackage\fR verifies that the current version of \fIsource
 package\fR in \fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
@@ -62,13 +62,13 @@ package\fR, regardless of the release in which it was published (or if
 that version is still current). This option is ignored if a .dsc URL
 or path is passed in instead of a source package name.
 .TP
-.B \-w \fIWORKDIR\fR, \-\-workdir=\fIWORKDIR\fR
+.B \-w \fIWORKDIR\fR, \fB\-\-workdir\fR=\fIWORKDIR\fR
 If \fIWORKDIR\fR is specified, then all files are downloaded,
 unpacked, built into, and otherwise manipulated in
 \fIWORKDIR\fR. Otherwise, a temporary directory is created, which is
 deleted before \fIbackportpackage\fR exits.
 .TP
-.B \-l \fIINSTANCE\fR, \-\-launchpad=\fIINSTANCE\fR
+.B \-l \fIINSTANCE\fR, \fB\-\-launchpad\fR=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
 .TP
