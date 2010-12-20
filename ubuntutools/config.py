@@ -36,13 +36,20 @@ def get_devscripts_config():
     dictionary
     """
     config = {}
-    var_re = re.compile(r'^\s*([A-Z_]+?)=(.+)$')
+    var_re = re.compile(r'^\s*([A-Z_]+?)=(.+?)\s*$')
     for fn in ('/etc/devscripts.conf', '~/.devscripts'):
         f = open(os.path.expanduser(fn), 'r')
         for line in f:
             m = var_re.match(line)
             if m:
-                config[m.group(1)] = m.group(2)
+                value = m.group(2)
+                # This isn't quite the same as bash's parsing, but
+                # mostly-compatible for configuration files that aren't broken
+                # like this: KEY=foo bar
+                if (len(value) > 2 and value[0] == value[-1]
+                        and value[0] in ("'", '"')):
+                    value = value[1:-1]
+                config[m.group(1)] = value
         f.close()
     return config
 
