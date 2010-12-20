@@ -23,7 +23,10 @@ import socket
 import sys
 
 class UDTConfig(object):
-
+    """Ubuntu Dev Tools configuration file (devscripts config file) and
+    environment variable parsing.
+    """
+    no_conf = False
     defaults = {
         'BUILDER': 'pbuilder',
         'UPDATE_BUILDER': False,
@@ -31,7 +34,6 @@ class UDTConfig(object):
     }
 
     def __init__(self, no_conf=False, prefix=None):
-
         self.no_conf = no_conf
         if prefix is None:
             prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_')
