@@ -179,13 +179,6 @@ class UbuEmailTestCase(unittest.TestCase):
         self.assertEqual(os.environ['DEBFULLNAME'], name)
         self.assertEqual(os.environ['DEBEMAIL'], email)
 
-    def test_debfullname_with_email(self):
-        name = 'Joe Developer'
-        email = 'joe@example.net'
-        os.environ['DEBFULLNAME'] = orig = '%s <%s>' % (name, email)
-        self.assertEqual(ubu_email(), (name, email))
-        self.assertEqual(os.environ['DEBFULLNAME'], orig)
-
     def test_debemail_with_name(self):
         name = 'Joe Developer'
         email = 'joe@example.net'
