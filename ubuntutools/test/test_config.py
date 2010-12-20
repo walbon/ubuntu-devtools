@@ -83,9 +83,9 @@ REPEAT=yes
             'REPEAT': 'yes',
         })
 
-    def get_value(self, key, default=None, compat_keys=[]):
+    def get_value(self, *args, **kwargs):
         config = UDTConfig(prefix='TEST')
-        return config.get_value(key, default=default, compat_keys=compat_keys)
+        return config.get_value(*args, **kwargs)
 
     def test_defaults(self):
         self.assertEqual(self.get_value('BUILDER'), 'pbuilder')
@@ -120,9 +120,11 @@ REPEAT=yes
 
     def test_boolean(self):
         config_files['user'] = "TEST_BOOLEAN=yes"
-        self.assertEqual(self.get_value('BOOLEAN'), True)
+        self.assertEqual(self.get_value('BOOLEAN', boolean=True), True)
         config_files['user'] = "TEST_BOOLEAN=no"
-        self.assertEqual(self.get_value('BOOLEAN'), False)
+        self.assertEqual(self.get_value('BOOLEAN', boolean=True), False)
+        config_files['user'] = "TEST_BOOLEAN=true"
+        self.assertEqual(self.get_value('BOOLEAN', boolean=True), None)
 
     def test_nonpackagewide(self):
         config_files['user'] = 'UBUNTUTOOLS_FOOBAR=a'

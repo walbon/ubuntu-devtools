@@ -67,7 +67,7 @@ class UDTConfig(object):
             f.close()
         return config
 
-    def get_value(self, key, default=None, compat_keys=[]):
+    def get_value(self, key, default=None, boolean=False, compat_keys=[]):
         """Retrieve a value from the environment or configuration files.
         keys are prefixed with the script name, falling back to UBUNTUTOOLS for
         package-wide keys.
@@ -90,8 +90,11 @@ class UDTConfig(object):
             for store in (os.environ, self.config):
                 if k in store:
                     value = store[k]
-                    if value in ('yes', 'no'):
-                        value = value == 'yes'
+                    if boolean:
+                        if value in ('yes', 'no'):
+                            value = value == 'yes'
+                        else:
+                            continue
                     return value
         return default
 
