@@ -394,9 +394,13 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
                 ask_for_manual_fixing()
                 continue
 
+        build_log = None
         if build:
             dist = re.sub("-.*$", "", changelog.distributions)
             buildresult = os.path.join(workdir, "buildresult")
+            build_name = task.package + "_" + strip_epoch(new_version) + \
+                         "_" + builder.get_architecture() + ".build"
+            build_log = os.path.join(buildresult, build_name)
 
             successful_built = False
             while not successful_built:
@@ -429,34 +433,37 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
                 # We want to do a manual fix if the build failed.
                 continue
 
-            # Check lintian
-            changes_name = task.package + "_" + strip_epoch(new_version) + \
+        # Determine whether to use the source or binary build for lintian
+        if build_log:
+            build_changes = task.package + "_" + strip_epoch(new_version) + \
                            "_" + builder.get_architecture() + ".changes"
-            build_changes = os.path.join(buildresult, changes_name)
-            assert os.path.isfile(build_changes), "%s does not exist." % \
-                                                  (build_changes)
-            cmd = ["lintian", "-IE", "--pedantic", "-q", build_changes]
-            lintian_filename = os.path.join(workdir,
-                    task.package + "_" + strip_epoch(new_version) + ".lintian")
-            Logger.command(cmd + [">", lintian_filename])
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            report = process.communicate()[0]
+            changes_for_lintian = os.path.join(buildresult, build_changes)
+        else:
+            changes_for_lintian = changes_file
 
-            # write lintian report file
-            lintian_file = open(lintian_filename, "w")
-            lintian_file.writelines(report)
-            lintian_file.close()
+        # Check lintian
+        assert os.path.isfile(changes_for_lintian), "%s does not exist." % \
+                                                    (changes_for_lintian)
+        cmd = ["lintian", "-IE", "--pedantic", "-q", changes_for_lintian]
+        lintian_filename = os.path.join(workdir,
+                task.package + "_" + strip_epoch(new_version) + ".lintian")
+        Logger.command(cmd + [">", lintian_filename])
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        report = process.communicate()[0]
+
+        # write lintian report file
+        lintian_file = open(lintian_filename, "w")
+        lintian_file.writelines(report)
+        lintian_file.close()
 
         # Upload package
         if upload:
             if upload == "ubuntu":
-                build_name = task.package + "_" + strip_epoch(new_version) + \
-                             "_" + builder.get_architecture() + ".build"
-                build_log = os.path.join(buildresult, build_name)
-                print "Please check %s %s carefully:\nfile://%s\nfile://%s\n" \
-                      "file://%s" % (task.package, new_version,
-                                     debdiff_filename, lintian_filename,
-                                     build_log)
+                print "Please check %s %s carefully:\nfile://%s\nfile://%s" % \
+                      (task.package, new_version, debdiff_filename,
+                       lintian_filename)
+                if build_log:
+                    print "\nfile://%s" % build_log
                 question = Question(["yes", "edit", "no"])
                 answer = question.ask("Do you want to upload the package to " \
                                       "the official Ubuntu archive", "yes")
