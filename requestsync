@@ -34,8 +34,6 @@ from debian.changelog import Version
 from ubuntutools.lp import udtexceptions
 from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
                                             raw_input_exit_on_ctrlc)
-# https_proxy fix
-import ubuntutools.common
 
 #
 # entry point
