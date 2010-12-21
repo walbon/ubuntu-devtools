@@ -28,7 +28,6 @@ import sys
 
 import launchpadlib.launchpad as launchpad
 from launchpadlib.errors import HTTPError
-from launchpadlib.uris import lookup_service_root
 from lazr.restfulclient.resource import Entry
 
 import ubuntutools.lp.libsupport as libsupport
@@ -64,7 +63,7 @@ class Launchpad(object):
         else:
             raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
-    def login_anonymously(self):
+    def login_anonymously(self, service=service, api_version=api_version):
         '''Enforce an anonymous login.'''
         if '_Launchpad__lp' not in self.__dict__:
             self.__lp = launchpad.Launchpad.login_anonymously('ubuntu-dev-tools',
@@ -101,7 +100,7 @@ class BaseWrapper(object):
     resource_type = None # it's a base class after all
 
     def __new__(cls, data):
-        if isinstance(data, basestring) and data.startswith('%s%s/' % (lookup_service_root(service), api_version)):
+        if isinstance(data, basestring) and data.startswith(str(Launchpad._root_uri)):
             # looks like a LP API URL
             # check if it's already cached
             cached = cls._cache.get(data)
@@ -116,7 +115,8 @@ class BaseWrapper(object):
                 pass
 
         if isinstance(data, Entry):
-            if data.resource_type_link in cls.resource_type:
+            (service_root, resource_type) = data.resource_type_link.split('#')
+            if service_root == str(Launchpad._root_uri) and resource_type in cls.resource_type:
                 # check if it's already cached
                 cached = cls._cache.get(data.self_link)
                 if not cached:
@@ -157,7 +157,7 @@ class Distribution(BaseWrapper):
     '''
     Wrapper class around a LP distribution object.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#distribution'
+    resource_type = 'distribution'
 
     def __init__(self, *args):
         # Don't share _series and _archives between different Distributions
@@ -239,14 +239,14 @@ class DistroSeries(BaseWrapper):
     '''
     Wrapper class around a LP distro series object.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#distro_series'
+    resource_type = 'distro_series'
 
 
 class Archive(BaseWrapper):
     '''
     Wrapper class around a LP archive object.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#archive'
+    resource_type = 'archive'
 
     def __init__(self, *args):
         # Don't share _srcpkgs between different Archives
@@ -307,7 +307,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
     '''
     Wrapper class around a LP source package object.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#source_package_publishing_history'
+    resource_type = 'source_package_publishing_history'
 
     def __init__(self, *args):
         # Don't share _builds between different SourcePackagePublishingHistory objects
@@ -408,8 +408,8 @@ class PersonTeam(BaseWrapper):
     __metaclass__ = MetaPersonTeam
 
     resource_type = (
-            lookup_service_root(service) + api_version + '/#person',
-            lookup_service_root(service) + api_version + '/#team',
+            'person',
+            'team',
             )
 
     def __init__(self, *args):
@@ -491,7 +491,7 @@ class Build(BaseWrapper):
     '''
     Wrapper class around a build object.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#build'
+    resource_type = 'build'
 
     def __str__(self):
         return u'%s: %s' % (self.arch_tag, self.buildstate)
@@ -513,4 +513,4 @@ class DistributionSourcePackage(BaseWrapper):
     '''
     Caching class for distribution_source_package objects.
     '''
-    resource_type = lookup_service_root(service) + api_version + '/#distribution_source_package'
+    resource_type = 'distribution_source_package'
