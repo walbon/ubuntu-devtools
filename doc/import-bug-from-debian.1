@@ -18,15 +18,35 @@ Each \fIbug\fR may be provided either as a bug number or URL.
 
 .SH OPTIONS
 .TP
+.BR \-b ", " \-\-browserless
+Don't open the bug in a browser at the end.
+.TP
 .BR \-h ", " \-\-help
 Display a help message and exit.
 .TP
-.BR \-n ", " \-\-dry\-run
-Use the LP staging server so that changes are not permanent.
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
 .TP
-.BR \-b ", " \-\-browserless
-Don't open the bug in a browser at the end.
-
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR BACKPORTPACKAGE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
+.SH SEE ALSO
+.BR ubuntu\-dev\-tools (5)
 .SH AUTHORS
 \fBimport\-bug\-from\-debian\fR was written by James Westby
 <james.westby@ubuntu.com>,

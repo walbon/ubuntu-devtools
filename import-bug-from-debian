@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# Copyright © 2009 James Westby <james.westby@ubuntu.com>
+# Copyright © 2009 James Westby <james.westby@ubuntu.com>,
+#             2010 Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -21,12 +22,15 @@
 #
 # ##################################################################
 
-from optparse import OptionParser
+from optparse import OptionParser, SUPPRESS_HELP
 import re
-import SOAPpy
 import sys
 import subprocess
-from ubuntutools.lp.libsupport import (get_launchpad, translate_api_web)
+
+import SOAPpy
+
+from ubuntutools.config import UDTConfig
+from ubuntutools.lp.libsupport import get_launchpad, translate_api_web
 
 bug_re = re.compile(r"bug=(\d+)")
 
@@ -39,21 +43,26 @@ debbugs = SOAPpy.SOAPProxy(url, namespace)
 #debbugs.config.dumpSOAPIn = 1
 
 parser = OptionParser(usage="%prog [option] bug ...")
-parser.add_option("-n", "--dry-run",
-        help="Use the staging server so that changes are not permanent",
-        dest="dry_run", action="store_true")
 parser.add_option("-b", "--browserless",
-        help="Don't open the bug in the browser at the end",
-        dest="browserless", action="store_true")
+                  help="Don't open the bug in the browser at the end",
+                  dest="browserless", action="store_true")
+parser.add_option("-l", "--lpinstance", metavar="INSTANCE",
+                  help="Launchpad instance to connect to (default: production)",
+                  dest="lpinstance", default=None)
+parser.add_option("-n", "--dry-run",
+                  help=SUPPRESS_HELP,
+                  dest="lpinstance", action="store_const", const="staging")
+parser.add_option("--no-conf", dest="no_conf", default=False,
+                  help="Don't read config files or environment variables.",
+                  action="store_true")
 (options, args) = parser.parse_args()
 
-if options.dry_run:
-    lp_server = 'staging'
-else:
-    lp_server = 'production'
+config = UDTConfig(options.no_conf)
+if options.lpinstance is None:
+    options.lpinstance = config.get_value("LPINSTANCE")
 
 try:
-    lp = get_launchpad("ubuntu-dev-tools", lp_server)
+    lp = get_launchpad("ubuntu-dev-tools", options.lpinstance)
 except IOError, msg:
     print msg
     print "No credentials, can't continue"
