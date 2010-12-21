@@ -1,0 +1,77 @@
+.\" Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH ubuntu\-dev\-tools "5" "December 19 2010" "ubuntu\-dev\-tools"
+.SH NAME
+ubuntu\-dev\-tools \- Configuration for the ubuntu\-dev\-tools package.
+
+.SH DESCRIPTION
+The \fBubuntu\-dev\-tools\fR package is similar in scope to the
+.BR devscripts (1)
+package, providing a collection of scripts which may be of use
+to Ubuntu and Debian developers or others wishing to build Debian packages.
+
+Some of these scripts have options which may be configured on a
+system\-wide and per\-user basis.
+These options are configured in
+.BR devscripts.conf (5).
+
+All variables are described in the script's manpages. Package\-wide
+variables begin with "\fIUBUNTUTOOLS\fR" and are listed below.
+
+Every script which reads the configuration files can be forced to ignore
+them by using the \fB\-\-no\-conf\fR command\-line option.
+
+.SH ENVIRONMENT
+All \fBubuntu\-dev\-tools\fR configuration variables can be set (and
+overridden) by setting them in the environment (unlike
+\fBdevscripts\fR).
+
+In addition, several scripts use the following environment variables:
+
+.TP
+.B UBUMAIL
+Overrides \fBDEBEMAIL\fR and \fBDEBFULLNAME\fR when the target is
+clearly Ubuntu.
+
+.TP
+.BR DEBEMAIL ", " DEBFULLNAME
+As in
+.BR devscripts (1).
+
+.SH PACKAGE\-WIDE VARIABLES
+The currently recognised package\-wide variables are:
+.TP
+.B UBUNTUTOOLS_BUILDER
+This specifies the preferred test\-builder, one of
+.BR pbuilder " (default), " sbuild ", " pbuilder\-dist .
+.TP
+.B UBUNTUTOOLS_LPINSTANCE
+The launchpad instance to communicate with. e.g. \fBproduction\fR
+(default) or \fBstaging\fR.
+.TP
+.B UBUNTUTOOLS_UPDATE_BUILDER
+Whether or not to update the test\-builder before each test build.
+.RB "One of " yes " or " no " (default).
+.TP
+.B UBUNTUTOOLS_WORKDIR
+The directory to use for preparing source packages etc.
+When unset, defaults to a directory in \fI/tmp/\fR named after the
+script.
+
+.SH SEE ALSO
+.BR devscripts (1),
+.BR devscripts.conf (5)
+
+.SH AUTHORS
+This manpage was written by Stefano Rivera <stefanor@ubuntu.com>.

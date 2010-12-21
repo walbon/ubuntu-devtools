@@ -150,7 +150,6 @@ Files:
        pull-lp-source,
        pull-revu-source,
        ubuntu-build,
-       ubuntutools/common.py,
        ubuntutools/lp/libsupport.py,
        ubuntutools/lp/lpapicache.py,
        ubuntutools/misc.py,
@@ -185,16 +184,19 @@ License: GPL-3+
 Files:
        doc/sponsor-patch.1,
        doc/suspicious-source.1,
+       doc/ubuntu-dev-tools.5,
        doc/wrap-and-sort.1,
        sponsor-patch,
        suspicious-source,
        ubuntutools/builder.py,
+       ubuntutools/config.py,
        ubuntutools/logger.py,
        ubuntutools/question.py,
        ubuntutools/sponsor_patch/bugtask.py,
        ubuntutools/sponsor_patch/main.py,
        ubuntutools/sponsor_patch/patch.py,
-       wrap-and-sort,
+       ubuntutools/test/*,
+       wrap-and-sort
 Copyright:
            2010,      Benjamin Drung <bdrung@ubuntu.com>
            2010,      Evan Broder <evan@ebroder.net>

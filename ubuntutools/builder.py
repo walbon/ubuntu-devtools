@@ -144,10 +144,7 @@ class Sbuild(Builder):
         return 0
 
 
-def getBuilder(builder=None):
-    if not builder:
-        builder = os.environ.get('UBUNTUTOOLS_BUILDER', 'pbuilder')
-
+def getBuilder(builder):
     if builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':

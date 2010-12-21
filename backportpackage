@@ -30,6 +30,7 @@ from debian.deb822 import Dsc
 import launchpadlib.launchpad
 import lsb_release
 
+from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import getBuilder
 from ubuntutools.logger import Logger
 from ubuntutools.question import YesNoQuestion
@@ -99,13 +100,27 @@ def parse(args):
                  metavar='WORKDIR')
     p.add_option('-l', '--launchpad',
                  dest='launchpad',
-                 default='production',
-                 help='Launchpad instance to connect to (default: %default)',
+                 default=None,
+                 help='Launchpad instance to connect to (default: production)',
                  metavar='INSTANCE')
+    p.add_option('--no-conf',
+                 dest='no_conf',
+                 default=False,
+                 help="Don't read config files or environment variables",
+                 action='store_true')
 
     opts, args = p.parse_args(args)
     if len(args) != 1:
         p.error('You must specify a single source package or a .dsc URL/path.')
+    config = UDTConfig(opts.no_conf)
+    if opts.builder is None:
+        opts.builder = config.get_value('BUILDER')
+    if not opts.update:
+        opts.update = config.get_value('UPDATE_BUILDER', boolean=True)
+    if opts.workdir is None:
+        opts.workdir = config.get_value('WORKDIR')
+    if opts.launchpad is None:
+        opts.launchpad = config.get_value('LPINSTANCE')
     if not opts.upload and not opts.workdir:
         p.error('Please specify either a working dir or an upload target!')
 
@@ -255,6 +270,7 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
 
 def main(args):
     os.environ['DEB_VENDOR'] = 'Ubuntu'
+    ubu_email()
 
     opts, (package_or_dsc,) = parse(args[1:])
 

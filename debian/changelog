@@ -1,14 +1,23 @@
 ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
 
   * Convert debian/copyright to DEP5, make sure all scripts are listed
-   (LP: #692003)
+    (LP: #692003)
   * Drop preinst (pbuilder-dist bash_completion handling), it is not required
     for any current upgrade path on Debian or Ubuntu.
   * Switch to dh_python2:
     - Use X-Python-Version instead of XS-Python-Version.
     - Use ${python:Breaks} to specify Python version compatibility.
+  * Support reading configuration variables from devscripts configuration
+    files. (LP: #681693)
+    - Added ubuntu-dev-tools.5
+  * Support the combined "Name <email>" format in UBUMAIL, DEBFULLNAME, and
+    DEBEMAIL. (LP: #665202)
+  * Add the beginnings of a test suite. (LP: #690386)
+    - Switch to setuptools, to support setup.py test.
+  * ubuntutools/common.py: Remove https_proxy unsetting code, working around
+    LP: #94130.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 11:32:42 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 20:54:14 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

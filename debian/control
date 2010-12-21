@@ -6,7 +6,10 @@ Uploaders: Luca Falavigna <dktrkranz@debian.org>,
            Benjamin Drung <bdrung@ubuntu.com>
 Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
-Build-Depends: debhelper (>= 7), python-all (>= 2.6.5-13~)
+Build-Depends: debhelper (>= 7.0.50~),
+               python-all (>= 2.6.5-13~),
+               python-setuptools,
+               python-unittest2
 DM-Upload-Allowed: yes
 X-Python-Version: >= 2.5
 Homepage: https://launchpad.net/ubuntu-dev-tools
