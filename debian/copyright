@@ -60,7 +60,7 @@ Files: 404main,
        pbuilder-dist,
        pbuilder-dist-simple,
        reverse-build-depends,
-       submittodebian,
+       submittodebian
 Copyright: 2007-2010, Canonical Ltd.
            2009,      James Westby <james.westby@ubuntu.com>
            2008,      Jamin W. Collins <jcollins@asgardsrealm.net>
@@ -104,7 +104,7 @@ Files: ack-sync,
        massfile,
        merge-changelog,
        setup-packaging-environment,
-       syncpackage,
+       syncpackage
 Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
            2007-2010, Canonical Ltd.
            2010,      Dustin Kirkland <kirkland@ubuntu.com>
@@ -125,8 +125,7 @@ License: GPL-3
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
 
-Files:
-       dch-repeat,
+Files: dch-repeat,
        doc/dch-repeat.1,
        doc/get-build-deps.1,
        doc/grep-merges.1,
@@ -156,7 +155,7 @@ Files:
        ubuntutools/packages.py,
        ubuntutools/update_maintainer.py,
        update-maintainer,
-       what-patch,
+       what-patch
 Copyright: 2007,      Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
            2007-2010, Canonical Ltd.
            2008-2009, Iain Lane <iain@orangesquash.org.uk>
@@ -181,8 +180,7 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
 
-Files:
-       doc/sponsor-patch.1,
+Files: doc/sponsor-patch.1,
        doc/suspicious-source.1,
        doc/ubuntu-dev-tools.5,
        doc/wrap-and-sort.1,
@@ -198,9 +196,9 @@ Files:
        ubuntutools/test/*,
        wrap-and-sort
 Copyright:
-           2010,      Benjamin Drung <bdrung@ubuntu.com>
-           2010,      Evan Broder <evan@ebroder.net>
-           2010,      Stefano Rivera <stefanor@ubuntu.com>
+           2010, Benjamin Drung <bdrung@ubuntu.com>
+           2010, Evan Broder <evan@ebroder.net>
+           2010, Stefano Rivera <stefanor@ubuntu.com>
 License: ISC
  Permission to use, copy, modify, and/or distribute this software for any
  purpose with or without fee is hereby granted, provided that the above
