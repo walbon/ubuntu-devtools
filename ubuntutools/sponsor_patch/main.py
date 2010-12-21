@@ -320,7 +320,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
         if patch:
             cmd = ['debuild', '--no-lintian', '-S']
         elif branch:
-            cmd = ['bzr', 'bd', '-S', '--', '--no-lintian']
+            cmd = ['bzr', 'builddeb', '-S', '--', '--no-lintian']
         previous_version = task.get_previous_version()
         cmd.append("-v" + previous_version.full_version)
         if previous_version.upstream_version == changelog.upstream_version and \
