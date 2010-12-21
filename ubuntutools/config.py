@@ -98,9 +98,12 @@ class UDTConfig(object):
                         else:
                             continue
                     if k in compat_keys:
+                        r_prefix = self.prefix
+                        if key in self.defaults:
+                            r_prefix = 'UBUNTUTOOLS'
                         print >> stderr, (
                                 'W: Deprecated configuration variable: %s. '
-                                'Replaced by %s.') % (k, key)
+                                'Replaced by %s_%s.') % (k, r_prefix, key)
                     return value
         return default
 

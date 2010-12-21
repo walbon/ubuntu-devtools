@@ -128,7 +128,8 @@ REPEAT=yes
         errs = ubuntutools.config.stderr.getvalue().strip()
         ubuntutools.config.stderr = StringIO()
         self.assertEqual(len(errs.splitlines()), 1)
-        self.assertRegexpMatches(errs, r'Deprecated.*\bCOMPATFOOBAR\b.*\bQUX\b')
+        self.assertRegexpMatches(errs,
+                r'Deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):
         config_files['user'] = "TEST_BOOLEAN=yes"
