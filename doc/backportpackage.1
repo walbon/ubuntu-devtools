@@ -9,6 +9,18 @@ backportpackage \- helper to test package backports
 <\fIsource package name or .dsc URL/file\fR>
 .PP
 .B backportpackage \-h
+.SH DESCRIPTION
+\fBbackportpackage\fR fetches a package from one Ubuntu release or
+from a specified .dsc path or URL and creates a no-change backport of
+that package to a previous release, optionally doing a test build of
+the package and/or uploading the resulting backport for testing.
+.PP
+Unless a working directory is specified, the backported package is
+fetched and built in a temporary directory in \fB/tmp\fR, which is
+removed once the script finishes running.
+.PP
+\fBbackportpackage\fR is only recommended for testing backports in a
+PPA, not uploading backports to the Ubuntu archive.
 .SH OPTIONS
 .TP
 .B \-d \fIDEST\fR, \fB\-\-destination\fR=\fIDEST\fR
@@ -75,18 +87,6 @@ the default of "production".
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment
 variables.
-.SH DESCRIPTION
-\fBbackportpackage\fR fetches a package from one Ubuntu release or
-from a specified .dsc path or URL and creates a no-change backport of
-that package to a previous release, optionally doing a test build of
-the package and/or uploading the resulting backport for testing.
-.PP
-Unless a working directory is specified, the backported package is
-fetched and built in a temporary directory in \fB/tmp\fR, which is
-removed once the script finishes running.
-.PP
-\fBbackportpackage\fR is only recommended for testing backports in a
-PPA, not uploading backports to the Ubuntu archive.
 .SH ENVIRONMENT
 All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
 environment variables.
