@@ -26,11 +26,13 @@
 #
 # ##################################################################
 
-import sys
 from optparse import OptionParser
+import os
+import sys
+
 from debian.changelog import Version
 
-# ubuntu-dev-tools modules
+from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
 from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
                                             raw_input_exit_on_ctrlc)
@@ -57,6 +59,9 @@ if __name__ == '__main__':
 	optParser.add_option('--lp', action='store_true',
 		dest='lpapi', default=False,
 		help='Specify whether to use the LP API for filing the sync request (recommended).')
+	optParser.add_option('--lpinstance', type='string', metavar='INSTANCE',
+		dest='lpinstance', default=None,
+		help='Launchpad instance to connect to (default: production).')
 	optParser.add_option('-s', action='store_true',
 		dest='sponsorship', default=False,
 		help='Force sponsorship')
@@ -67,6 +72,9 @@ if __name__ == '__main__':
 		dest='ffe', default=False,
 		help='Use this after FeatureFreeze for non-bug fix syncs, changes ' \
 			'default subscription to the appropriate release team.')
+	optParser.add_option('--no-conf', action='store_true',
+		dest='no_conf', default=False,
+		help="Don't read config files or environment variables")
 
 	(options, args) = optParser.parse_args()
 
@@ -74,8 +82,19 @@ if __name__ == '__main__':
 		optParser.print_help()
 		sys.exit(1)
 
+	config = UDTConfig(options.no_conf)
+	if not options.lpapi:
+		options.lpapi = config.get_value('USE_LPAPI', default=False,
+		                                 boolean=True)
+	if options.lpinstance is None:
+		options.lpinstance = config.get_value('LPINSTANCE')
+
 	# import the needed requestsync module
 	if options.lpapi:
+		# Needs to be set before lpapicache is imported:
+		import ubuntutools.lp
+		ubuntutools.lp.service = options.lpinstance
+
 		from ubuntutools.requestsync.lp import (checkExistingReports,
 		                                        getDebianSrcPkg,
 		                                        getUbuntuSrcPkg,
@@ -90,10 +109,12 @@ if __name__ == '__main__':
 	else:
 		from ubuntutools.requestsync.mail import (checkExistingReports,
 		                                          getDebianSrcPkg,
-		                                          getEmailAddress,
 		                                          getUbuntuSrcPkg,
 		                                          mailBug, needSponsorship)
-		if not getEmailAddress():
+		if not any(x in os.environ for x in ('UBUMAIL', 'DEBEMAIL', 'EMAIL')):
+			print >> sys.stderr, (
+				'E: The environment variable UBUMAIL, DEBEMAIL or EMAIL needs '
+				'to be set to let this script mail the sync request.')
 			sys.exit(1)
 
 	newsource = options.newpkg
@@ -242,5 +263,17 @@ if __name__ == '__main__':
 		# Post sync request using LP API
 		postBug(srcpkg, subscribe, mapping[status], title, report)
 	else:
+		email_from = ubu_email(export=False)[1]
+		mailserver_host = config.get_value('SMTP_SERVER',
+				default='fiordland.ubuntu.com',
+				compat_keys=['UBUSMTP', 'DEBSMTP'])
+		mailserver_port = config.get_value('SMTP_PORT', default=25,
+				compat_keys=['UBUSMTP_PORT', 'DEBSMTP_PORT'])
+		mailserver_user = config.get_value('SMTP_USER',
+				compat_keys=['UBUSMTP_USER', 'DEBSMTP_USER'])
+		mailserver_pass = config.get_value('SMTP_PASS',
+				compat_keys=['UBUSMTP_PASS', 'DEBSMTP_PASS'])
 		# Mail sync request
-		mailBug(srcpkg, subscribe, status, title, report, options.keyid)
+		mailBug(srcpkg, subscribe, status, title, report, options.lpinstance,
+		        options.keyid, email_from, mailserver_host, mailserver_port,
+		        mailserver_user, mailserver_pass)
