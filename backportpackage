@@ -98,8 +98,8 @@ def parse(args):
                  default=None,
                  help='Specify a working directory (default: temporary dir)',
                  metavar='WORKDIR')
-    p.add_option('-l', '--launchpad',
-                 dest='launchpad',
+    p.add_option('--lpinstance',
+                 dest='lpinstance',
                  default=None,
                  help='Launchpad instance to connect to (default: production)',
                  metavar='INSTANCE')
@@ -119,8 +119,8 @@ def parse(args):
         opts.update = config.get_value('UPDATE_BUILDER', boolean=True)
     if opts.workdir is None:
         opts.workdir = config.get_value('WORKDIR')
-    if opts.launchpad is None:
-        opts.launchpad = config.get_value('LPINSTANCE')
+    if opts.lpinstance is None:
+        opts.lpinstance = config.get_value('LPINSTANCE')
     if not opts.upload and not opts.workdir:
         p.error('Please specify either a working dir or an upload target!')
 
@@ -276,7 +276,7 @@ def main(args):
 
     script_name = os.path.basename(sys.argv[0])
     lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
-                                                            opts.launchpad)
+                                                            opts.lpinstance)
 
     if not opts.dest_releases:
         try:
