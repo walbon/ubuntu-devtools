@@ -106,7 +106,7 @@ def ubu_email(name=None, email=None, export=True):
     """Find the developer's Ubuntu e-mail address, and export it in
     DEBFULLNAME, DEBEMAIL if necessary (and export isn't False).
 
-    e-mail Priority: arguments, UBUMAIL, DEBEMAIL, user@mailname
+    e-mail Priority: arguments, UBUMAIL, DEBEMAIL, EMAIL, user@mailname
     name Priority: arguments, UBUMAIL, DEBFULLNAME, DEBEMAIL, NAME, /etc/passwd
 
     Name and email are only exported if provided as arguments or found in
@@ -129,6 +129,7 @@ def ubu_email(name=None, email=None, export=True):
     for var, target in (('UBUMAIL', 'email'),
                         ('DEBFULLNAME', 'name'),
                         ('DEBEMAIL', 'email'),
+                        ('EMAIL', 'email'),
                         ('NAME', 'name'),
                        ):
         if name and email:
