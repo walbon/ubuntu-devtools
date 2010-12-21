@@ -88,6 +88,15 @@ if __name__ == '__main__':
 		                                 boolean=True)
 	if options.lpinstance is None:
 		options.lpinstance = config.get_value('LPINSTANCE')
+	mailserver_host = config.get_value('SMTP_SERVER',
+			default='fiordland.ubuntu.com',
+			compat_keys=['UBUSMTP', 'DEBSMTP'])
+	mailserver_port = config.get_value('SMTP_PORT', default=25,
+			compat_keys=['UBUSMTP_PORT', 'DEBSMTP_PORT'])
+	mailserver_user = config.get_value('SMTP_USER',
+			compat_keys=['UBUSMTP_USER', 'DEBSMTP_USER'])
+	mailserver_pass = config.get_value('SMTP_PASS',
+			compat_keys=['UBUSMTP_PASS', 'DEBSMTP_PASS'])
 
 	# import the needed requestsync module
 	if options.lpapi:
@@ -260,15 +269,6 @@ if __name__ == '__main__':
 		postBug(srcpkg, subscribe, mapping[status], title, report)
 	else:
 		email_from = ubu_email(export=False)[1]
-		mailserver_host = config.get_value('SMTP_SERVER',
-				default='fiordland.ubuntu.com',
-				compat_keys=['UBUSMTP', 'DEBSMTP'])
-		mailserver_port = config.get_value('SMTP_PORT', default=25,
-				compat_keys=['UBUSMTP_PORT', 'DEBSMTP_PORT'])
-		mailserver_user = config.get_value('SMTP_USER',
-				compat_keys=['UBUSMTP_USER', 'DEBSMTP_USER'])
-		mailserver_pass = config.get_value('SMTP_PASS',
-				compat_keys=['UBUSMTP_PASS', 'DEBSMTP_PASS'])
 		# Mail sync request
 		mailBug(srcpkg, subscribe, status, title, report, options.lpinstance,
 		        options.keyid, email_from, mailserver_host, mailserver_port,
