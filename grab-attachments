@@ -18,30 +18,28 @@
 #
 # ##################################################################
 
+from optparse import OptionParser
 import os
 import sys
+
 from ubuntutools.lp.libsupport import get_launchpad
 
 USAGE = "grab-attachments <bug numbers>"
 
 def main():
-    if len(sys.argv) == 1:
-        print >> sys.stderr, USAGE
-        sys.exit(1)
-
-    if sys.argv[1] in ["--help", "-h"]:
-        print USAGE
-        sys.exit(0)
+    p = OptionParser('Usage: %prog [options] <bug numbers>')
+    opts, args = p.parse_args()
+    if len(args) < 1:
+        p.error('No bug numbers provided')
 
     try:
         launchpad = get_launchpad("ubuntu-dev-tools")
 
-        for arg in sys.argv[1:]:
+        for arg in args:
             try:
                 number = int(arg)
             except:
-                print >> sys.stderr, "'%s' is not a valid bug number." % arg
-                sys.exit(1)
+                p.error("'%s' is not a valid bug number." % arg)
 
             b = launchpad.bugs[number]
 
