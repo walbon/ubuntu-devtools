@@ -385,7 +385,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
                                         ", ".join(allowed)))
                 ask_for_manual_fixing()
                 continue
-        elif upload and upload.startwith("ppa/"):
+        elif upload and upload.startswith("ppa/"):
             allowed = supported_series + [devel_series]
             if changelog.distributions not in allowed:
                 Logger.error("%s is not an allowed series. It needs to be one " \
