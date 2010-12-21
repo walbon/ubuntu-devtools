@@ -21,8 +21,7 @@ import pwd
 import re
 import shlex
 import socket
-import StringIO
-import sys
+from sys import argv, stderr
 
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and
@@ -43,7 +42,7 @@ class UDTConfig(object):
     def __init__(self, no_conf=False, prefix=None):
         self.no_conf = no_conf
         if prefix is None:
-            prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_')
+            prefix = os.path.basename(argv[0]).upper().replace('-', '_')
         self.prefix = prefix
         if not no_conf:
             self.config = self.parse_devscripts_config()
@@ -60,10 +59,10 @@ class UDTConfig(object):
                 continue
             for line in f:
                 parsed = shlex.split(line, comments=True)
-                if len(parsed) > 1 and not isinstance(f, StringIO.StringIO):
-                    print >> sys.stderr, (
+                if len(parsed) > 1:
+                    print >> stderr, (
                             "W: Cannot parse variable assignment in %s: %s"
-                            % (f.name, line))
+                            % (getattr(f, 'name', '<config>'), line))
                 if len(parsed) >= 1 and '=' in parsed[0]:
                     key, value = parsed[0].split('=', 1)
                     config[key] = value
@@ -98,6 +97,10 @@ class UDTConfig(object):
                             value = value == 'yes'
                         else:
                             continue
+                    if k in compat_keys:
+                        print >> stderr, (
+                                'W: Deprecated configuration variable: %s. '
+                                'Replaced by %s.') % (k, key)
                     return value
         return default
 
