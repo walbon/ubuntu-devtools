@@ -146,7 +146,7 @@ if __name__ == '__main__':
 		print >> sys.stderr, "E: %s" % e
 		sys.exit(1)
 
-        # Stop if Ubuntu has already the version from Debian or a newer version
+	# Stop if Ubuntu has already the version from Debian or a newer version
 	if (ubuntu_version >= debian_version) and options.lpapi:
 		# try rmadison
 		import ubuntutools.requestsync.mail
@@ -162,10 +162,10 @@ if __name__ == '__main__':
 		print  >> sys.stderr, \
 			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
 		sys.exit(1)
-        if ubuntu_version > debian_version:
-            print >> sys.stderr, \
-                'E: The version in Ubuntu (%s) is newer than the version in Debian (%s). Aborting.' % (ubuntu_version, debian_version)
-            sys.exit(1)
+	if ubuntu_version > debian_version:
+		print >> sys.stderr, \
+			'E: The version in Ubuntu (%s) is newer than the version in Debian (%s). Aborting.' % (ubuntu_version, debian_version)
+		sys.exit(1)
 
 	# -s flag not specified - check if we do need sponsorship
 	if not sponsorship:
