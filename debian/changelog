@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * Convert debian/copyright to DEP5, make sure all scripts are listed
     (LP: #692003)
   * Drop preinst (pbuilder-dist bash_completion handling), it is not required
@@ -17,7 +18,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 20 Dec 2010 20:54:14 +0200
+  [ Michael Bienia ]
+  * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
+    instance to use (lp: #693060).
+
+ -- Michael Bienia <geser@ubuntu.com>  Tue, 21 Dec 2010 19:14:57 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
