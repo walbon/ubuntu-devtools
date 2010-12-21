@@ -116,7 +116,7 @@ def parse(args):
     if opts.builder is None:
         opts.builder = config.get_value('BUILDER')
     if not opts.update:
-        opts.update = config.get_value('UPDATE_BUILDER')
+        opts.update = config.get_value('UPDATE_BUILDER', boolean=True)
     if opts.workdir is None:
         opts.workdir = config.get_value('WORKDIR')
     if opts.launchpad is None:
