@@ -41,31 +41,31 @@ from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
 
 if __name__ == '__main__':
 	# Our usage options.
-	usage = 'Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] ' \
+	usage = 'Usage: %prog [options] ' \
 		'<source package> [<target release> [base version]]'
 	optParser = OptionParser(usage)
 
-	optParser.add_option('-d', type = 'string',
-		dest = 'dist', default = 'unstable',
-		help = 'Debian distribution to sync from.')
-	optParser.add_option('-k', type = 'string',
-		dest = 'keyid', default = None,
-		help = 'GnuPG key ID to use for signing report (only used when emailing the sync request).')
-	optParser.add_option('-n', action = 'store_true',
-		dest = 'newpkg', default = False,
-		help = 'Whether package to sync is a new package in Ubuntu.')
-	optParser.add_option('--lp', action = 'store_true',
-		dest = 'lpapi', default = False,
-		help = 'Specify whether to use the LP API for filing the sync request (recommended).')
-	optParser.add_option('-s', action = 'store_true',
-		dest = 'sponsorship', default = False,
-		help = 'Force sponsorship')
-	optParser.add_option('-C', action = 'store_true',
-		dest = 'missing_changelog_ok', default = False,
-		help = 'Allow changelog to be manually filled in when missing')
-	optParser.add_option('-e', action = 'store_true',
-		dest = 'ffe', default = False,
-		help = 'Use this after FeatureFreeze for non-bug fix syncs, changes ' \
+	optParser.add_option('-d', type='string',
+		dest='dist', default='unstable',
+		help='Debian distribution to sync from.')
+	optParser.add_option('-k', type='string',
+		dest='keyid', default=None,
+		help='GnuPG key ID to use for signing report (only used when emailing the sync request).')
+	optParser.add_option('-n', action='store_true',
+		dest='newpkg', default=False,
+		help='Whether package to sync is a new package in Ubuntu.')
+	optParser.add_option('--lp', action='store_true',
+		dest='lpapi', default=False,
+		help='Specify whether to use the LP API for filing the sync request (recommended).')
+	optParser.add_option('-s', action='store_true',
+		dest='sponsorship', default=False,
+		help='Force sponsorship')
+	optParser.add_option('-C', action='store_true',
+		dest='missing_changelog_ok', default=False,
+		help='Allow changelog to be manually filled in when missing')
+	optParser.add_option('-e', action='store_true',
+		dest='ffe', default=False,
+		help='Use this after FeatureFreeze for non-bug fix syncs, changes ' \
 			'default subscription to the appropriate release team.')
 
 	(options, args) = optParser.parse_args()
