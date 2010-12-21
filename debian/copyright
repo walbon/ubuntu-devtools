@@ -190,9 +190,7 @@ Files: doc/sponsor-patch.1,
        ubuntutools/config.py,
        ubuntutools/logger.py,
        ubuntutools/question.py,
-       ubuntutools/sponsor_patch/bugtask.py,
-       ubuntutools/sponsor_patch/main.py,
-       ubuntutools/sponsor_patch/patch.py,
+       ubuntutools/sponsor_patch/*,
        ubuntutools/test/*,
        wrap-and-sort
 Copyright:
