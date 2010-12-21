@@ -52,8 +52,6 @@ attempt to look it up in Ubuntu since it will not exist.
 .TP
 .B \-k \fI<keyid>\fR
 Specifies your GPG key.
-Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in your shell's
-configuration (for example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
@@ -87,9 +85,6 @@ Specify this option in this case.
 shell's configuration by adding \fIexport VARIABLE=\fR lines, where VARIABLE is
 one of the following:
 
-.TP
-.B GPGKEY
-Specifies your GnuPG key ID.
 .TP
 .B DEBEMAIL
 Specifies which email should be used when sending to Launchpad.
