@@ -101,12 +101,12 @@ def get_patch_or_branch(bug):
     linked_branches = map(lambda b: b.branch, bug.linked_branches)
     if len(attached_patches) == 0 and len(linked_branches) == 0:
         if len(bug.attachments) == 0:
-            Logger.error("No attachment and no linked branch found on bug #%i." \
-                        % (bug.id))
+            Logger.error(("No attachment and no linked branch found on "
+                          "bug #%i.") % bug.id)
         else:
-            Logger.error(("No attached patch and no linked branch found. Go " \
-                         "to https://launchpad.net/bugs/%i and mark an " \
-                         "attachment as patch.") % (bug.id))
+            Logger.error(("No attached patch and no linked branch found. Go "
+                          "to https://launchpad.net/bugs/%i and mark an "
+                          "attachment as patch.") % bug.id)
         sys.exit(1)
     elif len(attached_patches) == 1 and len(linked_branches) == 0:
         patch = attached_patches[0]
@@ -115,14 +115,14 @@ def get_patch_or_branch(bug):
     else:
         if len(attached_patches) == 0:
             Logger.normal("https://launchpad.net/bugs/%i has %i branches " \
-                         "linked:" % (bug.id, len(linked_branches)))
+                          "linked:" % (bug.id, len(linked_branches)))
         elif len(linked_branches) == 0:
             Logger.normal("https://launchpad.net/bugs/%i has %i patches" \
-                         " attached:" % (bug.id, len(attached_patches)))
+                          " attached:" % (bug.id, len(attached_patches)))
         else:
             Logger.normal("https://launchpad.net/bugs/%i has %i branch(es)" \
-                         " linked and %i patch(es) attached:" % \
-                         (bug.id, len(linked_branches), len(attached_patches)))
+                          " linked and %i patch(es) attached:" % \
+                          (bug.id, len(linked_branches), len(attached_patches)))
         i = 0
         for linked_branch in linked_branches:
             i += 1
@@ -143,7 +143,7 @@ def download_patch(patch):
     if not reduce(lambda r, x: r or patch.title.endswith(x),
                   (".debdiff", ".diff", ".patch"), False):
         Logger.info("Patch %s does not have a proper file extension." % \
-                   (patch.title))
+                    (patch.title))
         patch_filename += ".patch"
 
     Logger.info("Downloading %s." % (patch_filename))
@@ -190,7 +190,7 @@ def apply_patch(task, patch):
         Logger.command(cmd)
         if subprocess.call(cmd) != 0:
             Logger.error("Failed to apply debdiff %s to %s %s." % \
-                        (patch.get_name(), task.package, task.get_version()))
+                         (patch.get_name(), task.package, task.get_version()))
             if not edit:
                 ask_for_manual_fixing()
                 edit = True
@@ -201,7 +201,7 @@ def apply_patch(task, patch):
         Logger.command(cmd)
         if subprocess.call(cmd) != 0:
             Logger.error("Failed to apply diff %s to %s %s." % \
-                        (patch.get_name(), task.package, task.get_version()))
+                         (patch.get_name(), task.package, task.get_version()))
             if not edit:
                 ask_for_manual_fixing()
                 edit = True
@@ -215,7 +215,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             os.makedirs(workdir)
         except os.error, error:
             Logger.error("Failed to create the working directory %s [Errno " \
-                        "%i]: %s." % (workdir, error.errno, error.strerror))
+                         "%i]: %s." % (workdir, error.errno, error.strerror))
             sys.exit(1)
     if workdir != os.getcwd():
         Logger.command(["cd", workdir])
@@ -237,7 +237,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
     if len(ubuntu_tasks) > 1:
         if verbose:
             Logger.info("%i Ubuntu tasks exist for bug #%i." % \
-                       (len(ubuntu_tasks), bug_number))
+                        (len(ubuntu_tasks), bug_number))
             for task in ubuntu_tasks:
                 print task.get_short_info()
         open_ubuntu_tasks = filter(lambda x: not x.is_complete(), ubuntu_tasks)
@@ -245,7 +245,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             task = open_ubuntu_tasks[0]
         else:
             Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
-                         % (bug_number, len(ubuntu_tasks)))
+                          % (bug_number, len(ubuntu_tasks)))
             for i in xrange(len(ubuntu_tasks)):
                 print "%i) %s" % (i + 1,
                                   ubuntu_tasks[i].get_package_and_series())
@@ -299,7 +299,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             new_version = changelog.get_version()
         except IndexError:
             Logger.error("Debian package version could not be determined. " \
-                        "debian/changelog is probably malformed.")
+                         "debian/changelog is probably malformed.")
             ask_for_manual_fixing()
             continue
 
@@ -307,7 +307,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
         # the archive.
         if new_version <= task.get_version():
             Logger.error("The version %s is not greater than the already " \
-                        "available %s." % (new_version, task.get_version()))
+                         "available %s." % (new_version, task.get_version()))
             ask_for_manual_fixing()
             continue
 
@@ -367,7 +367,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
         changes_file = new_dsc_file[:-4] + "_source.changes"
         if bug_number not in get_fixed_lauchpad_bugs(changes_file):
             Logger.error("Launchpad bug #%i is not closed by new version." % \
-                        (bug_number))
+                         (bug_number))
             ask_for_manual_fixing()
             continue
 
@@ -380,17 +380,17 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             allowed = map(lambda s: s + "-proposed", supported_series) + \
                       [devel_series]
             if changelog.distributions not in allowed:
-                Logger.error("%s is not an allowed series. It needs to be one " \
-                            "of %s." % (changelog.distributions,
-                                        ", ".join(allowed)))
+                Logger.error(("%s is not an allowed series. It needs to be one "
+                             "of %s.") % (changelog.distributions,
+                                          ", ".join(allowed)))
                 ask_for_manual_fixing()
                 continue
         elif upload and upload.startswith("ppa/"):
             allowed = supported_series + [devel_series]
             if changelog.distributions not in allowed:
-                Logger.error("%s is not an allowed series. It needs to be one " \
-                            "of %s." % (changelog.distributions,
-                                        ", ".join(allowed)))
+                Logger.error(("%s is not an allowed series. It needs to be one "
+                             "of %s.") % (changelog.distributions,
+                                          ", ".join(allowed)))
                 ask_for_manual_fixing()
                 continue
 
