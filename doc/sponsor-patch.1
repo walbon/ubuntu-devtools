@@ -45,11 +45,11 @@ The changelog timestamp is touched.
 .PP
 Should any checks (or the build fail), the user has an option to edit
 the patched source and try building it again.
-
-The sources and patches will be downloaded into the working directory
-(which defaults to the current directory).
-The output of the build tool will be placed in
-\fIworkdir\fR/\fIsourcepkg\fB\-buildresult/\fR.
+.PP
+Unless a working directory is specified, the sources and patches will be
+downloaded into a temporary directory in \fB/tmp\fR, which is removed once the
+script finishes running.
+The output of the build tool will be placed in \fIworkdir\fR/\fBbuildresult/\fR.
 
 .SH OPTIONS
 .TP
@@ -61,15 +61,25 @@ by \fBpbuilderrc\fR(5) to select the correct base image.
 .B \-B \fIBUILDER\fR, \fB\-\-builder\fR=\fIBUILDER
 Use the specify builder to build the package.
 Supported are \fBpbuilder\fR(8), \fBpbuilder-dist\fR(1), and \fBsbuild\fR(1).
-This overrides \fBUBUNTUTOOLS_BUILDER\fR and \fBSPONSOR_PATCH_BUILDER\fR.
 The default is \fBpbuilder\fR(8).
 .TP
 .BR \-e ", " \-\-edit
 Launch a sub-shell to allow editing of the patched source before
 building.
 .TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+.TP
 .B \-k \fIKEY\fR, \fB\-\-key\fR=\fIKEY
 Specify a key ID for signing the upload.
+.TP
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
 .TP
 .BR \-s ", " \-\-sponsor
 Shortcut for sponsored uploads. Equivalent to \fB\-b \-u ubuntu\fR.
@@ -84,30 +94,33 @@ Update the build environment before attempting to build.
 Print more information.
 .TP
 .B \-w \fIDIR\fR, \fB\-\-workdir\fR=\fIDIR
-Use the specified working directory, creating it if necessary, instead
-of the current directory. This overrides \fBSPONSOR_PATCH_WORKDIR\fR.
-.TP
-.BR \-h ", " \-\-help
-Display a help message and exit.
+Use the specified working directory, creating it if necessary.
+If \fIWORKDIR\fR is not specified, a temporary directory is created, which is
+deleted before \fIsponsor-patch\fR exits.
 
 .SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as environment
+variables.
+Variables in the environment take precedence to those in configuration files.
 
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
 .TP
-.B UBUNTUTOOLS_BUILDER
-The default builder for Ubuntu development tools that support it (including
-\fBsponsor\-patch\fR).
-Supported are \fBpbuilder\fR(8), \fBpbuilder-dist\fR(1), and \fBsbuild\fR(1).
-If unset and not provided on the command line, \fBpbuilder\fR(8) is used.
-
+.BR SPONSOR_PATCH_BUILDER ", " UBUNTUTOOLS_BUILDER
+The default value for \fB\-\-builder\fR.
 .TP
-.B SPONSOR_PATCH_BUILDER
-The default builder for \fBsponsor\-patch\fR.
-If specified, this overrides \fBUBUNTUTOOLS_BUILDER\fR.
-
+.BR SPONSOR_PATCH_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
 .TP
-.B SPONSOR_PATCH_WORKDIR
-The default working directory for \fBsponsor\-patch\fR. If unset and not
-provided on the command line, the current directory is used.
+.BR SPONSOR_PATCH_UPDATE_BUILDER ", " UBUNTUTOOLS_UPDATE_BUILDER
+The default value for \fB--update\fR.
+.TP
+.BR SPONSOR_PATCH_WORKDIR ", " UBUNTUTOOLS_WORKDIR
+The default value for \fB--workdir\fR.
 
 .SH EXAMPLES
 Test-building and sponsoring an upload of bug \fB1234\fR:
@@ -133,6 +146,7 @@ Performing a test build of bug \fB1234\fR in your PPA:
 .BR pbuilder (8),
 .BR pbuilder-dist (1),
 .BR sbuild (1),
+.BR ubuntu\-dev\-tools (5)
 .BR update\-maintainer (1)
 
 .SH AUTHORS

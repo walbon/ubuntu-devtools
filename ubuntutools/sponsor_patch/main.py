@@ -207,8 +207,8 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
-def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
-         verbose=False):
+def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
+         workdir, verbose=False):
     workdir = os.path.expanduser(workdir)
     if not os.path.isdir(workdir):
         try:
@@ -222,7 +222,7 @@ def main(bug_number, update, build, edit, keyid, upload, workdir, builder,
         os.chdir(workdir)
 
     lp = launchpadlib.launchpad.Launchpad.login_anonymously("sponsor-patch",
-                                                            "production")
+                                                            lpinstance)
     bug = lp.bugs[bug_number]
 
     (patch, branch) = get_patch_or_branch(bug)

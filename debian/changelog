@@ -22,7 +22,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
     instance to use (lp: #693060).
 
- -- Michael Bienia <geser@ubuntu.com>  Tue, 21 Dec 2010 19:14:57 +0100
+  [ Benjamin Drung ]
+  * sponsor-patch: Add new --lpinstance and --no-conf options and support
+    configuration files.
+
+ -- Benjamin Drung <bdrung@ubuntu.com>  Tue, 21 Dec 2010 21:39:54 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
