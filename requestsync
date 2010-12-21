@@ -91,10 +91,6 @@ if __name__ == '__main__':
 
 	# import the needed requestsync module
 	if options.lpapi:
-		# Needs to be set before lpapicache is imported:
-		import ubuntutools.lp
-		ubuntutools.lp.service = options.lpinstance
-
 		from ubuntutools.requestsync.lp import (checkExistingReports,
 		                                        getDebianSrcPkg,
 		                                        getUbuntuSrcPkg,
@@ -103,7 +99,7 @@ if __name__ == '__main__':
 		# See if we have LP credentials and exit if we don't - cannot continue in this case
 
 		try:
-			Launchpad.login()
+			Launchpad.login(service=options.lpinstance)
 		except IOError:
 			sys.exit(1)
 	else:

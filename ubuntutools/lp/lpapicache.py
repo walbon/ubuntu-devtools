@@ -52,11 +52,12 @@ __all__ = [
 class Launchpad(object):
     '''Singleton for LP API access.'''
 
-    def login(self):
+    def login(self, service=service):
         '''Enforce a non-anonymous login.'''
         if '_Launchpad__lp' not in self.__dict__:
             try:
-                self.__lp = libsupport.get_launchpad('ubuntu-dev-tools')
+                self.__lp = libsupport.get_launchpad('ubuntu-dev-tools',
+                                                     server=service)
             except IOError, error:
                 print >> sys.stderr, 'E: %s' % error
                 raise
