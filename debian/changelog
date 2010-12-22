@@ -26,10 +26,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * sponsor-patch:
     - Add new --lpinstance and --no-conf options.
     - Support configuration files.
+    - Default to a temporary workdir and clean it up (LP: #691467).
     - Fix 'str' object has no attribute 'startwith' crash caused by a typo.
     - Fix crash if uploading to ubuntu without building the package before.
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 00:51:48 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 12:52:56 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
