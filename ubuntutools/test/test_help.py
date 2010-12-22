@@ -33,7 +33,6 @@ BLACKLIST = {
     'massfile': 'No Help. Leaves files in .',
     'mk-sbuild': 'Fires up apt-get before showing help',
     'pbuilder-dist-simple': 'No Help',
-    'pull-revu-source': 'Throws Error',
     'setup-packaging-environment': 'Throws Error',
     'submittodebian': 'No Help',
     'ubuntu-iso': 'No Help',
