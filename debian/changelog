@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
       + Return 0 after showing help.
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
+  * edit-patch: Don't let cat error through if debian/source/format doesn't
+    exist.
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
@@ -37,12 +39,12 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * Recommend bzr-builddeb (used by sponsor-patch for branches).
   * Add most dependencies to Build-Depends for successfully run the tests.
   * Depend on python-gnupginterface (used by dgetlp).
-  
+
   [ Michael Vogt ]
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 19:16:56 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 22 Dec 2010 20:52:28 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
