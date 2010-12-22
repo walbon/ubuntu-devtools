@@ -15,7 +15,6 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import logging
 import os
 import os.path
 import pwd
@@ -23,6 +22,8 @@ import re
 import shlex
 import socket
 import sys
+
+from ubuntutools.logger import Logger
 
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and
@@ -41,9 +42,6 @@ class UDTConfig(object):
     config = {}
 
     def __init__(self, no_conf=False, prefix=None):
-        setup_logging()
-        self.logger = logging.getLogger('config')
-
         self.no_conf = no_conf
         if prefix is None:
             prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_')
@@ -64,9 +62,8 @@ class UDTConfig(object):
             for line in f:
                 parsed = shlex.split(line, comments=True)
                 if len(parsed) > 1:
-                    self.logger.warn(
-                            'Cannot parse variable assignment in %s: %s',
-                            getattr(f, 'name', '<config>'), line)
+                    Logger.warn('Cannot parse variable assignment in %s: %s',
+                                getattr(f, 'name', '<config>'), line)
                 if len(parsed) >= 1 and '=' in parsed[0]:
                     key, value = parsed[0].split('=', 1)
                     config[key] = value
@@ -105,7 +102,7 @@ class UDTConfig(object):
                         replacements = self.prefix + '_' + key
                         if key in self.defaults:
                             replacements += 'or UBUNTUTOOLS_' + key
-                        self.logger.warn(
+                        Logger.warn(
                                 'Using deprecated configuration variable %s. '
                                 'You should use %s.',
                                 k, replacements)
@@ -172,9 +169,3 @@ def ubu_email(name=None, email=None, export=True):
         os.environ['DEBFULLNAME'] = name
         os.environ['DEBEMAIL'] = email
     return name, email
-
-def setup_logging():
-    """Basic logging configuration
-    This has no effect if logger is already configured."""
-    logging.basicConfig(level=logging.INFO,
-                        format='%(levelname)s (%(name)s) %(message)s')

@@ -14,16 +14,15 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import logging
 import os
 import os.path
+import sys
 from StringIO import StringIO
 
 import ubuntutools.config
-from ubuntutools.config import UDTConfig, ubu_email, setup_logging
-from ubuntutools.test import unittest, LoggingCatcher
-
-setup_logging()
+from ubuntutools.config import UDTConfig, ubu_email
+from ubuntutools.logger import Logger
+from ubuntutools.test import unittest
 
 config_files = {
     'system': '',
@@ -45,20 +44,18 @@ def fake_open(filename, mode='r'):
 class ConfigTestCase(unittest.TestCase):
     def setUp(self):
         ubuntutools.config.open = fake_open
-
-        self.logs = LoggingCatcher()
-        self.logging_handler = logging.root.handlers[0]
-        logging.root.removeHandler(self.logging_handler)
-        logging.root.addHandler(self.logs)
+        Logger.stdout = StringIO()
+        Logger.stderr = StringIO()
 
         self.cleanEnvironment()
 
     def tearDown(self):
         del ubuntutools.config.open
 
-        logging.root.removeHandler(self.logs)
-        logging.root.addHandler(self.logging_handler)
-        self.assertTrue(all(len(x) == 0 for x in self.logs.m.itervalues()))
+        self.assertEqual(Logger.stdout.getvalue(), '')
+        self.assertEqual(Logger.stderr.getvalue(), '')
+        Logger.stdout = sys.stdout
+        Logger.stderr = sys.stderr
 
         self.cleanEnvironment()
 
@@ -96,9 +93,11 @@ REPEAT=yes
             'INHERIT': 'user',
             'REPEAT': 'yes',
         })
-        self.assertEqual(len(self.logs['warning']), 1)
-        self.assertRegexpMatches(self.logs['warning'].pop(),
-                                 r'Cannot parse.*\bCOMMAND_EXECUTION=a')
+        errs = Logger.stderr.getvalue().strip()
+        Logger.stderr = StringIO()
+        self.assertEqual(len(errs.splitlines()), 1)
+        self.assertRegexpMatches(errs,
+                r'Warning: Cannot parse.*\bCOMMAND_EXECUTION=a')
 
     def get_value(self, *args, **kwargs):
         config = UDTConfig(prefix='TEST')
@@ -134,8 +133,10 @@ REPEAT=yes
         config_files['user'] = 'COMPATFOOBAR=bar'
         self.assertEqual(self.get_value('QUX', compat_keys=['COMPATFOOBAR']),
                          'bar')
-        self.assertEqual(len(self.logs['warning']), 1)
-        self.assertRegexpMatches(self.logs['warning'].pop(),
+        errs = Logger.stderr.getvalue().strip()
+        Logger.stderr = StringIO()
+        self.assertEqual(len(errs.splitlines()), 1)
+        self.assertRegexpMatches(errs,
                                  r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):

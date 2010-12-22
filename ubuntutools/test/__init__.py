@@ -14,7 +14,6 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import logging
 import os
 import sys
 
@@ -28,20 +27,3 @@ def discover():
     __main__ = sys.modules['__main__']
     setupDir = os.path.abspath(os.path.dirname(__main__.__file__))
     return unittest.defaultTestLoader.discover(setupDir)
-
-
-class LoggingCatcher(logging.Handler):
-    def __init__(self):
-        logging.Handler.__init__(self)
-        self.m = {'critical': [],
-                  'error': [],
-                  'warning': [],
-                  'info': [],
-                  'debug': [],
-                  'notset': []}
-
-    def emit(self, record):
-        self.m[record.levelname.lower()].append(record.getMessage())
-
-    def __getitem__(self, key):
-        return self.m[key]
