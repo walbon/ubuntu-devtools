@@ -112,7 +112,7 @@ def main():
     # Check if the amount of arguments is correct
     if len(sys.argv) < 2 or len(sys.argv) > 3 or sys.argv[1] in ('help', '-h', '--help'):
         print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
-        sys.exit(1)
+        sys.exit(0)
 
         cache = apt.cache.Cache()
 

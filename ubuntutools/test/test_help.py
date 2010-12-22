@@ -25,17 +25,13 @@ import setup
 from ubuntutools.test import unittest
 
 BLACKLIST = {
-    '404main': 'Returns non-zero after help',
     'check-symbols': 'No Help',
     'edit-patch': 'No Help',
     'grep-merges': 'No Help',
     'lp-project-upload': 'Returns non-zero after help. Leaving u-d-t in LP: #524680',
     'massfile': 'No Help. Leaves files in .',
-    'merge-changelog': 'Returns non-zero after help',
     'mk-sbuild': 'Fires up apt-get before showing help',
     'pbuilder-dist-simple': 'No Help',
-    'pull-debian-debdiff': 'Returns non-zero after help',
-    'pull-debian-source': 'Returns non-zero after help',
     'pull-revu-source': 'Throws Error',
     'setup-packaging-environment': 'Throws Error',
     'submittodebian': 'No Help',

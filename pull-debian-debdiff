@@ -115,6 +115,13 @@ sub download_source
     return 1;
 }
 
+sub usage
+{
+    my ($exit) = @_;
+    print "Usage: $0 PKG VERSION\n";
+    exit $exit;
+}
+
 
 
 my $pkg = $ARGV[0];
@@ -123,8 +130,10 @@ my $just_fetch = ($ARGV[2] && $ARGV[2] eq "--fetch");
 my $skip = $ARGV[2] || 1;
 $skip+=0;
 
-if (!defined($pkg) || !defined($version)) {
-    die "Usage: $0 PKG VERSION\n";
+if (defined($pkg) && ($pkg eq '--help' || $pkg eq '-h')) {
+    usage(0);
+} elsif (!defined($pkg) || !defined($version)) {
+    usage(2);
 }
 
 

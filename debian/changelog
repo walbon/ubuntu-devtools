@@ -16,6 +16,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * Add the beginnings of a test suite. (LP: #690386)
     - Switch to setuptools, to support setup.py test.
     - Test for that every script can run --help and return 0.
+    - 404main, merge-changelog, pull-debian-debdiff, pull-debian-source:
+      Return 0 after showing help.
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
 
@@ -30,7 +32,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Fix 'str' object has no attribute 'startwith' crash caused by a typo.
     - Fix crash if uploading to ubuntu without building the package before.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 22 Dec 2010 15:02:45 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 22 Dec 2010 16:52:55 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

@@ -27,10 +27,10 @@ use AptPkg::Version;
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
 my($name)=basename($0);
-my($package)=$ARGV[0] || &usage();
+my($package)=$ARGV[0] || &usage(2);
 my($help)=0;
 GetOptions('help' => \$help);
-&usage() if($help);
+&usage(0) if($help);
 my($release)=$ARGV[1] || 'unstable';
 $release=&convertCodeName($release);
 &checkRelease($release);
@@ -132,7 +132,9 @@ sub getDSC {
 
 }
 sub usage {
-	die("USAGE: $name [-h] <source package> [target release]\n");
+	my($exit)=shift;
+	print("USAGE: $name [-h] <source package> [target release]\n");
+	exit($exit);
 }
 sub invalidRelease {
 	my($releases)=shift || die("Invalid Release!");
