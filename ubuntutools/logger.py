@@ -33,22 +33,27 @@ class Logger(object):
             print "%s: I: %s" % (cls.script_name, " ".join(cmd))
 
     @classmethod
-    def debug(cls, message):
+    def debug(cls, message, *args):
         if cls.verbose:
-            print "%s: D: %s" % (cls.script_name, message)
+            print "%s: D: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def error(cls, message):
-        print >> sys.stderr, "%s: Error: %s" % (cls.script_name, message)
+    def error(cls, message, *args):
+        print >> sys.stderr, "%s: Error: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def info(cls, message):
+    def warn(cls, message, *args):
+        print >> sys.stderr, "%s: Warning: %s" % (cls.script_name,
+                                                  message % args)
+
+    @classmethod
+    def info(cls, message, *args):
         if cls.verbose:
-            print "%s: I: %s" % (cls.script_name, message)
+            print "%s: I: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def normal(cls, message):
-        print "%s: %s" % (cls.script_name, message)
+    def normal(cls, message, *args):
+        print "%s: %s" % (cls.script_name, message % args)
 
     @classmethod
     def set_verbosity(cls, verbose):
