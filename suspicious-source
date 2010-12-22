@@ -21,7 +21,7 @@ import sys
 
 from ubuntutools.logger import Logger
 
-default_whitelisted_mimetypes = [
+DEFAULT_WHITELISTED_MIMETYPES = [
     "application/vnd.font-fontforge-sfd", # font source: fontforge
     "application/x-elc",
     "application/x-empty",
@@ -65,8 +65,8 @@ default_whitelisted_mimetypes = [
     "text/x-texinfo",
 ]
 
-default_whitelisted_extensions = [
-    ".fea",   # font source format: afdko (Adobe font development kit for OpenType)
+DEFAULT_WHITELISTED_EXTENSIONS = [
+    ".fea",   # font source format: Adobe Font Development Kit for OpenType
     ".fog",   # font source format: Fontographer
     ".g2n",   # font source format: fontforge
     ".gdh",   # font source format: Graphite (headers)
@@ -98,9 +98,9 @@ def main(whitelisted_mimetypes, whitelisted_extensions, directory,
                         print "%s (%s)" % (os.path.join(root, f), mimetype)
                     else:
                         print os.path.join(root, f)
-        for d in (".bzr", "CVS", ".git", ".svn"):
-            if d in dirs:
-                dirs.remove(d)
+        for vcs_dir in (".bzr", "CVS", ".git", ".svn"):
+            if vcs_dir in dirs:
+                dirs.remove(vcs_dir)
 
 if __name__ == "__main__":
     script_name = os.path.basename(sys.argv[0])
@@ -116,11 +116,11 @@ if __name__ == "__main__":
     parser.add_option("-m", "--mimetype", metavar="MIMETYPE",
                       help="Add MIMETYPE to list of whitelisted mimetypes.",
                       dest="whitelisted_mimetypes", action="append",
-                      default=default_whitelisted_mimetypes)
+                      default=DEFAULT_WHITELISTED_MIMETYPES)
     parser.add_option("-e", "--extension", metavar="EXTENSION",
                       help="Add EXTENSION to list of whitelisted extensions.",
                       dest="whitelisted_extensions", action="append",
-                      default=default_whitelisted_extensions)
+                      default=DEFAULT_WHITELISTED_EXTENSIONS)
 
     (options, args) = parser.parse_args()
 
@@ -128,7 +128,6 @@ if __name__ == "__main__":
         Logger.error("This script does not take any additional parameters.")
         sys.exit(1)
 
-    whitelisted_extensions = map(lambda x: x.lower(),
-                                 options.whitelisted_extensions)
+    whitelisted_extensions = [x.lower() for x in options.whitelisted_extensions]
     main(options.whitelisted_mimetypes, whitelisted_extensions,
          options.directory, options.verbose)
