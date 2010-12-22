@@ -89,7 +89,7 @@ if not len(args):
 if not options.batch:
     # Check we have the correct number of arguments.
     if len(args) < 3:
-    optParser.error("Incorrect number of arguments.")
+        optParser.error("Incorrect number of arguments.")
 
     try:
         package = str(args[0]).lower()
