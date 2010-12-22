@@ -3,8 +3,8 @@
 # Copyright (C) 2009 Canonical
 #
 # Authors:
-#  Daniel Holbach
 #  Michael Vogt
+#  Daniel Holbach
 #  David Futcher
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -142,6 +142,43 @@ edit_patch_quilt() {
     vcs_add $PREFIX/$1 $PREFIX/series
 }
 
+edit_patch_none() {
+    # Dummy edit-patch function, just display a warning message
+    echo "No patchsystem could be found so the patch was applied inline and a copy \
+stored in debian/patches-applied. Please remember to mention this in your changelog."
+}
+
+add_patch_quilt() {
+    # $1 is the original patchfile, $2 the normalized name
+    # FIXME: use quilt import instead?
+    cp $1 $PREFIX/$2
+    if ! grep -q $2 $PREFIX/series; then
+        echo "$2" >> $PREFIX/series
+    fi
+    vcs_add $PREFIX/$2 $PREFIX/series
+}
+
+add_patch_cdbs() {
+    # $1 is the original patchfile, $2 the normalized name
+    cp $1 $PREFIX/$2
+    vcs_add $PREFIX/$2
+}
+
+add_patch_dpatch() {
+    # $1 is the original patchfile, $2 the normalized name
+    cp $1 $PREFIX
+    if ! grep -q $2 $PREFIX/00list; then
+        echo "$2" >> $PREFIX/00list
+    fi
+    vcs_add $PREFIX/$2 $PREFIX/00list
+}
+
+add_patch_none() {
+    # $1 is the original patchfile, $2 the normalized name
+    cp $1 $PREFIX/$2
+    vcs_add $PREFIX/$2
+}
+
 vcs_add() {
     if [ -d .bzr ]; then
         bzr add $@
@@ -204,12 +241,6 @@ detect_patch_location() {
     fi
 }
 
-edit_patch_none() {
-    # Dummy edit-patch function, just display a warning message
-    echo "No patchsystem could be found so the patch was applied inline and a copy \
-stored in debian/patches-applied. Please remember to mention this in your changelog."
-}
-
 handle_file_patch() {
     if [ "$PATCHTYPE" = "file" ]; then
         [ -f "$PATCHORIG" ] || fatal_error "No patch detected"
@@ -259,7 +290,11 @@ main() {
     normalize_patch_path
     normalize_patch_extension
     handle_file_patch
-    edit_patch_$PATCHSYSTEM $PATCHNAME
+    if [ "$(basename $0)" = "edit-patch" ]; then
+        edit_patch_$PATCHSYSTEM $PATCHNAME
+    elif [ "$(basename $0)" = "add-patch" ]; then
+        add_patch_$PATCHSYSTEM $1 $PATCHNAME
+    fi
     add_patch_tagging $PATCHNAME
     add_changelog $PATCHNAME
     vcs_commit

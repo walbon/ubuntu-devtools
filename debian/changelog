@@ -31,6 +31,10 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Fix crash if uploading to ubuntu without building the package before.
     - Fix: The package was only uploaded if the target was "ubuntu".
   * Recommend bzr-builddeb (used by sponsor-patch for branches).
+  
+  [ Michael Vogt ]
+  * add "add-patch" that provides the non-interactive version of
+    edit-patch
 
  -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 14:22:58 +0100
 
