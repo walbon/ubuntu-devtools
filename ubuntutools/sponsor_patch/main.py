@@ -462,7 +462,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
                   (task.package, new_version, debdiff_filename,
                    lintian_filename)
             if build_log:
-                print "\nfile://%s" % build_log
+                print "file://%s" % build_log
             if upload == "ubuntu":
                 target = "the official Ubuntu archive"
             else:
