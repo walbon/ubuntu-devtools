@@ -27,6 +27,7 @@ from ubuntutools.test import unittest
 BLACKLIST = {
     'check-symbols': 'No Help',
     'edit-patch': 'No Help',
+    'get-build-deps': 'No Help, runs sudo',
     'grep-merges': 'No Help',
     'lp-project-upload': 'Returns non-zero after help. Leaving u-d-t in LP: #524680',
     'massfile': 'No Help. Leaves files in .',
