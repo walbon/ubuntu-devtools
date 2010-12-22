@@ -20,7 +20,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
-    instance to use (lp: #693060).
+    instance to use (LP: #693060).
 
   [ Benjamin Drung ]
   * sponsor-patch:
