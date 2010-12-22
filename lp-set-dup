@@ -23,11 +23,12 @@
 #  Loïc Minier <lool@dooz.org>
 
 import sys
-
 from optparse import OptionParser
 
-import ubuntutools.lp.libsupport as lp_libsupport
 from launchpadlib.errors import HTTPError
+
+import ubuntutools.lp.libsupport as lp_libsupport
+from ubuntutools.config import UDTConfig
 
 def die(message):
     print >> sys.stderr, "Fatal: " + message
@@ -36,19 +37,29 @@ def die(message):
 if __name__ == '__main__':
     usage = "Usage: %prog [-f] <new main bug> <bug to dup> [<bug to dup>...]"
     optParser = OptionParser(usage)
-    optParser.add_option("-f", action = "store_true",
-        dest = "force", default = False,
-        help = "Skip confirmation prompt")
-
+    optParser.add_option("-f",
+            help="Skip confirmation prompt",
+            dest="force", default=False, action="store_true")
+    optParser.add_option("-l", "--lpinstance", metavar="INSTANCE",
+            help="Launchpad instance to connect to (default: production)",
+            dest="lpinstance", default=None)
+    optParser.add_option("--no-conf",
+            help="Don't read config files or environment variables.",
+            dest="no_conf", default=False, action="store_true")
     (options, args) = optParser.parse_args()
 
     if len(args) < 2:
         optParser.error("Need at least a new main bug and a bug to dup")
 
+    config = UDTConfig(options.no_conf)
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value("LPINSTANCE")
+
     launchpad = None
     try:
         print "Setting up Launchpad"
-        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools")
+        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools",
+                                                server=options.lpinstance)
         print "Launchpad setup complete"
     except ImportError:
         suggestion = "check whether python-launchpadlib is installed"
