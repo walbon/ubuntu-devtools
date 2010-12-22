@@ -36,12 +36,13 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Fix: The package was only uploaded if the target was "ubuntu".
   * Recommend bzr-builddeb (used by sponsor-patch for branches).
   * Add most dependencies to Build-Depends for successfully run the tests.
+  * Depend on python-gnupginterface (used by dgetlp).
   
   [ Michael Vogt ]
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 19:14:15 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 19:16:56 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
