@@ -15,6 +15,10 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     DEBEMAIL. (LP: #665202)
   * Add the beginnings of a test suite. (LP: #690386)
     - Switch to setuptools, to support setup.py test.
+    - Test for that every script can run --help and return 0.
+    - 404main, merge-changelog, pull-debian-debdiff, pull-debian-source,
+      pull-revu-source:
+      + Return 0 after showing help.
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
 
@@ -36,7 +40,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 14:22:58 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 19:06:23 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
