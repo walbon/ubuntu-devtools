@@ -107,6 +107,9 @@ try:
     main(bug_number, options.build, builder, options.edit, options.keyid,
          options.lpinstance, options.update, options.upload, workdir,
          options.verbose)
+except KeyboardInterrupt:
+    print "\nUser abort."
+    sys.exit(2)
 finally:
     if options.workdir is None:
         shutil.rmtree(workdir)
