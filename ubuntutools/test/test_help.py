@@ -77,10 +77,10 @@ class HelpTestCase(unittest.TestCase):
                     break
 
             if p.poll() is None:
-                os.kill(signal.SIG_TERM)
+                os.kill(signal.SIGTERM)
                 time.sleep(1)
                 if p.poll() is None:
-                    os.kill(signal.SIG_KILL)
+                    os.kill(signal.SIGKILL)
 
             self.assertEqual(p.poll(), 0,
                              "%s failed to return usage within %i seconds.\n"
