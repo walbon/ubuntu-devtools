@@ -82,6 +82,7 @@ class HelpTestCase(unittest.TestCase):
                 time.sleep(1)
                 if p.poll() is None:
                     os.kill(p.pid, signal.SIGKILL)
+            null.close()
 
             self.assertEqual(p.poll(), 0,
                              "%s failed to return usage within %i seconds.\n"
