@@ -458,41 +458,46 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
 
         # Upload package
         if upload:
+            print "Please check %s %s carefully:\nfile://%s\nfile://%s" % \
+                  (task.package, new_version, debdiff_filename,
+                   lintian_filename)
+            if build_log:
+                print "\nfile://%s" % build_log
             if upload == "ubuntu":
-                print "Please check %s %s carefully:\nfile://%s\nfile://%s" % \
-                      (task.package, new_version, debdiff_filename,
-                       lintian_filename)
-                if build_log:
-                    print "\nfile://%s" % build_log
-                question = Question(["yes", "edit", "no"])
-                answer = question.ask("Do you want to upload the package to " \
-                                      "the official Ubuntu archive", "yes")
-                if answer == "edit":
-                    continue
-                elif answer == "no":
-                    user_abort()
-                cmd = ["dput", "--force", upload, changes_file]
+                target = "the official Ubuntu archive"
+            else:
+                target = upload
+            question = Question(["yes", "edit", "no"])
+            answer = question.ask("Do you want to upload the package to %s" % \
+                                  target, "yes")
+            if answer == "edit":
+                continue
+            elif answer == "no":
+                user_abort()
+            cmd = ["dput", "--force", upload, changes_file]
+            Logger.command(cmd)
+            if subprocess.call(cmd) != 0:
+                Logger.error("Upload of %s to %s failed." % \
+                             (os.path.basename(changes_file), upload))
+                sys.exit(1)
+
+            # Push the branch if the package is uploaded to the Ubuntu archive.
+            if upload == "ubuntu" and branch:
+                cmd = ['debcommit']
                 Logger.command(cmd)
                 if subprocess.call(cmd) != 0:
-                    Logger.error("Upload of %s to %s failed." % \
-                                (os.path.basename(changes_file), upload))
+                    Logger.error('Bzr commit failed.')
                     sys.exit(1)
-                if branch:
-                    cmd = ['debcommit']
-                    Logger.command(cmd)
-                    if subprocess.call(cmd) != 0:
-                        Logger.error('Bzr commit failed.')
-                        sys.exit(1)
-                    cmd = ['bzr', 'mark-uploaded']
-                    Logger.command(cmd)
-                    if subprocess.call(cmd) != 0:
-                        Logger.error('Bzr tagging failed.')
-                        sys.exit(1)
-                    cmd = ['bzr', 'push', ':parent']
-                    Logger.command(cmd)
-                    if subprocess.call(cmd) != 0:
-                        Logger.error('Bzr push failed.')
-                        sys.exit(1)
+                cmd = ['bzr', 'mark-uploaded']
+                Logger.command(cmd)
+                if subprocess.call(cmd) != 0:
+                    Logger.error('Bzr tagging failed.')
+                    sys.exit(1)
+                cmd = ['bzr', 'push', ':parent']
+                Logger.command(cmd)
+                if subprocess.call(cmd) != 0:
+                    Logger.error('Bzr push failed.')
+                    sys.exit(1)
 
         # Leave while loop if everything worked
         break
