@@ -24,31 +24,39 @@ class Logger(object):
     script_name = os.path.basename(sys.argv[0])
     verbose = False
 
+    stdout = sys.stdout
+    stderr = sys.stderr
+
     @classmethod
     def command(cls, cmd):
         if cls.verbose:
             for i in xrange(len(cmd)):
                 if cmd[i].find(" ") >= 0:
                     cmd[i] = '"' + cmd[i] + '"'
-            print "%s: I: %s" % (cls.script_name, " ".join(cmd))
+            print >> cls.stdout, "%s: I: %s" % (cls.script_name, " ".join(cmd))
 
     @classmethod
-    def debug(cls, message):
+    def debug(cls, message, *args):
         if cls.verbose:
-            print "%s: D: %s" % (cls.script_name, message)
+            print >> cls.stderr, "%s: D: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def error(cls, message):
-        print >> sys.stderr, "%s: Error: %s" % (cls.script_name, message)
+    def error(cls, message, *args):
+        print >> cls.stderr, "%s: Error: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def info(cls, message):
+    def warn(cls, message, *args):
+        print >> cls.stderr, "%s: Warning: %s" % (cls.script_name,
+                                                  message % args)
+
+    @classmethod
+    def info(cls, message, *args):
         if cls.verbose:
-            print "%s: I: %s" % (cls.script_name, message)
+            print >> cls.stdout, "%s: I: %s" % (cls.script_name, message % args)
 
     @classmethod
-    def normal(cls, message):
-        print "%s: %s" % (cls.script_name, message)
+    def normal(cls, message, *args):
+        print >> cls.stdout, "%s: %s" % (cls.script_name, message % args)
 
     @classmethod
     def set_verbosity(cls, verbose):

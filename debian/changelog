@@ -19,6 +19,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - 404main, merge-changelog, pull-debian-debdiff, pull-debian-source,
       pull-revu-source:
       + Return 0 after showing help.
+    - Support this in many u-d-t scripts, and update manpages.
+    - Deprecate old configuration environment variables.
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
   * edit-patch: Don't let cat error through if debian/source/format doesn't

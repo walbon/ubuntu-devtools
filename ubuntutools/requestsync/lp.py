@@ -49,7 +49,7 @@ def needSponsorship(name, component, release):
 	itself or the component
 	'''
 	archive = Distribution('ubuntu').getArchive()
-        distroseries = Distribution('ubuntu').getSeries(release)
+	distroseries = Distribution('ubuntu').getSeries(release)
 
 	need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
 	if need_sponsor:

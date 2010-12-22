@@ -31,7 +31,6 @@ from ubuntutools.lp.udtexceptions import PackageNotFoundException
 __all__ = [
 	'getDebianSrcPkg',
 	'getUbuntuSrcPkg',
-	'getEmailAddress',
 	'needSponsorship',
 	'checkExistingReports',
 	'mailBug',
@@ -106,18 +105,6 @@ def getDebianSrcPkg(name, release):
 def getUbuntuSrcPkg(name, release):
 	return getSrcPkg('ubuntu', name, release)
 
-def getEmailAddress():
-	'''
-	Get the From email address from the UBUMAIL, DEBEMAIL or EMAIL
-	environment variable or give an error.
-	'''
-	myemailaddr = os.getenv('UBUMAIL') or os.getenv('DEBEMAIL') or os.getenv('EMAIL')
-	if not myemailaddr:
-		print >> sys.stderr, 'E: The environment variable UBUMAIL, ' \
-			'DEBEMAIL or EMAIL needs to be set to let this script ' \
-			'mail the sync request.'
-	return myemailaddr
-
 def needSponsorship(name, component, release):
 	'''
 	Ask the user if he has upload permissions for the package or the
@@ -143,16 +130,20 @@ def checkExistingReports(srcpkg):
 		'for duplicate sync requests before continuing.' % srcpkg
 	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
-def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, keyid = None):
+def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, lpinstance, keyid,
+            myemailaddr, mailserver_host, mailserver_port, mailserver_user,
+            mailserver_pass):
 	'''
 	Submit the sync request per email.
 	'''
 
-	to = 'new@bugs.launchpad.net'
-
-	# getEmailAddress() can't fail here as the main code in requestsync
-	# already checks its return value
-	myemailaddr = getEmailAddress()
+	if lpinstance == 'production':
+		to = 'new@bugs.launchpad.net'
+	elif lpinstance == 'staging':
+		to = 'new@bugs.staging.launchpad.net'
+	else:
+		print >> sys.stderr, 'Error: Unknown launchpad instance:', lpinstance
+		sys.exit(1)
 
 	# generate mailbody
 	if srcpkg:
@@ -195,10 +186,6 @@ Content-Type: text/plain; charset=UTF-8
 	print 'The final report is:\n%s' % mail
 	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
-	# get server address and port
-	mailserver_host = os.getenv('UBUSMTP') or os.getenv('DEBSMTP') or 'fiordland.ubuntu.com'
-	mailserver_port = os.getenv('UBUSMTP_PORT') or os.getenv('DEBSMTP_PORT') or 25
-
 	# connect to the server
 	try:
 		print 'Connecting to %s:%s ...' % (mailserver_host, mailserver_port)
@@ -208,9 +195,6 @@ Content-Type: text/plain; charset=UTF-8
 			(mailserver_host, mailserver_port, s[1], s[0])
 		return
 
-	# authenticate to the server
-	mailserver_user = os.getenv('UBUSMTP_USER') or os.getenv('DEBSMTP_USER')
-	mailserver_pass = os.getenv('UBUSMTP_PASS') or os.getenv('DEBSMTP_PASS')
 	if mailserver_user and mailserver_pass:
 		try:
 			s.login(mailserver_user, mailserver_pass)

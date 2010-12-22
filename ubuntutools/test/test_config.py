@@ -16,10 +16,12 @@
 
 import os
 import os.path
+import sys
 from StringIO import StringIO
 
 import ubuntutools.config
 from ubuntutools.config import UDTConfig, ubu_email
+from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
 config_files = {
@@ -42,10 +44,19 @@ def fake_open(filename, mode='r'):
 class ConfigTestCase(unittest.TestCase):
     def setUp(self):
         ubuntutools.config.open = fake_open
+        Logger.stdout = StringIO()
+        Logger.stderr = StringIO()
+
         self.cleanEnvironment()
 
     def tearDown(self):
         del ubuntutools.config.open
+
+        self.assertEqual(Logger.stdout.getvalue(), '')
+        self.assertEqual(Logger.stderr.getvalue(), '')
+        Logger.stdout = sys.stdout
+        Logger.stderr = sys.stderr
+
         self.cleanEnvironment()
 
     def cleanEnvironment(self):
@@ -82,6 +93,11 @@ REPEAT=yes
             'INHERIT': 'user',
             'REPEAT': 'yes',
         })
+        errs = Logger.stderr.getvalue().strip()
+        Logger.stderr = StringIO()
+        self.assertEqual(len(errs.splitlines()), 1)
+        self.assertRegexpMatches(errs,
+                                r'Warning: Cannot parse.*\bCOMMAND_EXECUTION=a')
 
     def get_value(self, *args, **kwargs):
         config = UDTConfig(prefix='TEST')
@@ -117,6 +133,11 @@ REPEAT=yes
         config_files['user'] = 'COMPATFOOBAR=bar'
         self.assertEqual(self.get_value('QUX', compat_keys=['COMPATFOOBAR']),
                          'bar')
+        errs = Logger.stderr.getvalue().strip()
+        Logger.stderr = StringIO()
+        self.assertEqual(len(errs.splitlines()), 1)
+        self.assertRegexpMatches(errs,
+                                 r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):
         config_files['user'] = "TEST_BOOLEAN=yes"

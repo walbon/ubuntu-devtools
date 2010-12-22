@@ -52,8 +52,6 @@ attempt to look it up in Ubuntu since it will not exist.
 .TP
 .B \-k \fI<keyid>\fR
 Specifies your GPG key.
-Can also be set with the line `\fIexport GPGKEY=<keyid>\fR' in your shell's
-configuration (for example: \fI$HOME/.bashrc\fR).
 This is only used if the sync request is mailed to Launchpad.
 .TP
 .B \-\-lp
@@ -69,6 +67,14 @@ This disables the upload permissions check described above.
 Use this flag after FeatureFreeze for non-bug fix syncs. \fBrequestsync\fR will
 subscribe ubuntu-release team instead of sponsorship team.
 .TP
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+.TP
 .B <source package>
 This is the source package that you would like to be synced from Debian.
 .TP
@@ -82,30 +88,40 @@ In some cases, the base version (where the Ubuntu package started differing
 from the Debian package) cannot be automatically determined.
 Specify this option in this case.
 
-.SH ENVIRONMENT VARIABLES
+.SH ENVIRONMENT
 \fBrequestsync\fR uses the following variables which should be set in your
 shell's configuration by adding \fIexport VARIABLE=\fR lines, where VARIABLE is
 one of the following:
-
 .TP
-.B GPGKEY
-Specifies your GnuPG key ID.
-.TP
-.B DEBEMAIL
+.BR UBUMAIL ", " DEBEMAIL
 Specifies which email should be used when sending to Launchpad.
+.P
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
 .TP
-.B DEBSMTP
+.B REQUESTSYNC_SMTP_SERVER
 Set which SMTP server to use when sending mail.
 If unspecified this defaults to fiordland.ubuntu.com.
 .TP
-.B DEBSMTP_PORT
+.B REQUESTSYNC_SMTP_PORT
 Sets which port of the SMTP server to use. Default is 25.
 .TP
-.B DEBSMTP_USER \fRand\fB DEBSMTP_PASS
+.BR REQUESTSYNC_SMTP_USER " and " REQUESTSYNC_SMTP_PASS
 Sets the username and password to use when authenticating to the SMTP server.
+.TP
+.BR REQUESTSYNC_USE_LPAPI
+Setting this to \fIyes\fR is equivalent to running with \fB--lp\fR.
+.TP
+.BR REQUESTSYNC_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
 
 .SH SEE ALSO
-.BR rmadison (1)
+.BR rmadison (1),
+.BR ubuntu\-dev\-tools (5)
 
 .SH AUTHOR
 .B requestsync

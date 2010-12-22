@@ -14,16 +14,15 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from sys import version_info as _version_info
+import os
+import sys
 
-if _version_info < (2, 7):
+if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
 def discover():
-    import os
-    import sys
     # import __main__ triggers code re-execution
     __main__ = sys.modules['__main__']
     setupDir = os.path.abspath(os.path.dirname(__main__.__file__))

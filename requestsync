@@ -26,11 +26,13 @@
 #
 # ##################################################################
 
-import sys
 from optparse import OptionParser
+import os
+import sys
+
 from debian.changelog import Version
 
-# ubuntu-dev-tools modules
+from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
 from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
                                             raw_input_exit_on_ctrlc)
@@ -41,38 +43,60 @@ from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
 
 if __name__ == '__main__':
 	# Our usage options.
-	usage = 'Usage: %prog [-d distro] [-k keyid] [-n] [--lp] [-s] [-e] ' \
+	usage = 'Usage: %prog [options] ' \
 		'<source package> [<target release> [base version]]'
 	optParser = OptionParser(usage)
 
-	optParser.add_option('-d', type = 'string',
-		dest = 'dist', default = 'unstable',
-		help = 'Debian distribution to sync from.')
-	optParser.add_option('-k', type = 'string',
-		dest = 'keyid', default = None,
-		help = 'GnuPG key ID to use for signing report (only used when emailing the sync request).')
-	optParser.add_option('-n', action = 'store_true',
-		dest = 'newpkg', default = False,
-		help = 'Whether package to sync is a new package in Ubuntu.')
-	optParser.add_option('--lp', action = 'store_true',
-		dest = 'lpapi', default = False,
-		help = 'Specify whether to use the LP API for filing the sync request (recommended).')
-	optParser.add_option('-s', action = 'store_true',
-		dest = 'sponsorship', default = False,
-		help = 'Force sponsorship')
-	optParser.add_option('-C', action = 'store_true',
-		dest = 'missing_changelog_ok', default = False,
-		help = 'Allow changelog to be manually filled in when missing')
-	optParser.add_option('-e', action = 'store_true',
-		dest = 'ffe', default = False,
-		help = 'Use this after FeatureFreeze for non-bug fix syncs, changes ' \
+	optParser.add_option('-d', type='string',
+		dest='dist', default='unstable',
+		help='Debian distribution to sync from.')
+	optParser.add_option('-k', type='string',
+		dest='keyid', default=None,
+		help='GnuPG key ID to use for signing report (only used when emailing the sync request).')
+	optParser.add_option('-n', action='store_true',
+		dest='newpkg', default=False,
+		help='Whether package to sync is a new package in Ubuntu.')
+	optParser.add_option('--lp', action='store_true',
+		dest='lpapi', default=False,
+		help='Specify whether to use the LP API for filing the sync request (recommended).')
+	optParser.add_option('-l', '--lpinstance', type='string', metavar='INSTANCE',
+		dest='lpinstance', default=None,
+		help='Launchpad instance to connect to (default: production).')
+	optParser.add_option('-s', action='store_true',
+		dest='sponsorship', default=False,
+		help='Force sponsorship')
+	optParser.add_option('-C', action='store_true',
+		dest='missing_changelog_ok', default=False,
+		help='Allow changelog to be manually filled in when missing')
+	optParser.add_option('-e', action='store_true',
+		dest='ffe', default=False,
+		help='Use this after FeatureFreeze for non-bug fix syncs, changes ' \
 			'default subscription to the appropriate release team.')
+	optParser.add_option('--no-conf', action='store_true',
+		dest='no_conf', default=False,
+		help="Don't read config files or environment variables")
 
 	(options, args) = optParser.parse_args()
 
 	if not len(args):
 		optParser.print_help()
 		sys.exit(1)
+
+	config = UDTConfig(options.no_conf)
+	if not options.lpapi:
+		options.lpapi = config.get_value('USE_LPAPI', default=False,
+		                                 boolean=True)
+	if options.lpinstance is None:
+		options.lpinstance = config.get_value('LPINSTANCE')
+	mailserver_host = config.get_value('SMTP_SERVER',
+			default='fiordland.ubuntu.com',
+			compat_keys=['UBUSMTP', 'DEBSMTP'])
+	mailserver_port = config.get_value('SMTP_PORT', default=25,
+			compat_keys=['UBUSMTP_PORT', 'DEBSMTP_PORT'])
+	mailserver_user = config.get_value('SMTP_USER',
+			compat_keys=['UBUSMTP_USER', 'DEBSMTP_USER'])
+	mailserver_pass = config.get_value('SMTP_PASS',
+			compat_keys=['UBUSMTP_PASS', 'DEBSMTP_PASS'])
 
 	# import the needed requestsync module
 	if options.lpapi:
@@ -84,16 +108,18 @@ if __name__ == '__main__':
 		# See if we have LP credentials and exit if we don't - cannot continue in this case
 
 		try:
-			Launchpad.login()
+			Launchpad.login(service=options.lpinstance)
 		except IOError:
 			sys.exit(1)
 	else:
 		from ubuntutools.requestsync.mail import (checkExistingReports,
 		                                          getDebianSrcPkg,
-		                                          getEmailAddress,
 		                                          getUbuntuSrcPkg,
 		                                          mailBug, needSponsorship)
-		if not getEmailAddress():
+		if not any(x in os.environ for x in ('UBUMAIL', 'DEBEMAIL', 'EMAIL')):
+			print >> sys.stderr, (
+				'E: The environment variable UBUMAIL, DEBEMAIL or EMAIL needs '
+				'to be set to let this script mail the sync request.')
 			sys.exit(1)
 
 	newsource = options.newpkg
@@ -146,7 +172,7 @@ if __name__ == '__main__':
 		print >> sys.stderr, "E: %s" % e
 		sys.exit(1)
 
-        # Stop if Ubuntu has already the version from Debian or a newer version
+	# Stop if Ubuntu has already the version from Debian or a newer version
 	if (ubuntu_version >= debian_version) and options.lpapi:
 		# try rmadison
 		import ubuntutools.requestsync.mail
@@ -162,10 +188,10 @@ if __name__ == '__main__':
 		print  >> sys.stderr, \
 			'E: The versions in Debian and Ubuntu are the same already (%s). Aborting.' % ubuntu_version
 		sys.exit(1)
-        if ubuntu_version > debian_version:
-            print >> sys.stderr, \
-                'E: The version in Ubuntu (%s) is newer than the version in Debian (%s). Aborting.' % (ubuntu_version, debian_version)
-            sys.exit(1)
+	if ubuntu_version > debian_version:
+		print >> sys.stderr, \
+			'E: The version in Ubuntu (%s) is newer than the version in Debian (%s). Aborting.' % (ubuntu_version, debian_version)
+		sys.exit(1)
 
 	# -s flag not specified - check if we do need sponsorship
 	if not sponsorship:
@@ -242,5 +268,8 @@ if __name__ == '__main__':
 		# Post sync request using LP API
 		postBug(srcpkg, subscribe, mapping[status], title, report)
 	else:
+		email_from = ubu_email(export=False)[1]
 		# Mail sync request
-		mailBug(srcpkg, subscribe, status, title, report, options.keyid)
+		mailBug(srcpkg, subscribe, status, title, report, options.lpinstance,
+		        options.keyid, email_from, mailserver_host, mailserver_port,
+		        mailserver_user, mailserver_pass)

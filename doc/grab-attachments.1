@@ -2,7 +2,7 @@
 .SH NAME
 grab\-attachments \- downloads attachments from a Launchpad bug
 .SH SYNOPSIS
-.B grab\-attachments\fR <\fIbug-number\fR>
+.B grab\-attachments\fR [\fIoptions\fR] \fIbug-number\fR...
 .br
 .B grab\-attachments \-h
 .SH DESCRIPTION
@@ -12,13 +12,36 @@ Launchpad bug report into the current directory.
 .SH OPTIONS
 Listed below are the command line options for grab\-attachments:
 .TP
-.B \-h
-Display a help message and exit.
-.TP
-.B <bug-number>
+.I bug-number
 Specifies the Launchpad bug number that the script should download
 attachments from.
-
+.TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+.TP
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR GRAB_ATTACHMENTS_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
+.SH SEE ALSO
+.BR ubuntu\-dev\-tools (5)
 .SH AUTHOR
 \fBgrab\-attachments\fR was written by Daniel Holbach and this manual page
 was written by Jonathan Patrick Davies.

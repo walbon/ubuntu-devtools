@@ -21,8 +21,9 @@ import pwd
 import re
 import shlex
 import socket
-import StringIO
 import sys
+
+from ubuntutools.logger import Logger
 
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and
@@ -60,10 +61,9 @@ class UDTConfig(object):
                 continue
             for line in f:
                 parsed = shlex.split(line, comments=True)
-                if len(parsed) > 1 and not isinstance(f, StringIO.StringIO):
-                    print >> sys.stderr, (
-                            "W: Cannot parse variable assignment in %s: %s"
-                            % (f.name, line))
+                if len(parsed) > 1:
+                    Logger.warn('Cannot parse variable assignment in %s: %s',
+                                getattr(f, 'name', '<config>'), line)
                 if len(parsed) >= 1 and '=' in parsed[0]:
                     key, value = parsed[0].split('=', 1)
                     config[key] = value
@@ -98,6 +98,14 @@ class UDTConfig(object):
                             value = value == 'yes'
                         else:
                             continue
+                    if k in compat_keys:
+                        replacements = self.prefix + '_' + key
+                        if key in self.defaults:
+                            replacements += 'or UBUNTUTOOLS_' + key
+                        Logger.warn(
+                                'Using deprecated configuration variable %s. '
+                                'You should use %s.',
+                                k, replacements)
                     return value
         return default
 
@@ -106,7 +114,7 @@ def ubu_email(name=None, email=None, export=True):
     """Find the developer's Ubuntu e-mail address, and export it in
     DEBFULLNAME, DEBEMAIL if necessary (and export isn't False).
 
-    e-mail Priority: arguments, UBUMAIL, DEBEMAIL, user@mailname
+    e-mail Priority: arguments, UBUMAIL, DEBEMAIL, EMAIL, user@mailname
     name Priority: arguments, UBUMAIL, DEBFULLNAME, DEBEMAIL, NAME, /etc/passwd
 
     Name and email are only exported if provided as arguments or found in
@@ -129,6 +137,7 @@ def ubu_email(name=None, email=None, export=True):
     for var, target in (('UBUMAIL', 'email'),
                         ('DEBFULLNAME', 'name'),
                         ('DEBEMAIL', 'email'),
+                        ('EMAIL', 'email'),
                         ('NAME', 'name'),
                        ):
         if name and email:
