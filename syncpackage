@@ -31,7 +31,8 @@ import sys
 import urllib
 
 # ubuntu-dev-tools modules
-from ubuntutools.requestsync.mail import getDebianSrcPkg as requestsync_mail_getDebianSrcPkg
+from ubuntutools.requestsync.mail import getDebianSrcPkg \
+                                  as requestsync_mail_getDebianSrcPkg
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Launchpad
@@ -66,17 +67,17 @@ class File(object):
 
         if file_exists:
             # Check for correct checksum
-            m = hashlib.md5()
-            m.update(open(self.name).read())
-            file_exists = m.hexdigest() == self.checksum
+            md5 = hashlib.md5()
+            md5.update(open(self.name).read())
+            file_exists = md5.hexdigest() == self.checksum
 
         if not file_exists:
             if verbose:
                 print '%s: I: Downloading %s...' % (script_name, self.url)
             try:
                 urllib.urlretrieve(self.url, self.name)
-            except IOError as e:
-                parameters = (script_name, self.name, e.errno, e.strerror)
+            except IOError as err:
+                parameters = (script_name, self.name, err.errno, err.strerror)
                 print >> sys.stderr, ("%s: Error: Failed to download %s "
                                       "[Errno %i]: %s.") % parameters
                 sys.exit(1)
@@ -118,22 +119,22 @@ def quote_parameter(parameter):
 def print_command(script_name, cmd):
     print "%s: I: %s" % (script_name, " ".join(map(quote_parameter, cmd)))
 
-def remove_signature(dscname, script_name=None, verbose=False):
+def remove_signature(dscname):
     '''Removes the signature from a .dsc file if the .dsc file is signed.'''
 
     f = open(dscname)
     if f.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
         unsigned_file = []
         # search until begin of body found
-        for l in f:
-            if l.strip() == "":
+        for line in f:
+            if line.strip() == "":
                 break
 
         # search for end of body
-        for l in f:
-            if l.strip() == "":
+        for line in f:
+            if line.strip() == "":
                 break
-            unsigned_file.append(l)
+            unsigned_file.append(line)
 
         f.close()
         f = open(dscname, "w")
@@ -160,7 +161,8 @@ def dsc_getfiles(dscurl):
     return files
 
 def add_fixed_bugs(changes, bugs, script_name=None, verbose=False):
-    '''Add additional Launchpad bugs to the list of fixed bugs in changes file.'''
+    '''Add additional Launchpad bugs to the list of fixed bugs in changes
+       file.'''
 
     changes = filter(lambda l: l.strip() != "", changes.split("\n"))
     # Remove duplicates
@@ -191,8 +193,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     else:
         try:
             urllib.urlretrieve(dscurl, dscname)
-        except IOError as e:
-            parameters = (script_name, dscname, e.errno, e.strerror)
+        except IOError as error:
+            parameters = (script_name, dscname, error.errno, error.strerror)
             print >> sys.stderr, ("%s: Error: Failed to download %s "
                                   "[Errno %i]: %s.") % parameters
             sys.exit(1)
@@ -225,13 +227,13 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
               (script_name, srcpkg, ubuntu_ver, new_ver)
 
     files = dsc_getfiles(dscurl)
-    source_files = filter(lambda f: f.is_source_file(), files)
+    source_files = [f for f in files if f.is_source_file()]
     if verbose:
-        print '%s: D: Files: %s' % (script_name, str(map(lambda x: x.get_name(),
-                                                         files)))
-        print '%s: D: Source files: %s' % (script_name,
-                                 str(map(lambda x: x.get_name(), source_files)))
-    map(lambda f: f.download(script_name, verbose), files)
+        print '%s: D: Files: %s' % (script_name,
+                                    str([x.get_name() for x in files]))
+        print '%s: D: Source files: %s' % \
+              (script_name, str([x.get_name() for x in source_files]))
+    [f.download(script_name, verbose) for f in files]
 
     if ubuntu_dsc is None:
         ubuntu_files = None
@@ -245,7 +247,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         # We need to check if all .orig*.tar.* tarballs exist in Ubuntu
         need_orig = False
         for source_file in source_files:
-            ubuntu_file = filter(lambda f: f.get_name() == source_file.get_name(),
+            ubuntu_file = filter(lambda f: f.get_name() == 
+                                           source_file.get_name(),
                                  ubuntu_files)
             if len(ubuntu_file) == 0:
                 # The source file does not exist in Ubuntu
@@ -286,7 +289,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     # Do a fake sync if required
     if len(fakesync_files) > 0:
         # Download Ubuntu files (override Debian source tarballs)
-        map(lambda f: f.download(script_name, verbose), fakesync_files)
+        [f.download(script_name, verbose) for f in fakesync_files]
 
     # change into package directory
     directory = srcpkg + '-' + new_ver.upstream_version
@@ -347,7 +350,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
         if len(bugs) > 0:
             message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
-                      (", ".join(map(lambda b: "#" + str(b), bugs)))
+                      (", ".join(["#" + str(b) for b in bugs]))
         else:
             message = "Fake sync due to mismatching orig tarball."
         cmd = ["dch", "-v", new_ver.full_version, "-D", release, message]
@@ -383,14 +386,15 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
 
 def get_debian_dscurl(package, dist, release, version=None, component=None):
     if dist is None:
-        dist="unstable"
+        dist = "unstable"
     if type(version) == str:
         version = Version(version)
 
     if version is None or component is None:
         debian_srcpkg = getDebianSrcPkg(package, dist)
         try:
-            ubuntu_version = Version(getUbuntuSrcPkg(package, release).getVersion())
+            src_pkg = getUbuntuSrcPkg(package, release)
+            ubuntu_version = Version(src_pkg.getVersion())
         except udtexceptions.PackageNotFoundException:
             ubuntu_version = Version('~')
         if ubuntu_version >= Version(debian_srcpkg.getVersion()):
@@ -459,7 +463,7 @@ if __name__ == "__main__":
                               "package names specified: %s") % parameters
         sys.exit(1)
 
-    invalid_bug_numbers = filter(lambda x: not x.isdigit(), options.bugs)
+    invalid_bug_numbers = [bug for bug in options.bugs if not bug.isdigit()]
     if len(invalid_bug_numbers) > 0:
         print >> sys.stderr, "%s: Error: Invalid bug number(s) specified: %s" \
                              % (script_name, ", ".join(invalid_bug_numbers))
