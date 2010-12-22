@@ -25,91 +25,91 @@ from ubuntutools.lp.lpapicache import Launchpad, Distribution, PersonTeam, Distr
 from ubuntutools.lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
-	debian = Distribution('debian')
-	debian_archive = debian.getArchive()
+    debian = Distribution('debian')
+    debian_archive = debian.getArchive()
 
-	# Map 'unstable' and 'testing' to their codenames as LP knows only them
-	codenames = {
-		'unstable': 'sid',
-		'testing': 'squeeze', # Needs updating after each Debian release
-	}
-	release = codenames.get(release, release)
+    # Map 'unstable' and 'testing' to their codenames as LP knows only them
+    codenames = {
+        'unstable': 'sid',
+        'testing': 'squeeze', # Needs updating after each Debian release
+    }
+    release = codenames.get(release, release)
 
-	return debian_archive.getSourcePackage(name, release)
+    return debian_archive.getSourcePackage(name, release)
 
 def getUbuntuSrcPkg(name, release):
-	ubuntu = Distribution('ubuntu')
-	ubuntu_archive = ubuntu.getArchive()
+    ubuntu = Distribution('ubuntu')
+    ubuntu_archive = ubuntu.getArchive()
 
-	return ubuntu_archive.getSourcePackage(name, release)
+    return ubuntu_archive.getSourcePackage(name, release)
 
 def needSponsorship(name, component, release):
-	'''
-	Check if the user has upload permissions for either the package
-	itself or the component
-	'''
-	archive = Distribution('ubuntu').getArchive()
-	distroseries = Distribution('ubuntu').getSeries(release)
+    '''
+    Check if the user has upload permissions for either the package
+    itself or the component
+    '''
+    archive = Distribution('ubuntu').getArchive()
+    distroseries = Distribution('ubuntu').getSeries(release)
 
-	need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
-	if need_sponsor:
-		print '''You are not able to upload this package directly to Ubuntu.
+    need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
+    if need_sponsor:
+        print '''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate
 sponsorship team, who shall be subscribed to this bug report.
 This must be done before it can be processed by a member of the Ubuntu Archive
 team.'''
-		raw_input_exit_on_ctrlc('If the above is correct please press [Enter] ')
+        raw_input_exit_on_ctrlc('If the above is correct please press [Enter] ')
 
-	return need_sponsor
+    return need_sponsor
 
 def checkExistingReports(srcpkg):
-	'''
-	Check existing bug reports on Launchpad for a possible sync request.
+    '''
+    Check existing bug reports on Launchpad for a possible sync request.
 
-	If found ask for confirmation on filing a request.
-	'''
+    If found ask for confirmation on filing a request.
+    '''
 
-	# Fetch the package's bug list from Launchpad
-	pkg = Distribution('ubuntu').getSourcePackage(name = srcpkg)
-	pkgBugList = pkg.getBugTasks()
+    # Fetch the package's bug list from Launchpad
+    pkg = Distribution('ubuntu').getSourcePackage(name = srcpkg)
+    pkgBugList = pkg.getBugTasks()
 
-	# Search bug list for other sync requests.
-	for bug in pkgBugList:
-		# check for Sync or sync and the package name
-		if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
-			print 'The following bug could be a possible duplicate sync bug on Launchpad:'
-			print ' * %s (%s)' % \
-				(bug.title, translate_api_web(bug.self_link))
-			print 'Please check the above URL to verify this before continuing.'
-			raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+    # Search bug list for other sync requests.
+    for bug in pkgBugList:
+        # check for Sync or sync and the package name
+        if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
+            print 'The following bug could be a possible duplicate sync bug on Launchpad:'
+            print ' * %s (%s)' % \
+                (bug.title, translate_api_web(bug.self_link))
+            print 'Please check the above URL to verify this before continuing.'
+            raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
-	'''
-	Use the LP API to file the sync request.
-	'''
+    '''
+    Use the LP API to file the sync request.
+    '''
 
-	print 'The final report is:\nSummary: %s\nDescription:\n%s\n' % (bugtitle, bugtext)
-	raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+    print 'The final report is:\nSummary: %s\nDescription:\n%s\n' % (bugtitle, bugtext)
+    raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
-	if srcpkg:
-		bug_target = DistributionSourcePackage(
-			'%subuntu/+source/%s' % (Launchpad._root_uri, srcpkg))
-	else:
-		# new source package
-		bug_target = Distribution('ubuntu')
+    if srcpkg:
+        bug_target = DistributionSourcePackage(
+            '%subuntu/+source/%s' % (Launchpad._root_uri, srcpkg))
+    else:
+        # new source package
+        bug_target = Distribution('ubuntu')
 
-	# create bug
-	bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target())
+    # create bug
+    bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target())
 
-	# newly created bugreports have only one task
-	task = bug.bug_tasks[0]
-	# only members of ubuntu-bugcontrol can set importance
-	if PersonTeam.me.isLpTeamMember('ubuntu-bugcontrol'):
-		task.importance = 'Wishlist'
-	task.status = status
-	task.lp_save()
+    # newly created bugreports have only one task
+    task = bug.bug_tasks[0]
+    # only members of ubuntu-bugcontrol can set importance
+    if PersonTeam.me.isLpTeamMember('ubuntu-bugcontrol'):
+        task.importance = 'Wishlist'
+    task.status = status
+    task.lp_save()
 
-	bug.subscribe(person = PersonTeam(subscribe)())
+    bug.subscribe(person = PersonTeam(subscribe)())
 
-	print 'Sync request filed as bug #%i: %s' % (bug.id,
-		translate_api_web(bug.self_link))
+    print 'Sync request filed as bug #%i: %s' % (bug.id,
+        translate_api_web(bug.self_link))
