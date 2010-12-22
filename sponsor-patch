@@ -21,7 +21,7 @@ import sys
 import tempfile
 
 from ubuntutools.config import UDTConfig
-from ubuntutools.builder import getBuilder
+from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
 from ubuntutools.sponsor_patch.main import main
 
@@ -85,7 +85,7 @@ if not options.update:
 if options.workdir is None:
     options.workdir = config.get_value("WORKDIR")
 
-builder = getBuilder(options.builder)
+builder = get_builder(options.builder)
 if not builder:
     sys.exit(1)
 

@@ -71,7 +71,7 @@ def get_fixed_lauchpad_bugs(changes_file):
     fixed_bugs = []
     if "Launchpad-Bugs-Fixed" in changes:
         fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
-    fixed_bugs = map(int, fixed_bugs)
+    fixed_bugs = [int(bug) for bug in fixed_bugs]
     return fixed_bugs
 
 def strip_epoch(version):
@@ -98,7 +98,7 @@ def get_patch_or_branch(bug):
     patch = None
     branch = None
     attached_patches = filter(lambda a: a.type == "Patch", bug.attachments)
-    linked_branches = map(lambda b: b.branch, bug.linked_branches)
+    linked_branches = [b.branch for b in bug.linked_branches]
     if len(attached_patches) == 0 and len(linked_branches) == 0:
         if len(bug.attachments) == 0:
             Logger.error(("No attachment and no linked branch found on "
@@ -221,13 +221,13 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
         Logger.command(["cd", workdir])
         os.chdir(workdir)
 
-    lp = launchpadlib.launchpad.Launchpad.login_anonymously("sponsor-patch",
-                                                            lpinstance)
-    bug = lp.bugs[bug_number]
+    launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(
+                                                   "sponsor-patch", lpinstance)
+    bug = launchpad.bugs[bug_number]
 
     (patch, branch) = get_patch_or_branch(bug)
 
-    bug_tasks = map(lambda x: BugTask(x, lp), bug.bug_tasks)
+    bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
     ubuntu_tasks = filter(lambda x: x.is_ubuntu_task(), bug_tasks)
     if len(ubuntu_tasks) == 0:
         Logger.error("No Ubuntu bug task found on bug #%i." % (bug_number))
@@ -371,13 +371,13 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             ask_for_manual_fixing()
             continue
 
-        ubuntu = lp.distributions['ubuntu']
+        ubuntu = launchpad.distributions['ubuntu']
         devel_series = ubuntu.current_series.name
         supported_series = [series.name for series in ubuntu.series
                             if series.active and series.name != devel_series]
         # Make sure that the target is correct
         if upload == "ubuntu":
-            allowed = map(lambda s: s + "-proposed", supported_series) + \
+            allowed = [s + "-proposed" for s in supported_series] + \
                       [devel_series]
             if changelog.distributions not in allowed:
                 Logger.error(("%s is not an allowed series. It needs to be one "

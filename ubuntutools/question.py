@@ -18,7 +18,7 @@
 class Question(object):
     def __init__(self, options, show_help=True):
         assert len(options) >= 2
-        self.options = map(lambda s: s.lower(), options)
+        self.options = [s.lower() for s in options]
         self.show_help = show_help
 
     def get_options(self):

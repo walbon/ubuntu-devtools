@@ -27,8 +27,7 @@ class Patch(object):
         cmd = ["diffstat", "-l", "-p0", self.full_path]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         changed_files = process.communicate()[0]
-        self.changed_files = filter(lambda l: l != "",
-                                    changed_files.split("\n"))
+        self.changed_files = [l for l in changed_files.split("\n") if l != ""]
 
     def get_name(self):
         return self.patch_file

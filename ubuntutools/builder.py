@@ -24,16 +24,16 @@ import subprocess
 
 from ubuntutools.logger import Logger
 
+def build_preparation(result_directory):
+    if not os.path.isdir(result_directory):
+        os.makedirs(result_directory)
+
 class Builder(object):
     def __init__(self, name):
         self.name = name
         cmd = ["dpkg-architecture", "-qDEB_BUILD_ARCH_CPU"]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         self.architecture = process.communicate()[0].strip()
-
-    def build_preparation(self, result_directory):
-        if not os.path.isdir(result_directory):
-            os.makedirs(result_directory)
 
     def build_failure(self, returncode, dsc_file):
         if returncode != 0:
@@ -59,7 +59,7 @@ class Pbuilder(Builder):
         Builder.__init__(self, "pbuilder")
 
     def build(self, dsc_file, dist, result_directory):
-        self.build_preparation(result_directory)
+        build_preparation(result_directory)
         # TODO: Do not rely on a specific pbuilder configuration.
         cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
                "--distribution", dist, "--architecture", self.architecture,
@@ -81,7 +81,7 @@ class Pbuilderdist(Builder):
         Builder.__init__(self, "pbuilder-dist")
 
     def build(self, dsc_file, dist, result_directory):
-        self.build_preparation(result_directory)
+        build_preparation(result_directory)
         cmd = ["pbuilder-dist", dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
@@ -100,7 +100,7 @@ class Sbuild(Builder):
         Builder.__init__(self, "sbuild")
 
     def build(self, dsc_file, dist, result_directory):
-        self.build_preparation(result_directory)
+        build_preparation(result_directory)
         workdir = os.getcwd()
         Logger.command(["cd", result_directory])
         os.chdir(result_directory)
@@ -115,11 +115,10 @@ class Sbuild(Builder):
     def update(self, dist):
         cmd = ["schroot", "--list"]
         Logger.command(cmd)
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        chroots, _ = p.communicate()
-        chroots = chroots.strip().split()
-        if p.returncode != 0:
-            return p.returncode
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        chroots, _ = process.communicate()[0].strip().split()
+        if process.returncode != 0:
+            return process.returncode
 
         params = {"dist": dist,
                   "arch": self.architecture}
@@ -144,7 +143,7 @@ class Sbuild(Builder):
         return 0
 
 
-def getBuilder(builder):
+def get_builder(builder):
     if builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':
