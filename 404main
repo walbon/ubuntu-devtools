@@ -104,15 +104,20 @@ def find_main(cache, pack):
 
         process_deps(cache, deps)
 
+def usage(exit):
+    print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
+    sys.exit(exit)
 
 def main():
 
     global packages, distro
 
     # Check if the amount of arguments is correct
-    if len(sys.argv) < 2 or len(sys.argv) > 3 or sys.argv[1] in ('help', '-h', '--help'):
-        print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
-        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] in ('help', '-h', '--help'):
+        usage(0)
+
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        usage(1)
 
         cache = apt.cache.Cache()
 
