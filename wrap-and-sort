@@ -42,7 +42,7 @@ class Control(object):
         self.filename = filename
         sequence = open(filename)
         if cleanup:
-            sequence = map(lambda l: l.rstrip(), sequence.readlines())
+            sequence = [l.rstrip() for l in sequence.readlines()]
         self.paragraphs = list()
         for paragraph in debian.deb822.Deb822.iter_paragraphs(sequence):
             self.paragraphs.append(paragraph)
@@ -50,7 +50,7 @@ class Control(object):
     def save(self, filename=None):
         if filename:
             self.filename = filename
-        content = u"\n".join(map(lambda x: x.dump(), self.paragraphs))
+        content = u"\n".join([x.dump() for x in self.paragraphs])
         f = open(self.filename, "w")
         f.write(content.encode("utf-8"))
         f.close()
@@ -78,7 +78,7 @@ class Control(object):
             self.paragraphs = first + sorted(sortable, key=key)
 
     def _wrap_field(self, control, entry, wrap_always, short_indent, sort=True):
-        packages = map(lambda x: x.strip(), control[entry].split(","))
+        packages = [x.strip() for x in control[entry].split(",")]
         if sort:
             # Remove duplicate entries
             packages = set(packages)
@@ -87,12 +87,12 @@ class Control(object):
                 packages.remove("")
             packages = sort_list(packages)
 
-        length = len(entry) + 2 * len(packages) + sum(map(len, packages))
+        length = len(entry) + sum([2 + len(package) for package in packages])
         if wrap_always or length > 80:
             indentation = " "
             if not short_indent:
                 indentation *= len(entry) + 2
-            packages_with_indention = map(lambda x: indentation + x, packages)
+            packages_with_indention = [indentation + x for x in packages]
             packages_with_indention = ",\n".join(packages_with_indention)
             if short_indent:
                 control[entry] = "\n" + packages_with_indention
@@ -126,22 +126,22 @@ def remove_trailing_whitespaces(filename):
     assert os.path.isfile(filename), "%s does not exist." % (filename)
     content = open(filename).read().rstrip() + "\n"
     lines = content.split("\n")
-    lines = map(lambda l: l.rstrip(), lines)
+    lines = [l.rstrip() for l in lines]
     new_content = "\n".join(lines)
     f = open(filename, "w")
     f.write(new_content)
     f.close()
 
-def sort_list(l):
-    normal = filter(lambda x: not x.startswith("${"), l)
-    param = filter(lambda x: x.startswith("${"), l)
+def sort_list(unsorted_list):
+    normal = [x for x in unsorted_list if not x.startswith("${")]
+    param = [x for x in unsorted_list if x.startswith("${")]
     return sorted(normal) + sorted(param)
 
 def main(options):
     debdir = lambda x: os.path.join(options.debian_directory, x)
 
     control_files = filter(os.path.isfile,
-            [debdir("control"), debdir("control.in")])
+                           [debdir("control"), debdir("control.in")])
     for control_file in control_files:
         if options.verbose:
             print control_file
@@ -151,7 +151,7 @@ def main(options):
         control.save()
 
     copyright_files = filter(os.path.isfile,
-            [debdir("copyright"), debdir("copyright.in")])
+                             [debdir("copyright"), debdir("copyright.in")])
     for copyright_file in copyright_files:
         if options.verbose:
             print copyright_file
