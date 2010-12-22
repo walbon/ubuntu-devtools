@@ -8,10 +8,12 @@ import re
 # look/set what version we have
 changelog = "debian/changelog"
 if os.path.exists(changelog):
-    head=open(changelog).readline()
-    match = re.compile(".*\((.*)\).*").match(head)
+    head = open(changelog).readline()
+    match = re.compile(r'.*\((.+)\)\s+(\S+);\s+.*').match(head)
     if match:
         version = match.group(1)
+        if match.group(2) == 'UNRELEASED':
+            version += 'a1'
 
 scripts = ['404main',
            'backportpackage',
