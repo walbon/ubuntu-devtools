@@ -30,8 +30,9 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Fix 'str' object has no attribute 'startwith' crash caused by a typo.
     - Fix crash if uploading to ubuntu without building the package before.
     - Fix: The package was only uploaded if the target was "ubuntu".
+  * Recommend bzr-builddeb (used by sponsor-patch for branches).
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 13:38:36 +0100
+ -- Benjamin Drung <bdrung@ubuntu.com>  Wed, 22 Dec 2010 14:22:58 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

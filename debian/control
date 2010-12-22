@@ -32,6 +32,7 @@ Depends: binutils,
          ${perl:Depends},
          ${python:Depends}
 Recommends: bzr,
+            bzr-builddeb,
             ca-certificates,
             debian-archive-keyring,
             debootstrap,
