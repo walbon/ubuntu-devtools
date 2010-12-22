@@ -28,7 +28,7 @@ merges them back together, and prints the merged result to stdout.  This
 is useful if you need to manually merge a ubuntu package with a new
 Debian release of the package.
 '''
-    sys.exit(0)
+    sys.exit(exit)
 
 ########################################################################
 # Changelog Management
