@@ -27,7 +27,8 @@ import sys
 from optparse import OptionGroup
 from optparse import OptionParser
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
-        PackageNotFoundException, PocketDoesNotExistError,)
+                                          PackageNotFoundException,
+                                          PocketDoesNotExistError,)
 from ubuntutools.lp.lpapicache import Distribution, PersonTeam
 from ubuntutools.misc import splitReleasePocket
 
@@ -53,26 +54,28 @@ retryRescoreOptions.add_option("-a", "--arch", type = "string",
            "%s." % ", ".join(valid_archs))
 
 # Batch processing options
-batch_options = OptionGroup(
-    optParser, "Batch processing",
+batch_options = OptionGroup(optParser, "Batch processing",
     "These options and parameter ordering is only available in --batch mode.\n"
     "Usage: ubuntu-build --batch [options] <package>...")
-batch_options.add_option(
-    '--batch', action = 'store_true', dest = 'batch', default = False,
-    help = 'Enable batch mode')
-batch_options.add_option(
-    '--series', action = 'store', dest = 'series', type = 'string',
-    help = 'Selects the Ubuntu series to operate on (default: current development series)')
-batch_options.add_option(
-    '--retry', action = 'store_true', dest = 'retry', default = False,
-    help = 'Retry builds (give-back).')
-batch_options.add_option(
-    '--rescore', action = 'store', dest = 'priority', type = 'int',
-    help = 'Rescore builds to <priority>.')
-batch_options.add_option(
-    '--arch2', action = 'append', dest = 'architecture', type = 'string',
-    help = "Affect only 'architecture' (can be used several times). "
-           "Valid architectures are: %s." % ', '.join(valid_archs))
+batch_options.add_option('--batch',
+                         action='store_true', dest='batch', default=False,
+                         help='Enable batch mode')
+batch_options.add_option('--series',
+                         action='store', dest='series', type='string',
+                         help='Selects the Ubuntu series to operate on '
+                              '(default: current development series)')
+batch_options.add_option('--retry',
+                         action='store_true', dest='retry', default=False,
+                         help='Retry builds (give-back).')
+batch_options.add_option('--rescore',
+                         action='store', dest='priority', type='int',
+                         help='Rescore builds to <priority>.')
+batch_options.add_option('--arch2',
+                         action='append', dest='architecture', type='string',
+                         help="Affect only 'architecture' "
+                              "(can be used several times). "
+                              "Valid architectures are: %s."
+                              % ', '.join(valid_archs))
 
 # Add the retry options to the main group.
 optParser.add_option_group(retryRescoreOptions)
@@ -104,11 +107,12 @@ if not options.batch:
         print >> sys.stderr, "Invalid operation: %s." % op
         sys.exit(1)
 
-    # If the user has specified an architecture to build, we only wish to rebuild it
-    # and nothing else.
+    # If the user has specified an architecture to build, we only wish to
+    # rebuild it and nothing else.
     if options.architecture:
         if options.architecture[0] not in valid_archs:
-            print >> sys.stderr, "Invalid architecture specified: %s." % options.architecture[0]
+            print >> sys.stderr, ("Invalid architecture specified: %s."
+                                  % options.architecture[0])
             sys.exit(1)
         else:
             oneArch = True
@@ -142,21 +146,26 @@ if not options.batch:
     version = sources.getVersion()
     component = sources.getComponent()
 
-    # Operations that are remaining may only be done by Ubuntu developers (retry)
-    # or buildd admins (rescore). Check if the proper permissions are in place.
+    # Operations that are remaining may only be done by Ubuntu developers
+    # (retry) or buildd admins (rescore). Check if the proper permissions are
+    # in place.
     me = PersonTeam.me
-    if op == "rescore": necessaryPrivs = me.isLpTeamMember('launchpad-buildd-admins')
-    if op == "retry": necessaryPrivs = me.canUploadPackage(
-        ubuntu_archive, distroseries, sources.getPackageName(), sources.getComponent())
+    if op == "rescore":
+        necessaryPrivs = me.isLpTeamMember('launchpad-buildd-admins')
+    if op == "retry":
+        necessaryPrivs = me.canUploadPackage(ubuntu_archive, distroseries,
+                                             sources.getPackageName(),
+                                             sources.getComponent())
 
     if op in ('rescore', 'retry') and not necessaryPrivs:
-        print >> sys.stderr, "You cannot perform the %s operation on a %s package " \
-            "as you do not have the permissions to do this action." % (op, component)
+        print >> sys.stderr, ("You cannot perform the %s operation on a %s "
+                              "package as you do not have the permissions to "
+                              "do this action." % (op, component))
         sys.exit(1)
 
     # Output details.
-    print "The source version for '%s' in %s (%s) is at %s." % (package,
-        release.capitalize(), component, version)
+    print ("The source version for '%s' in %s (%s) is at %s."
+           % (package, release.capitalize(), component, version))
 
     print "Current build status for this package:"
 
@@ -188,8 +197,8 @@ if not options.batch:
     # We are done
     if done: sys.exit(0)
 
-    print "No builds for '%s' found in the %s release - it may have been " \
-          "built in a former release." % (package, release.capitalize())
+    print ("No builds for '%s' found in the %s release - it may have been "
+           "built in a former release." % (package, release.capitalize()))
     sys.exit(0)
 
 # Batch mode
@@ -219,9 +228,12 @@ except SeriesNotFoundException, e:
 me = PersonTeam.me
 
 # Check permisions (part 1): Rescoring can only be done by buildd admins
-can_rescore = options.priority and me.isLpTeamMember('launchpad-buildd-admins') or False
+can_rescore = ((options.priority
+                and me.isLpTeamMember('launchpad-buildd-admins'))
+               or False)
 if options.priority and not can_rescore:
-    print >> sys.stderr, "You don't have the permissions to rescore builds. Ignoring your rescore request."
+    print >> sys.stderr, ("You don't have the permissions to rescore builds. "
+                          "Ignoring your rescore request.")
 
 for pkg in args:
     try:
@@ -230,10 +242,16 @@ for pkg in args:
         print e
         continue
 
-    # Check permissions (part 2): check upload permissions for the source package
-    can_retry = options.retry and me.canUploadPackage(ubuntu_archive, distroseries, pkg.getPackageName(), pkg.getComponent())
+    # Check permissions (part 2): check upload permissions for the source
+    # package
+    can_retry = options.retry and me.canUploadPackage(ubuntu_archive,
+                                                      distroseries,
+                                                      pkg.getPackageName(),
+                                                      pkg.getComponent())
     if options.retry and not can_retry:
-        print >> sys.stderr, "You don't have the permissions to retry the build of '%s'. Ignoring your request." % pkg.getPackageName()
+        print >> sys.stderr, ("You don't have the permissions to retry the "
+                              "build of '%s'. Ignoring your request."
+                              % pkg.getPackageName())
 
     print "The source version for '%s' in '%s' (%s) is: %s" % (
             pkg.getPackageName(), release, pocket, pkg.getVersion())

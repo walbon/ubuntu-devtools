@@ -54,11 +54,13 @@ def getDebianChangelog(srcpkg, version):
 
     # Get the debian changelog file from packages.debian.org
     try:
-        changelog = urllib2.urlopen(
-            'http://packages.debian.org/changelogs/pool/%s/%s/%s/%s_%s/changelog.txt' % \
-            (component, subdir, pkgname, pkgname, pkgversion))
+        changelog = urllib2.urlopen('http://packages.debian.org/changelogs/pool'
+                                    '/%s/%s/%s/%s_%s/changelog.txt'
+                                    % (component, subdir, pkgname, pkgname,
+                                       pkgversion))
     except urllib2.HTTPError, error:
-        print >> sys.stderr, 'Unable to connect to packages.debian.org: %s' % error
+        print >> sys.stderr, ('Unable to connect to packages.debian.org: %s'
+                              % error)
         return None
 
     new_entries = ''
@@ -88,7 +90,8 @@ def edit_report(subject, body, changes_required = False):
         if not changes_required:
             print 'Currently the report looks as follows:\n%s' % report
             while True:
-                val = raw_input_exit_on_ctrlc('Do you want to edit the report [y/N]? ')
+                val = raw_input_exit_on_ctrlc('Do you want to edit the report '
+                                              '[y/N]? ')
                 if val.lower() in ('y', 'yes'):
                     break
                 elif val.lower() in ('n', 'no', ''):
@@ -108,15 +111,17 @@ def edit_report(subject, body, changes_required = False):
             try:
                 subprocess.check_call(['sensible-editor', report_file.name])
             except subprocess.CalledProcessError, e:
-                print >> sys.stderr, 'Error calling sensible-editor: %s\nAborting.' % e
+                print >> sys.stderr, ('Error calling sensible-editor: %s\n'
+                                      'Aborting.' % e)
                 sys.exit(1)
 
             # Check if the tempfile has been changed
             if changes_required:
                 if mtime_before == os.stat(report_file.name).st_mtime:
-                    print 'The report has not been changed, but you have to explain why ' \
-                        'the Ubuntu changes can be dropped.'
-                    raw_input_exit_on_ctrlc('Press [Enter] to retry or [Control-C] to abort. ')
+                    print ('The report has not been changed, but you have to '
+                           'explain why the Ubuntu changes can be dropped.')
+                    raw_input_exit_on_ctrlc('Press [Enter] to retry or '
+                                            '[Control-C] to abort. ')
                 else:
                     changes_required = False
 
@@ -127,6 +132,7 @@ def edit_report(subject, body, changes_required = False):
             # Undecorate report again
             (subject, body) = report.split("\nDescription:\n", 1)
             # Remove prefix and whitespace from subject
-            subject = re.sub('^Summary \(one line\):\s*', '', subject, 1).strip()
+            subject = re.sub('^Summary \(one line\):\s*', '', subject,
+                             1).strip()
 
     return (subject, body)

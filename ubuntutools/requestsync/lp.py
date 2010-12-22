@@ -21,7 +21,8 @@
 #   of the GNU General Public License license.
 
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
-from ubuntutools.lp.lpapicache import Launchpad, Distribution, PersonTeam, DistributionSourcePackage
+from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
+                                       DistributionSourcePackage)
 from ubuntutools.lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
@@ -51,7 +52,8 @@ def needSponsorship(name, component, release):
     archive = Distribution('ubuntu').getArchive()
     distroseries = Distribution('ubuntu').getSeries(release)
 
-    need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries, name, component)
+    need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries,
+                                                      name, component)
     if need_sponsor:
         print '''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate
@@ -77,18 +79,22 @@ def checkExistingReports(srcpkg):
     for bug in pkgBugList:
         # check for Sync or sync and the package name
         if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
-            print 'The following bug could be a possible duplicate sync bug on Launchpad:'
-            print ' * %s (%s)' % \
-                (bug.title, translate_api_web(bug.self_link))
-            print 'Please check the above URL to verify this before continuing.'
-            raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+            print ('The following bug could be a possible duplicate sync bug '
+                   'on Launchpad:\n'
+                   ' * %s (%s)\n'
+                   'Please check the above URL to verify this before '
+                   'continuing.'
+                   % (bug.title, translate_api_web(bug.self_link)))
+            raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] '
+                                    'to abort. ')
 
 def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
     '''
     Use the LP API to file the sync request.
     '''
 
-    print 'The final report is:\nSummary: %s\nDescription:\n%s\n' % (bugtitle, bugtext)
+    print ('The final report is:\nSummary: %s\nDescription:\n%s\n'
+           % (bugtitle, bugtext))
     raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
     if srcpkg:
@@ -99,7 +105,8 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
         bug_target = Distribution('ubuntu')
 
     # create bug
-    bug = Launchpad.bugs.createBug(title = bugtitle, description = bugtext, target = bug_target())
+    bug = Launchpad.bugs.createBug(title=bugtitle, description=bugtext,
+                                   target=bug_target())
 
     # newly created bugreports have only one task
     task = bug.bug_tasks[0]
@@ -111,5 +118,5 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
 
     bug.subscribe(person = PersonTeam(subscribe)())
 
-    print 'Sync request filed as bug #%i: %s' % (bug.id,
-        translate_api_web(bug.self_link))
+    print ('Sync request filed as bug #%i: %s'
+           % (bug.id, translate_api_web(bug.self_link)))

@@ -34,7 +34,7 @@ __all__ = [
     'needSponsorship',
     'checkExistingReports',
     'mailBug',
-    ]
+]
 
 class SourcePackagePublishingHistory(object):
     '''
@@ -64,9 +64,9 @@ def rmadison(distro, package, release):
     }
     release = releasenames.get(release, release)
 
-    rmadison_cmd = subprocess.Popen(
-        ['rmadison', '-u', distro, '-a', 'source', '-s', release, package],
-        stdout = subprocess.PIPE)
+    rmadison_cmd = subprocess.Popen(['rmadison', '-u', distro, '-a', 'source',
+                                     '-s', release, package],
+                                    stdout=subprocess.PIPE)
 
     rmadison_out = rmadison_cmd.communicate()[0]
     assert (rmadison_cmd.returncode == 0)
@@ -87,9 +87,9 @@ def rmadison(distro, package, release):
 def getSrcPkg(distro, name, release):
     out = rmadison(distro, name, release)
     if not out:
-        raise PackageNotFoundException(
-            "'%s' doesn't appear to exist in %s '%s'" % \
-            (name, distro.capitalize(), release))
+        raise PackageNotFoundException("'%s' doesn't appear to exist "
+                                       "in %s '%s'"
+                                       % (name, distro.capitalize(), release))
 
     version = out[1]
     component = 'main'
@@ -112,8 +112,9 @@ def needSponsorship(name, component, release):
     '''
 
     while True:
-        print "Do you have upload permissions for the '%s' component " \
-            "or the package '%s' in Ubuntu %s?" % (component, name, release)
+        print ("Do you have upload permissions for the '%s' component "
+               "or the package '%s' in Ubuntu %s?"
+               % (component, name, release))
         val = raw_input_exit_on_ctrlc("If in doubt answer 'n'. [y/N]? ")
         if val.lower() in ('y', 'yes'):
             return False
@@ -126,8 +127,9 @@ def checkExistingReports(srcpkg):
     '''
     Point the user to the URL to manually check for duplicate bug reports.
     '''
-    print 'Please check on https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n' \
-        'for duplicate sync requests before continuing.' % srcpkg
+    print ('Please check on '
+           'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
+           'for duplicate sync requests before continuing.' % srcpkg)
     raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
 def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, lpinstance, keyid,
@@ -170,7 +172,8 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, lpinstance, keyid,
         gpg_command.extend(('-u', keyid))
 
     # sign the mail body
-    gpg = subprocess.Popen(gpg_command, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    gpg = subprocess.Popen(gpg_command, stdin=subprocess.PIPE,
+                           stdout=subprocess.PIPE)
     signed_report = gpg.communicate(mailbody.encode('utf-8'))[0].decode('utf-8')
     assert gpg.returncode == 0
 
@@ -199,7 +202,8 @@ Content-Type: text/plain; charset=UTF-8
         try:
             s.login(mailserver_user, mailserver_pass)
         except smtplib.SMTPAuthenticationError:
-            print >> sys.stderr, 'E: Error authenticating to the server: invalid username and password.'
+            print >> sys.stderr, ('E: Error authenticating to the server: '
+                                  'invalid username and password.')
             s.quit()
             return
         except:
