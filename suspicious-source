@@ -19,112 +19,116 @@ import optparse
 import os
 import sys
 
+from ubuntutools.logger import Logger
+
 default_whitelisted_mimetypes = [
-	"application/vnd.font-fontforge-sfd", # font source: fontforge
-	"application/x-elc",
-	"application/x-empty",
-	"application/x-font-otf",             # font object and source
-	"application/x-font-ttf",             # font object and source
-	"application/x-font-woff",            # font object and source
-	"application/x-symlink",
-	"application/xml",
-	"audio/x-wav",
-	"font/otf",                           # font object and source
-	"font/ttf",                           # font object and source
-	"image/gif",
-	"image/jpeg",
-	"image/png",
-	"image/svg+xml",
-	"image/x-icns",
-	"image/x-ico",
-	"image/x-ms-bmp",
-	"image/x-portable-pixmap",
-	"message/rfc822",
-	"text/html",
-	"text/plain",
-	"text/rtf",
-	"text/troff",
-	"text/x-asm",
-	"text/x-c",
-	"text/x-c++",
-	"text/x-diff",
-	"text/x-fortran",
-	"text/x-java",
-	"text/x-lisp",
-	"text/x-m4",
-	"text/x-makefile",
-	"text/x-msdos-batch",
-	"text/x-pascal",
-	"text/x-perl",
-	"text/x-php",
-	"text/x-po",
-	"text/x-shellscript",
-	"text/x-tex",
-	"text/x-texinfo",
+    "application/vnd.font-fontforge-sfd", # font source: fontforge
+    "application/x-elc",
+    "application/x-empty",
+    "application/x-font-otf",             # font object and source
+    "application/x-font-ttf",             # font object and source
+    "application/x-font-woff",            # font object and source
+    "application/x-symlink",
+    "application/xml",
+    "audio/x-wav",
+    "font/otf",                           # font object and source
+    "font/ttf",                           # font object and source
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/x-icns",
+    "image/x-ico",
+    "image/x-ms-bmp",
+    "image/x-portable-pixmap",
+    "message/rfc822",
+    "text/html",
+    "text/plain",
+    "text/rtf",
+    "text/troff",
+    "text/x-asm",
+    "text/x-c",
+    "text/x-c++",
+    "text/x-diff",
+    "text/x-fortran",
+    "text/x-java",
+    "text/x-lisp",
+    "text/x-m4",
+    "text/x-makefile",
+    "text/x-msdos-batch",
+    "text/x-pascal",
+    "text/x-perl",
+    "text/x-php",
+    "text/x-po",
+    "text/x-shellscript",
+    "text/x-tex",
+    "text/x-texinfo",
 ]
 
 default_whitelisted_extensions = [
-	".fea",   # font source format: afdko (Adobe font development kit for OpenType)
-	".fog",   # font source format: Fontographer
-	".g2n",   # font source format: fontforge
-	".gdh",   # font source format: Graphite (headers)
-	".gdl",   # font source format: Graphite
-	".glyph", # font source format: cross-toolkit UFO
-	".plate", # font source format: Spiro
-	".rsa",
-	".sfd",   # font source format: fontforge
-	".sfdir", # font source format: fontforge
-	".ttx",   # font source format: fonttools
-	".ufo",   # font source format: cross-toolkit UFO
-	".vfb"    # font source format: FontLab
-	".vtp",   # font source format: OpenType (VOLT)
-	".xgf",   # font source format: Xgridfit
+    ".fea",   # font source format: afdko (Adobe font development kit for OpenType)
+    ".fog",   # font source format: Fontographer
+    ".g2n",   # font source format: fontforge
+    ".gdh",   # font source format: Graphite (headers)
+    ".gdl",   # font source format: Graphite
+    ".glyph", # font source format: cross-toolkit UFO
+    ".plate", # font source format: Spiro
+    ".rsa",
+    ".sfd",   # font source format: fontforge
+    ".sfdir", # font source format: fontforge
+    ".ttx",   # font source format: fonttools
+    ".ufo",   # font source format: cross-toolkit UFO
+    ".vfb"    # font source format: FontLab
+    ".vtp",   # font source format: OpenType (VOLT)
+    ".xgf",   # font source format: Xgridfit
 ]
 
-def main(whitelisted_mimetypes, whitelisted_extensions, directory, verbose=False):
-	ms = magic.open(magic.MAGIC_MIME_TYPE)
-	ms.load()
+def main(whitelisted_mimetypes, whitelisted_extensions, directory,
+         verbose=False):
+    ms = magic.open(magic.MAGIC_MIME_TYPE)
+    ms.load()
 
-	for root, dirs, files in os.walk(directory):
-		for f in files:
-			mimetype = ms.file(os.path.join(root, f))
-			if mimetype not in whitelisted_mimetypes:
-				if not filter(lambda x: f.lower().endswith(x), whitelisted_extensions):
-					if verbose:
-						print "%s (%s)" % (os.path.join(root, f), mimetype)
-					else:
-						print os.path.join(root, f)
-		for d in (".bzr", "CVS", ".git", ".svn"):
-			if d in dirs:
-				dirs.remove(d)
+    for root, dirs, files in os.walk(directory):
+        for f in files:
+            mimetype = ms.file(os.path.join(root, f))
+            if mimetype not in whitelisted_mimetypes:
+                if not filter(lambda x: f.lower().endswith(x),
+                              whitelisted_extensions):
+                    if verbose:
+                        print "%s (%s)" % (os.path.join(root, f), mimetype)
+                    else:
+                        print os.path.join(root, f)
+        for d in (".bzr", "CVS", ".git", ".svn"):
+            if d in dirs:
+                dirs.remove(d)
 
 if __name__ == "__main__":
-	script_name = os.path.basename(sys.argv[0])
-	usage = "%s [options]" % (script_name)
-	epilog = "See %s(1) for more info." % (script_name)
-	parser = optparse.OptionParser(usage=usage, epilog=epilog)
+    script_name = os.path.basename(sys.argv[0])
+    usage = "%s [options]" % (script_name)
+    epilog = "See %s(1) for more info." % (script_name)
+    parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-	parser.add_option("-v", "--verbose", help="print more information",
-			dest="verbose", action="store_true", default=False)
-	parser.add_option("-d", "--directory",
-			help="check the files in the specified directory",
-			dest="directory", default=".")
-	parser.add_option("-m", "--mimetype", metavar="MIMETYPE",
-			help="Add MIMETYPE to list of whitelisted mimetypes.",
-			dest="whitelisted_mimetypes", action="append",
-			default=default_whitelisted_mimetypes)
-	parser.add_option("-e", "--extension", metavar="EXTENSION",
-			help="Add EXTENSION to list of whitelisted extensions.",
-			dest="whitelisted_extensions", action="append",
-			default=default_whitelisted_extensions)
+    parser.add_option("-v", "--verbose", help="print more information",
+                      dest="verbose", action="store_true", default=False)
+    parser.add_option("-d", "--directory",
+                      help="check the files in the specified directory",
+                      dest="directory", default=".")
+    parser.add_option("-m", "--mimetype", metavar="MIMETYPE",
+                      help="Add MIMETYPE to list of whitelisted mimetypes.",
+                      dest="whitelisted_mimetypes", action="append",
+                      default=default_whitelisted_mimetypes)
+    parser.add_option("-e", "--extension", metavar="EXTENSION",
+                      help="Add EXTENSION to list of whitelisted extensions.",
+                      dest="whitelisted_extensions", action="append",
+                      default=default_whitelisted_extensions)
 
-	(options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-	if len(args) != 0:
-		print >> sys.stderr, "%s: This script does not take any additional parameters." % \
-				(script_name)
-		sys.exit(1)
+    if len(args) != 0:
+        Logger.error("This script does not take any additional parameters.")
+        sys.exit(1)
 
-	whitelisted_extensions = map(lambda x: x.lower(), options.whitelisted_extensions)
-	main(options.whitelisted_mimetypes, whitelisted_extensions,
-			options.directory, options.verbose)
+    whitelisted_extensions = map(lambda x: x.lower(),
+                                 options.whitelisted_extensions)
+    main(options.whitelisted_mimetypes, whitelisted_extensions,
+         options.directory, options.verbose)

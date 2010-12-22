@@ -26,22 +26,22 @@ import re, os, sys
 from tempfile import mkstemp
 
 try:
-	from debian.changelog import Changelog
+    from debian.changelog import Changelog
 except ImportError:
-	print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
-	sys.exit(1)
+    print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
+    sys.exit(1)
 
 if not os.path.exists('/usr/bin/reportbug'):
-	print 'This utility requires the «reportbug» package, which isn\'t currently installed.'
-	sys.exit(1)
+    print 'This utility requires the «reportbug» package, which isn\'t currently installed.'
+    sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
-	for v in changelog.get_versions():
-		if not re.search('(ubuntu|build)', v.full_version):
-			return v.full_version
+    for v in changelog.get_versions():
+        if not re.search('(ubuntu|build)', v.full_version):
+            return v.full_version
 
 def get_bug_body(changelog):
-	return '''In Ubuntu, the attached patch was applied to achieve the following:
+    return '''In Ubuntu, the attached patch was applied to achieve the following:
 
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
 ## Please add all necessary information about why the change needed to go in
@@ -56,56 +56,56 @@ Thanks for considering the patch.
 ''' % ("\n".join([a for a in changelog._blocks[0].changes()]))
 
 def gen_debdiff(changelog):
-	pkg = changelog.package
+    pkg = changelog.package
 
-	oldver = changelog._blocks[1].version
-	newver = changelog._blocks[0].version
+    oldver = changelog._blocks[1].version
+    newver = changelog._blocks[0].version
 
-	(fd, debdiff) = mkstemp()
-	os.close(fd)
+    (fd, debdiff) = mkstemp()
+    os.close(fd)
 
-	if os.system('bzr diff -r tag:%s > /dev/null 2>&1' % oldver) == 256:
-		print "Extracting bzr diff between %s and %s" % (oldver, newver)
-		cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % (oldver, debdiff)
-		run_cmd(cmd)
-	else:
-		if oldver.epoch is not None:
-			oldver = str(oldver)[str(oldver).index(":")+1:]
-		if newver.epoch is not None:
-			newver = str(newver)[str(newver).index(":")+1:]
+    if os.system('bzr diff -r tag:%s > /dev/null 2>&1' % oldver) == 256:
+        print "Extracting bzr diff between %s and %s" % (oldver, newver)
+        cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % (oldver, debdiff)
+        run_cmd(cmd)
+    else:
+        if oldver.epoch is not None:
+            oldver = str(oldver)[str(oldver).index(":")+1:]
+        if newver.epoch is not None:
+            newver = str(newver)[str(newver).index(":")+1:]
 
-		olddsc = '../%s_%s.dsc' % (pkg, oldver)
-		newdsc = '../%s_%s.dsc' % (pkg, newver)
+        olddsc = '../%s_%s.dsc' % (pkg, oldver)
+        newdsc = '../%s_%s.dsc' % (pkg, newver)
 
-		check_file(olddsc)
-		check_file(newdsc)
+        check_file(olddsc)
+        check_file(newdsc)
 
-		print "Generating debdiff between %s and %s" % (oldver, newver)
-		cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % (olddsc, newdsc, debdiff)
-		run_cmd(cmd)
+        print "Generating debdiff between %s and %s" % (oldver, newver)
+        cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % (olddsc, newdsc, debdiff)
+        run_cmd(cmd)
 
-	return debdiff
+    return debdiff
 
 def check_file(fname, critical = True):
-	if os.path.exists(fname):
-		return fname
-	else:
-		if not critical: return False
-		print "Couldn't find «%s».\n" % fname
-		sys.exit(1)
+    if os.path.exists(fname):
+        return fname
+    else:
+        if not critical: return False
+        print "Couldn't find «%s».\n" % fname
+        sys.exit(1)
 
 def edit_debdiff(debdiff):
-	cmd = 'sensible-editor %s' % (debdiff)
-	run_cmd(cmd)
+    cmd = 'sensible-editor %s' % (debdiff)
+    run_cmd(cmd)
 
 def submit_bugreport(body, debdiff, changelog):
-	cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
-	run_cmd(cmd)
+    cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
+    run_cmd(cmd)
 
 def run_cmd(cmd):
-	if os.getenv('DEBUG'):
-		print "%s\n" % cmd
-	os.system(cmd)
+    if os.getenv('DEBUG'):
+        print "%s\n" % cmd
+    os.system(cmd)
 
 changelog_file = check_file('debian/changelog', critical = False) or check_file('../debian/changelog')
 changelog = Changelog(file(changelog_file).read())

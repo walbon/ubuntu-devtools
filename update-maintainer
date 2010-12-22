@@ -37,7 +37,7 @@ usage = "%s [options]" % (script_name)
 epilog = "See %s(1) for more info." % (script_name)
 parser = optparse.OptionParser(usage=usage, epilog=epilog)
 parser.add_option("-q", "--quiet", help="print no informational messages",
-		dest="quiet", action="store_true", default=False)
+                  dest="quiet", action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 sys.exit(ubuntutools.update_maintainer.update_maintainer(not options.quiet))

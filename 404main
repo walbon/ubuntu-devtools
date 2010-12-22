@@ -31,131 +31,131 @@ import apt_pkg
 import apt
 
 def process_deps(cache, deps):
-	"""Takes a list of (build) dependencies and processes it."""
+    """Takes a list of (build) dependencies and processes it."""
 
-	for basedep in [d.or_dependencies[0] for d in deps]:
-		if not packages.has_key(basedep.name) and basedep.name != '':
-			# Check the (build) dependencies recursively
-			find_main(cache, basedep.name)
+    for basedep in [d.or_dependencies[0] for d in deps]:
+        if not packages.has_key(basedep.name) and basedep.name != '':
+            # Check the (build) dependencies recursively
+            find_main(cache, basedep.name)
 
 
 def get_package_version(cache, distro, pack):
-	if pack not in cache:
-		return None
-	for version in (cache[pack].candidate, cache[pack].installed):
-		if not version:
-			continue
-		for origin in version.origins:
-			if origin.archive == distro:
-				return version
-	return None
+    if pack not in cache:
+        return None
+    for version in (cache[pack].candidate, cache[pack].installed):
+        if not version:
+            continue
+        for origin in version.origins:
+            if origin.archive == distro:
+                return version
+    return None
 
 
 # Cache::CompTypeDeb isn't exposed via python-apt
 def comp_type_deb(op):
-	ops = ("", "<=", ">=", "<<", ">>", "=", "!=")
-	if (op & 15) < 7:
-		return ops[op & 15]
-	return ""
+    ops = ("", "<=", ">=", "<<", ">>", "=", "!=")
+    if (op & 15) < 7:
+        return ops[op & 15]
+    return ""
 
 
 def find_main(cache, pack):
-	"""Searches the dependencies and build dependencies of a package recursively
-	to determine if they are all in the 'main' component or not."""
+    """Searches the dependencies and build dependencies of a package recursively
+    to determine if they are all in the 'main' component or not."""
 
-	global packages
+    global packages
 
-	if pack in packages:
-		return
+    if pack in packages:
+        return
 
-	# Retrieve information about the package
-	version = get_package_version(cache, distro, pack)
+    # Retrieve information about the package
+    version = get_package_version(cache, distro, pack)
 
-	if not version:
-		packages[pack] = False
-		return
-	elif [origin for origin in version.origins if origin.component == 'main']:
-		packages[pack] = True
-		return
-	else:
-		if not packages.has_key(pack):
-			packages[pack] = False
+    if not version:
+        packages[pack] = False
+        return
+    elif [origin for origin in version.origins if origin.component == 'main']:
+        packages[pack] = True
+        return
+    else:
+        if not packages.has_key(pack):
+            packages[pack] = False
 
-		# Retrieve package dependencies
-		process_deps(cache, version.dependencies)
+        # Retrieve package dependencies
+        process_deps(cache, version.dependencies)
 
-		# Retrieve package build dependencies. There's no handy
-		# attribute on version for this, so unfortunately we have to
-		# do a lot of messing about with apt.
-		deps = []
-		src_records = apt_pkg.SourceRecords()
-		got_src = False
-		while src_records.lookup(version.source_name):
-			if pack in src_records.binaries:
-				got_src = True
-				break
-		if got_src:
-			for deptype, all_deps in src_records.build_depends.iteritems():
-				for or_deps in all_deps:
-					base_deps = []
-					for (name, ver, op) in or_deps:
-						base_deps.append(apt.package.BaseDependency(name, op, ver, False))
-					deps.append(apt.package.Dependency(base_deps))
+        # Retrieve package build dependencies. There's no handy
+        # attribute on version for this, so unfortunately we have to
+        # do a lot of messing about with apt.
+        deps = []
+        src_records = apt_pkg.SourceRecords()
+        got_src = False
+        while src_records.lookup(version.source_name):
+            if pack in src_records.binaries:
+                got_src = True
+                break
+        if got_src:
+            for deptype, all_deps in src_records.build_depends.iteritems():
+                for or_deps in all_deps:
+                    base_deps = []
+                    for (name, ver, op) in or_deps:
+                        base_deps.append(apt.package.BaseDependency(name, op, ver, False))
+                    deps.append(apt.package.Dependency(base_deps))
 
-		process_deps(cache, deps)
+        process_deps(cache, deps)
 
 
 def main():
 
-	global packages, distro
+    global packages, distro
 
-	# Check if the amount of arguments is correct
-	if len(sys.argv) < 2 or len(sys.argv) > 3 or sys.argv[1] in ('help', '-h', '--help'):
-		print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
-		sys.exit(1)
+    # Check if the amount of arguments is correct
+    if len(sys.argv) < 2 or len(sys.argv) > 3 or sys.argv[1] in ('help', '-h', '--help'):
+        print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
+        sys.exit(1)
 
         cache = apt.cache.Cache()
 
-	if len(sys.argv) == 3 and sys.argv[2]:
-		distro = sys.argv[2]
-		if not get_package_version(cache, distro, 'bash'):
-			print '«%s» is not a valid distribution.' % distro
-			print 'Remember that for 404main to work with a certain distribution it must be in your /etc/apt/sources.list file.'
-			sys.exit(1)
-	else:
-		distro = subprocess.Popen(['lsb_release', '-cs'], stdout=subprocess.PIPE).stdout.read().strip('\n')
+    if len(sys.argv) == 3 and sys.argv[2]:
+        distro = sys.argv[2]
+        if not get_package_version(cache, distro, 'bash'):
+            print '«%s» is not a valid distribution.' % distro
+            print 'Remember that for 404main to work with a certain distribution it must be in your /etc/apt/sources.list file.'
+            sys.exit(1)
+    else:
+        distro = subprocess.Popen(['lsb_release', '-cs'], stdout=subprocess.PIPE).stdout.read().strip('\n')
 
-	if not get_package_version(cache, distro, sys.argv[1]):
-		print 'Can\'t find package «%s» in distribution «%s».' % (sys.argv[1], distro)
-		sys.exit(1)
+    if not get_package_version(cache, distro, sys.argv[1]):
+        print 'Can\'t find package «%s» in distribution «%s».' % (sys.argv[1], distro)
+        sys.exit(1)
 
-	print 'Checking package «%s» in distribution «%s»...' % (sys.argv[1], distro)
+    print 'Checking package «%s» in distribution «%s»...' % (sys.argv[1], distro)
 
-	find_main(cache, sys.argv[1])
+    find_main(cache, sys.argv[1])
 
-	# True if everything checked until the point is in main
-	all_in_main = True
+    # True if everything checked until the point is in main
+    all_in_main = True
 
-	for package in packages:
-		if not packages[package]:
-			if all_in_main:
-				print 'The following packages aren\'t in main:'
-				all_in_main = False
-			print '  ', package
+    for package in packages:
+        if not packages[package]:
+            if all_in_main:
+                print 'The following packages aren\'t in main:'
+                all_in_main = False
+            print '  ', package
 
-	if all_in_main:
-		print 'Package «%s» and all its dependencies and build dependencies are in main.' % sys.argv[1]
+    if all_in_main:
+        print 'Package «%s» and all its dependencies and build dependencies are in main.' % sys.argv[1]
 
 if __name__ == '__main__':
 
-	# Global variable to hold the status of all packages
-	packages = {}
+    # Global variable to hold the status of all packages
+    packages = {}
 
-	# Global variable to hold the target distribution
-	distro = ''
+    # Global variable to hold the target distribution
+    distro = ''
 
-	try:
-		main()
-	except KeyboardInterrupt:
-		print 'Aborted.'
-		sys.exit(1)
+    try:
+        main()
+    except KeyboardInterrupt:
+        print 'Aborted.'
+        sys.exit(1)

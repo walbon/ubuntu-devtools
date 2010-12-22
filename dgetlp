@@ -45,7 +45,7 @@ If you specify the -d option then it won't do anything, except download the
 .dsc file, but just print the commands it would run otherwise.
 
 Example:
-	%prog http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
+    %prog http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
 """
 
 unpack_cmd = "dpkg-source -x "
