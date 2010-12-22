@@ -24,7 +24,23 @@ import time
 import setup
 from ubuntutools.test import unittest
 
-BLACKLIST = ['grep-merges', 'submittodebian']
+BLACKLIST = {
+    '404main': 'Returns non-zero after help',
+    'check-symbols': 'No Help',
+    'edit-patch': 'No Help',
+    'grep-merges': 'No Help',
+    'lp-project-upload': 'Returns non-zero after help. Leaving u-d-t in LP: #524680',
+    'massfile': 'No Help. Leaves files in .',
+    'merge-changelog': 'Returns non-zero after help',
+    'mk-sbuild': 'Fires up apt-get before showing help',
+    'pbuilder-dist-simple': 'No Help',
+    'pull-debian-debdiff': 'Returns non-zero after help',
+    'pull-debian-source': 'Returns non-zero after help',
+    'pull-revu-source': 'Throws Error',
+    'setup-packaging-environment': 'Throws Error',
+    'submittodebian': 'No Help',
+    'ubuntu-iso': 'No Help',
+}
 TIMEOUT = 5
 
 def load_tests(loader, tests, pattern):
@@ -44,7 +60,7 @@ class HelpTestCase(unittest.TestCase):
     def makeHelpTester(cls, script):
         def tester(self):
             if script in BLACKLIST:
-                raise unittest.SkipTest("Blacklisted")
+                raise unittest.SkipTest("Blacklisted: " + BLACKLIST[script])
 
             null = open('/dev/null', 'r')
             p = subprocess.Popen(['./' + script, '--help'],
