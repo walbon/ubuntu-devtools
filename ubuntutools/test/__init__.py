@@ -14,17 +14,34 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from sys import version_info as _version_info
+import logging
+import os
+import sys
 
-if _version_info < (2, 7):
+if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
 def discover():
-    import os
-    import sys
     # import __main__ triggers code re-execution
     __main__ = sys.modules['__main__']
     setupDir = os.path.abspath(os.path.dirname(__main__.__file__))
     return unittest.defaultTestLoader.discover(setupDir)
+
+
+class LoggingCatcher(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.m = {'critical': [],
+                  'error': [],
+                  'warning': [],
+                  'info': [],
+                  'debug': [],
+                  'notset': []}
+
+    def emit(self, record):
+        self.m[record.levelname.lower()].append(record.getMessage())
+
+    def __getitem__(self, key):
+        return self.m[key]

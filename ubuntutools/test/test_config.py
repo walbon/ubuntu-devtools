@@ -14,14 +14,16 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import logging
 import os
 import os.path
 from StringIO import StringIO
-from sys import stderr
 
 import ubuntutools.config
-from ubuntutools.config import UDTConfig, ubu_email
-from ubuntutools.test import unittest
+from ubuntutools.config import UDTConfig, ubu_email, setup_logging
+from ubuntutools.test import unittest, LoggingCatcher
+
+setup_logging()
 
 config_files = {
     'system': '',
@@ -43,13 +45,21 @@ def fake_open(filename, mode='r'):
 class ConfigTestCase(unittest.TestCase):
     def setUp(self):
         ubuntutools.config.open = fake_open
-        ubuntutools.config.stderr = StringIO()
+
+        self.logs = LoggingCatcher()
+        self.logging_handler = logging.root.handlers[0]
+        logging.root.removeHandler(self.logging_handler)
+        logging.root.addHandler(self.logs)
+
         self.cleanEnvironment()
 
     def tearDown(self):
         del ubuntutools.config.open
-        self.assertEqual(ubuntutools.config.stderr.getvalue(), '')
-        ubuntutools.config.stderr = stderr
+
+        logging.root.removeHandler(self.logs)
+        logging.root.addHandler(self.logging_handler)
+        self.assertTrue(all(len(x) == 0 for x in self.logs.m.itervalues()))
+
         self.cleanEnvironment()
 
     def cleanEnvironment(self):
@@ -86,10 +96,9 @@ REPEAT=yes
             'INHERIT': 'user',
             'REPEAT': 'yes',
         })
-        errs = ubuntutools.config.stderr.getvalue().strip()
-        ubuntutools.config.stderr = StringIO()
-        self.assertEqual(len(errs.splitlines()), 1)
-        self.assertRegexpMatches(errs, r'Cannot parse.*\bCOMMAND_EXECUTION=a')
+        self.assertEqual(len(self.logs['warning']), 1)
+        self.assertRegexpMatches(self.logs['warning'].pop(),
+                                 r'Cannot parse.*\bCOMMAND_EXECUTION=a')
 
     def get_value(self, *args, **kwargs):
         config = UDTConfig(prefix='TEST')
@@ -125,11 +134,9 @@ REPEAT=yes
         config_files['user'] = 'COMPATFOOBAR=bar'
         self.assertEqual(self.get_value('QUX', compat_keys=['COMPATFOOBAR']),
                          'bar')
-        errs = ubuntutools.config.stderr.getvalue().strip()
-        ubuntutools.config.stderr = StringIO()
-        self.assertEqual(len(errs.splitlines()), 1)
-        self.assertRegexpMatches(errs,
-                r'Deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
+        self.assertEqual(len(self.logs['warning']), 1)
+        self.assertRegexpMatches(self.logs['warning'].pop(),
+                                 r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):
         config_files['user'] = "TEST_BOOLEAN=yes"

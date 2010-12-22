@@ -15,13 +15,14 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import logging
 import os
 import os.path
 import pwd
 import re
 import shlex
 import socket
-from sys import argv, stderr
+import sys
 
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and
@@ -40,9 +41,12 @@ class UDTConfig(object):
     config = {}
 
     def __init__(self, no_conf=False, prefix=None):
+        setup_logging()
+        self.logger = logging.getLogger('config')
+
         self.no_conf = no_conf
         if prefix is None:
-            prefix = os.path.basename(argv[0]).upper().replace('-', '_')
+            prefix = os.path.basename(sys.argv[0]).upper().replace('-', '_')
         self.prefix = prefix
         if not no_conf:
             self.config = self.parse_devscripts_config()
@@ -60,9 +64,9 @@ class UDTConfig(object):
             for line in f:
                 parsed = shlex.split(line, comments=True)
                 if len(parsed) > 1:
-                    print >> stderr, (
-                            "W: Cannot parse variable assignment in %s: %s"
-                            % (getattr(f, 'name', '<config>'), line))
+                    self.logger.warn(
+                            'Cannot parse variable assignment in %s: %s',
+                            getattr(f, 'name', '<config>'), line)
                 if len(parsed) >= 1 and '=' in parsed[0]:
                     key, value = parsed[0].split('=', 1)
                     config[key] = value
@@ -98,12 +102,13 @@ class UDTConfig(object):
                         else:
                             continue
                     if k in compat_keys:
-                        r_prefix = self.prefix
+                        replacements = self.prefix + '_' + key
                         if key in self.defaults:
-                            r_prefix = 'UBUNTUTOOLS'
-                        print >> stderr, (
-                                'W: Deprecated configuration variable: %s. '
-                                'Replaced by %s_%s.') % (k, r_prefix, key)
+                            replacements += 'or UBUNTUTOOLS_' + key
+                        self.logger.warn(
+                                'Using deprecated configuration variable %s. '
+                                'You should use %s.',
+                                k, replacements)
                     return value
         return default
 
@@ -167,3 +172,9 @@ def ubu_email(name=None, email=None, export=True):
         os.environ['DEBFULLNAME'] = name
         os.environ['DEBEMAIL'] = email
     return name, email
+
+def setup_logging():
+    """Basic logging configuration
+    This has no effect if logger is already configured."""
+    logging.basicConfig(level=logging.INFO,
+                        format='%(levelname)s (%(name)s) %(message)s')
