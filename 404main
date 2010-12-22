@@ -114,7 +114,7 @@ def main():
         print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
         sys.exit(1)
 
-        cache = apt.cache.Cache()
+    cache = apt.cache.Cache()
 
     if len(sys.argv) == 3 and sys.argv[2]:
         distro = sys.argv[2]
