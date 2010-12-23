@@ -15,12 +15,13 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import debian.deb822
 import glob
 import optparse
 import os
 import os.path
 import sys
+
+from ubuntutools.control import Control
 
 CONTROL_LIST_FIELDS = (
     "Breaks",
@@ -36,25 +37,7 @@ CONTROL_LIST_FIELDS = (
     "Xb-Npp-MimeType",
 )
 
-class Control(object):
-    def __init__(self, filename, cleanup):
-        assert os.path.isfile(filename), "%s does not exist." % (filename)
-        self.filename = filename
-        sequence = open(filename)
-        if cleanup:
-            sequence = [l.rstrip() for l in sequence.readlines()]
-        self.paragraphs = list()
-        for paragraph in debian.deb822.Deb822.iter_paragraphs(sequence):
-            self.paragraphs.append(paragraph)
-
-    def save(self, filename=None):
-        if filename:
-            self.filename = filename
-        content = u"\n".join([x.dump() for x in self.paragraphs])
-        f = open(self.filename, "w")
-        f.write(content.encode("utf-8"))
-        f.close()
-
+class WrapAndSortControl(Control):
     def wrap_and_sort(self, wrap_always, short_indent, sort_paragraphs,
                       keep_first):
         for paragraph in self.paragraphs:
@@ -145,7 +128,9 @@ def main(options):
     for control_file in control_files:
         if options.verbose:
             print control_file
-        control = Control(control_file, options.cleanup)
+        control = WrapAndSortControl(control_file)
+        if options.cleanup:
+            control.strip_trailing_spaces()
         control.wrap_and_sort(options.wrap_always, options.short_indent,
                               options.sort_binary_packages, options.keep_first)
         control.save()

@@ -188,13 +188,13 @@ Files: doc/sponsor-patch.1,
        suspicious-source,
        ubuntutools/builder.py,
        ubuntutools/config.py,
+       ubuntutools/control.py,
        ubuntutools/logger.py,
        ubuntutools/question.py,
        ubuntutools/sponsor_patch/*,
        ubuntutools/test/*,
        wrap-and-sort
-Copyright:
-           2010, Benjamin Drung <bdrung@ubuntu.com>
+Copyright: 2010, Benjamin Drung <bdrung@ubuntu.com>
            2010, Evan Broder <evan@ebroder.net>
            2010, Stefano Rivera <stefanor@ubuntu.com>
 License: ISC
