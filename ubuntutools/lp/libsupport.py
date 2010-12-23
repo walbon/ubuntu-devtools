@@ -31,7 +31,8 @@ try:
     from launchpadlib.launchpad import Launchpad
     from launchpadlib.errors import HTTPError
 except ImportError:
-    print "Unable to import launchpadlib module, is python-launchpadlib installed?"
+    print ("Unable to import launchpadlib module, is python-launchpadlib "
+           "installed?")
     sys.exit(1)
 except:
     Credentials = None
@@ -40,7 +41,8 @@ except:
 from ubuntutools.lp import (service, api_version)
 
 def find_credentials(consumer, files, level=None):
-    """ search for credentials matching 'consumer' in path for given access level. """
+    """ search for credentials matching 'consumer' in path for given access
+        level. """
     if Credentials is None:
         raise ImportError
 
@@ -53,9 +55,9 @@ def find_credentials(consumer, files, level=None):
         if cred.consumer.key == consumer:
             return cred
 
-    raise IOError("No credentials found for '%s', please see the " \
-            "manage-credentials manpage for help on how to create " \
-            "one for this consumer." % consumer)
+    raise IOError("No credentials found for '%s', please see the "
+                  "manage-credentials manpage for help on how to create "
+                  "one for this consumer." % consumer)
 
 def get_credentials(consumer, cred_file=None, level=None):
     files = list()
@@ -69,8 +71,8 @@ def get_credentials(consumer, cred_file=None, level=None):
     files.append(os.path.join(os.getcwd(), "lp_credentials.txt"))
 
     # Add all files which have our consumer name to file listing.
-    for x in glob.glob(os.path.expanduser("~/.cache/lp_credentials/%s*.txt" % \
-        consumer)):
+    for x in glob.glob(os.path.expanduser("~/.cache/lp_credentials/%s*.txt" %
+                                          consumer)):
         files.append(x)
 
     return find_credentials(consumer, files, level)
@@ -96,7 +98,8 @@ def translate_web_api(url, launchpad):
     differences = set(netloc.split('.')).symmetric_difference(
             set(launchpad._root_uri.host.split('.')))
     if ('staging' in differences or 'edge' in differences):
-        raise ValueError("url conflict (url: %s, root: %s" %(url, launchpad._root_uri))
+        raise ValueError("url conflict (url: %s, root: %s" %
+                         (url, launchpad._root_uri))
     if path.endswith("/+bugs"):
         path = path[:-6]
         if "ws.op" in query:
@@ -104,7 +107,8 @@ def translate_web_api(url, launchpad):
         query["ws.op"] = "searchTasks"
     scheme, netloc, api_path, _, _ = urlparse.urlsplit(str(launchpad._root_uri))
     query = urllib.urlencode(query)
-    url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"), query, fragment))
+    url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"),
+                               query, fragment))
     return url
 
 def translate_api_web(self_url):
@@ -122,10 +126,11 @@ def approve_application(credentials, email, password, level, web_root,
         context):
     authorization_url = credentials.get_request_token(context, web_root)
     if level in LEVEL:
-        level = 'field.actions.%s' %LEVEL[level]
+        level = 'field.actions.%s' % LEVEL[level]
     elif level in LEVEL.values():
-        level = 'field.actions.%s' %level
-    elif str(level).startswith("field.actions") and str(level).split(".")[-1] in LEVEL:
+        level = 'field.actions.%s' % level
+    elif (str(level).startswith("field.actions") and
+          str(level).split(".")[-1] in LEVEL):
         pass
     else:
         raise ValueError("Unknown access level '%s'" %level)
@@ -135,7 +140,7 @@ def approve_application(credentials, email, password, level, web_root,
         "lp.context": context or ""}
 
     lp_creds = ":".join((email, password))
-    basic_auth = "Basic %s" %(lp_creds.encode('base64'))
+    basic_auth = "Basic %s" % (lp_creds.encode('base64'))
     headers = {'Authorization': basic_auth}
     response, content = httplib2.Http().request(authorization_url,
         method="POST", body=urllib.urlencode(params), headers=headers)

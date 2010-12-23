@@ -29,7 +29,8 @@ BLACKLIST = {
     'edit-patch': 'No Help',
     'get-build-deps': 'No Help, runs sudo',
     'grep-merges': 'No Help',
-    'lp-project-upload': 'Returns non-zero after help. Leaving u-d-t in LP: #524680',
+    'lp-project-upload': 'Returns non-zero after help. '
+                         'Leaving u-d-t in LP: #524680',
     'mk-sbuild': 'Fires up apt-get before showing help',
     'pbuilder-dist-simple': 'No Help',
     'setup-packaging-environment': 'Throws Error',

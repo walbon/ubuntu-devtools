@@ -58,10 +58,11 @@ def checkSourceExists(package, release):
         pocket = 'release'
 
     try:
-        page = urllib2.urlopen('https://launchpad.net/ubuntu/+source/' + package).read()
+        url = 'https://launchpad.net/ubuntu/+source/' + package
+        page = urllib2.urlopen(url).read()
 
-        m = re.search('<td>%s</td>\s*\n.*"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % (
-                pocket, release, package.replace('+', '\+')), page)
+        m = re.search('<td>%s</td>\s*\n.*"/ubuntu/%s/\+source/%s/(\d[^"]+)"' % \
+                      (pocket, release, package.replace('+', '\+')), page)
         if not m:
             print >> sys.stderr, "Unable to find source package '%s' in " \
                 "the %s-%s pocket." % (package, release.capitalize(), pocket)

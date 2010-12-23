@@ -43,7 +43,8 @@ def system_distribution():
                 p = Popen(('lsb_release', '-cs'), stdout=PIPE)
             output = p.communicate()[0]
         except OSError:
-            print 'Error: Could not determine what distribution you are running.'
+            print ('Error: Could not determine what distribution you are '
+                   'running.')
             return None
         if p.returncode != 0:
             print 'Error determininng system distribution'
@@ -111,6 +112,7 @@ def splitReleasePocket(release):
 
         if pocket not in ('Release', 'Security', 'Updates', 'Proposed',
                 'Backports'):
-            raise PocketDoesNotExistError("Pocket '%s' does not exist." % pocket)
+            raise PocketDoesNotExistError("Pocket '%s' does not exist." % \
+                                          pocket)
 
     return (release, pocket)
