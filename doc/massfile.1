@@ -3,15 +3,25 @@
 \fBmassfile\fR \- script for massfiling bugs against Ubuntu packages
 
 .SH SYNOPSIS
-\fBmassfile\fR <path to instructions file> <path to list file>
+\fBmassfile\fR [\fIoptions\fR]
 
 .SH DESCRIPTION
 \fBmassfile\fR is a script for massfiling bugs against Ubuntu packages in Launchpad. It requires an instructions file describing the contents of the bug report and a list file which lists the packages which the bug will be filed against.
 
 Templates for both files can be found in /usr/share/doc/ubuntu-dev-tools/examples.
 
+.SH OPTIONS
+.TP
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+
 .SH EXAMPLES
-\fBmassfile.instructions\fR - file designating the contents of the bug report
+\fBinstructions\fR - file designating the contents of the bug report
 
  subject: [UNMETDEPS] $pack has unmet dependencies
  assignee:
@@ -30,12 +40,28 @@ Templates for both files can be found in /usr/share/doc/ubuntu-dev-tools/example
   .
   Please have a look and make sure it's installable again.
 
-\fBmassfile.list\fR - file designating the packages affected
+\fBlist\fR - file designating the packages affected
 
 Each package should be listed on a new line as follows:
 
  z88dk
  zope-quotafolder
+
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR MASSFILE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
 
 .SH AUTHORS
 \fBmassfile\fR was written by Iain Lane <iain@orangesquash.org.uk>, Daniel Hahler <ubuntu@thequod.de>. and Markus Korn <thekorn@gmx.de>.
