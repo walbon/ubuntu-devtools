@@ -156,7 +156,7 @@ def main():
     if not check_configfiles():
         sys.exit(1)
 
-    launchpad = get_launchpad('ubuntu-dev-tools' server=options.lpinstance)
+    launchpad = get_launchpad('ubuntu-dev-tools', server=options.lpinstance)
     config = read_config()
     pack_list = read_list()
     buglist = read_buglist(config["buglist-url"], launchpad)
