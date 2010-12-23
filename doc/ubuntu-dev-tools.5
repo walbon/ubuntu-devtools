@@ -56,9 +56,21 @@ The currently recognised package\-wide variables are:
 This specifies the preferred test\-builder, one of
 .BR pbuilder " (default), " sbuild ", " pbuilder\-dist .
 .TP
+.B UBUNTUTOOLS_DEBMIRROR
+The preferred Debian archive mirror.
+Should be of the form \fBhttp://ftp.debian.org/debian\fR.
+If not specified, the master will be used.
+.TP
 .B UBUNTUTOOLS_LPINSTANCE
 The launchpad instance to communicate with. e.g. \fBproduction\fR
 (default) or \fBstaging\fR.
+.TP
+.B UBUNTUTOOLS_MIRROR_FALLBACK
+Whether or not to fall\-back to the master archive mirror.
+This is usually the desired behaviour, as mirrors can lag the masters.
+If on a private network with only a local mirror, you may want to set
+this to \fBno\fR.
+.RB "One of " yes " (default) or " no .
 .TP
 .B UBUNTUTOOLS_UPDATE_BUILDER
 Whether or not to update the test\-builder before each test build.

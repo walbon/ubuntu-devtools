@@ -34,7 +34,9 @@ class UDTConfig(object):
     # These are reqired to be used by at least two scripts.
     defaults = {
         'BUILDER': 'pbuilder',
+        'DEBMIRROR': None,
         'LPINSTANCE': 'production',
+        'MIRROR_FALLBACK': True,
         'UPDATE_BUILDER': False,
         'WORKDIR': None,
     }
