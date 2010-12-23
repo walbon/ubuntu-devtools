@@ -30,7 +30,6 @@ BLACKLIST = {
     'get-build-deps': 'No Help, runs sudo',
     'grep-merges': 'No Help',
     'lp-project-upload': 'Returns non-zero after help. Leaving u-d-t in LP: #524680',
-    'massfile': 'No Help. Leaves files in .',
     'mk-sbuild': 'Fires up apt-get before showing help',
     'pbuilder-dist-simple': 'No Help',
     'setup-packaging-environment': 'Throws Error',

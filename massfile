@@ -23,11 +23,15 @@
 #
 # ##################################################################
 
+import optparse
 import os
 import sys
 import email
 
-from ubuntutools.lp.libsupport import get_launchpad, translate_api_web, translate_web_api
+from ubuntutools.config import UDTConfig
+from ubuntutools.lp.libsupport import (get_launchpad,
+                                       translate_api_web,
+                                       translate_web_api)
 
 def read_config():
     instructions_file = open("instructions")
@@ -77,23 +81,25 @@ def check_configfiles():
     return result
 
 
-def file_bug(config):
-    launchpad = get_launchpad("ubuntu-dev-tools")
-
+def file_bug(config, launchpad):
     try:
         summary = config["subject"].replace("$pack", config["sourcepackage"])
         description = config["text"].replace("$pack", config["sourcepackage"])
 
-        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, config["sourcepackage"])
-        tags = filter(None, map(lambda t: t.strip("\n").strip(), config["tags"].split(",")))
+        product_url = "%subuntu/+source/%s" % \
+                      (launchpad._root_uri, config["sourcepackage"])
+        tags = filter(None, map(lambda t: t.strip("\n").strip(),
+                                config["tags"].split(",")))
         bug = launchpad.bugs.createBug(description=description, title=summary,
             target=product_url, tags=tags)
 
-        print "Successfully filed bug %i: %s" %(bug.id, translate_api_web(bug.self_link))
+        print "Successfully filed bug %i: %s" % \
+              (bug.id, translate_api_web(bug.self_link))
 
-        subscribers = filter(None, map(lambda t: t.strip("\n").strip(), config["subscribers"].split(",")))
+        subscribers = filter(None, map(lambda t: t.strip("\n").strip(),
+                                       config["subscribers"].split(",")))
         for sub in subscribers:
-            subscribe_url = "%s~%s" %(launchpad._root_uri, sub)
+            subscribe_url = "%s~%s" % (launchpad._root_uri, sub)
             bug.subscribe(person=subscribe_url)
 
         #newly created bugreports have one task
@@ -107,22 +113,23 @@ def file_bug(config):
 
         assignee = config["assignee"]
         if assignee:
-            assignee_url = "%s~%s" %(launchpad._root_uri, assignee)
+            assignee_url = "%s~%s" % (launchpad._root_uri, assignee)
             task.assignee = assignee_url
         task.lp_save()
     except:
-        "Bug for '%s' was not filed." % config["sourcepackage"]
+        print >> sys.stderr, "Bug for '%s' was not filed." % \
+                             config["sourcepackage"]
 
-def read_buglist(url):
+def read_buglist(url, launchpad):
     if not url:
         return set()
 
     if len(url.split("?", 1)) == 2:
-        # search options not supported, because there is no mapping web ui options <-> API options
-        print >> sys.stderr, "Options in url are not supported, url: %s" %url
+        # search options not supported, because there is no mapping
+        # web ui options <-> API options
+        print >> sys.stderr, "Options in url are not supported, url: %s" % url
         sys.exit(1)
 
-    launchpad = get_launchpad("ubuntu-dev-tools")
     packages = set()
 
     api_url = translate_web_api(url, launchpad)
@@ -138,19 +145,35 @@ def read_buglist(url):
     return packages
 
 def main():
+    p = optparse.OptionParser(description=
+            'Files bugs against multiple packages in Ubuntu. '
+            'Reads the bug from "instructions" and files them against '
+            'packages listed in "list". '
+            "If these files aren't preset they are created.")
+    p.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                 dest='lpinstance', default=None,
+                 help='Launchpad instance to connect to (default: production)')
+    p.add_option('--no-conf',
+                 dest='no_conf', default=False, action='store_true',
+                 help="Don't read config files or environment variables")
+    options, args = p.parse_args()
+    udtconfig = UDTConfig(options.no_conf)
+    if options.lpinstance is None:
+        options.lpinstance = udtconfig.get_value('LPINSTANCE')
+
     if not check_configfiles():
         sys.exit(1)
 
+    launchpad = get_launchpad('ubuntu-dev-tools', server=options.lpinstance)
     config = read_config()
     pack_list = read_list()
-    buglist = read_buglist(config["buglist-url"])
+    buglist = read_buglist(config["buglist-url"], launchpad)
 
     for pack in pack_list:
         if pack not in buglist:
             config["sourcepackage"] = pack
-            file_bug(config)
+            file_bug(config, launchpad)
 
 
 if __name__ == '__main__':
     main()
-
