@@ -35,6 +35,7 @@ class UDTConfig(object):
     defaults = {
         'BUILDER': 'pbuilder',
         'DEBMIRROR': None,
+        'DEBSECMIRROR': None,
         'LPINSTANCE': 'production',
         'MIRROR_FALLBACK': True,
         'UPDATE_BUILDER': False,

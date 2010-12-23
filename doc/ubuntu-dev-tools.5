@@ -58,7 +58,14 @@ This specifies the preferred test\-builder, one of
 .TP
 .B UBUNTUTOOLS_DEBMIRROR
 The preferred Debian archive mirror.
-Should be of the form \fBhttp://ftp.debian.org/debian\fR.
+Should be of the form \fBhttp://ftp.debian.org/debian\fR (no trailing
+slash).
+If not specified, the master will be used.
+.TP
+.B UBUNTUTOOLS_DEBSECMIRROR
+The preferred Debian security archive mirror.
+Should be of the form \fBhttp://security.debian.org\fR (no trailing
+slash).
 If not specified, the master will be used.
 .TP
 .B UBUNTUTOOLS_LPINSTANCE

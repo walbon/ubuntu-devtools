@@ -3,10 +3,77 @@
 \fBpull-debian-debdiff\fR \- find, download, and generate a debdiff
 
 .SH SYNOPSIS
-\fBpull-debian-debdiff\fR <package> <version>
+\fBpull-debian-debdiff\fR [\fIoptions\fR] <\fIpackage\fR>
+<\fIversion\fR> [\fIdistance\fR]
 
 .SH DESCRIPTION
-\fBpull-debian-debdiff\fR attempts to find and download a specific version of a Debian package and its immediate parent to generate a debdiff.
+\fBpull-debian-debdiff\fR attempts to find and download a specific
+version of a Debian package and its immediate parent to generate a
+debdiff.
+
+.SH OPTIONS
+.TP
+.I package
+The source package to download and diff.
+.TP
+.I version
+The most recent of the two versions you want to diff.
+.TP
+.I distance
+If specified (default \fB1\fR), the debdiff is against that many
+versions previous.
+.TP
+.BR \-h ", " \-\-help
+Display the usage instructions and exit.
+.TP
+.BR \-f ", " \-\-fetch
+Simply download the specified version and exit.
+.TP
+.B \-d \fIDEBMIRROR\fR, \fB\-\-debmirror\fR=\fIDEBMIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://ftp.debian.org/debian\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
+.B \-s \fIDEBSECMIRROR\fR, \fB\-\-debsecmirror\fR=\fIDEBSECMIRROR\fR
+Use the specified Debian security mirror.
+Should be in the form \fBhttp://security.debian.org\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
+.BR \-n ", " \-\-no\-fallback
+If specified, \fBpull\-debian\-source\fR won't fall back to the default
+mirror, should it encounter an error.
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR PULL_DEBIAN_DEBDIFF_DEBMIRROR ", " UBUNTUTOOLS_DEBMIRROR
+The default value for \fB\-\-debmirror\fR.
+.TP
+.BR PULL_DEBIAN_DEBDIFF_DEBMIRROR ", " UBUNTUTOOLS_DEBSECMIRROR
+The default value for \fB\-\-debsecmirror\fR.
+.TP
+.BR PULL_DEBIAN_DEBDIFF_MIRROR_FALLBACK ", " UBUNTUTOOLS_MIRROR_FALLBACK
+The default value for \fB\-\-no\-fallback\fR.
+
+.SH SEE ALSO
+.BR pull\-debian\-source (1),
+.BR ubuntu\-dev\-tools (5)
 
 .SH AUTHORS
 \fBpull-debian-debdiff\fR was written by Kees Cook <kees@ubuntu.com>.
