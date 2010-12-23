@@ -49,7 +49,7 @@ if (! $no_conf) {
 	my $shell_out = `/bin/bash -c '$shell_cmd'`;
 	my %config_values;
 	foreach my $line (split /\n/, $shell_out) {
-		my($k, $v) = split /=/, $line;
+		my($k, $v) = split /=/, $line, 2;
 		$config_values{$k} = $v;
 	}
 	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBMIRROR'}
@@ -182,9 +182,9 @@ Options:
   -h, --help            Show this help message and exit
   -m DEBMIRROR, --mirror=DEBMIRROR
                         Preferred Debian mirror
-                        (default: http://ftp.debian.org/debian/)
+                        (default: http://ftp.debian.org/debian)
   -n, --no-fallback     If a custom mirror is provided and an error occurs
-                        while downloading, don't fall back to the default.
+                        while downloading, don't fall back to the default
   --no-conf             Don't read config files or environment variables
 EOF
 	exit($exit);
