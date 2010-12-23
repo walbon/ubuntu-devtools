@@ -29,7 +29,9 @@ import sys
 import email
 
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import get_launchpad, translate_api_web, translate_web_api
+from ubuntutools.lp.libsupport import (get_launchpad,
+                                       translate_api_web,
+                                       translate_web_api)
 
 def read_config():
     instructions_file = open("instructions")
@@ -84,16 +86,20 @@ def file_bug(config, launchpad):
         summary = config["subject"].replace("$pack", config["sourcepackage"])
         description = config["text"].replace("$pack", config["sourcepackage"])
 
-        product_url = "%subuntu/+source/%s" %(launchpad._root_uri, config["sourcepackage"])
-        tags = filter(None, map(lambda t: t.strip("\n").strip(), config["tags"].split(",")))
+        product_url = "%subuntu/+source/%s" % \
+                      (launchpad._root_uri, config["sourcepackage"])
+        tags = filter(None, map(lambda t: t.strip("\n").strip(),
+                                config["tags"].split(",")))
         bug = launchpad.bugs.createBug(description=description, title=summary,
             target=product_url, tags=tags)
 
-        print "Successfully filed bug %i: %s" %(bug.id, translate_api_web(bug.self_link))
+        print "Successfully filed bug %i: %s" % \
+              (bug.id, translate_api_web(bug.self_link))
 
-        subscribers = filter(None, map(lambda t: t.strip("\n").strip(), config["subscribers"].split(",")))
+        subscribers = filter(None, map(lambda t: t.strip("\n").strip(),
+                                       config["subscribers"].split(",")))
         for sub in subscribers:
-            subscribe_url = "%s~%s" %(launchpad._root_uri, sub)
+            subscribe_url = "%s~%s" % (launchpad._root_uri, sub)
             bug.subscribe(person=subscribe_url)
 
         #newly created bugreports have one task
@@ -107,19 +113,21 @@ def file_bug(config, launchpad):
 
         assignee = config["assignee"]
         if assignee:
-            assignee_url = "%s~%s" %(launchpad._root_uri, assignee)
+            assignee_url = "%s~%s" % (launchpad._root_uri, assignee)
             task.assignee = assignee_url
         task.lp_save()
     except:
-        "Bug for '%s' was not filed." % config["sourcepackage"]
+        print >> sys.stderr, "Bug for '%s' was not filed." % \
+                             config["sourcepackage"]
 
 def read_buglist(url, launchpad):
     if not url:
         return set()
 
     if len(url.split("?", 1)) == 2:
-        # search options not supported, because there is no mapping web ui options <-> API options
-        print >> sys.stderr, "Options in url are not supported, url: %s" %url
+        # search options not supported, because there is no mapping
+        # web ui options <-> API options
+        print >> sys.stderr, "Options in url are not supported, url: %s" % url
         sys.exit(1)
 
     packages = set()
@@ -148,7 +156,7 @@ def main():
     p.add_option('--no-conf',
                  dest='no_conf', default=False, action='store_true',
                  help="Don't read config files or environment variables")
-    opts, args = p.parse_args()
+    options, args = p.parse_args()
     udtconfig = UDTConfig(options.no_conf)
     if options.lpinstance is None:
         options.lpinstance = udtconfig.get_value('LPINSTANCE')
@@ -169,4 +177,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
