@@ -193,8 +193,8 @@ if __name__ == "__main__":
     parser.add_option("-n", "--no-cleanup", help="don't cleanup whitespaces",
                       dest="cleanup", action="store_false", default=True)
     parser.add_option("-d", "--debian-directory", dest="debian_directory",
-                      help="location of the 'debian' directory. Default: "
-                           "./debian", metavar="PATH", default="debian")
+                      help="location of the 'debian' directory (default: "
+                           "./debian)", metavar="PATH", default="debian")
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
 
