@@ -32,35 +32,24 @@ except ImportError:
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
+from ubuntutools.misc import dsc_name, dsc_url
 
 DEFAULT_DEBIAN_MIRROR = 'http://ftp.debian.org/debian'
 DEFAULT_DEBSEC_MIRROR = 'http://security.debian.org'
 
 opts = None
 
-def dsc_name(package, version):
-    "Return the source package dsc filename for the given package"
-    if ':' in version:
-        version = version.split(':', 1)[1]
-    return '%s_%s.dsc' % (package, version)
-
-def build_url(mirror, package, version):
-    "Build a source package URL"
-    group = package[:4] if package.startswith('lib') else package[0]
-    fn = dsc_name(package, version)
-    # TODO: Not all packages are main :)
-    # Practically this is fine, as it'll be found on snapshot, but still ugly.
-    return os.path.join(mirror, 'pool', 'main', group, package, fn)
-
 def pull(package, version, unpack=False):
     "Download Debian source package version version"
     urls = []
+    # TODO: Not all packages are main :)
+    # Practically this is fine, as it'll be found on snapshot, but still ugly.
     if opts.debsec_mirror and opts.debsec_mirror != DEFAULT_DEBSEC_MIRROR:
-        urls.append(build_url(opts.debsec_mirror, package, version))
-    urls.append(build_url(DEFAULT_DEBSEC_MIRROR, package, version))
+        urls.append(dsc_url(opts.debsec_mirror, 'main', package, version))
+    urls.append(dsc_url(DEFAULT_DEBSEC_MIRROR, 'main', package, version))
     if opts.debian_mirror and opts.debian_mirror != DEFAULT_DEBIAN_MIRROR:
-        urls.append(build_url(opts.debian_mirror, package, version))
-    urls.append(build_url(DEFAULT_DEBIAN_MIRROR, package, version))
+        urls.append(dsc_url(opts.debian_mirror, 'main', package, version))
+    urls.append(dsc_url(DEFAULT_DEBIAN_MIRROR, 'main', package, version))
 
     for url in urls:
         cmd = ('dget', '-u' + 'x' if unpack else 'd', url)

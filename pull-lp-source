@@ -3,10 +3,8 @@
 # pull-lp-source -- pull a source package from Launchpad
 # Basic usage: pull-lp-source <source package> [<release>]
 #
-# Copyright (C) 2008 Iain Lane <iain@orangesquash.org.uk>
-#
-# BackportFromLP class taken from prevu tool, which is:
-# Copyright (C) 2006 John Dong <jdong@ubuntu.com>
+# Copyright (C) 2008, Iain Lane <iain@orangesquash.org.uk>,
+#               2010, Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -31,25 +29,36 @@ import subprocess
 import urllib
 from optparse import OptionParser
 
-# ubuntu-dev-tools modules.
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
         PackageNotFoundException, PocketDoesNotExistError)
-from ubuntutools.misc import splitReleasePocket
+from ubuntutools.misc import splitReleasePocket, dsc_name, dsc_url
 
 if not os.path.exists("/usr/bin/dget"):
-    print "E: dget is not installed - please install the 'devscripts' package" \
-        " and rerun this script again."
+    print ("E: dget is not installed - please install the 'devscripts' package"
+           " and rerun this script again.")
     sys.exit(1)
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
+    optParser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
+                         dest='ubuntu_mirror',
+                         help='Preferred Ubuntu mirror '
+                              '(default: Launchpad)')
+    optParser.add_option('--no-conf',
+                         dest='no_conf', default=False, action='store_true',
+                         help="Don't read config files or environment "
+                              "variables")
     (options, args) = optParser.parse_args()
-
     if not args:
-        optParser.print_help()
-        sys.exit(1)
+        optParser.error("Must specify package name")
+
+    config = UDTConfig(options.no_conf)
+    if options.ubuntu_mirror is None:
+        options.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
 
     # Login anonymously to LP
     Launchpad.login_anonymously()
@@ -72,6 +81,16 @@ if __name__ == '__main__':
     except (SeriesNotFoundException, PackageNotFoundException), e:
         print 'E: %s' % e
         sys.exit(1)
+
+    if options.ubuntu_mirror:
+        url = dsc_url(options.ubuntu_mirror, spph.getComponent(), package,
+                      spph.getVersion())
+        cmd = ('dget', '-xu', url)
+        Logger.command(cmd)
+        r = subprocess.call(cmd)
+        if r == 0:
+            Logger.normal("Success!")
+            sys.exit(0)
 
     dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
     assert dsc_url, 'No .dsc file found'
