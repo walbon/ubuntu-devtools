@@ -80,6 +80,12 @@ unpacked, built into, and otherwise manipulated in
 \fIWORKDIR\fR. Otherwise, a temporary directory is created, which is
 deleted before \fIbackportpackage\fR exits.
 .TP
+.B \-m \fIUBUNTU_MIRROR\fR, \fB\-\-mirror\fR=\fIUBUNTU_MIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.
+If the package isn't found on this mirror, \fBbackportpackage\fR
+will use Launchpad.
+.TP
 .B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
@@ -107,6 +113,9 @@ The default value for \fB--update\fR.
 .TP
 .BR BACKPORTPACKAGE_WORKDIR ", " UBUNTUTOOLS_WORKDIR
 The default value for \fB--workdir\fR.
+.TP
+.BR BACKPORTPACKAGE_UBUNTU_MIRROR ", " UBUNTUTOOLS_UBUNTU_MIRROR
+The default value for \fB\-\-mirror\fR.
 .TP
 .BR BACKPORTPACKAGE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
 The default value for \fB--lpinstance\fR.
