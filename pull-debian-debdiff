@@ -56,12 +56,10 @@ def pull(package, version, unpack=False):
     urls = []
     if opts.debsec_mirror and opts.debsec_mirror != DEFAULT_DEBSEC_MIRROR:
         urls.append(build_url(opts.debsec_mirror, package, version))
-    if opts.fallback:
-        urls.append(build_url(DEFAULT_DEBSEC_MIRROR, package, version))
+    urls.append(build_url(DEFAULT_DEBSEC_MIRROR, package, version))
     if opts.debian_mirror and opts.debian_mirror != DEFAULT_DEBIAN_MIRROR:
         urls.append(build_url(opts.debian_mirror, package, version))
-    if opts.fallback:
-        urls.append(build_url(DEFAULT_DEBIAN_MIRROR, package, version))
+    urls.append(build_url(DEFAULT_DEBIAN_MIRROR, package, version))
 
     for url in urls:
         cmd = ('dget', '-u' + 'x' if unpack else 'd', url)
@@ -154,10 +152,6 @@ def main():
                  dest='debsec_mirror',
                  help='Preferred Debian Security mirror '
                       '(default: http://security.debian.org)')
-    p.add_option('-n', '--no-fallback',
-                 dest='fallback', default=None, action='store_false',
-                 help="If a custom mirror is provided and an error occurs "
-                      "while downloading, don't fall back to the default")
     p.add_option('--no-conf',
                  dest='no_conf', default=False, action='store_true',
                  help="Don't read config files or environment variables")
@@ -176,8 +170,6 @@ def main():
         opts.debian_mirror = config.get_value('DEBIAN_MIRROR')
     if opts.debsec_mirror is None:
         opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
-    if opts.fallback is None:
-        opts.fallback = config.get_value('MIRROR_FALLBACK', boolean=True)
 
     Logger.normal('Downloading %s %s', package, version)
     if not pull(package, version, unpack=not opts.fetch_only):

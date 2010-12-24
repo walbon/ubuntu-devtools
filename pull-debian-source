@@ -28,10 +28,9 @@ use AptPkg::Version;
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
 my($name) = basename($0);
-my($help, $mirror, $no_fallback, $no_conf);
+my($help, $mirror, $no_conf);
 GetOptions('h|help' => \$help,
            'm|mirror=s' => \$mirror,
-           'n|no-fallback' => \$no_fallback,
            'no-conf' => \$no_conf,
           );
 my($package) = $ARGV[0] || &usage(2);
@@ -56,16 +55,11 @@ if (! $no_conf) {
 	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBIAN_MIRROR'}
 	          || $config_values{'UBUNTUTOOLS_DEBIAN_MIRROR'}
 	          if (! $mirror);
-	if (! $no_fallback) {
-		my($v) = $config_values{'PULL_DEBIAN_SOURCE_MIRROR_FALLBACK'}
-		         || $config_values{'UBUNTUTOOLS_MIRROR_FALLBACK'};
-		$no_fallback = 1 if $v eq "no";
-	}
 }
 my($default_mirror) = 'http://ftp.debian.org/debian';
 my(@mirrors);
-push @mirrors, $mirror if $mirror;
-push @mirrors, $default_mirror if $mirror ne $default_mirror and !$no_fallback;
+push @mirrors, $mirror if $mirror && $mirror ne $default_mirror;
+push @mirrors, $default_mirror;
 
 my($release)=$ARGV[1] || 'unstable';
 $release=&convertCodeName($release);
@@ -184,8 +178,6 @@ Options:
   -m DEBIAN_MIRROR, --mirror=DEBIAN_MIRROR
                         Preferred Debian mirror
                         (default: http://ftp.debian.org/debian)
-  -n, --no-fallback     If a custom mirror is provided and an error occurs
-                        while downloading, don't fall back to the default
   --no-conf             Don't read config files or environment variables
 EOF
 	exit($exit);

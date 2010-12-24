@@ -54,10 +54,6 @@ Should be in the form \fBhttp://security.debian.org\fR.
 If the package isn't found on this mirror, \fBpull\-debian\-source\fR
 will fall back to the default mirror.
 .TP
-.BR \-n ", " \-\-no\-fallback
-If specified, \fBpull\-debian\-source\fR won't fall back to the default
-mirror, should it encounter an error.
-.TP
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment
 variables.
@@ -80,9 +76,6 @@ The default value for \fB\-\-debian\-mirror\fR.
 .TP
 .BR PULL_DEBIAN_DEBDIFF_DEBSEC_MIRROR ", " UBUNTUTOOLS_DEBSEC_MIRROR
 The default value for \fB\-\-debsec\-mirror\fR.
-.TP
-.BR PULL_DEBIAN_DEBDIFF_MIRROR_FALLBACK ", " UBUNTUTOOLS_MIRROR_FALLBACK
-The default value for \fB\-\-no\-fallback\fR.
 
 .SH SEE ALSO
 .BR pull\-debian\-source (1),

@@ -31,10 +31,6 @@ Should be in the form \fBhttp://ftp.debian.org/debian\fR.
 If the package isn't found on this mirror, \fBpull\-debian\-source\fR
 will fall back to the default mirror.
 .TP
-.BR \-n ", " \-\-no\-fallback
-If specified, \fBpull\-debian\-source\fR won't fall back to the default
-mirror, should it encounter an error.
-.TP
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment
 variables.
@@ -54,9 +50,6 @@ package\-wide variable.
 .TP
 .BR PULL_DEBIAN_SOURCE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
 The default value for \fB\-\-mirror\fR.
-.TP
-.BR PULL_DEBIAN_SOURCE_MIRROR_FALLBACK ", " UBUNTUTOOLS_MIRROR_FALLBACK
-The default value for \fB\-\-no\-fallback\fR.
 
 .SH SEE ALSO
 .BR ubuntu\-dev\-tools (5)
