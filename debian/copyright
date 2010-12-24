@@ -154,7 +154,6 @@ Files: dch-repeat,
        ubuntutools/misc.py,
        ubuntutools/packages.py,
        ubuntutools/update_maintainer.py,
-       update-maintainer,
        what-patch
 Copyright: 2007,      Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
            2007-2010, Canonical Ltd.
@@ -193,6 +192,7 @@ Files: doc/sponsor-patch.1,
        ubuntutools/question.py,
        ubuntutools/sponsor_patch/*,
        ubuntutools/test/*,
+       update-maintainer,
        wrap-and-sort
 Copyright: 2010, Benjamin Drung <bdrung@ubuntu.com>
            2010, Evan Broder <evan@ebroder.net>

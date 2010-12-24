@@ -1,4 +1,3 @@
-#
 # control.py - Represents a debian/control file
 #
 # Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
@@ -15,9 +14,26 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+"""This module implements facilities to deal with Debian control."""
+
 import os
 
 import debian.deb822
+
+def _insert_after(paragraph, item_before, new_item, new_value):
+    """Insert new_item into directly after item_before
+
+       New items added to a dictionary are appended."""
+    item_found = False
+    for item in paragraph:
+        if item_found:
+            value = paragraph.pop(item)
+            paragraph[item] = value
+        if item == item_before:
+            item_found = True
+            paragraph[new_item] = new_value
+    if not item_found:
+        paragraph[new_item] = new_value
 
 class Control(object):
     """Represents a debian/control file"""
@@ -30,12 +46,13 @@ class Control(object):
         for paragraph in debian.deb822.Deb822.iter_paragraphs(sequence):
             self.paragraphs.append(paragraph)
 
-    def get_source_paragraph(self):
-        """Returns the source paragraph of the control file."""
-        if self.paragraphs:
-            return self.paragraphs[0]
-        else:
-            return None
+    def get_maintainer(self):
+        """Returns the value of the Maintainer field."""
+        return self.paragraphs[0].get("Maintainer")
+
+    def get_original_maintainer(self):
+        """Returns the value of the XSBC-Original-Maintainer field."""
+        return self.paragraphs[0].get("XSBC-Original-Maintainer")
 
     def save(self, filename=None):
         """Saves the control file."""
@@ -45,6 +62,18 @@ class Control(object):
         control_file = open(self.filename, "w")
         control_file.write(content.encode("utf-8"))
         control_file.close()
+
+    def set_maintainer(self, maintainer):
+        """Sets the value of the Maintainer field."""
+        self.paragraphs[0]["Maintainer"] = maintainer
+
+    def set_original_maintainer(self, original_maintainer):
+        """Sets the value of the XSBC-Original-Maintainer field."""
+        if "XSBC-Original-Maintainer" in self.paragraphs[0]:
+            self.paragraphs[0]["XSBC-Original-Maintainer"] = original_maintainer
+        else:
+            _insert_after(self.paragraphs[0], "Maintainer",
+                          "XSBC-Original-Maintainer", original_maintainer)
 
     def strip_trailing_spaces(self):
         """Strips all trailing spaces from the control file."""

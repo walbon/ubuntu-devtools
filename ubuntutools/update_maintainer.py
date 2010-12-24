@@ -29,7 +29,7 @@ import sys
 
 import ubuntutools.packages
 
-def update_maintainer(verbose=False):
+def update_maintainer(debian_directory, verbose=False):
     valid_locations = ["debian/control.in", "control.in", "debian/control",
                        "control"]
     control_file_found = False

@@ -26,7 +26,7 @@ import debian.changelog
 import debian.deb822
 import launchpadlib.launchpad
 
-import ubuntutools.update_maintainer
+from ubuntutools.update_maintainer import update_maintainer
 from ubuntutools.logger import Logger
 from ubuntutools.question import Question, YesNoQuestion, input_number
 
@@ -289,7 +289,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
 
         # update the Maintainer field
         Logger.command(["update-maintainer"])
-        if ubuntutools.update_maintainer.update_maintainer(verbose) != 0:
+        if update_maintainer("debian", verbose) != 0:
             Logger.error("update-maintainer script failed.")
             sys.exit(1)
 
