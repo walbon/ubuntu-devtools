@@ -41,7 +41,8 @@ if (! $no_conf) {
 	my($shell_cmd);
 	$shell_cmd .= "[ -f /etc/devscripts.conf ] && . /etc/devscripts.conf\n";
 	$shell_cmd .= "[ -f ~/.devscripts ] && . ~/.devscripts\n";
-	foreach my $var qw(PULL_DEBIAN_SOURCE_DEBMIRROR UBUNTUTOOLS_DEBMIRROR
+	foreach my $var qw(PULL_DEBIAN_SOURCE_DEBIAN_MIRROR
+	                   UBUNTUTOOLS_DEBIAN_MIRROR
 	                   PULL_DEBIAN_SOURCE_MIRROR_FALLBACK
 	                   UBUNTUTOOLS_MIRROR_FALLBACK) {
 		$shell_cmd .= "echo $var=\$$var\n";
@@ -52,8 +53,8 @@ if (! $no_conf) {
 		my($k, $v) = split /=/, $line, 2;
 		$config_values{$k} = $v;
 	}
-	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBMIRROR'}
-	          || $config_values{'UBUNTUTOOLS_DEBMIRROR'}
+	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBIAN_MIRROR'}
+	          || $config_values{'UBUNTUTOOLS_DEBIAN_MIRROR'}
 	          if (! $mirror);
 	if (! $no_fallback) {
 		my($v) = $config_values{'PULL_DEBIAN_SOURCE_MIRROR_FALLBACK'}
@@ -180,7 +181,7 @@ USAGE: $name [options] <source package> [target release]
 
 Options:
   -h, --help            Show this help message and exit
-  -m DEBMIRROR, --mirror=DEBMIRROR
+  -m DEBIAN_MIRROR, --mirror=DEBIAN_MIRROR
                         Preferred Debian mirror
                         (default: http://ftp.debian.org/debian)
   -n, --no-fallback     If a custom mirror is provided and an error occurs

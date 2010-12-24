@@ -56,16 +56,22 @@ The currently recognised package\-wide variables are:
 This specifies the preferred test\-builder, one of
 .BR pbuilder " (default), " sbuild ", " pbuilder\-dist .
 .TP
-.B UBUNTUTOOLS_DEBMIRROR
+.B UBUNTUTOOLS_DEBIAN_MIRROR
 The preferred Debian archive mirror.
 Should be of the form \fBhttp://ftp.debian.org/debian\fR (no trailing
 slash).
 If not specified, the master will be used.
 .TP
-.B UBUNTUTOOLS_DEBSECMIRROR
+.B UBUNTUTOOLS_DEBSEC_MIRROR
 The preferred Debian security archive mirror.
 Should be of the form \fBhttp://security.debian.org\fR (no trailing
 slash).
+If not specified, the master will be used.
+.TP
+.B UBUNTUTOOLS_UBUNTU_MIRROR
+The preferred Ubuntu archive mirror.
+Should be of the form \fBhttp://archive.ubuntu.com/ubuntu\fR (no
+trailing slash).
 If not specified, the master will be used.
 .TP
 .B UBUNTUTOOLS_LPINSTANCE

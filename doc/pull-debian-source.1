@@ -25,7 +25,7 @@ This value defaults to 'unstable'.
 .BR \-h ", " \-\-help
 Display the usage instructions and exit.
 .TP
-.B \-m \fIDEBMIRROR\fR, \fB\-\-mirror\fR=\fIDEBMIRROR\fR
+.B \-m \fIDEBIAN_MIRROR\fR, \fB\-\-mirror\fR=\fIDEBIAN_MIRROR\fR
 Use the specified mirror.
 Should be in the form \fBhttp://ftp.debian.org/debian\fR.
 If the package isn't found on this mirror, \fBpull\-debian\-source\fR
@@ -52,7 +52,7 @@ configuration files.
 In each case, the script\-specific variable takes precedence over the
 package\-wide variable.
 .TP
-.BR PULL_DEBIAN_SOURCE_DEBMIRROR ", " UBUNTUTOOLS_DEBMIRROR
+.BR PULL_DEBIAN_SOURCE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
 The default value for \fB\-\-mirror\fR.
 .TP
 .BR PULL_DEBIAN_SOURCE_MIRROR_FALLBACK ", " UBUNTUTOOLS_MIRROR_FALLBACK

@@ -32,8 +32,8 @@ except ImportError:
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
-DEFAULT_DEBMIRROR = 'http://ftp.debian.org/debian'
-DEFAULT_DEBSECMIRROR = 'http://security.debian.org'
+DEFAULT_DEBIAN_MIRROR = 'http://ftp.debian.org/debian'
+DEFAULT_DEBSEC_MIRROR = 'http://security.debian.org'
 
 opts = None
 
@@ -54,14 +54,14 @@ def build_url(mirror, package, version):
 def pull(package, version, unpack=False):
     "Download Debian source package version version"
     urls = []
-    if opts.debsecmirror and opts.debsecmirror != DEFAULT_DEBSECMIRROR:
-        urls.append(build_url(opts.debsecmirror, package, version))
+    if opts.debsec_mirror and opts.debsec_mirror != DEFAULT_DEBSEC_MIRROR:
+        urls.append(build_url(opts.debsec_mirror, package, version))
     if opts.fallback:
-        urls.append(build_url(DEFAULT_DEBSECMIRROR, package, version))
-    if opts.debmirror and opts.debmirror != DEFAULT_DEBMIRROR:
-        urls.append(build_url(opts.debmirror, package, version))
+        urls.append(build_url(DEFAULT_DEBSEC_MIRROR, package, version))
+    if opts.debian_mirror and opts.debian_mirror != DEFAULT_DEBIAN_MIRROR:
+        urls.append(build_url(opts.debian_mirror, package, version))
     if opts.fallback:
-        urls.append(build_url(DEFAULT_DEBMIRROR, package, version))
+        urls.append(build_url(DEFAULT_DEBIAN_MIRROR, package, version))
 
     for url in urls:
         cmd = ('dget', '-u' + 'x' if unpack else 'd', url)
@@ -146,12 +146,12 @@ def main():
     p.add_option('-f', '--fetch',
                  dest='fetch_only', default=False, action='store_true',
                  help="Only fetch the source packages, don't diff.")
-    p.add_option('-d', '--debmirror', metavar='DEBMIRROR',
-                 dest='debmirror',
+    p.add_option('-d', '--debian-mirror', metavar='DEBIAN_MIRROR',
+                 dest='debian_mirror',
                  help='Preferred Debian mirror '
                       '(default: http://ftp.debian.org/debian)')
-    p.add_option('-s', '--debsecmirror', metavar='DEBSECMIRROR',
-                 dest='debsecmirror',
+    p.add_option('-s', '--debsec-mirror', metavar='DEBSEC_MIRROR',
+                 dest='debsec_mirror',
                  help='Preferred Debian Security mirror '
                       '(default: http://security.debian.org)')
     p.add_option('-n', '--no-fallback',
@@ -172,10 +172,10 @@ def main():
     distance = args[2] if len(args) > 2 else 1
 
     config = UDTConfig(opts.no_conf)
-    if opts.debmirror is None:
-        opts.debmirror = config.get_value('DEBMIRROR')
-    if opts.debsecmirror is None:
-        opts.debsecmirror = config.get_value('DEBSECMIRROR')
+    if opts.debian_mirror is None:
+        opts.debian_mirror = config.get_value('DEBIAN_MIRROR')
+    if opts.debsec_mirror is None:
+        opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
     if opts.fallback is None:
         opts.fallback = config.get_value('MIRROR_FALLBACK', boolean=True)
 
