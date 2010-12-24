@@ -11,6 +11,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * Support reading configuration variables from devscripts configuration
     files. (LP: #681693)
     - Added ubuntu-dev-tools.5
+    - Support this in many u-d-t scripts, and update manpages.
+    - Deprecate old configuration environment variables.
   * Support the combined "Name <email>" format in UBUMAIL, DEBFULLNAME, and
     DEBEMAIL. (LP: #665202)
   * Add the beginnings of a test suite. (LP: #690386)
@@ -19,12 +21,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - 404main, merge-changelog, pull-debian-debdiff, pull-debian-source,
       pull-revu-source:
       + Return 0 after showing help.
-    - Support this in many u-d-t scripts, and update manpages.
-    - Deprecate old configuration environment variables.
   * ubuntutools/common.py: Remove https_proxy unsetting code, working around
     LP: #94130.
   * edit-patch: Don't let cat error through if debian/source/format doesn't
     exist.
+  * pull-debian-debdiff: Rewrite in Python, and use snapshot.debian.org.
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
@@ -46,7 +47,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 23 Dec 2010 17:37:53 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Fri, 24 Dec 2010 02:57:36 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
