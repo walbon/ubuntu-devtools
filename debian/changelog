@@ -26,6 +26,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * edit-patch: Don't let cat error through if debian/source/format doesn't
     exist.
   * pull-debian-debdiff: Rewrite in Python, and use snapshot.debian.org.
+  * pull-lp-source: Support -d (LP: #681699)
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
@@ -47,7 +48,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Fri, 24 Dec 2010 02:57:36 +0200
+ -- Stefano Rivera <stefanor@dvorak.kardiogramm.lan>  Fri, 24 Dec 2010 12:16:10 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

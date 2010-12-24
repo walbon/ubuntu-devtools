@@ -44,6 +44,10 @@ if not os.path.exists("/usr/bin/dget"):
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
+    optParser.add_option('-d', '--download-only',
+                         dest='download_only', default=False,
+                         action='store_true',
+                         help="Do not extract the source package")
     optParser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
                          dest='ubuntu_mirror',
                          help='Preferred Ubuntu mirror '
@@ -85,27 +89,24 @@ if __name__ == '__main__':
         Logger.error(e)
         sys.exit(1)
 
+    urls = []
     if options.ubuntu_mirror:
-        url = dsc_url(options.ubuntu_mirror, spph.getComponent(), package,
-                      spph.getVersion())
-        cmd = ('dget', '-xu', url)
+        urls.append(dsc_url(options.ubuntu_mirror, spph.getComponent(),
+                            package, spph.getVersion()))
+    dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
+    assert dsc_url, 'No .dsc file found'
+    urls.append(urllib.unquote(dsc_url[0]))
+
+    Logger.normal('Fetching the source for %s from %s (%s)...',
+                  package, release.capitalize(), pocket)
+    for url in urls:
+        cmd = ('dget', '-u' + 'd' if options.download_only else 'x', url)
         Logger.command(cmd)
         r = subprocess.call(cmd)
         if r == 0:
             Logger.normal("Success!")
             sys.exit(0)
 
-    dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
-    assert dsc_url, 'No .dsc file found'
-
-    Logger.normal('Fetching the source for %s from %s (%s)...',
-                  package, release.capitalize(), pocket)
-    cmd = ('dget', '-xu', urllib.unquote(dsc_url[0]))
-    Logger.command(cmd)
-    r = subprocess.call(cmd)
-    if r == 0:
-        Logger.normal('Success!')
-    else:
-        Logger.error('Failed to fetch and extrace the source. '
-                     'Please check the output for the error.')
-        sys.exit(1)
+    Logger.error('Failed to fetch and extrace the source. '
+                 'Please check the output for the error.')
+    sys.exit(1)
