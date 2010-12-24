@@ -100,7 +100,7 @@ if __name__ == '__main__':
     Logger.normal('Fetching the source for %s from %s (%s)...',
                   package, release.capitalize(), pocket)
     for url in urls:
-        cmd = ('dget', '-u' + 'd' if options.download_only else 'x', url)
+        cmd = ('dget', '-u' + ('d' if options.download_only else 'x'), url)
         Logger.command(cmd)
         r = subprocess.call(cmd)
         if r == 0:

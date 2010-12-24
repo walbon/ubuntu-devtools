@@ -52,7 +52,7 @@ def pull(package, version, unpack=False):
     urls.append(dsc_url(DEFAULT_DEBIAN_MIRROR, 'main', package, version))
 
     for url in urls:
-        cmd = ('dget', '-u' + 'x' if unpack else 'd', url)
+        cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
         Logger.command(cmd)
         p = subprocess.call(cmd)
         if p == 0:
