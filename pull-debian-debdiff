@@ -17,6 +17,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import hashlib
 import optparse
 import os.path
 import subprocess
@@ -83,16 +84,28 @@ def pull_from_snapshot(package, version, unpack=False):
         return False
     for hash_ in srcfiles['result']:
         hash_ = hash_['hash']
+
         try:
             info = json.load(urllib2.urlopen(
                 'http://snapshot.debian.org/mr/file/%s/info' % hash_))
         except urllib2.URLError:
             Logger.error('Unable to dowload info for hash.')
             return False
+
         fn = info['result'][0]['name']
         if '/' in fn:
             Logger.error('Unacceptable file name: %s', fn)
             return False
+
+        if os.path.exists(fn):
+            f = open(fn, 'r')
+            s = hashlib.sha1()
+            s.update(f.read())
+            f.close()
+            if s.hexdigest() == hash_:
+                Logger.normal('Using existing %s', fn)
+                continue
+
         Logger.normal('Downloading: %s (%0.3f MiB)', fn,
                       info['result'][0]['size'] / 1024.0 / 1024)
         try:
