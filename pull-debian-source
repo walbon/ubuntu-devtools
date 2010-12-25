@@ -25,8 +25,6 @@ use File::Basename;
 use Getopt::Long;
 use AptPkg::Version;
 
-die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
-
 my($name) = basename($0);
 my($help, $mirror, $no_conf);
 GetOptions('h|help' => \$help,

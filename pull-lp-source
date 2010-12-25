@@ -36,11 +36,6 @@ from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
         PackageNotFoundException, PocketDoesNotExistError)
 from ubuntutools.misc import splitReleasePocket, dsc_url
 
-if not os.path.exists("/usr/bin/dget"):
-    print ("E: dget is not installed - please install the 'devscripts' package"
-           " and rerun this script again.")
-    sys.exit(1)
-
 def main():
     usage = "Usage: %prog <package> [release]"
     opt_parser = OptionParser(usage)

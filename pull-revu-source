@@ -24,8 +24,6 @@ use File::Basename;
 use LWP::Simple;
 use Getopt::Long;
 
-die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
-
 my $REVU = "revu.ubuntuwire.com";
 
 my($package) = lc($ARGV[0]) || usage(2);
