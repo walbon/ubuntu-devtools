@@ -226,7 +226,8 @@ class Distribution(BaseWrapper):
         '''
         if name_or_version not in self._series:
             try:
-                series = DistroSeries(self().getSeries(name_or_version))
+                series = DistroSeries(
+                        self().getSeries(name_or_version=name_or_version))
                 # Cache with name and version
                 self._series[series.name] = series
                 self._series[series.version] = series

@@ -1,192 +1,207 @@
-#!/usr/bin/perl
+#!/usr/bin/python
+# pull-debian-debdiff - find and download a specific version of a Debian
+#                       package and its immediate parent to generate a debdiff.
 #
-# Copyright 2007-2008 Kees Cook <kees@ubuntu.com>
+# Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+# Inspired by a tool of the same name by Kees Cook.
 #
-# ##################################################################
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# See file /usr/share/common-licenses/GPL for more details.
-#
-# ##################################################################
-#
-# This script attempts to find and download a specific version of a Debian
-# package and its immediate parent to generate a debdiff.
-#
-# Requirements: devscripts diffstat dpkg-dev
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
 
-use strict;
-use warnings;
+import hashlib
+import optparse
+import os.path
+import subprocess
+import sys
+import urllib2
 
-sub geturls
-{
-    my ($urlbase,$pkg,$version)=@_;
-    my $file;
+import debian.changelog
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
-    $file = "${pkg}_${version}.dsc";
-    print "Want '$file'\n";
-    if (! -r "$file") {
-        warn "Trying $urlbase/$file ...\n";
-        system("wget $urlbase/$file");
-        return 0 if ($? != 0);
-    }
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
+from ubuntutools.misc import dsc_name, dsc_url
 
-    # Parse the .dsc file for list of required files...
-    my @needed;
-    open(DSC,"$file") || return 0;
-    while (my $line=<DSC>) {
-        if ($line =~ /^Files:/) {
-            while (my $file=<DSC>) {
-                chomp($file);
-                last if ($file !~ /^ /);
-                my @parts = split(/\s+/,$file);
-                my $want = pop(@parts);
-                print "Want '$want'\n";
-                push(@needed,$want);
-            }
-        }
-    }
-    close(DSC);
+DEFAULT_DEBIAN_MIRROR = 'http://ftp.debian.org/debian'
+DEFAULT_DEBSEC_MIRROR = 'http://security.debian.org'
 
-    foreach my $file (@needed) {
-        if (! -r "$file") {
-            warn "Pulling $urlbase/$file ...\n";
-            system("wget $urlbase/$file");
-            return 0 if ($? != 0);
-        }
-    }
+opts = None
 
-    return 1;
-}
+def pull(package, version, unpack=False):
+    "Download Debian source package version version"
+    urls = []
+    # TODO: Not all packages are main :)
+    # Practically this is fine, as it'll be found on snapshot, but still ugly.
+    if opts.debsec_mirror and opts.debsec_mirror != DEFAULT_DEBSEC_MIRROR:
+        urls.append(dsc_url(opts.debsec_mirror, 'main', package, version))
+    urls.append(dsc_url(DEFAULT_DEBSEC_MIRROR, 'main', package, version))
+    if opts.debian_mirror and opts.debian_mirror != DEFAULT_DEBIAN_MIRROR:
+        urls.append(dsc_url(opts.debian_mirror, 'main', package, version))
+    urls.append(dsc_url(DEFAULT_DEBIAN_MIRROR, 'main', package, version))
 
-sub generate_base
-{
-    my ($pkg)=@_;
+    for url in urls:
+        cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
+        Logger.command(cmd)
+        p = subprocess.call(cmd)
+        if p == 0:
+            return True
 
-    my @path;
-    push(@path,"main");
-    if ($pkg =~ /^(lib.)/) {
-        push(@path,$1);
-    }
-    else {
-        push(@path,substr($pkg,0,1));
-    }
-    push(@path,$pkg);
-    return join("/",@path);
-}
+    Logger.normal('Trying snapshot.debian.org')
+    return pull_from_snapshot(package, version, unpack)
 
-sub download_source
-{
-    my ($pkg,$version)=@_;
-    my $urlbase;
+def pull_from_snapshot(package, version, unpack=False):
+    "Download Debian source package version version from snapshot.debian.org"
+    try:
+        srcfiles = json.load(urllib2.urlopen(
+                'http://snapshot.debian.org/mr/package/%s/%s/srcfiles'
+                % (package, version)))
+    except urllib2.HTTPError:
+        Logger.error('Version %s of %s not found on snapshot.debian.org',
+                     version, package)
+        return False
+    for hash_ in srcfiles['result']:
+        hash_ = hash_['hash']
 
-    my $base = generate_base($pkg);
+        try:
+            info = json.load(urllib2.urlopen(
+                'http://snapshot.debian.org/mr/file/%s/info' % hash_))
+        except urllib2.URLError:
+            Logger.error('Unable to dowload info for hash.')
+            return False
 
-    # Attempt to pull from security updates first
-    $urlbase = "http://security.debian.org/pool/updates/$base";
+        fn = info['result'][0]['name']
+        if '/' in fn:
+            Logger.error('Unacceptable file name: %s', fn)
+            return False
 
-    if (!geturls($urlbase,$pkg,$version)) {
-        # Try regular pool
+        if os.path.exists(fn):
+            f = open(fn, 'r')
+            s = hashlib.sha1()
+            s.update(f.read())
+            f.close()
+            if s.hexdigest() == hash_:
+                Logger.normal('Using existing %s', fn)
+                continue
 
-        $urlbase = "http://ftp.debian.org/debian/pool/$base";
-        if (!geturls($urlbase,$pkg,$version)) {
-            # Try snapshot
+        Logger.normal('Downloading: %s (%0.3f MiB)', fn,
+                      info['result'][0]['size'] / 1024.0 / 1024)
+        try:
+            in_ = urllib2.urlopen('http://snapshot.debian.org/file/%s' % hash_)
+            out = open(fn, 'w')
+            while True:
+                b = in_.read(10240)
+                if b == '':
+                    break
+                out.write(b)
+                sys.stdout.write('.')
+                sys.stdout.flush()
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+            out.close()
+        except urllib2.URLError:
+            Logger.error('Error downloading %s', fn)
+            return False
 
-            $urlbase="http://snapshot.debian.net/package/$pkg/$version";
-            warn "Fetching snapshot url via '$urlbase' ...\n";
-            $urlbase=`curl -sI 'http://snapshot.debian.net/package/$pkg/$version' | grep ^[lL]ocation | cut -d' ' -f2 | head -1`;
-            $urlbase =~ s/[\r\n]//g;
-            warn "Trying snapshot location '$urlbase' ...\n";
+    if unpack:
+        cmd = ('dpkg-source', '--no-check', '-x', dsc_name(package, version))
+        Logger.command(cmd)
+        subprocess.check_call(cmd)
 
-            if ($urlbase ne "" && !geturls($urlbase,$pkg,$version)) {
-                return 0;
-            }
-        }
-    }
+    return True
 
-    return 1;
-}
+def previous_version(package, version, distance):
+    "Given an (extracted) package, determine the version distance versions ago"
+    upver = version
+    if ':' in upver:
+        upver = upver.split(':', 1)[1]
+    upver = upver.split('-')[0]
+    fn = '%s-%s/debian/changelog' % (package, upver)
+    f = open(fn, 'r')
+    c = debian.changelog.Changelog(f.read())
+    f.close()
+    seen = 0
+    for entry in c:
+        if entry.distributions == 'UNRELEASED':
+            continue
+        if seen == distance:
+            return entry.version.full_version
+        seen += 1
+    return False
 
-sub usage
-{
-    my ($exit) = @_;
-    print "Usage: $0 PKG VERSION\n";
-    exit $exit;
-}
+def main():
+    global opts
+    p = optparse.OptionParser('%prog [options] <package> <version> [distance]')
+    p.add_option('-f', '--fetch',
+                 dest='fetch_only', default=False, action='store_true',
+                 help="Only fetch the source packages, don't diff.")
+    p.add_option('-d', '--debian-mirror', metavar='DEBIAN_MIRROR',
+                 dest='debian_mirror',
+                 help='Preferred Debian mirror '
+                      '(default: http://ftp.debian.org/debian)')
+    p.add_option('-s', '--debsec-mirror', metavar='DEBSEC_MIRROR',
+                 dest='debsec_mirror',
+                 help='Preferred Debian Security mirror '
+                      '(default: http://security.debian.org)')
+    p.add_option('--no-conf',
+                 dest='no_conf', default=False, action='store_true',
+                 help="Don't read config files or environment variables")
 
+    opts, args = p.parse_args()
+    if len(args) < 2:
+        p.error('Must specify package and version')
+    elif len(args) > 3:
+        p.error('Too many arguments')
+    package = args[0]
+    version = args[1]
+    distance = args[2] if len(args) > 2 else 1
 
+    config = UDTConfig(opts.no_conf)
+    if opts.debian_mirror is None:
+        opts.debian_mirror = config.get_value('DEBIAN_MIRROR')
+    if opts.debsec_mirror is None:
+        opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
 
-my $pkg = $ARGV[0];
-my $version = $ARGV[1];
-my $just_fetch = ($ARGV[2] && $ARGV[2] eq "--fetch");
-my $skip = $ARGV[2] || 1;
-$skip+=0;
+    Logger.normal('Downloading %s %s', package, version)
+    if not pull(package, version, unpack=not opts.fetch_only):
+        Logger.error("Couldn't locate version %s of %s.", version, package)
+        sys.exit(1)
 
-if (defined($pkg) && ($pkg eq '--help' || $pkg eq '-h')) {
-    usage(0);
-} elsif (!defined($pkg) || !defined($version)) {
-    usage(2);
-}
+    if opts.fetch_only:
+        sys.exit(0)
 
+    oldversion = previous_version(package, version, distance)
+    if not oldversion:
+        Logger.error('No previous version could be found')
+        sys.exit(1)
+    Logger.normal('Downloading %s %s', package, oldversion)
+    if not pull(package, oldversion, unpack=True):
+        Logger.error("Couldn't locate version %s of %s.", oldversion, package)
+        sys.exit(1)
 
-# Extract latest source
-die "Cannot locate $pkg $version\n" unless download_source($pkg,$version);
-exit(0) if ($just_fetch);
-system("dpkg-source -x ${pkg}_${version}.dsc");
-die "Unpack of $pkg $version failed\n" unless ($? == 0);
+    cmd = ('debdiff', dsc_name(package, oldversion), dsc_name(package, version))
+    Logger.command(cmd)
+    difffn = dsc_name(package, version)[:-3] + 'debdiff'
+    f = open(difffn, 'w')
+    if subprocess.call(cmd, stdout=f) > 2:
+        Logger.error('Debdiff failed.')
+        sys.exit(1)
+    f.close()
+    cmd = ('diffstat', '-p0', difffn)
+    Logger.command(cmd)
+    subprocess.check_call(cmd)
+    print difffn
 
-# Locate prior changelog entry
-my $prev_ver;
-my $upstream_version = $version;
-if ($upstream_version =~ /^([^-]+)-/) {
-    $upstream_version = $1;
-}
-my $srcdir="$pkg-$upstream_version";
-if (! -d "$srcdir") {
-    undef $srcdir;
-    my $dir;
-    opendir(DIR,".");
-    while ($dir = readdir(DIR)) {
-        if ($dir =~ /^${pkg}-/ && -d $dir) {
-            $srcdir = $dir;
-            last;
-        }
-    }
-    closedir(DIR);
-}
-die "Cannot locate source tree\n" if (!defined($srcdir));
-my $log = "$srcdir/debian/changelog";
-open(LOG,"<$log") || die "$log: $!\n";
-while (my $line=<LOG>) {
-    if ($line =~ /^$pkg \((?:\d+:)?([^\)]+)\)/) {
-        my $seen = $1;
-        if ($seen ne $version) {
-            $skip--;
-
-            if ($skip==0) {
-                $prev_ver=$seen;
-                last;
-            }
-        }
-    }
-}
-close(LOG);
-die "Cannot find earlier source version\n" if (!defined($prev_ver));
-
-die "Cannot locate $pkg $prev_ver\n" unless download_source($pkg,$prev_ver);
-#system("dpkg-source -x ${pkg}_${prev_ver}.dsc");
-#die "Unpack of $pkg $prev_ver failed\n" unless ($? == 0);
-
-system("debdiff ${pkg}_${prev_ver}.dsc ${pkg}_${version}.dsc > ${pkg}_${version}.debdiff");
-die "Cannot debdiff\n" unless ($? == 0);
-
-system("diffstat -p0 ${pkg}_${version}.debdiff");
-print "${pkg}_${version}.debdiff\n";
+if __name__ == '__main__':
+    main()

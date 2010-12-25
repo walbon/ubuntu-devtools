@@ -3,10 +3,8 @@
 # pull-lp-source -- pull a source package from Launchpad
 # Basic usage: pull-lp-source <source package> [<release>]
 #
-# Copyright (C) 2008 Iain Lane <iain@orangesquash.org.uk>
-#
-# BackportFromLP class taken from prevu tool, which is:
-# Copyright (C) 2006 John Dong <jdong@ubuntu.com>
+# Copyright (C) 2008, Iain Lane <iain@orangesquash.org.uk>,
+#               2010, Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -31,25 +29,40 @@ import subprocess
 import urllib
 from optparse import OptionParser
 
-# ubuntu-dev-tools modules.
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
         PackageNotFoundException, PocketDoesNotExistError)
-from ubuntutools.misc import splitReleasePocket
+from ubuntutools.misc import splitReleasePocket, dsc_name, dsc_url
 
 if not os.path.exists("/usr/bin/dget"):
-    print "E: dget is not installed - please install the 'devscripts' package" \
-        " and rerun this script again."
+    print ("E: dget is not installed - please install the 'devscripts' package"
+           " and rerun this script again.")
     sys.exit(1)
 
 if __name__ == '__main__':
     usage = "Usage: %prog <package> [release]"
     optParser = OptionParser(usage)
+    optParser.add_option('-d', '--download-only',
+                         dest='download_only', default=False,
+                         action='store_true',
+                         help="Do not extract the source package")
+    optParser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
+                         dest='ubuntu_mirror',
+                         help='Preferred Ubuntu mirror '
+                              '(default: Launchpad)')
+    optParser.add_option('--no-conf',
+                         dest='no_conf', default=False, action='store_true',
+                         help="Don't read config files or environment "
+                              "variables")
     (options, args) = optParser.parse_args()
-
     if not args:
-        optParser.print_help()
-        sys.exit(1)
+        optParser.error("Must specify package name")
+
+    config = UDTConfig(options.no_conf)
+    if options.ubuntu_mirror is None:
+        options.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
 
     # Login anonymously to LP
     Launchpad.login_anonymously()
@@ -59,28 +72,41 @@ if __name__ == '__main__':
     if len(args) >= 2: # Custom distribution specified.
         release = str(args[1]).lower()
     else:
-        release = os.getenv('DIST') or Distribution('ubuntu').getDevelopmentSeries().name
+        release = os.getenv('DIST') or (Distribution('ubuntu')
+                                        .getDevelopmentSeries().name)
 
     try:
         (release, pocket) = splitReleasePocket(release)
     except PocketDoesNotExistError, e:
-        print 'E: %s' % e
+        Logger.error(e)
         sys.exit(1)
 
     try:
-        spph = Distribution('ubuntu').getArchive().getSourcePackage(package, release, pocket)
+        spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
+                                                                    release,
+                                                                    pocket)
     except (SeriesNotFoundException, PackageNotFoundException), e:
-        print 'E: %s' % e
+        Logger.error(e)
         sys.exit(1)
 
+    urls = []
+    if options.ubuntu_mirror:
+        urls.append(dsc_url(options.ubuntu_mirror, spph.getComponent(),
+                            package, spph.getVersion()))
     dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
     assert dsc_url, 'No .dsc file found'
+    urls.append(urllib.unquote(dsc_url[0]))
 
-    # All good - start downloading...
-    print 'Fetching the source for %s from %s (%s)...' % (
-            package, release.capitalize(), pocket)
-    if subprocess.call(['/usr/bin/dget', '-xu', urllib.unquote(dsc_url[0])]) == 0:
-        print 'Success!'
-    else:
-        print 'Failed to fetch and extrace the source.', \
-                'Please check the output for the error.'
+    Logger.normal('Fetching the source for %s from %s (%s)...',
+                  package, release.capitalize(), pocket)
+    for url in urls:
+        cmd = ('dget', '-u' + ('d' if options.download_only else 'x'), url)
+        Logger.command(cmd)
+        r = subprocess.call(cmd)
+        if r == 0:
+            Logger.normal("Success!")
+            sys.exit(0)
+
+    Logger.error('Failed to fetch and extrace the source. '
+                 'Please check the output for the error.')
+    sys.exit(1)

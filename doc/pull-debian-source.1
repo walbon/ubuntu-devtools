@@ -4,7 +4,7 @@
 pull\-debian\-source \- download a source package from Debian
 
 .SH SYNOPSIS
-.B pull\-debian\-source \fR[\fB\-h\fR]\fB <\fBsource package\fR> [\fItarget release\fR]
+.B pull\-debian\-source \fR[\fIoptions\fR] <\fIsource package\fR> [\fItarget release\fR]
 
 .SH DESCRIPTION
 \fBpull\-debian\-source\fR downloads and extracts the latest version of
@@ -15,15 +15,47 @@ version in that release will be downloaded instead.
 .SH OPTIONS
 Listed below are the command line options for pull\-debian\-source:
 .TP
-.B \-h, \-\-help
-Display the usage instructions and exit.
-.TP
-.B <source package>
+.I source package
 This is the source package that you would like to be downloaded from Debian.
 .TP
-.B [target release]
+.I target release
 This is the release that you would like the source package to be downloaded from.
 This value defaults to 'unstable'.
+.TP
+.BR \-h ", " \-\-help
+Display the usage instructions and exit.
+.TP
+.B \-m \fIDEBIAN_MIRROR\fR, \fB\-\-mirror\fR=\fIDEBIAN_MIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://ftp.debian.org/debian\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR PULL_DEBIAN_SOURCE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
+The default value for \fB\-\-mirror\fR.
+
+.SH SEE ALSO
+.BR dget (1),
+.BR pull\-debian\-debdiff (1),
+.BR pull\-lp\-source (1),
+.BR ubuntu\-dev\-tools (5)
 
 .SH AUTHOR
 .PP

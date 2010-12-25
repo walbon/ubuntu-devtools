@@ -1,16 +1,91 @@
-.TH PULL-DEBIAN-DEBDIFF "1" "June 2010" "ubuntu-dev-tools"
+.\" Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH PULL-DEBIAN-DEBDIFF "1" "December 2010" "ubuntu-dev-tools"
 .SH NAME
 \fBpull-debian-debdiff\fR \- find, download, and generate a debdiff
 
 .SH SYNOPSIS
-\fBpull-debian-debdiff\fR <package> <version>
+\fBpull-debian-debdiff\fR [\fIoptions\fR] <\fIpackage\fR>
+<\fIversion\fR> [\fIdistance\fR]
 
 .SH DESCRIPTION
-\fBpull-debian-debdiff\fR attempts to find and download a specific version of a Debian package and its immediate parent to generate a debdiff.
+\fBpull-debian-debdiff\fR attempts to find and download a specific
+version of a Debian package and its immediate parent to generate a
+debdiff.
+
+.SH OPTIONS
+.TP
+.I package
+The source package to download and diff.
+.TP
+.I version
+The most recent of the two versions you want to diff.
+.TP
+.I distance
+If specified (default \fB1\fR), the debdiff is against that many
+versions previous.
+.TP
+.BR \-h ", " \-\-help
+Display the usage instructions and exit.
+.TP
+.BR \-f ", " \-\-fetch
+Simply download the specified version and exit.
+.TP
+.B \-d \fIDEBIAN_MIRROR\fR, \fB\-\-debian\-mirror\fR=\fIDEBIAN_MIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://ftp.debian.org/debian\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
+.B \-s \fIDEBSEC_MIRROR\fR, \fB\-\-debsec\-mirror\fR=\fIDEBSEC_MIRROR\fR
+Use the specified Debian security mirror.
+Should be in the form \fBhttp://security.debian.org\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR PULL_DEBIAN_DEBDIFF_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
+The default value for \fB\-\-debian\-mirror\fR.
+.TP
+.BR PULL_DEBIAN_DEBDIFF_DEBSEC_MIRROR ", " UBUNTUTOOLS_DEBSEC_MIRROR
+The default value for \fB\-\-debsec\-mirror\fR.
+
+.SH SEE ALSO
+.BR debdiff (1),
+.BR dget (1),
+.BR pull\-debian\-source (1),
+.BR ubuntu\-dev\-tools (5)
 
 .SH AUTHORS
-\fBpull-debian-debdiff\fR was written by Kees Cook <kees@ubuntu.com>.
+\fBpull-debian-debdiff\fR was written by Stefano Rivera
+<stefanor@ubuntu.com>, a clone of a tool by Kees Cook <kees@ubuntu.com>.
 
-This manual page was written by Andrew Starr-Bochicchio <a.starr.b@gmail.com>.
-.PP
-Both are released under the terms of the GNU General Public License, version 3, or (at your option) any later version.
+This manual page was written by Stefano Rivera, based on the original by
+Andrew Starr\-Bochicchio <a.starr.b@gmail.com>.

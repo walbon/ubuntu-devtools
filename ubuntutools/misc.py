@@ -1,8 +1,9 @@
 #
 # misc.py - misc functions for the Ubuntu Developer Tools scripts.
 #
-# Copyright (C) 2008 Jonathan Davies <jpds@ubuntu.com>
-# Copyright (C) 2008-2009 Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+# Copyright (C) 2008,      Jonathan Davies <jpds@ubuntu.com>,
+#               2008-2009, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>,
+#               2010,      Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -22,6 +23,7 @@
 
 # Modules.
 import os
+import os.path
 from subprocess import Popen, PIPE
 
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
@@ -116,3 +118,15 @@ def splitReleasePocket(release):
                                           pocket)
 
     return (release, pocket)
+
+def dsc_name(package, version):
+    "Return the source package dsc filename for the given package"
+    if ':' in version:
+        version = version.split(':', 1)[1]
+    return '%s_%s.dsc' % (package, version)
+
+def dsc_url(mirror, component, package, version):
+    "Build a source package URL"
+    group = package[:4] if package.startswith('lib') else package[0]
+    fn = dsc_name(package, version)
+    return os.path.join(mirror, 'pool', component, group, package, fn)

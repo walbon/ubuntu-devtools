@@ -2,7 +2,8 @@
 # Script Name: pull-debian-source
 # Author: Nathan Handler <nhandler@ubuntu.com>
 # Usage: pull-debian-source <source package> [release]
-# Copyright (C) 2008, 2009 Nathan Handler <nhandler@ubuntu.com>
+# Copyright (C) 2008-2009 Nathan Handler <nhandler@ubuntu.com>,
+#                    2010 Stefano Rivera <stefanor@ubuntu.com>
 # License: GNU General Public License
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,17 +27,53 @@ use AptPkg::Version;
 
 die("Please install 'devscripts'\n") if(! grep -x "$_/dget", split(':',$ENV{'PATH'}));
 
-my($name)=basename($0);
-my($package)=$ARGV[0] || &usage(2);
-my($help)=0;
-GetOptions('help' => \$help);
+my($name) = basename($0);
+my($help, $mirror, $no_conf);
+GetOptions('h|help' => \$help,
+           'm|mirror=s' => \$mirror,
+           'no-conf' => \$no_conf,
+          );
+my($package) = $ARGV[0] || &usage(2);
 &usage(0) if($help);
+
+if (! $no_conf) {
+	my($shell_cmd);
+	$shell_cmd .= "[ -f /etc/devscripts.conf ] && . /etc/devscripts.conf\n";
+	$shell_cmd .= "[ -f ~/.devscripts ] && . ~/.devscripts\n";
+	foreach my $var qw(PULL_DEBIAN_SOURCE_DEBIAN_MIRROR
+	                   UBUNTUTOOLS_DEBIAN_MIRROR
+	                   PULL_DEBIAN_SOURCE_MIRROR_FALLBACK
+	                   UBUNTUTOOLS_MIRROR_FALLBACK) {
+		$shell_cmd .= "echo $var=\$$var\n";
+	}
+	my $shell_out = `/bin/bash -c '$shell_cmd'`;
+	my %config_values;
+	foreach my $line (split /\n/, $shell_out) {
+		my($k, $v) = split /=/, $line, 2;
+		$config_values{$k} = $v;
+	}
+	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBIAN_MIRROR'}
+	          || $config_values{'UBUNTUTOOLS_DEBIAN_MIRROR'}
+	          if (! $mirror);
+}
+my($default_mirror) = 'http://ftp.debian.org/debian';
+my(@mirrors);
+push @mirrors, $mirror if $mirror && $mirror ne $default_mirror;
+push @mirrors, $default_mirror;
+
 my($release)=$ARGV[1] || 'unstable';
 $release=&convertCodeName($release);
 &checkRelease($release);
-my($dsc)=&getDSC(&getMadison(&getURL($package,$release)));
-print "$dsc\n";
-exec("dget -xu $dsc");
+my($madison) = &getMadison(&getURL($package,$release));
+
+foreach my $mirror (@mirrors) {
+	my($dsc)=&getDSC($madison, $mirror);
+	print "$dsc\n";
+	system("dget -xu $dsc");
+	exit(0) if ($? == 0);
+}
+exit(1);
+
 sub convertCodeName {
 	my($release)=shift || die("No Release Passed To convertCodeName!\n");
 	chomp $release;
@@ -90,12 +127,12 @@ sub getDSC {
 	if($madison=~m/^[WE]:/i) {
 		die("$madison");
 	}
-	my($baseURL)='http://ftp.debian.org/debian/pool/';
+	my($baseURL)=shift || die ("No baseURL Passed to getDSC: $!\n");
 	my(@madison)=split(/\n/,$madison);
 	my %urls;
 	my $url;
 	foreach my $line (@madison) {
-		$url = $baseURL;
+		$url = $baseURL . '/pool/';
 		my($package,$version,$release,$archs)=split(/\|/,$line,4);
 		$package=~s/\s*//g;
 		$version=~s/\s*//g;
@@ -133,7 +170,16 @@ sub getDSC {
 }
 sub usage {
 	my($exit)=shift;
-	print("USAGE: $name [-h] <source package> [target release]\n");
+	print <<"EOF";
+USAGE: $name [options] <source package> [target release]
+
+Options:
+  -h, --help            Show this help message and exit
+  -m DEBIAN_MIRROR, --mirror=DEBIAN_MIRROR
+                        Preferred Debian mirror
+                        (default: http://ftp.debian.org/debian)
+  --no-conf             Don't read config files or environment variables
+EOF
 	exit($exit);
 }
 sub invalidRelease {

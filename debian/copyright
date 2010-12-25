@@ -132,7 +132,6 @@ Files: dch-repeat,
        doc/lp-list-bugs.1,
        doc/manage-credentials.1,
        doc/mk-sbuild.1,
-       doc/pull-debian-debdiff.1,
        doc/pull-debian-source.1,
        doc/pull-lp-source.1,
        doc/pull-revu-source.1,
@@ -144,7 +143,6 @@ Files: dch-repeat,
        lp-list-bugs,
        manage-credentials,
        mk-sbuild,
-       pull-debian-debdiff,
        pull-debian-source,
        pull-lp-source,
        pull-revu-source,
@@ -165,6 +163,7 @@ Copyright: 2007,      Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
            2009-2010, Michael Bienia <geser@ubuntu.com>
            2009,      Nathan Handler <nhandler@ubuntu.com>
            2007-2008, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+           2010,      Stefano Rivera <stefanor@ubuntu.com>
 License: GPL-3+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -179,10 +178,12 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
 
-Files: doc/sponsor-patch.1,
+Files: doc/pull-debian-debdiff.1,
+       doc/sponsor-patch.1,
        doc/suspicious-source.1,
        doc/ubuntu-dev-tools.5,
        doc/wrap-and-sort.1,
+       pull-debian-debdiff,
        sponsor-patch,
        suspicious-source,
        ubuntutools/builder.py,
