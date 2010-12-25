@@ -47,8 +47,8 @@ defaults to \fB~ppa1\fR, otherwise the default is blank.
 .B \-b\fR, \fB\-\-build
 Build the package with the specified builder before uploading. Note
 for \fBpbuilder\fR(8) users: This assumes the common configuration,
-where the \fBDIST\fR environment is read by \fBpbuilderrc\fR(5) to
-select the correct base image.
+where the \fBARCH\fR and \fBDIST\fR environment is read by \fBpbuilderrc\fR(5)
+to select the correct base image.
 .TP
 .B \-B \fIBUILDER\fR, \fB\-\-builder\fR=\fIBUILDER
 Use the specified builder to build the package. Supported are

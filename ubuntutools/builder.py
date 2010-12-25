@@ -60,17 +60,18 @@ class Pbuilder(Builder):
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
-        # TODO: Do not rely on a specific pbuilder configuration.
-        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--build",
-               "--distribution", dist, "--architecture", self.architecture,
+        cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
+               "pbuilder", "--build",
+               "--architecture", self.architecture, "--distribution", dist,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._build_failure(returncode, dsc_file)
 
     def update(self, dist):
-        cmd = ["sudo", "-E", "DIST=" + dist, "pbuilder", "--update",
-               "--distribution", dist, "--architecture", self.architecture]
+        cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
+               "pbuilder", "--update",
+               "--architecture", self.architecture, "--distribution", dist]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
