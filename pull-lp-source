@@ -34,31 +34,30 @@ from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
         PackageNotFoundException, PocketDoesNotExistError)
-from ubuntutools.misc import splitReleasePocket, dsc_name, dsc_url
+from ubuntutools.misc import splitReleasePocket, dsc_url
 
 if not os.path.exists("/usr/bin/dget"):
     print ("E: dget is not installed - please install the 'devscripts' package"
            " and rerun this script again.")
     sys.exit(1)
 
-if __name__ == '__main__':
+def main():
     usage = "Usage: %prog <package> [release]"
-    optParser = OptionParser(usage)
-    optParser.add_option('-d', '--download-only',
-                         dest='download_only', default=False,
-                         action='store_true',
-                         help="Do not extract the source package")
-    optParser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
-                         dest='ubuntu_mirror',
-                         help='Preferred Ubuntu mirror '
-                              '(default: Launchpad)')
-    optParser.add_option('--no-conf',
-                         dest='no_conf', default=False, action='store_true',
-                         help="Don't read config files or environment "
-                              "variables")
-    (options, args) = optParser.parse_args()
+    opt_parser = OptionParser(usage)
+    opt_parser.add_option('-d', '--download-only',
+                          dest='download_only', default=False,
+                          action='store_true',
+                          help="Do not extract the source package")
+    opt_parser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
+                          dest='ubuntu_mirror',
+                          help='Preferred Ubuntu mirror (default: Launchpad)')
+    opt_parser.add_option('--no-conf',
+                          dest='no_conf', default=False, action='store_true',
+                          help="Don't read config files or environment "
+                               "variables")
+    (options, args) = opt_parser.parse_args()
     if not args:
-        optParser.error("Must specify package name")
+        opt_parser.error("Must specify package name")
 
     config = UDTConfig(options.no_conf)
     if options.ubuntu_mirror is None:
@@ -77,16 +76,16 @@ if __name__ == '__main__':
 
     try:
         (release, pocket) = splitReleasePocket(release)
-    except PocketDoesNotExistError, e:
-        Logger.error(e)
+    except PocketDoesNotExistError, error:
+        Logger.error(error)
         sys.exit(1)
 
     try:
         spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
                                                                     release,
                                                                     pocket)
-    except (SeriesNotFoundException, PackageNotFoundException), e:
-        Logger.error(e)
+    except (SeriesNotFoundException, PackageNotFoundException), error:
+        Logger.error(error)
         sys.exit(1)
 
     urls = []
@@ -102,11 +101,14 @@ if __name__ == '__main__':
     for url in urls:
         cmd = ('dget', '-u' + ('d' if options.download_only else 'x'), url)
         Logger.command(cmd)
-        r = subprocess.call(cmd)
-        if r == 0:
+        return_code = subprocess.call(cmd)
+        if return_code == 0:
             Logger.normal("Success!")
             sys.exit(0)
 
     Logger.error('Failed to fetch and extrace the source. '
                  'Please check the output for the error.')
     sys.exit(1)
+
+if __name__ == '__main__':
+    main()
