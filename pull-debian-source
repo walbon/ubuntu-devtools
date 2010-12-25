@@ -33,8 +33,8 @@ GetOptions('h|help' => \$help,
            'm|mirror=s' => \$mirror,
            'no-conf' => \$no_conf,
           );
-my($package) = $ARGV[0] || &usage(2);
 &usage(0) if($help);
+my($package) = $ARGV[0] || &usage(2);
 
 if (! $no_conf) {
 	my($shell_cmd);
