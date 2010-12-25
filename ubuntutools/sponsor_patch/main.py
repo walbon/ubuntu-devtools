@@ -223,7 +223,9 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
 
     launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(
                                                    "sponsor-patch", lpinstance)
+    #pylint: disable=E1101
     bug = launchpad.bugs[bug_number]
+    #pylint: enable=E1101
 
     (patch, branch) = get_patch_or_branch(bug)
 
@@ -371,7 +373,9 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
             ask_for_manual_fixing()
             continue
 
+        #pylint: disable=E1101
         ubuntu = launchpad.distributions['ubuntu']
+        #pylint: enable=E1101
         devel_series = ubuntu.current_series.name
         supported_series = [series.name for series in ubuntu.series
                             if series.active and series.name != devel_series]
