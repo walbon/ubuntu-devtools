@@ -25,10 +25,6 @@ import sys
 import urllib2
 
 import debian.changelog
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
@@ -64,6 +60,15 @@ def pull(package, version, unpack=False):
 def pull_from_snapshot(package, version, unpack=False):
     "Download Debian source package version version from snapshot.debian.org"
     try:
+        import json
+    except ImportError:
+        import simplejson as json
+    except ImportError:
+        Logger.error("Require python-simplejson or python >= 2.7 to be "
+                     "installed for snapshot.debian.org support")
+        sys.exit(1)
+
+    try:
         srcfiles = json.load(urllib2.urlopen(
                 'http://snapshot.debian.org/mr/package/%s/%s/srcfiles'
                 % (package, version)))
@@ -71,6 +76,7 @@ def pull_from_snapshot(package, version, unpack=False):
         Logger.error('Version %s of %s not found on snapshot.debian.org',
                      version, package)
         return False
+
     for hash_ in srcfiles['result']:
         hash_ = hash_['hash']
 
@@ -166,6 +172,11 @@ def main():
     package = args[0]
     version = args[1]
     distance = args[2] if len(args) > 2 else 1
+
+    if not os.path.exists('/usr/bin/dget'):
+        Logger.error("dget is not installed. "
+                     "Please install the 'devscripts' package.")
+        sys.exit(1)
 
     config = UDTConfig(opts.no_conf)
     if opts.debian_mirror is None:

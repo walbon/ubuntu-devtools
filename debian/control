@@ -16,7 +16,6 @@ Build-Depends: dctrl-tools,
                python-apt (>= 0.7.93~),
                python-debian (>= 0.1.15),
                python-gnupginterface,
-               python-simplejson,
                python-launchpadlib (>= 1.5.7),
                python-magic,
                python-setuptools,
@@ -57,7 +56,7 @@ Recommends: bzr,
             python-magic,
             python-soappy,
             reportbug (>= 3.39ubuntu1)
-Suggests: qemu-kvm-extras-static
+Suggests: python-simplejson | python (>= 2.7), qemu-kvm-extras-static
 Breaks: ${python:Breaks}
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
