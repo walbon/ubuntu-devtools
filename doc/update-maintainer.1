@@ -1,10 +1,26 @@
-.TH UPDATE\-MAINTAINER "1" "August 04, 2008" "ubuntu-dev-tools"
+.\" Copyright (c) 2008, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+.\"               2010, Benjamin Drung <bdrung@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.TH UPDATE\-MAINTAINER "1" "December 2010" "ubuntu-dev-tools"
 
 .SH NAME
 update\-maintainer \- change the Maintainer field in a Debian source package
 
 .SH SYNOPSIS
-.B update\-maintainer [\fB\-\-path=<PATH>\fP] [\fB\-\-section=<SECTION>\fP]
+.B update\-maintainer
+[\fIoptions\fR]
 
 .SH DESCRIPTION
 \fBupdate\-maintainer\fP updates the Maintainer field in the source of
@@ -12,19 +28,20 @@ an Ubuntu package to match the DebianMaintainerField specification.
 
 .SH OPTIONS
 .TP
-\fB\-\-path=<PATH>\fP
-This option allows you to specify the path to the source directory.
+\fB\-d \fIPATH\fR, \fB\-\-debian\-directory\fR=\fIPATH\fR
+location of the \fIdebian\fR directory (default: \fB./debian\fR)
 .TP
-\fB\-\-section=<SECTION>\fP
-Manually specify the section of the package. This is necessary if the
-package is not yet in the archive or if you don't have an Internet
-connection available when you run \fBupdate\-maintainer\fP.
+\fB\-h\fR, \fB\-\-help\fR
+show a help message and exit
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+print no informational messages
 
 .SH SEE ALSO
 See https://wiki.ubuntu.com/DebianMaintainerField for more information.
 
 .SH AUTHOR
-\fBupdate-maintainer\fP has been written by Albin Tonnerre <lut1n.tne@gmail.com>
+\fBupdate-maintainer\fP has been written by Benjamin Drung <bdrung@ubuntu.com>
 and this manual page by Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>.
 .PP
-Both are released under the GNU General Public License, version 2.
+Both are released under the ISC license.

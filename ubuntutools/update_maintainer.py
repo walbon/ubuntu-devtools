@@ -1,145 +1,104 @@
-#   update-maintainer.py - this script is used to update the Maintainer field
-#                          of an Ubuntu package, as approved by the
-#                          Ubuntu Technical Board at:
+# update_maintainer.py - updates the Maintainer field of an Ubuntu package
 #
-#       https://lists.ubuntu.com/archives/ubuntu-devel/2009-May/028213.html
+# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
 #
-#   Copyright (C) 2009 Jonathan Davies <jpds@ubuntu.com>
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
 #
-#   Original shell script was:
-#
-#   Copyright 2007 (C) Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+"""This module is for updating the Maintainer field of an Ubuntu package."""
 
 import os
-import re
-import sys
 
-import ubuntutools.packages
+import debian.changelog
+
+from ubuntutools.control import Control
+from ubuntutools.logger import Logger
+
+# Prior May 2009 these Maintainers were used:
+_PREVIOUS_UBUNTU_MAINTAINER = (
+    "ubuntu core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
+    "ubuntu motu developers <ubuntu-motu@lists.ubuntu.com>",
+)
+_UBUNTU_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+
+def _get_distribution(changelog_file):
+    """get distribution of latest changelog entry"""
+    changelog = debian.changelog.Changelog(open(changelog_file))
+    return changelog.distributions
 
 def update_maintainer(debian_directory, verbose=False):
-    valid_locations = ["debian/control.in", "control.in", "debian/control",
-                       "control"]
-    control_file_found = False
+    """updates the Maintainer field of an Ubuntu package
 
-    # Check changelog file exists.
-    for location in valid_locations:
-        if os.path.isfile(location):
-            control_file_found = True
-            control_file = location
-            break # Stop looking.
+    * No modifications are made if the Maintainer field contains an ubuntu.com
+      email address. Otherwise, the Maintainer field will be set to
+      Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+    * The old value will be saved in a field named XSBC-Original-Maintainer
+      if the Maintainer field is modified.
 
-    # Check if we've found a control file.
-    if not control_file_found:
-        sys.stderr.write("Unable to find debian/control file.\n")
-        return 1
+    Policy: https://wiki.ubuntu.com/DebianMaintainerField
+    """
+    possible_contol_files = [os.path.join(debian_directory, f) for
+                             f in ["control", "control.in"]]
 
-    # Read found file contents.
-    debian_control_file = open(control_file, "r")
-    file_contents = debian_control_file.read()
-    debian_control_file.close()
+    changelog_file = os.path.join(debian_directory, "changelog")
+    control_files = [f for f in possible_contol_files if os.path.isfile(f)]
 
-    # Check if there is a Maintainer field in file found.
-    if not 'Maintainer' in file_contents:
-        sys.stderr.write("Unable to find Maintainer field in %s.\n" % \
-                         control_file)
-        return 1
+    # Make sure that a changelog and control file is available
+    if len(control_files) == 0:
+        Logger.error("No control file found in %s.", debian_directory)
+        return(1)
+    if not os.path.isfile(changelog_file):
+        Logger.error("No changelog file found in %s.", debian_directory)
+        return(1)
 
-    package_field = re.findall('(Source:) (.*)', file_contents)
-    package_name = package_field[0][1]
+    # Strip things like "-proposed-updates" or "-security" from distribution.
+    distribution = _get_distribution(changelog_file).split("-")[0]
 
-    # Get maintainer field information.
-    maintainer_field = re.findall('(Maintainer:) (.*) (<.*>)', file_contents)
+    for control_file in control_files:
+        control = Control(control_file)
+        original_maintainer = control.get_maintainer()
 
-    # Split out maintainer name and email address.
-    maintainer_name = maintainer_field[0][1]
-    maintainer_mail = maintainer_field[0][2]
+        if original_maintainer is None:
+            Logger.error("No Maintainer field found in %s.", control_file)
+            return(1)
 
-    if maintainer_mail.endswith("@ubuntu.com>"):
+        if original_maintainer.strip().lower() in _PREVIOUS_UBUNTU_MAINTAINER:
+            if verbose:
+                print "The old maintainer was: %s" % original_maintainer
+                print "Resetting as: %s" % _UBUNTU_MAINTAINER
+            control.set_original_maintainer(_UBUNTU_MAINTAINER)
+            control.save()
+            continue
+
+        if original_maintainer.strip().endswith("ubuntu.com>"):
+            if verbose:
+                print ("The Maintainer email is set to an ubuntu.com address. "
+                       "Doing nothing.")
+            continue
+
+        if distribution in ("stable", "testing", "unstable", "experimental"):
+            if verbose:
+                print "The package targets Debian. Doing nothing."
+            return(0)
+
+        if control.get_original_maintainer() is not None:
+            print "Overwriting original maintainer: %s" % \
+                  control.get_original_maintainer()
+
         if verbose:
-            print "Maintainer email is set to an @ubuntu.com address - doing nothing."
-        return 0
+            print "The original maintainer is: %s" % original_maintainer
+            print "Resetting as: %s" % _UBUNTU_MAINTAINER
+        control.set_original_maintainer(original_maintainer)
+        control.set_maintainer(_UBUNTU_MAINTAINER)
+        control.save()
 
-    # Prior May 2009 these Maintainers were used:
-    # main or restricted: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-    # universe or multiverse: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
-    old_maintainer = maintainer_mail in ("<ubuntu-devel-discuss@lists.ubuntu.com>",
-                                         "<ubuntu-motu@lists.ubuntu.com>")
-    if maintainer_mail.endswith("@lists.ubuntu.com>") and not old_maintainer:
-        if verbose:
-            print "Maintainer email is set to an @lists.ubuntu.com address - doing nothing."
-        return 0
-
-
-    # Check if Maintainer field is as approved in TB decision.
-    if 'Ubuntu Developers' in maintainer_name and \
-       '<ubuntu-devel-discuss@lists.ubuntu.com>' in maintainer_mail:
-        if verbose:
-            print "Ubuntu Developers is already set as maintainer."
-        return 0
-
-    if not old_maintainer and \
-       not (ubuntutools.packages.checkIsInDebian(package_name, 'unstable') or \
-            ubuntutools.packages.checkIsInDebian(package_name, 'experimental')):
-        user_email_address = os.getenv('DEBEMAIL')
-        if not user_email_address:
-            user_email_address = os.getenv('EMAIL')
-            if not user_email_address:
-                sys.stderr.write('The environment variable DEBEMAIL or ' + \
-                                 'EMAIL needs to be set to make proper use ' + \
-                                 'of this script.\n')
-                return 1
-        user_name = os.getenv('DEBFULLNAME')
-        if not user_name:
-            sys.stderr.write('The environment variable DEBFULLNAME needs ' + \
-                             'to be set to make proper use of this script.\n')
-            return 1
-        target_maintainer = user_name + ' <' + user_email_address + '>'
-    else:
-        target_maintainer = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
-
-    # Set original maintainer field in a string.
-    original_maintainer = maintainer_name + " " + maintainer_mail
-
-    # If maintainer-field contained the pre-archive-reorganisation entries,
-    # don't add a new XSBC-Original maintainer field
-
-    if not "lists.ubuntu.com" in original_maintainer:
-        # Remove existing Original-Maintainer field
-        # to avoid multiple Original-Maintainer fields
-        original_maintainer_fields = re.findall('(.*Original-Maintainer): (.*)',
-                                                file_contents)
-        if len(original_maintainer_fields) > 0:
-            for original_maintainer_field in original_maintainer_fields:
-                if verbose:
-                    print "Removing existing %s: %s" % original_maintainer_field
-            file_contents = re.sub('.*Original-Maintainer: .*\n', "",
-                                   file_contents)
-        final_addition = "Maintainer: " + target_maintainer + \
-                         "\nXSBC-Original-Maintainer: " + original_maintainer
-    else:
-        final_addition = "Maintainer: " + target_maintainer
-
-    if verbose:
-        print "The original maintainer for this package is: " + original_maintainer
-        print "Resetting as: " + target_maintainer
-
-    # Replace text.
-    debian_control_file = open(control_file, "w")
-    original_maintainer_line = "Maintainer: " + original_maintainer
-    debian_control_file.write(re.sub(re.escape(original_maintainer_line),
-                                     final_addition, file_contents))
-    debian_control_file.close()
-    return 0
+    return(0)

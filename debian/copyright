@@ -136,7 +136,6 @@ Files: dch-repeat,
        doc/pull-lp-source.1,
        doc/pull-revu-source.1,
        doc/ubuntu-build.1,
-       doc/update-maintainer.1,
        doc/what-patch.1,
        get-build-deps,
        grep-merges,
@@ -151,10 +150,8 @@ Files: dch-repeat,
        ubuntutools/lp/lpapicache.py,
        ubuntutools/misc.py,
        ubuntutools/packages.py,
-       ubuntutools/update_maintainer.py,
        what-patch
-Copyright: 2007,      Albin Tonnerre (Lutin) <lut1n.tne@gmail.com>
-           2007-2010, Canonical Ltd.
+Copyright: 2007-2010, Canonical Ltd.
            2008-2009, Iain Lane <iain@orangesquash.org.uk>
            2006,      John Dong <jdong@ubuntu.com>
            2009,      Jonathan Davies <jpds@ubuntu.com>
@@ -182,6 +179,7 @@ Files: doc/pull-debian-debdiff.1,
        doc/sponsor-patch.1,
        doc/suspicious-source.1,
        doc/ubuntu-dev-tools.5,
+       doc/update-maintainer.1,
        doc/wrap-and-sort.1,
        pull-debian-debdiff,
        sponsor-patch,
@@ -193,10 +191,12 @@ Files: doc/pull-debian-debdiff.1,
        ubuntutools/question.py,
        ubuntutools/sponsor_patch/*,
        ubuntutools/test/*,
+       ubuntutools/update_maintainer.py,
        update-maintainer,
        wrap-and-sort
 Copyright: 2010, Benjamin Drung <bdrung@ubuntu.com>
            2010, Evan Broder <evan@ebroder.net>
+           2008, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
            2010, Stefano Rivera <stefanor@ubuntu.com>
 License: ISC
  Permission to use, copy, modify, and/or distribute this software for any
