@@ -21,6 +21,13 @@
 # This script is used to get a diff of the exported symbols of all .so files in
 # every binary package of package $1.
 
+# Required tools (besides awk, coreutils, grep and sed):
+# * apt-cache and apt-get (from apt)
+# * diff (from diffutils)
+# * dpkg
+# * lsb_release (from lsb-release)
+# * nm (from binutils)
+
 DISTRO=$(lsb_release -c -s)
 VERSION=$(apt-cache madison "$1" | grep -- "$DISTRO"'/.*Sources$' | awk '{print $3}')
 PACKAGES=$(apt-cache showsrc "$1" | grep-dctrl -s Binary -F Version "$VERSION" | sed 's/Binary\:\ //g;s/\,//g' | sort -u)
