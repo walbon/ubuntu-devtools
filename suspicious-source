@@ -60,6 +60,7 @@ DEFAULT_WHITELISTED_MIMETYPES = [
     "text/x-perl",
     "text/x-php",
     "text/x-po",
+    "text/x-python",
     "text/x-shellscript",
     "text/x-tex",
     "text/x-texinfo",
