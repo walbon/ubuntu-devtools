@@ -1,2 +1,3 @@
+/usr/bin/edit-patch /usr/bin/add-patch
 /usr/bin/pbuilder-dist /usr/bin/cowbuilder-dist
 /usr/share/man/man1/pbuilder-dist.1.gz /usr/share/man/man1/cowbuilder-dist.1.gz

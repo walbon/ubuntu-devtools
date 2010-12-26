@@ -195,9 +195,7 @@ def apply_patch(task, patch):
                 ask_for_manual_fixing()
                 edit = True
     else:
-        # FIXME: edit-patch needs a non-interactive mode
-        # https://launchpad.net/bugs/612566
-        cmd = ["edit-patch", patch.full_path]
+        cmd = ["add-patch", patch.full_path]
         Logger.command(cmd)
         if subprocess.call(cmd) != 0:
             Logger.error("Failed to apply diff %s to %s %s." % \
