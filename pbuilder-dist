@@ -100,7 +100,7 @@ class pbuilder_dist:
         if not os.path.isdir(self.base):
             try:
                 os.makedirs(self.base)
-            except os.OSError:
+            except OSError:
                 print >> stderr, ('Error: Cannot create base directory "%s"'
                                   % self.base)
                 exit(1)
@@ -200,7 +200,7 @@ class pbuilder_dist:
         if not os.path.isdir(result):
             try:
                 os.makedirs(result)
-            except os.OSError:
+            except OSError:
                 print >> stderr, ('Error: Cannot create results directory "%s"'
                                   % result)
                 exit(1)

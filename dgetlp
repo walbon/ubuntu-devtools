@@ -210,12 +210,12 @@ def Download(dscinfo, number, filename, verify=True):
         outfd.write(fd.read())
         fd.close()
         outfd.close()
-    except urllib2.URLError, e:
-        status("Failed to fetch «%s» file, aborting.", ftype)
-        error(105, "Error: %s", e)
     except urllib2.HTTPError, e:
         status("Failed to fetch «%s» file, aborting.", ftype)
         error(106, "Error: (%d %s)", e.code, e.msg)
+    except urllib2.URLError, e:
+        status("Failed to fetch «%s» file, aborting.", ftype)
+        error(105, "Error: %s", e)
     except IOError, e:
         status('Could not create "%s"', filename)
         error(107, "Error: %s", e)
