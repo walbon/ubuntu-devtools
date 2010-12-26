@@ -75,7 +75,7 @@ def update_maintainer(debian_directory, verbose=False):
             if verbose:
                 print "The old maintainer was: %s" % original_maintainer
                 print "Resetting as: %s" % _UBUNTU_MAINTAINER
-            control.set_original_maintainer(_UBUNTU_MAINTAINER)
+            control.set_maintainer(_UBUNTU_MAINTAINER)
             control.save()
             continue
 
@@ -91,8 +91,8 @@ def update_maintainer(debian_directory, verbose=False):
             return(0)
 
         if control.get_original_maintainer() is not None:
-            print "Overwriting original maintainer: %s" % \
-                  control.get_original_maintainer()
+            Logger.warn("Overwriting original maintainer: %s",
+                        control.get_original_maintainer())
 
         if verbose:
             print "The original maintainer is: %s" % original_maintainer
