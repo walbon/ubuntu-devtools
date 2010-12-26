@@ -51,7 +51,7 @@ __all__ = [
 
 _POCKETS = ('Release', 'Security', 'Updates', 'Proposed', 'Backports')
 
-class Launchpad(object):
+class _Launchpad(object):
     '''Singleton for LP API access.'''
 
     def login(self, service=service):
@@ -81,7 +81,7 @@ class Launchpad(object):
 
     def __call__(self):
         return self
-Launchpad = Launchpad()
+Launchpad = _Launchpad()
 
 
 class MetaWrapper(type):

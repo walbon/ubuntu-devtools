@@ -95,7 +95,9 @@ def find_main(cache, pack):
                 got_src = True
                 break
         if got_src:
+            # pylint: disable=E1101
             for deptype, all_deps in src_records.build_depends.iteritems():
+                # pylint: enable=E1101
                 for or_deps in all_deps:
                     base_deps = []
                     for (name, ver, op) in or_deps:

@@ -34,7 +34,7 @@ import hashlib
 import subprocess
 import GnuPGInterface
 from cStringIO import StringIO
-from email import FeedParser
+from email.feedparser import FeedParser
 
 Usage = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 
@@ -75,7 +75,7 @@ def Unsign(data):
     return plain
 
 def getEntries(data):
-    parser = FeedParser.FeedParser()
+    parser = FeedParser()
     parser.feed(data)
     return parser.close()
 
