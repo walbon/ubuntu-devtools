@@ -151,14 +151,17 @@ class UpdateMaintainerTestCase(unittest.TestCase):
     #pylint: disable=C0103
     def setUp(self):
         ubuntutools.control.open = self._fake_open
+        ubuntutools.control.os.path.isfile = self._fake_isfile
         ubuntutools.update_maintainer.open = self._fake_open
         ubuntutools.update_maintainer.os.path.isfile = self._fake_isfile
-        ubuntutools.control.os.path.isfile = self._fake_isfile
         Logger.stdout = StringIO.StringIO()
         Logger.stderr = StringIO.StringIO()
 
     def tearDown(self):
+        del ubuntutools.control.open
+        del ubuntutools.control.os.path.isfile
         del ubuntutools.update_maintainer.open
+        del ubuntutools.update_maintainer.os.path.isfile
         self.assertEqual(Logger.stdout.getvalue(), '')
         self.assertEqual(Logger.stderr.getvalue(), '')
         self._files["changelog"] = None
@@ -177,7 +180,7 @@ class UpdateMaintainerTestCase(unittest.TestCase):
 
     def test_original_ubuntu_maintainer(self):
         """Test: Original maintainer is Ubuntu developer.
-        
+
            The Maintainer field needs to be update even if
            XSBC-Original-Maintainer has an @ubuntu.com address."""
         self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
