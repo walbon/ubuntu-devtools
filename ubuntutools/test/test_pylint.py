@@ -14,11 +14,18 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import os
+import re
 import subprocess
 
 import setup
 from ubuntutools.test import unittest
+
+WHITELIST = [re.compile(': %s$' % x) for x in (
+    # Wildcard import:
+    r"No name '\w+Error' in module 'launchpadlib\.errors'",
+    # http://www.logilab.org/ticket/51250:
+    r"Module 'hashlib' has no '(md5|sha(1|224|256|384|512))' member",
+)]
 
 class PylintTestCase(unittest.TestCase):
     def test_pylint(self):
@@ -30,11 +37,29 @@ class PylintTestCase(unittest.TestCase):
                 files.append(script)
             f.close()
         p = subprocess.Popen(['pylint', '--rcfile=ubuntutools/test/pylint.conf',
-                             '-E', '--'] + files,
+                             '-E', '--include-ids=y', '--'] + files,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              close_fds=True)
 
         out, err = p.communicate()
-        self.assertEqual(p.wait(), 0,
-                         "pylint returned non-zero.\n"
-                         "Output:\n" + out + err)
+        self.assertEqual(err, '')
+
+        filtered_out = []
+        detected_in = ''
+        # pylint: disable=E1103
+        for line in out.splitlines():
+            # pylint: enable=E1103
+            if line.startswith('************* '):
+                detected_in = line
+                continue
+
+            for r in WHITELIST:
+                if r.search(line):
+                    break
+            else:
+                filtered_out.append(detected_in)
+                filtered_out.append(line)
+
+        self.assertEqual(filtered_out, [],
+                         "pylint found errors.\n"
+                         "Filtered Output:\n" + '\n'.join(filtered_out))
