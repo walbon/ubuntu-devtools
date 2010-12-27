@@ -16,16 +16,16 @@
 
 """Test suite for ubuntutools.update_maintainer"""
 
+import __builtin__
 import os
 import StringIO
 import sys
 
+import mox
+
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 from ubuntutools.update_maintainer import update_maintainer
-
-import ubuntutools.control
-import ubuntutools.update_maintainer
 
 _LUCID_CHANGELOG = """axis2c (1.6.0-0ubuntu8) lucid; urgency=low
 
@@ -121,7 +121,7 @@ Package: xul-ext-adblock-plus
 """
 
 #pylint: disable=R0904
-class UpdateMaintainerTestCase(unittest.TestCase):
+class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
     """TestCase object for ubuntutools.update_maintainer"""
 
     _directory = "/"
@@ -150,18 +150,13 @@ class UpdateMaintainerTestCase(unittest.TestCase):
 
     #pylint: disable=C0103
     def setUp(self):
-        ubuntutools.control.open = self._fake_open
-        ubuntutools.control.os.path.isfile = self._fake_isfile
-        ubuntutools.update_maintainer.open = self._fake_open
-        ubuntutools.update_maintainer.os.path.isfile = self._fake_isfile
+        super(UpdateMaintainerTestCase, self).setUp()
+        self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
+        self.mox.stubs.Set(os.path, 'isfile', self._fake_isfile)
         Logger.stdout = StringIO.StringIO()
         Logger.stderr = StringIO.StringIO()
 
     def tearDown(self):
-        del ubuntutools.control.open
-        del ubuntutools.control.os.path.isfile
-        del ubuntutools.update_maintainer.open
-        del ubuntutools.update_maintainer.os.path.isfile
         self.assertEqual(Logger.stdout.getvalue(), '')
         self.assertEqual(Logger.stderr.getvalue(), '')
         self._files["changelog"] = None
