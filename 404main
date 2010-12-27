@@ -101,7 +101,8 @@ def find_main(cache, pack):
                 for or_deps in all_deps:
                     base_deps = []
                     for (name, ver, op) in or_deps:
-                        base_deps.append(apt.package.BaseDependency(name, op, ver, False))
+                        base_deps.append(apt.package.BaseDependency(name, op,
+                                                                    ver, False))
                     deps.append(apt.package.Dependency(base_deps))
 
         process_deps(cache, deps)
@@ -127,16 +128,22 @@ def main():
         distro = sys.argv[2]
         if not get_package_version(cache, distro, 'bash'):
             print '«%s» is not a valid distribution.' % distro
-            print 'Remember that for 404main to work with a certain distribution it must be in your /etc/apt/sources.list file.'
+            print ('Remember that for 404main to work with a certain '
+                   'distribution it must be in your /etc/apt/sources.list '
+                   'file.')
             sys.exit(1)
     else:
-        distro = subprocess.Popen(['lsb_release', '-cs'], stdout=subprocess.PIPE).stdout.read().strip('\n')
+        cmd = ['lsb_release', '-cs']
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        distro = process.stdout.read().strip('\n')
 
     if not get_package_version(cache, distro, sys.argv[1]):
-        print 'Can\'t find package «%s» in distribution «%s».' % (sys.argv[1], distro)
+        print 'Can\'t find package «%s» in distribution «%s».' % \
+              (sys.argv[1], distro)
         sys.exit(1)
 
-    print 'Checking package «%s» in distribution «%s»...' % (sys.argv[1], distro)
+    print 'Checking package «%s» in distribution «%s»...' % \
+          (sys.argv[1], distro)
 
     find_main(cache, sys.argv[1])
 
@@ -151,7 +158,8 @@ def main():
             print '  ', package
 
     if all_in_main:
-        print 'Package «%s» and all its dependencies and build dependencies are in main.' % sys.argv[1]
+        print ('Package «%s» and all its dependencies and build dependencies '
+               'are in main.') % sys.argv[1]
 
 if __name__ == '__main__':
 

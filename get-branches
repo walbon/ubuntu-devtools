@@ -98,7 +98,8 @@ def main():
 
         if not os.path.exists(branch.name):
             print "Branching %s ..." % branch.display_name
-            subprocess.call(["bzr", operation_type, branch.bzr_identity, branch.name])
+            cmd = ["bzr", operation_type, branch.bzr_identity, branch.name]
+            subprocess.call(cmd)
         else:
             print "Merging %s ..." % branch.display_name
             os.chdir(branch.name)

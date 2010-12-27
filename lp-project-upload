@@ -26,7 +26,8 @@ from launchpadlib.errors import HTTPError
 def create_release(project, version):
     '''Create new release and milestone for LP project.'''
 
-    print 'Release %s could not be found for project. Create it? (Y/n)' % version
+    print 'Release %s could not be found for project. Create it? (Y/n)' % \
+          version
     answer = sys.stdin.readline().strip()
     if answer.startswith('n'):
         sys.exit(0)
@@ -50,7 +51,8 @@ def create_release(project, version):
         else:
             print "Using series named '%s'" % series.name
     else:
-        print >> sys.stderr, 'Does not support creating releases if no series exists.'
+        print >> sys.stderr, ('Does not support creating releases if no '
+                              'series exists.')
         sys.exit(3)
 
     release_date = datetime.date.today().strftime('%Y-%m-%d')
@@ -60,8 +62,8 @@ def create_release(project, version):
 
 def edit_file(prefix, description):
     (fd, f) = tempfile.mkstemp(prefix=prefix+'.')
-    os.write(fd, '\n\n#------\n# Please enter the %s here. Lines which start with "#" are ignored.\n' %
-            description)
+    os.write(fd, '\n\n#------\n# Please enter the %s here. '
+                 'Lines which start with "#" are ignored.\n' % description)
     os.close(fd)
     subprocess.call(['sensible-editor', f])
     content = ''
@@ -108,7 +110,8 @@ try:
     signature = tarball + '.asc'
     if not os.path.exists(signature):
         print 'Calling GPG to create tarball signature...'
-        if subprocess.call(['gpg', '--armor', '--sign', '--detach-sig', tarball]) != 0:
+        cmd = ['gpg', '--armor', '--sign', '--detach-sig', tarball]
+        if subprocess.call(cmd) != 0:
             print >> sys.stderr, 'gpg failed, aborting'
 
     if os.path.exists(signature):

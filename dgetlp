@@ -87,7 +87,8 @@ class DscParse(object):
         Given the contents of a .dsc, parse it and extract it's content
         """
         self.entries = getEntries(Unsign(data))
-        self.files = [x.strip().split() for x in self.entries['Files'].splitlines()]
+        self.files = [x.strip().split() for x in
+                      self.entries['Files'].splitlines()]
 
     def verify_all(self):
         """
@@ -266,7 +267,8 @@ if __name__ == "__main__":
         url = url.replace("www.", "", 1)
 
     if getHost(url) != getHost(base_url):
-        error(1, "Error: This utility only works for files on %s.\nMaybe you want to try dget?", base_url)
+        error(1, "Error: This utility only works for files on %s.\n"
+                 "Maybe you want to try dget?", base_url)
 
     (number, filename) = url.split('/')[3:]
 
@@ -289,7 +291,7 @@ if __name__ == "__main__":
         dsc_data = fd.read()
         fd.close()
     except Exception, e:
-        status("Error: Please report this bug, providing the URL and attach"\
+        status("Error: Please report this bug, providing the URL and attach"
                " the following backtrace")
         raise
 

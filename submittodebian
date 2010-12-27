@@ -28,11 +28,13 @@ from tempfile import mkstemp
 try:
     from debian.changelog import Changelog
 except ImportError:
-    print 'This utility requires modules from the «python-debian» package, which isn\'t currently installed.'
+    print ('This utility requires modules from the «python-debian» package, '
+           'which isn\'t currently installed.')
     sys.exit(1)
 
 if not os.path.exists('/usr/bin/reportbug'):
-    print 'This utility requires the «reportbug» package, which isn\'t currently installed.'
+    print ('This utility requires the «reportbug» package, which isn\'t '
+           'currently installed.')
     sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
@@ -41,7 +43,7 @@ def get_most_recent_debian_version(changelog):
             return v.full_version
 
 def get_bug_body(changelog):
-    return '''In Ubuntu, the attached patch was applied to achieve the following:
+    msg = """In Ubuntu, the attached patch was applied to achieve the following:
 
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
 ## Please add all necessary information about why the change needed to go in
@@ -53,7 +55,8 @@ def get_bug_body(changelog):
 %s
 
 Thanks for considering the patch.
-''' % ("\n".join([a for a in changelog._blocks[0].changes()]))
+""" % ("\n".join([a for a in changelog._blocks[0].changes()]))
+    return msg
 
 def gen_debdiff(changelog):
     pkg = changelog.package
@@ -66,7 +69,8 @@ def gen_debdiff(changelog):
 
     if os.system('bzr diff -r tag:%s > /dev/null 2>&1' % oldver) == 256:
         print "Extracting bzr diff between %s and %s" % (oldver, newver)
-        cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % (oldver, debdiff)
+        cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % \
+              (oldver, debdiff)
         run_cmd(cmd)
     else:
         if oldver.epoch is not None:
@@ -81,7 +85,8 @@ def gen_debdiff(changelog):
         check_file(newdsc)
 
         print "Generating debdiff between %s and %s" % (oldver, newver)
-        cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % (olddsc, newdsc, debdiff)
+        cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % \
+              (olddsc, newdsc, debdiff)
         run_cmd(cmd)
 
     return debdiff
@@ -99,7 +104,10 @@ def edit_debdiff(debdiff):
     run_cmd(cmd)
 
 def submit_bugreport(body, debdiff, changelog):
-    cmd = 'reportbug -P "User: ubuntu-devel@lists.ubuntu.com" -P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s -B debian -i %s -V %s %s' % (debdiff, body, deb_version, changelog.package)
+    cmd = ('reportbug -P "User: ubuntu-devel@lists.ubuntu.com" '
+           '-P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s '
+           '-B debian -i %s -V %s %s') % \
+          (debdiff, body, deb_version, changelog.package)
     run_cmd(cmd)
 
 def run_cmd(cmd):
@@ -107,7 +115,8 @@ def run_cmd(cmd):
         print "%s\n" % cmd
     os.system(cmd)
 
-changelog_file = check_file('debian/changelog', critical = False) or check_file('../debian/changelog')
+changelog_file = (check_file('debian/changelog', critical = False) or
+                  check_file('../debian/changelog'))
 changelog = Changelog(file(changelog_file).read())
 
 deb_version = get_most_recent_debian_version(changelog)

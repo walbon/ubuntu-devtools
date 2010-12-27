@@ -278,7 +278,8 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
         bp_version = bp_version[bp_version.find(':')+1:]
 
     if build:
-        if 0 != do_build(workdir, package, release, bp_version, builder, update):
+        if 0 != do_build(workdir, package, release, bp_version, builder,
+                         update):
             sys.exit(1)
     if upload:
         do_upload(workdir, package, bp_version, upload, prompt)

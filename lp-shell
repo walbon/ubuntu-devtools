@@ -50,13 +50,14 @@ if len(args) >= 2:
         print 'I: Falling back to "1.0".'
 
 if options.anonymous:
-    lp = Launchpad.login_anonymously('udt-lp-shell', instance, version=api_version)
-    banner = 'Connected anonymously to LP service "%s" with API version "%s":' % (
-            instance, api_version)
+    lp = Launchpad.login_anonymously('udt-lp-shell', instance,
+                                     version=api_version)
+    banner = 'Connected anonymously to LP service "%s" with API version "%s":' \
+             % (instance, api_version)
 else:
     lp = Launchpad.login_with('udt-lp-shell', instance, version=api_version)
-    banner = 'Connected to LP service "%s" with API version "%s":' % (
-            instance, api_version)
+    banner = 'Connected to LP service "%s" with API version "%s":' % \
+             (instance, api_version)
 
 banner += '\nNote: LP can be accessed through the "lp" object.'
 

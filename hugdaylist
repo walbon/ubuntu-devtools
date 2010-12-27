@@ -32,7 +32,8 @@
 import sys
 from optparse import OptionParser
 
-from ubuntutools.lp.libsupport import get_launchpad, translate_web_api, translate_api_web
+from ubuntutools.lp.libsupport import (get_launchpad, translate_web_api,
+                                       translate_api_web)
 
 def check_args():
     howmany = -1
@@ -69,7 +70,8 @@ def filter_unsolved(task):
     #   the given task
     # Filter out special types of bugs:
     # - https://wiki.ubuntu.com/Bugs/HowToTriage#Special%20types%20of%20bugs
-    subscriptions = set(s.person.name for s in task.bug.subscriptions) #this is expensive, parse name out of self_link instead?
+    # this is expensive, parse name out of self_link instead?
+    subscriptions = set(s.person.name for s in task.bug.subscriptions)
     if (task.status != "Fix Committed" and
         (not task.assignee or task.assignee.name in ['motu','desktop-bugs']) and
          'ubuntu-sponsors' not in subscriptions and
@@ -80,7 +82,8 @@ def filter_unsolved(task):
 def main():
     (howmany, url) = check_args()
     if len(url.split("?", 1)) == 2:
-        # search options not supported, because there is no mapping web ui options <-> API options
+        # search options not supported, because there is no mapping web ui
+        # options <-> API options
         print >> sys.stderr, "Options in url are not supported, url: %s" % url
         sys.exit(1)
 
@@ -97,7 +100,8 @@ def main():
     except Exception, e:
         x = getattr(e, "response", {})
         if x.get("status", None) == "404":
-            print >> sys.stderr, "The URL at '%s' does not appear to be a valid url to a product" % url
+            print >> sys.stderr, ("The URL at '%s' does not appear to be a "
+                                  "valid url to a product") % url
             sys.exit(1)
         else:
             raise

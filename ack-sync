@@ -39,7 +39,8 @@ UPLOAD_NOT_PERMITTED = 4
 def get_version(title):
     m = re.search("[() ][0-9][0-9a-zA-Z.:+-~]*", title)
     if m is None:
-        print >> sys.stderr, "Version could not be detected. Please specify it with -V."
+        print >> sys.stderr, ("Version could not be detected. Please specify "
+                              "it with -V.")
         sys.exit(VERSION_DETECTION_FAILED)
     return m.group(0).strip("() ")
 
@@ -82,14 +83,16 @@ def get_source(package, version, section, dist, uploader_name, uploader_email,
     if not os.path.exists(os.path.join(workdir, dsc_file)):
         dsc_file = package + "_" + strip_epoch(version) + ".dsc"
     if not os.path.exists(os.path.join(workdir, dsc_file)):
-        print >> sys.stderr, "E: Failed to find .dsc file created by syncpackage."
+        print >> sys.stderr, ("E: Failed to find .dsc file created by "
+                              "syncpackage.")
         sys.exit(1)
     return dsc_file
 
 def build_source(dist, dsc_file):
     try:
         if sbuild:
-            subprocess.check_call(LogCall(["sbuild", "-d", dist, "-A", dsc_file]))
+            cmd = ["sbuild", "-d", dist, "-A", dsc_file]
+            subprocess.check_call(LogCall(cmd))
         else:
             if not os.path.isdir("buildresult"):
                 os.makedirs("buildresult")
@@ -115,14 +118,16 @@ def test_install(dist, dsc_file):
     try:
         cmd = ["sudo", "piuparts", "-N", "-W", "--single-changes-list",
                "--log-level=info", "--ignore=/var/log/apt/history.log",
-               "--mirror=http://archive.ubuntu.com/ubuntu main universe restricted multiverse",
-               changes_file]
+               "--mirror=http://archive.ubuntu.com/ubuntu main universe "
+               "restricted multiverse", changes_file]
         if sbuild:
-            subprocess.check_call(LogCall(cmd + ["--lvm-volume="+lvm+"/"+dist+"_chroot"]))
+            lvm_volume = lvm + "/" + dist + "_chroot"
+            subprocess.check_call(LogCall(cmd + ["--lvm-volume="+lvm_volume]))
         else:
             subprocess.check_call(LogCall(cmd + ["--pbuilder"]))
     except subprocess.CalledProcessError:
-        print >> sys.stderr, "E: %s failed to install. Please check log" % (changes_file)
+        print >> sys.stderr, "E: %s failed to install. Please check log" % \
+                             (changes_file)
 
 def get_email_from_file(name):
     filename = os.path.expanduser("~/.ack-sync-email.list")
@@ -140,7 +145,8 @@ def unsubscribe_sponsors(launchpad, bug):
         bug.unsubscribe(person=ums)
         print "ubuntu-main-sponsors unsubscribed (for backward compatibility)"
     except lazr.restfulclient.errors.HTTPError, http_error:
-        print "failed to unsubscribe ubuntu-main-sponsors: " + http_error.content
+        print "failed to unsubscribe ubuntu-main-sponsors: " + \
+              http_error.content
 
     us = launchpad.people['ubuntu-sponsors']
     bug.unsubscribe(person=us)
@@ -178,10 +184,14 @@ def main(bug_numbers, all_package, all_version, all_section, update,
                 uploader_email = get_email_from_file(uploader.name)
                 if uploader_email is None:
                     if not silent:
-                        print >> sys.stderr, "E: Bug owner '%s' does not have a public email address. Specify uploader with '-e'." % (uploader_name)
+                        print >> sys.stderr, ("E: Bug owner '%s' does not have "
+                                              "a public email address. Specify "
+                                              "uploader with '-e'.") % \
+                                             (uploader_name)
                     sys.exit(PRIVATE_USER_EMAIL)
                 elif not silent:
-                    print "Taking email address from local file: " + uploader_email
+                    print "Taking email address from local file: " + \
+                          uploader_email
 
         task = list(bug.bug_tasks)[0]
 
@@ -219,7 +229,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
                 if e.response.status == 403:
                     can_upload = False
                 elif e.response.status == 400:
-                    print "W: Package is probably not in Ubuntu. Can't check upload rights."
+                    print ("W: Package is probably not in Ubuntu. Can't check "
+                           "upload rights.")
                     can_upload = True
                 else:
                     raise e
@@ -233,7 +244,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
             print "assigned me"
             task.lp_save()
         if task.assignee != launchpad.me:
-            print >> sys.stderr, "E: %s is already assigned to https://launchpad.net/bugs/%i" % \
+            print >> sys.stderr, ("E: %s is already assigned to "
+                                  "https://launchpad.net/bugs/%i") % \
                                  (task.assignee.display_name, bug.id)
             sys.exit(1)
         old_status = task.status
@@ -267,7 +279,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
         print '%s (was %s)' % (task.status, old_status)
         print "Uploader:", uploader_name + " <" + uploader_email + ">"
         if upload:
-            print "Will upload sync directly, rather than subscribing ubuntu-archive"
+            print ("Will upload sync directly, rather than subscribing "
+                   "ubuntu-archive")
         try:
             raw_input('Press [Enter] to continue or [Ctrl-C] to abort.')
         except KeyboardInterrupt:
@@ -290,7 +303,8 @@ def main(bug_numbers, all_package, all_version, all_section, update,
             cmd = ["dpkg-architecture", "-qDEB_BUILD_ARCH"]
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             architecture = process.communicate()[0].strip()
-            content = "%s %s builds on %s. Sync request ACK'd." % (package, version, architecture)
+            content = "%s %s builds on %s. Sync request ACK'd." % \
+                      (package, version, architecture)
             bug.newMessage(content=content, subject="ack-sync")
             bug.subscribe(person=launchpad.people['ubuntu-archive'])
             print "subscribed ubuntu-archive"
@@ -324,7 +338,8 @@ if __name__ == '__main__':
         long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent",
                      "update", "upload", "verbose", "version=", "with-sbuild",
                      "pbuilder=", "with-piuparts", "lpinstance=", "no-conf"]
-        opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uUvV:", long_opts)
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "e:hk:p:PsSC:uUvV:",
+                                       long_opts)
     except getopt.GetoptError, e:
         # will print something like "option -a not recognized"
         print >> sys.stderr, str(e)
