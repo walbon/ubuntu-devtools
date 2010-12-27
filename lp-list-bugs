@@ -29,33 +29,36 @@ from optparse import OptionParser
 from ubuntutools.lp.libsupport import get_launchpad
 from launchpadlib.errors import HTTPError
 
-if __name__ == '__main__':
+def main():
     usage = "Usage: %prog <bug> [...]"
     parser = OptionParser(usage)
-    options, args = parser.parse_args()
+    args = parser.parse_args()[1]
     if len(args) < 1:
         parser.error("Need at least one bug number")
 
     try:
-        lp = get_launchpad('ubuntu-dev-tools')
-    except Exception, e:
-        print >> sys.stderr, 'Could not connect to Launchpad:', str(e)
+        launchpad = get_launchpad('ubuntu-dev-tools')
+    except Exception, error:
+        print >> sys.stderr, 'Could not connect to Launchpad:', str(error)
         sys.exit(2)
 
     for bugnum in args:
         try:
-            bug = lp.bugs[bugnum]
+            bug = launchpad.bugs[bugnum]
             print "Bug %s: %s" % (bugnum, bug.title)
             for task in bug.bug_tasks:
                 print "  %s: %s" % (task.bug_target_name, task.status)
-        except HTTPError, e:
-            if e.response.status == 401:
+        except HTTPError, error:
+            if error.response.status == 401:
                 print >> sys.stderr, \
                     ("E: Don't have enough permissions to access bug %s" %
                      bugnum)
-                print >> sys.stderr, e.content
+                print >> sys.stderr, error.content
                 continue
-            elif e.response.status == 404:
+            elif error.response.status == 404:
                 print >> sys.stderr, "E: Bug %s not found" % bugnum
             else:
                 raise
+
+if __name__ == '__main__':
+    main()

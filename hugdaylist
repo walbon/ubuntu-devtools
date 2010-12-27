@@ -41,15 +41,14 @@ def check_args():
 
     # Our usage options.
     usage = "usage: %prog [-n <number>] launchpad-buglist-url"
-    optParser = OptionParser(usage)
-    argsParsed = 0
+    opt_parser = OptionParser(usage)
 
     # Options - namely just the number of bugs to output.
-    optParser.add_option("-n", "--number", type = "int",
-            dest = "number", help = "Number of entries to output.")
+    opt_parser.add_option("-n", "--number", type="int",
+                          dest="number", help="Number of entries to output.")
 
     # Parse arguments.
-    (options, args) = optParser.parse_args()
+    (options, args) = opt_parser.parse_args()
 
     # Check if we want a number other than the default.
     howmany = options.number
@@ -58,10 +57,10 @@ def check_args():
     if not args:
         print >> sys.stderr, "An URL pointing to a Launchpad bug list is " \
            "required."
-        optParser.print_help()
+        opt_parser.print_help()
         sys.exit(1)
     else:
-        url = args[argsParsed]
+        url = args[0]
 
     return (howmany, url)
 
@@ -90,31 +89,29 @@ def main():
     launchpad = None
     try:
         launchpad = get_launchpad("ubuntu-dev-tools")
-    except IOError, e:
-        print e
+    except IOError, error:
+        print error
         sys.exit(1)
 
     api_url = translate_web_api(url, launchpad)
     try:
         product = launchpad.load(api_url)
-    except Exception, e:
-        x = getattr(e, "response", {})
-        if x.get("status", None) == "404":
+    except Exception, error:
+        response = getattr(error, "response", {})
+        if response.get("status", None) == "404":
             print >> sys.stderr, ("The URL at '%s' does not appear to be a "
                                   "valid url to a product") % url
             sys.exit(1)
         else:
             raise
 
-    bl = product.searchTasks()
+    bug_list = [b for b in product.searchTasks() if filter_unsolved(b)]
 
-    l = filter(filter_unsolved, bl)
-
-    if not l:
+    if not bug_list:
         print "Bug list of %s is empty." % url
         sys.exit(0)
     if howmany == -1:
-        howmany = len(l)
+        howmany = len(bug_list)
 
     print """
 ## ||<rowbgcolor="#CCFFCC"> This task is done || somebody || ||
@@ -124,7 +121,7 @@ def main():
 
 || Bug || Subject || Triager ||"""
 
-    for i in list(l)[:howmany]:
+    for i in list(bug_list)[:howmany]:
         bug = i.bug
         print '||<rowbgcolor="#FFEBBB"> [%s %s] || %s || ||' % \
             (translate_api_web(bug.self_link), bug.id, bug.title)

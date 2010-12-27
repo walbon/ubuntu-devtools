@@ -32,84 +32,89 @@ import SOAPpy
 from ubuntutools.config import UDTConfig
 from ubuntutools.lp.libsupport import get_launchpad, translate_api_web
 
-bug_re = re.compile(r"bug=(\d+)")
+def main():
+    bug_re = re.compile(r"bug=(\d+)")
 
-url = 'http://bugs.debian.org/cgi-bin/soap.cgi'
-namespace = 'Debbugs/SOAP'
-debbugs = SOAPpy.SOAPProxy(url, namespace)
+    url = 'http://bugs.debian.org/cgi-bin/soap.cgi'
+    namespace = 'Debbugs/SOAP'
+    debbugs = SOAPpy.SOAPProxy(url, namespace)
 
-# debug
-#debbugs.config.dumpSOAPOut = 1
-#debbugs.config.dumpSOAPIn = 1
+    # debug
+    #debbugs.config.dumpSOAPOut = 1
+    #debbugs.config.dumpSOAPIn = 1
 
-parser = OptionParser(usage="%prog [option] bug ...")
-parser.add_option("-b", "--browserless",
-                  help="Don't open the bug in the browser at the end",
-                  dest="browserless", action="store_true")
-parser.add_option("-l", "--lpinstance", metavar="INSTANCE",
-                  help="Launchpad instance to connect to (default: production)",
-                  dest="lpinstance", default=None)
-parser.add_option("-n", "--dry-run",
-                  help=SUPPRESS_HELP,
-                  dest="lpinstance", action="store_const", const="staging")
-parser.add_option("--no-conf", dest="no_conf", default=False,
-                  help="Don't read config files or environment variables.",
-                  action="store_true")
-(options, args) = parser.parse_args()
+    parser = OptionParser(usage="%prog [option] bug ...")
+    parser.add_option("-b", "--browserless",
+                      help="Don't open the bug in the browser at the end",
+                      dest="browserless", action="store_true")
+    parser.add_option("-l", "--lpinstance", metavar="INSTANCE",
+                      help="Launchpad instance to connect to "
+                           "(default: production)",
+                      dest="lpinstance", default=None)
+    parser.add_option("-n", "--dry-run",
+                      help=SUPPRESS_HELP,
+                      dest="lpinstance", action="store_const", const="staging")
+    parser.add_option("--no-conf", dest="no_conf", default=False,
+                      help="Don't read config files or environment variables.",
+                      action="store_true")
+    (options, args) = parser.parse_args()
 
-config = UDTConfig(options.no_conf)
-if options.lpinstance is None:
-    options.lpinstance = config.get_value("LPINSTANCE")
+    config = UDTConfig(options.no_conf)
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value("LPINSTANCE")
 
-try:
-    lp = get_launchpad("ubuntu-dev-tools", options.lpinstance)
-except IOError, msg:
-    print msg
-    print "No credentials, can't continue"
-    sys.exit(1)
+    try:
+        launchpad = get_launchpad("ubuntu-dev-tools", options.lpinstance)
+    except IOError, msg:
+        print msg
+        print "No credentials, can't continue"
+        sys.exit(1)
 
-debian = lp.distributions['debian']
-ubuntu = lp.distributions['ubuntu']
-lp_debbugs = lp.bug_trackers.getByName(name='debbugs')
+    debian = launchpad.distributions['debian']
+    ubuntu = launchpad.distributions['ubuntu']
+    lp_debbugs = launchpad.bug_trackers.getByName(name='debbugs')
 
-bug_nums = []
+    bug_nums = []
 
-for bug_num in args:
-    if bug_num.startswith("http"):
-        # bug URL
-        match = bug_re.search(bug_num)
-        if match is None:
-            raise ValueError("Can't determine bug number from %s" % bug_num)
-        bug_num = match.groups()[0]
-    bug_num = bug_num.lstrip("#")
-    bug_num = int(bug_num)
-    bug_nums.append(bug_num)
+    for bug_num in args:
+        if bug_num.startswith("http"):
+            # bug URL
+            match = bug_re.search(bug_num)
+            if match is None:
+                raise ValueError("Can't determine bug number from %s" % bug_num)
+            bug_num = match.groups()[0]
+        bug_num = bug_num.lstrip("#")
+        bug_num = int(bug_num)
+        bug_nums.append(bug_num)
 
-bugs = debbugs.get_status(*bug_nums)
+    bugs = debbugs.get_status(*bug_nums)
 
-if len(bug_nums) > 1:
-    bugs = bugs[0]
+    if len(bug_nums) > 1:
+        bugs = bugs[0]
 
-#import pdb; pdb.set_trace()
-for bug in bugs:
-    bug = bug.value
-    package = bug.package
-    bug_num = bug.bug_num
-    subject = bug.subject
-    log = debbugs.get_bug_log(bug_num)
-    summary = log[0][0]
-    target = ubuntu.getSourcePackage(name=package)
-    u_bug = lp.bugs.createBug(target=target, title=subject,
-            description="Imported from Debian bug %d:\n\n%s"
-                % (bug_num, summary))
-    d_task = u_bug.addTask(target=debian.getSourcePackage(name=package))
-    d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
-    d_task.bug_watch = d_watch
-    d_task.lp_save()
-    web_url = translate_api_web(u_bug.self_link)
-    print "Opened %s" % web_url
-    if not options.browserless:
-        subprocess.call(["xdg-open", web_url])
+    #import pdb; pdb.set_trace()
+    for bug in bugs:
+        bug = bug.value
+        package = bug.package
+        bug_num = bug.bug_num
+        subject = bug.subject
+        log = debbugs.get_bug_log(bug_num)
+        summary = log[0][0]
+        target = ubuntu.getSourcePackage(name=package)
+        u_bug = launchpad.bugs.createBug(target=target, title=subject,
+                description="Imported from Debian bug %d:\n\n%s"
+                    % (bug_num, summary))
+        d_task = u_bug.addTask(target=debian.getSourcePackage(name=package))
+        d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
+        d_task.bug_watch = d_watch
+        d_task.lp_save()
+        web_url = translate_api_web(u_bug.self_link)
+        print "Opened %s" % web_url
+        if not options.browserless:
+            subprocess.call(["xdg-open", web_url])
+
+if __name__ == '__main__':
+    main()
 
 #def get_status(*args):
 #    result = server.get_status(*args)

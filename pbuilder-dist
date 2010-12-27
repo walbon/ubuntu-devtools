@@ -38,7 +38,7 @@ import ubuntutools.misc
 DEBIAN_DISTROS = ['etch', 'lenny', 'squeeze', 'sid', 'stable', 'testing',
                   'unstable', 'experimental']
 
-class pbuilder_dist:
+class PbuilderDist:
     def __init__(self, builder):
         # Base directory where pbuilder will put all the files it creates.
         self.base = None
@@ -116,7 +116,7 @@ class pbuilder_dist:
         self.target_distro = self.system_distro
 
     def set_target_distro(self, distro):
-        """ pbuilder_dist.set_target_distro(distro) -> None
+        """ PbuilderDist.set_target_distro(distro) -> None
 
         Check if the given target distribution name is correct, if it
         isn't know to the system ask the user for confirmation before
@@ -145,7 +145,7 @@ class pbuilder_dist:
         self.target_distro = distro
 
     def set_operation(self, operation):
-        """ pbuilder_dist.set_operation -> None
+        """ PbuilderDist.set_operation -> None
 
         Check if the given string is a valid pbuilder operation and
         depending on this either save it into the appropiate variable
@@ -172,7 +172,7 @@ class pbuilder_dist:
             return []
 
     def get_command(self, remaining_arguments = None):
-        """ pbuilder_dist.get_command -> string
+        """ PbuilderDist.get_command -> string
 
         Generate the pbuilder command which matches the given configuration
         and return it as a string.
@@ -329,7 +329,7 @@ def show_help(exit_code = 0):
 def main():
     """ main() -> None
 
-    This is pbuilder-dist's main function. It creates a pbuilder_dist
+    This is pbuilder-dist's main function. It creates a PbuilderDist
     object, modifies all necessary settings taking data from the
     executable's name and command line options and finally either ends
     the script and runs pbuilder itself or exists with an error message.
@@ -353,7 +353,7 @@ def main():
     if args[0] in ('-h', '--help', 'help'):
         show_help(0)
 
-    app = pbuilder_dist(parts[0])
+    app = PbuilderDist(parts[0])
 
     if len(parts) > 1 and parts[1] != 'dist' and '.' not in parts[1]:
         app.set_target_distro(parts[1])

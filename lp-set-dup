@@ -84,15 +84,15 @@ def main():
             raise
     new_main_dup_of = new_main_bug.duplicate_of
     if new_main_dup_of is not None:
-        s = None
+        answer = None
         try:
-            s = raw_input("Bug %s is a duplicate of %s; would you like to use "
-                          "%s as the new main bug instead? [y/N]" % \
-                          (new_main_bug.id, new_main_dup_of.id,
-                           new_main_dup_of.id))
+            answer = raw_input("Bug %s is a duplicate of %s; would you like to "
+                               "use %s as the new main bug instead? [y/N]" % \
+                               (new_main_bug.id, new_main_dup_of.id,
+                                new_main_dup_of.id))
         except:
             die("Aborted")
-        if s.lower() not in ("y", "yes"):
+        if answer.lower() not in ("y", "yes"):
             die("User aborted")
         new_main_bug = new_main_dup_of
 
@@ -121,12 +121,12 @@ def main():
           (new_main_bug.id, " ".join([str(b.id) for b in bugs_to_process]))
 
     if not options.force:
-        s = None
+        answer = None
         try:
-            s = raw_input("Proceed? [y/N]")
+            answer = raw_input("Proceed? [y/N]")
         except:
             die("Aborted")
-        if s.lower() not in ("y", "yes"):
+        if answer.lower() not in ("y", "yes"):
             die("User aborted")
 
     for bug in bugs_to_process:

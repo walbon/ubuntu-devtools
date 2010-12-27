@@ -88,16 +88,16 @@ def file_bug(config, launchpad):
 
         product_url = "%subuntu/+source/%s" % \
                       (launchpad._root_uri, config["sourcepackage"])
-        tags = filter(None, map(lambda t: t.strip("\n").strip(),
-                                config["tags"].split(",")))
+        tags = [t for t in [t.strip("\n").strip() for t in
+                            config["tags"].split(",")] if t]
         bug = launchpad.bugs.createBug(description=description, title=summary,
             target=product_url, tags=tags)
 
         print "Successfully filed bug %i: %s" % \
               (bug.id, translate_api_web(bug.self_link))
 
-        subscribers = filter(None, map(lambda t: t.strip("\n").strip(),
-                                       config["subscribers"].split(",")))
+        subscribers = [s for s in [s.strip("\n").strip() for s in
+                                   config["subscribers"].split(",")] if s]
         for sub in subscribers:
             subscribe_url = "%s~%s" % (launchpad._root_uri, sub)
             bug.subscribe(person=subscribe_url)
@@ -145,18 +145,19 @@ def read_buglist(url, launchpad):
     return packages
 
 def main():
-    p = optparse.OptionParser(description=
-            'Files bugs against multiple packages in Ubuntu. '
-            'Reads the bug from "instructions" and files them against '
-            'packages listed in "list". '
-            "If these files aren't preset they are created.")
-    p.add_option('-l', '--lpinstance', metavar='INSTANCE',
-                 dest='lpinstance', default=None,
-                 help='Launchpad instance to connect to (default: production)')
-    p.add_option('--no-conf',
-                 dest='no_conf', default=False, action='store_true',
-                 help="Don't read config files or environment variables")
-    options, args = p.parse_args()
+    description = ('Files bugs against multiple packages in Ubuntu. '
+                   'Reads the bug from "instructions" and files them against '
+                   'packages listed in "list". '
+                   "If these files aren't preset they are created.")
+    parser = optparse.OptionParser(description=description)
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                      dest='lpinstance', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production)')
+    parser.add_option('--no-conf',
+                      dest='no_conf', default=False, action='store_true',
+                      help="Don't read config files or environment variables")
+    options = parser.parse_args()[0]
     udtconfig = UDTConfig(options.no_conf)
     if options.lpinstance is None:
         options.lpinstance = udtconfig.get_value('LPINSTANCE')

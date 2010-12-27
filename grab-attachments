@@ -29,16 +29,17 @@ from ubuntutools.lp.libsupport import get_launchpad
 USAGE = "grab-attachments <bug numbers>"
 
 def main():
-    p = OptionParser('Usage: %prog [options] <bug numbers>')
-    p.add_option('-l', '--lpinstance', metavar='INSTANCE',
-                 dest='lpinstance', default=None,
-                 help='Launchpad instance to connect to (default: production)')
-    p.add_option('--no-conf',
-                 dest='no_conf', default=False, action='store_true',
-                 help="Don't read config files or environment variables")
-    opts, args = p.parse_args()
+    parser = OptionParser('Usage: %prog [options] <bug numbers>')
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                      dest='lpinstance', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production)')
+    parser.add_option('--no-conf',
+                      dest='no_conf', default=False, action='store_true',
+                      help="Don't read config files or environment variables")
+    opts, args = parser.parse_args()
     if len(args) < 1:
-        p.error('No bug numbers provided')
+        parser.error('No bug numbers provided')
     config = UDTConfig(opts.no_conf)
     if opts.lpinstance is None:
         opts.lpinstance = config.get_value('LPINSTANCE')
@@ -49,13 +50,13 @@ def main():
         for arg in args:
             try:
                 number = int(arg)
-            except:
-                p.error("'%s' is not a valid bug number." % arg)
+            except ValueError:
+                parser.error("'%s' is not a valid bug number." % arg)
 
-            b = launchpad.bugs[number]
+            bug = launchpad.bugs[number]
 
-            for a in b.attachments:
-                f = a.data.open()
+            for attachment in bug.attachments:
+                f = attachment.data.open()
                 filename = os.path.join(os.getcwd(), f.filename)
                 local_file = open(filename, "w")
                 local_file.write(f.read())
@@ -63,10 +64,9 @@ def main():
                 local_file.close()
 
     # no LP credentials
-    except IOError, e:
-        print e
+    except IOError, error:
+        print error
         sys.exit(1)
 
 if __name__ == '__main__':
     main()
-

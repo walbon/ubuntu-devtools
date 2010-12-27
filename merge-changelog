@@ -18,9 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, re
+import re
+import sys
 
-def usage(exit=1):
+def usage(exit_code=1):
     print '''Usage: merge-changelog <left changelog> <right changelog>
 
 merge-changelog takes two changelogs that once shared a common source,
@@ -28,7 +29,7 @@ merges them back together, and prints the merged result to stdout.  This
 is useful if you need to manually merge a ubuntu package with a new
 Debian release of the package.
 '''
-    sys.exit(exit)
+    sys.exit(exit_code)
 
 ########################################################################
 # Changelog Management
@@ -54,7 +55,7 @@ def merge_changelog(left_changelog, right_changelog):
 
         print right_text
 
-    for left_ver, left_text in left_cl:
+    for _, left_text in left_cl:
         print left_text
 
     return False
@@ -63,10 +64,10 @@ def read_changelog(filename):
     """Return a parsed changelog file."""
     entries = []
 
-    cl = open(filename)
+    changelog_file = open(filename)
     try:
         (ver, text) = (None, "")
-        for line in cl:
+        for line in changelog_file:
             match = CL_RE.search(line)
             if match:
                 try:
@@ -85,7 +86,7 @@ def read_changelog(filename):
             elif len(line.strip()) or ver is not None:
                 text += line
     finally:
-        cl.close()
+        changelog_file.close()
 
     if len(text):
         entries.append((ver, text))
@@ -96,12 +97,12 @@ def read_changelog(filename):
 # Version parsing code
 ########################################################################
 # Regular expressions make validating things easy
-valid_epoch = re.compile(r'^[0-9]+$')
-valid_upstream = re.compile(r'^[A-Za-z0-9+:.~-]*$')
-valid_revision = re.compile(r'^[A-Za-z0-9+.~]+$')
+VALID_EPOCH = re.compile(r'^[0-9]+$')
+VALID_UPSTREAM = re.compile(r'^[A-Za-z0-9+:.~-]*$')
+VALID_REVISION = re.compile(r'^[A-Za-z0-9+.~]+$')
 
 # Character comparison table for upstream and revision components
-cmp_table = "~ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-.:"
+CMP_TABLE = "~ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-.:"
 
 
 class Version(object):
@@ -137,7 +138,7 @@ class Version(object):
             self.epoch = ver[:idx]
             if not len(self.epoch):
                 raise ValueError
-            if not valid_epoch.search(self.epoch):
+            if not VALID_EPOCH.search(self.epoch):
                 raise ValueError
             ver = ver[idx+1:]
 
@@ -147,7 +148,7 @@ class Version(object):
             self.revision = ver[idx+1:]
             if not len(self.revision):
                 raise ValueError
-            if not valid_revision.search(self.revision):
+            if not VALID_REVISION.search(self.revision):
                 raise ValueError
             ver = ver[:idx]
 
@@ -155,29 +156,29 @@ class Version(object):
         self.upstream = ver
         if not len(self.upstream):
             raise ValueError
-        if not valid_upstream.search(self.upstream):
+        if not VALID_UPSTREAM.search(self.upstream):
             raise ValueError
 
         self.epoch = int(self.epoch)
 
-    def getWithoutEpoch(self):
+    def get_without_epoch(self):
         """Return the version without the epoch."""
-        str = self.upstream
+        string = self.upstream
         if self.revision is not None:
-            str += "-%s" % (self.revision,)
-        return str
+            string += "-%s" % (self.revision,)
+        return string
 
-    without_epoch = property(getWithoutEpoch)
+    without_epoch = property(get_without_epoch)
 
     def __str__(self):
         """Return the class as a string for printing."""
-        str = ""
+        string = ""
         if self.epoch > 0:
-            str += "%d:" % (self.epoch,)
-        str += self.upstream
+            string += "%d:" % (self.epoch,)
+        string += self.upstream
         if self.revision is not None:
-            str += "-%s" % (self.revision,)
-        return str
+            string += "-%s" % (self.revision,)
+        return string
 
     def __repr__(self):
         """Return a debugging representation of the object."""
@@ -190,34 +191,37 @@ class Version(object):
         other = Version(other)
 
         result = cmp(self.epoch, other.epoch)
-        if result != 0: return result
+        if result != 0:
+            return result
 
         result = deb_cmp(self.upstream, other.upstream)
-        if result != 0: return result
+        if result != 0:
+            return result
 
         result = deb_cmp(self.revision or "", other.revision or "")
-        if result != 0: return result
+        if result != 0:
+            return result
 
         return 0
 
 
-def strcut(str, idx, accept):
-    """Cut characters from str that are entirely in accept."""
+def strcut(string, idx, accept):
+    """Cut characters from string that are entirely in accept."""
     ret = ""
-    while idx < len(str) and str[idx] in accept:
-        ret += str[idx]
+    while idx < len(string) and string[idx] in accept:
+        ret += string[idx]
         idx += 1
 
     return (ret, idx)
 
-def deb_order(str, idx):
+def deb_order(string, idx):
     """Return the comparison order of two characters."""
-    if idx >= len(str):
+    if idx >= len(string):
         return 0
-    elif str[idx] == "~":
+    elif string[idx] == "~":
         return -1
     else:
-        return cmp_table.index(str[idx])
+        return CMP_TABLE.index(string[idx])
 
 def deb_cmp_str(x, y):
     """Compare two strings in a deb version."""
@@ -238,25 +242,27 @@ def deb_cmp(x, y):
     x_idx = y_idx = 0
     while x_idx < len(x) or y_idx < len(y):
         # Compare strings
-        (x_str, x_idx) = strcut(x, x_idx, cmp_table)
-        (y_str, y_idx) = strcut(y, y_idx, cmp_table)
+        (x_str, x_idx) = strcut(x, x_idx, CMP_TABLE)
+        (y_str, y_idx) = strcut(y, y_idx, CMP_TABLE)
         result = deb_cmp_str(x_str, y_str)
-        if result != 0: return result
+        if result != 0:
+            return result
 
         # Compare numbers
         (x_str, x_idx) = strcut(x, x_idx, "0123456789")
         (y_str, y_idx) = strcut(y, y_idx, "0123456789")
         result = cmp(int(x_str or "0"), int(y_str or "0"))
-        if result != 0: return result
+        if result != 0:
+            return result
 
     return 0
 
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'):
-        usage(exit=0)
+        usage(0)
     if len(sys.argv) != 3:
-        usage(exit=1)
+        usage(1)
 
     left_changelog = sys.argv[1]
     right_changelog = sys.argv[2]

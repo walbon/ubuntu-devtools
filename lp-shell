@@ -23,60 +23,64 @@ from optparse import OptionParser
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.uris import lookup_service_root
 
-instance = 'production'
-valid_api_versions = ('beta', '1.0', 'devel')
-api_version = '1.0'
+def main():
+    instance = 'production'
+    valid_api_versions = ('beta', '1.0', 'devel')
+    api_version = '1.0'
 
-usage = 'Usage: %prog [-a] [instance] [LP API version]'
-optParser = OptionParser(usage)
-optParser.add_option('-a', action='store_true',
-        dest='anonymous', default=False,
-        help='Login anonymously into LP.')
+    usage = 'Usage: %prog [-a] [instance] [LP API version]'
+    opt_parser = OptionParser(usage)
+    opt_parser.add_option('-a', action='store_true',
+                          dest='anonymous', default=False,
+                          help='Login anonymously into LP.')
 
-(options, args) = optParser.parse_args()
+    (options, args) = opt_parser.parse_args()
 
-if len(args) >= 1:
-    try:
-        instance = lookup_service_root(args[0])
-    except ValueError, err:
-        print 'E: %s' % (err)
-        print 'I: Falling back to "production".'
-
-if len(args) >= 2:
-    if args[1] in valid_api_versions:
-        api_version = args[1]
-    else:
-        print 'E: "%s" is not a valid LP API version.' % (args[1])
-        print 'I: Falling back to "1.0".'
-
-if options.anonymous:
-    lp = Launchpad.login_anonymously('udt-lp-shell', instance,
-                                     version=api_version)
-    banner = 'Connected anonymously to LP service "%s" with API version "%s":' \
-             % (instance, api_version)
-else:
-    lp = Launchpad.login_with('udt-lp-shell', instance, version=api_version)
-    banner = 'Connected to LP service "%s" with API version "%s":' % \
-             (instance, api_version)
-
-banner += '\nNote: LP can be accessed through the "lp" object.'
-
-class CompleterConsole(code.InteractiveConsole):
-    def __init__(self):
-        local = {'lp': lp}
-        code.InteractiveConsole.__init__(self,
-                locals=local)
+    if len(args) >= 1:
         try:
-            import readline
-        except ImportError:
-            print 'I: readline module not available.'
+            instance = lookup_service_root(args[0])
+        except ValueError, err:
+            print 'E: %s' % (err)
+            print 'I: Falling back to "production".'
+
+    if len(args) >= 2:
+        if args[1] in valid_api_versions:
+            api_version = args[1]
         else:
-            import rlcompleter
-            readline.parse_and_bind("tab: complete")
+            print 'E: "%s" is not a valid LP API version.' % (args[1])
+            print 'I: Falling back to "1.0".'
 
-# Disable default apport hook, as lp-shell is intended for interactive use
-# and thus exceptions often bubble up to the top level.
-sys.excepthook = sys.__excepthook__
+    if options.anonymous:
+        launchpad = Launchpad.login_anonymously('udt-lp-shell', instance,
+                                                version=api_version)
+        banner = ('Connected anonymously to LP service "%s" with API version '
+                  '"%s":' % (instance, api_version))
+    else:
+        launchpad = Launchpad.login_with('udt-lp-shell', instance,
+                                         version=api_version)
+        banner = 'Connected to LP service "%s" with API version "%s":' % \
+                 (instance, api_version)
 
-console = CompleterConsole()
-console.interact(banner)
+    banner += '\nNote: LP can be accessed through the "lp" object.'
+
+    class CompleterConsole(code.InteractiveConsole):
+        def __init__(self):
+            local = {'lp': launchpad}
+            code.InteractiveConsole.__init__(self, locals=local)
+            try:
+                import readline
+            except ImportError:
+                print 'I: readline module not available.'
+            else:
+                import rlcompleter
+                readline.parse_and_bind("tab: complete")
+
+    # Disable default apport hook, as lp-shell is intended for interactive use
+    # and thus exceptions often bubble up to the top level.
+    sys.excepthook = sys.__excepthook__
+
+    console = CompleterConsole()
+    console.interact(banner)
+
+if __name__ == '__main__':
+    main()
