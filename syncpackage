@@ -31,6 +31,7 @@ import subprocess
 import sys
 import urllib
 
+from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.requestsync.mail import getDebianSrcPkg \
                                   as requestsync_mail_getDebianSrcPkg
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
@@ -390,32 +391,42 @@ def main():
     epilog = "See %s(1) for more info." % os.path.basename(sys.argv[0])
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-    parser.add_option("-d", "--distribution", type="string",
+    parser.add_option("-d", "--distribution",
                       dest="dist", default=None,
                       help="Debian distribution to sync from.")
-    parser.add_option("-r", "--release", dest="release", default=None,
+    parser.add_option("-r", "--release",
+                      dest="release", default=None,
                       help="Specify target Ubuntu release.")
-    parser.add_option("-V", "--debian-version", dest="debversion", default=None,
+    parser.add_option("-V", "--debian-version",
+                      dest="debversion", default=None,
                       help="Specify the version to sync from.")
-    parser.add_option("-c", "--component", dest="component", default=None,
+    parser.add_option("-c", "--component",
+                      dest="component", default=None,
                       help="Specify the Debian component to sync from.")
-    parser.add_option("-v", "--verbose", help="print more information",
-                      dest="verbose", action="store_true", default=False)
-    parser.add_option("-n", "--uploader-name", dest="uploader_name",
+    parser.add_option("-v", "--verbose",
+                      dest="verbose", action="store_true", default=False,
+                      help="Display more progress information.")
+    parser.add_option("-n", "--uploader-name",
+                      dest="uploader_name", default=None,
                       help="Use UPLOADER_NAME as the name of the maintainer "
-                           "for this upload instead of evaluating DEBFULLNAME.",
-                      default=None)
-    parser.add_option("-e", "--uploader-email", dest="uploader_email",
+                           "for this upload.")
+    parser.add_option("-e", "--uploader-email",
+                      dest="uploader_email", default=None,
                       help="Use UPLOADER_EMAIL as email address of the "
-                           "maintainer for this upload instead of evaluating "
-                           "DEBEMAIL.", default=None)
-    parser.add_option("-k", "--key", dest="keyid", default=None,
+                           "maintainer for this upload.")
+    parser.add_option("-k", "--key",
+                      dest="keyid", default=None,
                       help="Specify the key ID to be used for signing.")
-    parser.add_option('--dont-sign', dest='keyid', action='store_false',
-                      help='Do not sign the upload')
+    parser.add_option('--dont-sign',
+                      dest='keyid', action='store_false',
+                      help='Do not sign the upload.')
     parser.add_option("-b", "--bug", metavar="BUG",
-                      help="Mark a Launchpad bug as being fixed by this upload",
-                      dest="bugs", action="append", default=list())
+                      dest="bugs", action="append", default=list(),
+                      help="Mark Launchpad bug BUG as being fixed by this "
+                           "upload.")
+    parser.add_option('--no-conf',
+                      dest='no_conf', default=False, action='store_true',
+                      help="Don't read config files or environment variables.")
 
     (options, args) = parser.parse_args()
 
@@ -430,21 +441,13 @@ def main():
         parser.error('Invalid bug number(s) specified: '
                      + ', '.join(invalid_bug_numbers))
 
+    config = UDTConfig(options.no_conf)
+
     if options.uploader_name is None:
-        if "DEBFULLNAME" in os.environ:
-            options.uploader_name = os.environ["DEBFULLNAME"]
-        else:
-            parser.error('No uploader name specified. You must pass the '
-                         '--uploader-name option or set the DEBFULLNAME '
-                         'environment variable.')
+        options.uploader_name = ubu_email(export=False)[0]
 
     if options.uploader_email is None:
-        if "DEBEMAIL" in os.environ:
-            options.uploader_email = os.environ["DEBEMAIL"]
-        else:
-            parser.error('No uploader email address specified. You must pass '
-                         'the --uploader-email option or set the DEBEMAIL '
-                         'environment variable.')
+        options.uploader_email = ubu_email(export=False)[1]
 
     Launchpad.login_anonymously()
     if options.release is None:
