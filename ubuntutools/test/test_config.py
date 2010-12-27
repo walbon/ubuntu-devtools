@@ -26,27 +26,26 @@ from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
-config_files = {
-    'system': '',
-    'user': '',
-}
-
-def fake_open(filename, mode='r'):
-    if mode != 'r':
-        raise IOError("Read only fake-file")
-    files = {
-        '/etc/devscripts.conf': config_files['system'],
-        os.path.expanduser('~/.devscripts'): config_files['user'],
-    }
-    if filename not in files:
-        raise IOError("No such file or directory: '%s'" % filename)
-    return StringIO(files[filename])
-
-
 class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
+    _config_files = {
+        'system': '',
+        'user': '',
+    }
+
+    def _fake_open(self, filename, mode='r'):
+        if mode != 'r':
+            raise IOError("Read only fake-file")
+        files = {
+            '/etc/devscripts.conf': self._config_files['system'],
+            os.path.expanduser('~/.devscripts'): self._config_files['user'],
+        }
+        if filename not in files:
+            raise IOError("No such file or directory: '%s'" % filename)
+        return StringIO(files[filename])
+
     def setUp(self):
         super(ConfigTestCase, self).setUp()
-        self.mox.stubs.Set(__builtin__, 'open', fake_open)
+        self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()
 
@@ -61,14 +60,14 @@ class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
         self.clean_environment()
 
     def clean_environment(self):
-        config_files['system'] = ''
-        config_files['user'] = ''
+        self._config_files['system'] = ''
+        self._config_files['user'] = ''
         for k in os.environ.keys():
             if k.startswith(('UBUNTUTOOLS_', 'TEST_')):
                 del os.environ[k]
 
     def test_config_parsing(self):
-        config_files['user'] = """#COMMENT=yes
+        self._config_files['user'] = """#COMMENT=yes
 \tTAB_INDENTED=yes
  SPACE_INDENTED=yes
 SPACE_SUFFIX=yes 
@@ -81,7 +80,7 @@ INHERIT=user
 REPEAT=no
 REPEAT=yes
 """
-        config_files['system'] = 'INHERIT=system'
+        self._config_files['system'] = 'INHERIT=system'
         self.assertEqual(UDTConfig(prefix='TEST').config, {
             'TAB_INDENTED': 'yes',
             'SPACE_INDENTED': 'yes',
@@ -111,27 +110,27 @@ REPEAT=yes
         self.assertEqual(self.get_value('BUILDER', default='foo'), 'foo')
 
     def test_scriptname_precedence(self):
-        config_files['user'] = """TEST_BUILDER=foo
-                                  UBUNTUTOOLS_BUILDER=bar"""
+        self._config_files['user'] = """TEST_BUILDER=foo
+                                        UBUNTUTOOLS_BUILDER=bar"""
         self.assertEqual(self.get_value('BUILDER'), 'foo')
 
     def test_configfile_precedence(self):
-        config_files['system'] = "UBUNTUTOOLS_BUILDER=foo"
-        config_files['user'] = "UBUNTUTOOLS_BUILDER=bar"
+        self._config_files['system'] = "UBUNTUTOOLS_BUILDER=foo"
+        self._config_files['user'] = "UBUNTUTOOLS_BUILDER=bar"
         self.assertEqual(self.get_value('BUILDER'), 'bar')
 
     def test_environment_precedence(self):
-        config_files['user'] = "UBUNTUTOOLS_BUILDER=bar"
+        self._config_files['user'] = "UBUNTUTOOLS_BUILDER=bar"
         os.environ['UBUNTUTOOLS_BUILDER'] = 'baz'
         self.assertEqual(self.get_value('BUILDER'), 'baz')
 
     def test_general_environment_specific_config_precedence(self):
-        config_files['user'] = "TEST_BUILDER=bar"
+        self._config_files['user'] = "TEST_BUILDER=bar"
         os.environ['UBUNTUTOOLS_BUILDER'] = 'foo'
         self.assertEqual(self.get_value('BUILDER'), 'bar')
 
     def test_compat_keys(self):
-        config_files['user'] = 'COMPATFOOBAR=bar'
+        self._config_files['user'] = 'COMPATFOOBAR=bar'
         self.assertEqual(self.get_value('QUX', compat_keys=['COMPATFOOBAR']),
                          'bar')
         errs = Logger.stderr.getvalue().strip()
@@ -141,15 +140,15 @@ REPEAT=yes
                                  r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):
-        config_files['user'] = "TEST_BOOLEAN=yes"
+        self._config_files['user'] = "TEST_BOOLEAN=yes"
         self.assertEqual(self.get_value('BOOLEAN', boolean=True), True)
-        config_files['user'] = "TEST_BOOLEAN=no"
+        self._config_files['user'] = "TEST_BOOLEAN=no"
         self.assertEqual(self.get_value('BOOLEAN', boolean=True), False)
-        config_files['user'] = "TEST_BOOLEAN=true"
+        self._config_files['user'] = "TEST_BOOLEAN=true"
         self.assertEqual(self.get_value('BOOLEAN', boolean=True), None)
 
     def test_nonpackagewide(self):
-        config_files['user'] = 'UBUNTUTOOLS_FOOBAR=a'
+        self._config_files['user'] = 'UBUNTUTOOLS_FOOBAR=a'
         self.assertEquals(self.get_value('FOOBAR'), None)
 
 
