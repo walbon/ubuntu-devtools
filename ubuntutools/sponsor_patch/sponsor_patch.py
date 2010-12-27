@@ -94,6 +94,40 @@ def ask_for_manual_fixing():
     if answer == "no":
         user_abort()
 
+def ask_for_patch_or_branch(bug, attached_patches, linked_branches):
+    patch = None
+    branch = None
+    if len(attached_patches) == 0:
+        msg = "https://launchpad.net/bugs/%i has %i branches linked:" % \
+              (bug.id, len(linked_branches))
+    elif len(linked_branches) == 0:
+        msg = "https://launchpad.net/bugs/%i has %i patches attached:" % \
+              (bug.id, len(attached_patches))
+    else:
+        branches = "%i branch" % len(linked_branches)
+        if len(linked_branches) > 1:
+            branches += "es"
+        patches = "%i patch" % len(attached_patches)
+        if len(attached_patches) > 1:
+            patches += "es"
+        msg = "https://launchpad.net/bugs/%i has %s linked and %s attached:" % \
+              (bug.id, branches, patches)
+    Logger.normal(msg)
+    i = 0
+    for linked_branch in linked_branches:
+        i += 1
+        print "%i) %s" % (i, linked_branch.display_name)
+    for attached_patch in attached_patches:
+        i += 1
+        print "%i) %s" % (i, attached_patch.title)
+    selected = input_number("Which branch or patch do you want to download",
+                            1, i, i)
+    if selected <= len(linked_branches):
+        branch = linked_branches[selected - 1].bzr_identity
+    else:
+        patch = attached_patches[selected - len(linked_branches) - 1]
+    return (patch, branch)
+
 def get_patch_or_branch(bug):
     patch = None
     branch = None
@@ -113,30 +147,8 @@ def get_patch_or_branch(bug):
     elif len(attached_patches) == 0 and len(linked_branches) == 1:
         branch = linked_branches[0].bzr_identity
     else:
-        if len(attached_patches) == 0:
-            msg = "https://launchpad.net/bugs/%i has %i branches linked:" % \
-                  (bug.id, len(linked_branches))
-        elif len(linked_branches) == 0:
-            msg = "https://launchpad.net/bugs/%i has %i patches attached:" % \
-                  (bug.id, len(attached_patches))
-        else:
-            msg = ("https://launchpad.net/bugs/%i has %i branch(es) linked and "
-                   "%i patch(es) attached:") % (bug.id, len(linked_branches),
-                                                len(attached_patches))
-        Logger.normal(msg)
-        i = 0
-        for linked_branch in linked_branches:
-            i += 1
-            print "%i) %s" % (i, linked_branch.display_name)
-        for attached_patch in attached_patches:
-            i += 1
-            print "%i) %s" % (i, attached_patch.title)
-        selected = input_number("Which branch or patch do you want to download",
-                                1, i, i)
-        if selected <= len(linked_branches):
-            branch = linked_branches[selected - 1].bzr_identity
-        else:
-            patch = attached_patches[selected - len(linked_branches) - 1]
+        patch, branch = ask_for_patch_or_branch(bug, attached_patches,
+                                                linked_branches)
     return (patch, branch)
 
 def download_patch(patch):
