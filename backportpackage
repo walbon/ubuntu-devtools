@@ -24,7 +24,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import urllib
 
 from debian.deb822 import Dsc
 from launchpadlib.launchpad import Launchpad
@@ -33,8 +32,8 @@ import lsb_release
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
+from ubuntutools.mirrors import dsc_name, pull_source_pkg
 from ubuntutools.question import YesNoQuestion
-from ubuntutools.misc import dsc_url
 
 def error(msg):
     Logger.error(msg)
@@ -179,7 +178,17 @@ def find_version_package(launchpad, package, version):
         error('Version %s of package %s was never published in Ubuntu.' %
               (version, package))
 
-def dscurls_from_package(launchpad, mirror, package, version, source_release):
+def fetch_package(launchpad, mirror, workdir, package, version, source_release):
+    "Returns the path to the .dsc file that was fetched"
+
+    if package.endswith('.dsc'):
+        cmd = ('dget', '--download-only', '--allow-unauthenticated', package)
+        Logger.command(cmd)
+        ret = subprocess.call(cmd, cwd=workdir)
+        if ret == 0:
+            return os.path.join(workdir, os.path.basename(package))
+        sys.exit(1)
+
     if not source_release and not version:
         source_release = launchpad.distributions['ubuntu'].current_series.name
 
@@ -190,40 +199,10 @@ def dscurls_from_package(launchpad, mirror, package, version, source_release):
     else:
         srcpkg = find_version_package(launchpad, package, version)
 
-    urls = []
-    if mirror:
-        urls.append(dsc_url(mirror, srcpkg.component_name, package,
-                            srcpkg.source_package_version))
-
-    for source_file in srcpkg.sourceFileUrls():
-        if source_file.endswith('.dsc'):
-            urls.append(urllib.unquote(source_file))
-            return urls
-    else:
-        error('Package %s contains no .dsc file.' % package)
-
-def dscurl_from_dsc(package):
-    path = os.path.abspath(os.path.expanduser(package))
-    if os.path.exists(path):
-        return 'file://%s' % path
-    else:
-        # Can't resolve it as a local path? Let's just hope it's good as-is
-        return package
-
-def fetch_package(launchpad, mirror, workdir, package, version, source_release):
-    # Returns the path to the .dsc file that was fetched
-    if package.endswith('.dsc'):
-        dscs = [dscurl_from_dsc(package)]
-    else:
-        dscs = dscurls_from_package(launchpad, mirror, package, version,
-                                    source_release)
-
-    for dsc in dscs:
-        cmd = ('dget', '--download-only', '--allow-unauthenticated', dsc)
-        Logger.command(cmd)
-        ret = subprocess.call(cmd, cwd=workdir)
-        if ret == 0:
-            return os.path.join(workdir, os.path.basename(dsc))
+    version = srcpkg.source_package_version
+    pull_source_pkg('UBUNTU', mirror, srcpkg.component_name, package, version,
+                    workdir=workdir, unpack=False)
+    return dsc_name(package, version)
 
 def get_backport_version(version, suffix, upload, release):
     backport_version = version + ('~%s1' % release)

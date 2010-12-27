@@ -17,112 +17,15 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import hashlib
 import optparse
-import os.path
 import subprocess
 import sys
-import urllib2
 
 import debian.changelog
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
-from ubuntutools.misc import dsc_name, dsc_url
-
-DEFAULT_DEBIAN_MIRROR = 'http://ftp.debian.org/debian'
-DEFAULT_DEBSEC_MIRROR = 'http://security.debian.org'
-
-def pull(package, version, opts, unpack=False):
-    "Download Debian source package version version"
-    urls = []
-    # TODO: Not all packages are main :)
-    # Practically this is fine, as it'll be found on snapshot, but still ugly.
-    if opts.debsec_mirror and opts.debsec_mirror != DEFAULT_DEBSEC_MIRROR:
-        urls.append(dsc_url(opts.debsec_mirror, 'main', package, version))
-    urls.append(dsc_url(DEFAULT_DEBSEC_MIRROR, 'main', package, version))
-    if opts.debian_mirror and opts.debian_mirror != DEFAULT_DEBIAN_MIRROR:
-        urls.append(dsc_url(opts.debian_mirror, 'main', package, version))
-    urls.append(dsc_url(DEFAULT_DEBIAN_MIRROR, 'main', package, version))
-
-    for url in urls:
-        cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
-        Logger.command(cmd)
-        return_code = subprocess.call(cmd)
-        if return_code == 0:
-            return True
-
-    Logger.normal('Trying snapshot.debian.org')
-    return pull_from_snapshot(package, version, unpack)
-
-def pull_from_snapshot(package, version, unpack=False):
-    "Download Debian source package version version from snapshot.debian.org"
-    try:
-        import json
-    except ImportError:
-        import simplejson as json
-    except ImportError:
-        Logger.error("Please install python-simplejson.")
-        sys.exit(1)
-
-    try:
-        srcfiles = json.load(urllib2.urlopen(
-                'http://snapshot.debian.org/mr/package/%s/%s/srcfiles'
-                % (package, version)))
-    except urllib2.HTTPError:
-        Logger.error('Version %s of %s not found on snapshot.debian.org',
-                     version, package)
-        return False
-
-    for hash_ in srcfiles['result']:
-        hash_ = hash_['hash']
-
-        try:
-            info = json.load(urllib2.urlopen(
-                'http://snapshot.debian.org/mr/file/%s/info' % hash_))
-        except urllib2.URLError:
-            Logger.error('Unable to dowload info for hash.')
-            return False
-
-        filename = info['result'][0]['name']
-        if '/' in filename:
-            Logger.error('Unacceptable file name: %s', filename)
-            return False
-
-        if os.path.exists(filename):
-            source_file = open(filename, 'r')
-            sha1 = hashlib.sha1()
-            sha1.update(source_file.read())
-            source_file.close()
-            if sha1.hexdigest() == hash_:
-                Logger.normal('Using existing %s', filename)
-                continue
-
-        Logger.normal('Downloading: %s (%0.3f MiB)', filename,
-                      info['result'][0]['size'] / 1024.0 / 1024)
-        try:
-            in_ = urllib2.urlopen('http://snapshot.debian.org/file/%s' % hash_)
-            out = open(filename, 'w')
-            while True:
-                block = in_.read(10240)
-                if block == '':
-                    break
-                out.write(block)
-                sys.stdout.write('.')
-                sys.stdout.flush()
-            sys.stdout.write('\n')
-            sys.stdout.flush()
-            out.close()
-        except urllib2.URLError:
-            Logger.error('Error downloading %s', filename)
-            return False
-
-    if unpack:
-        cmd = ('dpkg-source', '--no-check', '-x', dsc_name(package, version))
-        Logger.command(cmd)
-        subprocess.check_call(cmd)
-
-    return True
+from ubuntutools.mirrors import dsc_name, pull_source_pkg
 
 def previous_version(package, version, distance):
     "Given an (extracted) package, determine the version distance versions ago"
@@ -177,9 +80,13 @@ def main():
         opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
 
     Logger.normal('Downloading %s %s', package, version)
-    if not pull(package, version, opts, unpack=not opts.fetch_only):
-        Logger.error("Couldn't locate version %s of %s.", version, package)
-        sys.exit(1)
+
+    # TODO: Not all packages are main, but snapshot.debian.org should save
+    # the day, as it doesn't care about component.
+    pull_source_pkg(('DEBSEC', 'DEBIAN'),
+                    {'DEBSEC': opts.debsec_mirror,
+                     'DEBIAN': opts.debian_mirror},
+                    'main', package, version, unpack=True)
 
     if opts.fetch_only:
         sys.exit(0)
@@ -189,9 +96,10 @@ def main():
         Logger.error('No previous version could be found')
         sys.exit(1)
     Logger.normal('Downloading %s %s', package, oldversion)
-    if not pull(package, oldversion, opts, unpack=True):
-        Logger.error("Couldn't locate version %s of %s.", oldversion, package)
-        sys.exit(1)
+    pull_source_pkg(('DEBSEC', 'DEBIAN'),
+                    {'DEBSEC': opts.debsec_mirror,
+                     'DEBIAN': opts.debian_mirror},
+                    'main', package, oldversion, unpack=True)
 
     cmd = ('debdiff', dsc_name(package, oldversion), dsc_name(package, version))
     Logger.command(cmd)

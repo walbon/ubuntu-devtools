@@ -119,15 +119,3 @@ def split_release_pocket(release):
                                           pocket)
 
     return (release, pocket)
-
-def dsc_name(package, version):
-    "Return the source package dsc filename for the given package"
-    if ':' in version:
-        version = version.split(':', 1)[1]
-    return '%s_%s.dsc' % (package, version)
-
-def dsc_url(mirror, component, package, version):
-    "Build a source package URL"
-    group = package[:4] if package.startswith('lib') else package[0]
-    filename = dsc_name(package, version)
-    return os.path.join(mirror, 'pool', component, group, package, filename)

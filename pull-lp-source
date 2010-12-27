@@ -25,16 +25,16 @@
 
 import os
 import sys
-import subprocess
-import urllib
 from optparse import OptionParser
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
-        PackageNotFoundException, PocketDoesNotExistError)
-from ubuntutools.misc import split_release_pocket, dsc_url
+                                          PackageNotFoundException,
+                                          PocketDoesNotExistError)
+from ubuntutools.mirrors import pull_source_pkg
+from ubuntutools.misc import split_release_pocket
 
 def main():
     usage = "Usage: %prog <package> [release]"
@@ -83,27 +83,9 @@ def main():
         Logger.error(error)
         sys.exit(1)
 
-    urls = []
-    if options.ubuntu_mirror:
-        urls.append(dsc_url(options.ubuntu_mirror, spph.getComponent(),
-                            package, spph.getVersion()))
-    dsc_url = [url for url in spph.sourceFileUrls() if url.endswith('.dsc')]
-    assert dsc_url, 'No .dsc file found'
-    urls.append(urllib.unquote(dsc_url[0]))
-
-    Logger.normal('Fetching the source for %s from %s (%s)...',
-                  package, release.capitalize(), pocket)
-    for url in urls:
-        cmd = ('dget', '-u' + ('d' if options.download_only else 'x'), url)
-        Logger.command(cmd)
-        return_code = subprocess.call(cmd)
-        if return_code == 0:
-            Logger.normal("Success!")
-            sys.exit(0)
-
-    Logger.error('Failed to fetch and extrace the source. '
-                 'Please check the output for the error.')
-    sys.exit(1)
+    pull_source_pkg('UBUNTU', options.ubuntu_mirror, spph.getComponent(),
+                    package, spph.getVersion(),
+                    unpack=not options.download_only)
 
 if __name__ == '__main__':
     main()

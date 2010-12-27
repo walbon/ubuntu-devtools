@@ -34,11 +34,11 @@ class UDTConfig(object):
     # These are reqired to be used by at least two scripts.
     defaults = {
         'BUILDER': 'pbuilder',
-        'DEBIAN_MIRROR': None,
-        'DEBSEC_MIRROR': None,
+        'DEBIAN_MIRROR': 'http://ftp.debian.org/debian',
+        'DEBSEC_MIRROR': 'http://security.debian.org',
         'LPINSTANCE': 'production',
         'MIRROR_FALLBACK': True,
-        'UBUNTU_MIRROR': None,
+        'UBUNTU_MIRROR': 'http://archive.ubuntu.com/ubuntu',
         'UPDATE_BUILDER': False,
         'WORKDIR': None,
     }
@@ -74,7 +74,7 @@ class UDTConfig(object):
             f.close()
         return config
 
-    def get_value(self, key, default=None, boolean=False, compat_keys=[]):
+    def get_value(self, key, default=None, boolean=False, compat_keys=()):
         """Retrieve a value from the environment or configuration files.
         keys are prefixed with the script name, falling back to UBUNTUTOOLS for
         package-wide keys.
