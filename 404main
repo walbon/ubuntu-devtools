@@ -96,7 +96,7 @@ def find_main(cache, pack):
                 break
         if got_src:
             # pylint: disable=E1101
-            for deptype, all_deps in src_records.build_depends.iteritems():
+            for _, all_deps in src_records.build_depends.iteritems():
                 # pylint: enable=E1101
                 for or_deps in all_deps:
                     base_deps = []
@@ -107,9 +107,9 @@ def find_main(cache, pack):
 
         process_deps(cache, deps)
 
-def usage(exit):
+def usage(exit_code):
     print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
-    sys.exit(exit)
+    sys.exit(exit_code)
 
 def main():
 

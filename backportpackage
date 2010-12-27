@@ -48,76 +48,84 @@ def check_call(cmd, *args, **kwargs):
 
 def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
-    p = optparse.OptionParser(usage)
-    p.add_option('-d', '--destination',
-                 dest='dest_releases',
-                 default=[],
-                 action='append',
-                 help='Backport to DEST release (default: current release)',
-                 metavar='DEST')
-    p.add_option('-s', '--source',
-                 dest='source_release',
-                 default=None,
-                 help='Backport from SOURCE release (default: devel release)',
-                 metavar='SOURCE')
-    p.add_option('-S', '--suffix',
-                 dest='suffix',
-                 default=None,
-                 help='Suffix to append to version number (default: ~ppa1)',
-                 metavar='SUFFIX')
-    p.add_option('-b', '--build',
-                 dest='build',
-                 default=False,
-                 action='store_true',
-                 help='Build the package before uploading (default: %default)')
-    p.add_option('-B', '--builder',
-                 dest='builder',
-                 default=None,
-                 help='Specify the package builder (default: pbuilder)',
-                 metavar='BUILDER')
-    p.add_option('-U', '--update',
-                 dest='update',
-                 default=False,
-                 action='store_true',
-                 help='Update the build environment before attempting to build')
-    p.add_option('-u', '--upload',
-                 dest='upload',
-                 help='Specify an upload destination',
-                 metavar='UPLOAD')
-    p.add_option('-y', '--yes',
-                 dest='prompt',
-                 default=True,
-                 action='store_false',
-                 help='Do not prompt before uploading to a PPA')
-    p.add_option('-v', '--version',
-                 dest='version',
-                 default=None,
-                 help='Package version to backport (or verify)',
-                 metavar='VERSION')
-    p.add_option('-w', '--workdir',
-                 dest='workdir',
-                 default=None,
-                 help='Specify a working directory (default: temporary dir)',
-                 metavar='WORKDIR')
-    p.add_option('-m', '--mirror',
-                 dest='ubuntu_mirror',
-                 default=None,
-                 help='Preferred Ubuntu mirror (default: Launchpad)',
-                 metavar='INSTANCE')
-    p.add_option('-l', '--lpinstance',
-                 dest='lpinstance',
-                 default=None,
-                 help='Launchpad instance to connect to (default: production)',
-                 metavar='INSTANCE')
-    p.add_option('--no-conf',
-                 dest='no_conf',
-                 default=False,
-                 help="Don't read config files or environment variables",
-                 action='store_true')
+    parser = optparse.OptionParser(usage)
+    parser.add_option('-d', '--destination',
+                      dest='dest_releases',
+                      default=[],
+                      action='append',
+                      help='Backport to DEST release '
+                           '(default: current release)',
+                      metavar='DEST')
+    parser.add_option('-s', '--source',
+                      dest='source_release',
+                      default=None,
+                      help='Backport from SOURCE release '
+                           '(default: devel release)',
+                      metavar='SOURCE')
+    parser.add_option('-S', '--suffix',
+                      dest='suffix',
+                      default=None,
+                      help='Suffix to append to version number '
+                           '(default: ~ppa1)',
+                      metavar='SUFFIX')
+    parser.add_option('-b', '--build',
+                      dest='build',
+                      default=False,
+                      action='store_true',
+                      help='Build the package before uploading '
+                           '(default: %default)')
+    parser.add_option('-B', '--builder',
+                      dest='builder',
+                      default=None,
+                      help='Specify the package builder (default: pbuilder)',
+                      metavar='BUILDER')
+    parser.add_option('-U', '--update',
+                      dest='update',
+                      default=False,
+                      action='store_true',
+                      help='Update the build environment before '
+                           'attempting to build')
+    parser.add_option('-u', '--upload',
+                      dest='upload',
+                      help='Specify an upload destination',
+                      metavar='UPLOAD')
+    parser.add_option('-y', '--yes',
+                      dest='prompt',
+                      default=True,
+                      action='store_false',
+                      help='Do not prompt before uploading to a PPA')
+    parser.add_option('-v', '--version',
+                      dest='version',
+                      default=None,
+                      help='Package version to backport (or verify)',
+                      metavar='VERSION')
+    parser.add_option('-w', '--workdir',
+                      dest='workdir',
+                      default=None,
+                      help='Specify a working directory '
+                           '(default: temporary dir)',
+                      metavar='WORKDIR')
+    parser.add_option('-m', '--mirror',
+                      dest='ubuntu_mirror',
+                      default=None,
+                      help='Preferred Ubuntu mirror (default: Launchpad)',
+                      metavar='INSTANCE')
+    parser.add_option('-l', '--lpinstance',
+                      dest='lpinstance',
+                      default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production)',
+                      metavar='INSTANCE')
+    parser.add_option('--no-conf',
+                      dest='no_conf',
+                      default=False,
+                      help="Don't read config files or environment variables",
+                      action='store_true')
 
-    opts, args = p.parse_args(args)
+    opts, args = parser.parse_args(args)
     if len(args) != 1:
-        p.error('You must specify a single source package or a .dsc URL/path.')
+        parser.error('You must specify a single source package or a .dsc '
+                     'URL/path.')
     config = UDTConfig(opts.no_conf)
     if opts.builder is None:
         opts.builder = config.get_value('BUILDER')
@@ -130,7 +138,7 @@ def parse(args):
     if opts.ubuntu_mirror is None:
         opts.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
     if not opts.upload and not opts.workdir:
-        p.error('Please specify either a working dir or an upload target!')
+        parser.error('Please specify either a working dir or an upload target!')
 
     return opts, args
 
