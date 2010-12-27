@@ -48,25 +48,29 @@ def pull_source_pkg(archives, mirrors, component, package, version, workdir='.',
     assert all(x in ('DEBIAN', 'DEBSEC', 'UBUNTU') for x in archives)
 
     for archive in archives:
-        if try_pull_from_archive(archive, mirrors.get(archive), component,
-                                 package, version, workdir, unpack):
-            return
+        filename = try_pull_from_archive(archive, mirrors.get(archive),
+                                         component, package, version,
+                                         workdir, unpack)
+        if filename:
+            return filename
 
     if 'DEBIAN' in archives or 'DEBSEC' in archives:
         Logger.info('Trying snapshot.debian.org')
-        if try_pull_from_snapshot(package, version, workdir, unpack):
-            return
+        filename = try_pull_from_snapshot(package, version, workdir, unpack)
+        if filename:
+            return filename
 
     if 'UBUNTU' in archives:
         Logger.info('Trying Launchpad')
-        if try_pull_from_lp(package, 'ubuntu', version, workdir, unpack):
-            return
+        filename = try_pull_from_lp(package, 'ubuntu', version, workdir, unpack)
+        if filename:
+            return filename
 
     raise Exception('Unable to locate %s/%s %s' % (package, component, version))
 
 def try_pull_from_archive(archive, mirror, component, package, version,
                           workdir='.', unpack=False):
-    """Download a source package from the specified source or return False.
+    """Download a source package from the specified source, return filename.
     Try mirror first, then master.
     """
     assert archive in ('DEBIAN', 'DEBSEC', 'UBUNTU')
@@ -81,13 +85,11 @@ def try_pull_from_archive(archive, mirror, component, package, version,
         Logger.command(cmd)
         return_code = subprocess.call(cmd, cwd=workdir)
         if return_code == 0:
-            return True
-
-    return False
+            return os.path.basename(url)
 
 def try_pull_from_snapshot(package, version, workdir='.', unpack=False):
-    """Download Debian source package version version from snapshot.debian.org
-    or return False
+    """Download Debian source package version version from snapshot.debian.org.
+    Return filename.
     """
     try:
         import json
@@ -104,7 +106,7 @@ def try_pull_from_snapshot(package, version, workdir='.', unpack=False):
     except urllib2.HTTPError:
         Logger.error('Version %s of %s not found on snapshot.debian.org',
                      version, package)
-        return False
+        return
 
     for hash_ in srcfiles['result']:
         hash_ = hash_['hash']
@@ -114,12 +116,12 @@ def try_pull_from_snapshot(package, version, workdir='.', unpack=False):
                 'http://snapshot.debian.org/mr/file/%s/info' % hash_))
         except urllib2.URLError:
             Logger.error('Unable to dowload info for hash.')
-            return False
+            return
 
         filename = info['result'][0]['name']
         if '/' in filename:
             Logger.error('Unacceptable file name: %s', filename)
-            return False
+            return
         pathname = os.path.join(workdir, filename)
 
         if os.path.exists(pathname):
@@ -148,23 +150,24 @@ def try_pull_from_snapshot(package, version, workdir='.', unpack=False):
             out.close()
         except urllib2.URLError:
             Logger.error('Error downloading %s', filename)
-            return False
+            return
 
+    filename = dsc_name(package, version)
     if unpack:
-        cmd = ('dpkg-source', '--no-check', '-x', dsc_name(package, version))
+        cmd = ('dpkg-source', '--no-check', '-x', filename)
         Logger.command(cmd)
         subprocess.check_call(cmd)
-    return True
+    return filename
 
 def try_pull_from_lp(package, distro, version, workdir='.', unpack=False):
-    """Try to download the specified version of a source package from Launchpad
-    or return False
+    """Try to download the specified version of a source package from Launchpad.
+    Return filename.
     """
+    filename = dsc_name(package, version)
     url = ('https://launchpad.net/%s/+archive/primary/+files/%s'
-            % (distro, dsc_name(package, version)))
+            % (distro, filename))
     cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
     Logger.command(cmd)
     return_code = subprocess.call(cmd, cwd=workdir)
     if return_code == 0:
-        return True
-    return False
+        return filename

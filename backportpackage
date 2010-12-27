@@ -32,7 +32,7 @@ import lsb_release
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
-from ubuntutools.mirrors import dsc_name, pull_source_pkg
+from ubuntutools.mirrors import pull_source_pkg
 from ubuntutools.question import YesNoQuestion
 
 def error(msg):
@@ -200,9 +200,8 @@ def fetch_package(launchpad, mirror, workdir, package, version, source_release):
         srcpkg = find_version_package(launchpad, package, version)
 
     version = srcpkg.source_package_version
-    pull_source_pkg('UBUNTU', mirror, srcpkg.component_name, package, version,
-                    workdir=workdir, unpack=False)
-    return dsc_name(package, version)
+    return pull_source_pkg('UBUNTU', mirror, srcpkg.component_name, package,
+                           version, workdir=workdir, unpack=False)
 
 def get_backport_version(version, suffix, upload, release):
     backport_version = version + ('~%s1' % release)

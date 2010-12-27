@@ -25,7 +25,7 @@ import debian.changelog
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
-from ubuntutools.mirrors import dsc_name, pull_source_pkg
+from ubuntutools.mirrors import pull_source_pkg
 
 def previous_version(package, version, distance):
     "Given an (extracted) package, determine the version distance versions ago"
@@ -83,10 +83,10 @@ def main():
 
     # TODO: Not all packages are main, but snapshot.debian.org should save
     # the day, as it doesn't care about component.
-    pull_source_pkg(('DEBSEC', 'DEBIAN'),
-                    {'DEBSEC': opts.debsec_mirror,
-                     'DEBIAN': opts.debian_mirror},
-                    'main', package, version, unpack=True)
+    newdsc = pull_source_pkg(('DEBSEC', 'DEBIAN'),
+                             {'DEBSEC': opts.debsec_mirror,
+                              'DEBIAN': opts.debian_mirror},
+                             'main', package, version, unpack=True)
 
     if opts.fetch_only:
         sys.exit(0)
@@ -96,14 +96,14 @@ def main():
         Logger.error('No previous version could be found')
         sys.exit(1)
     Logger.normal('Downloading %s %s', package, oldversion)
-    pull_source_pkg(('DEBSEC', 'DEBIAN'),
-                    {'DEBSEC': opts.debsec_mirror,
-                     'DEBIAN': opts.debian_mirror},
-                    'main', package, oldversion, unpack=True)
+    olddsc = pull_source_pkg(('DEBSEC', 'DEBIAN'),
+                             {'DEBSEC': opts.debsec_mirror,
+                              'DEBIAN': opts.debian_mirror},
+                             'main', package, oldversion, unpack=True)
 
-    cmd = ('debdiff', dsc_name(package, oldversion), dsc_name(package, version))
+    cmd = ('debdiff', olddsc, newdsc)
     Logger.command(cmd)
-    difffn = dsc_name(package, version)[:-3] + 'debdiff'
+    difffn = newdsc[:-3] + 'debdiff'
     debdiff_file = open(difffn, 'w')
     if subprocess.call(cmd, stdout=debdiff_file) > 2:
         Logger.error('Debdiff failed.')
