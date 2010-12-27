@@ -50,10 +50,10 @@ class HelpTestCase(unittest.TestCase):
     @classmethod
     def populate(cls):
         for script in setup.scripts:
-            setattr(cls, 'test_' + script, cls.makeHelpTester(script))
+            setattr(cls, 'test_' + script, cls.make_help_tester(script))
 
     @classmethod
-    def makeHelpTester(cls, script):
+    def make_help_tester(cls, script):
         def tester(self):
             if script in BLACKLIST:
                 raise unittest.SkipTest("Blacklisted: " + BLACKLIST[script])

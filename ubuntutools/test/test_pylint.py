@@ -53,8 +53,8 @@ class PylintTestCase(unittest.TestCase):
                 detected_in = line
                 continue
 
-            for r in WHITELIST:
-                if r.search(line):
+            for reg_exp in WHITELIST:
+                if reg_exp.search(line):
                     break
             else:
                 filtered_out.append(detected_in)
