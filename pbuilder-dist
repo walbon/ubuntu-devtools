@@ -31,11 +31,11 @@
 
 import os
 import subprocess
-from sys import exit, argv, stderr
+import sys
 
 import ubuntutools.misc
 
-debian_distros = ['etch', 'lenny', 'squeeze', 'sid', 'stable', 'testing',
+DEBIAN_DISTROS = ['etch', 'lenny', 'squeeze', 'sid', 'stable', 'testing',
                   'unstable', 'experimental']
 
 class pbuilder_dist:
@@ -80,8 +80,8 @@ class pbuilder_dist:
         paths = set(os.environ['PATH'].split(':'))
         paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
         if not any(os.path.exists(os.path.join(p, builder)) for p in paths):
-            print >> stderr, 'Error: Could not find "%s".' % builder
-            exit(1)
+            print >> sys.stderr, 'Error: Could not find "%s".' % builder
+            sys.exit(1)
 
         ##############################################################
 
@@ -89,21 +89,21 @@ class pbuilder_dist:
                                                       '~/pbuilder/'))
 
         if 'SUDO_USER' in os.environ:
-            print >> stderr, ("Warning: pbuilder-dist running under sudo. "
-                              "This is probably not what you want. "
-                              "pbuilder-dist will use sudo itself, "
-                              "when necessary.")
+            print >> sys.stderr, ("Warning: pbuilder-dist running under sudo. "
+                                  "This is probably not what you want. "
+                                  "pbuilder-dist will use sudo itself, "
+                                  "when necessary.")
         if os.stat(os.environ['HOME']).st_uid != os.getuid():
-            print >> stderr, "Error: You don't own $HOME"
-            exit(1)
+            print >> sys.stderr, "Error: You don't own $HOME"
+            sys.exit(1)
 
         if not os.path.isdir(self.base):
             try:
                 os.makedirs(self.base)
             except OSError:
-                print >> stderr, ('Error: Cannot create base directory "%s"'
-                                  % self.base)
-                exit(1)
+                print >> sys.stderr, ('Error: Cannot create base directory "%s"'
+                                      % self.base)
+                sys.exit(1)
 
         if 'PBUILDAUTH' in os.environ:
             self.auth = os.environ['PBUILDAUTH']
@@ -111,7 +111,7 @@ class pbuilder_dist:
         self.system_architecture = ubuntutools.misc.host_architecture()
         self.system_distro = ubuntutools.misc.system_distribution()
         if not self.system_architecture or not self.system_distro:
-            exit(1)
+            sys.exit(1)
 
         self.target_distro = self.system_distro
 
@@ -124,23 +124,23 @@ class pbuilder_dist:
         variable or finalize pbuilder-dist's execution.
         """
         if not distro.isalpha():
-            print >> stderr, ('Error: "%s" is an invalid distribution codename.'
-                              % distro)
-            exit(1)
+            print >> sys.stderr, ('Error: "%s" is an invalid distribution '
+                                  'codename.' % distro)
+            sys.exit(1)
 
         if not os.path.isfile(os.path.join('/usr/share/debootstrap/scripts/',
                                            distro)):
             if os.path.isdir('/usr/share/debootstrap/scripts/'):
                 # Debian experimental doesn't have a debootstrap file but
                 # should work nevertheless.
-                if distro not in debian_distros:
+                if distro not in DEBIAN_DISTROS:
                     answer = ask(('Warning: Unknown distribution "%s". Do you '
                                   'want to continue [y/N]? ') % distro)
                     if answer not in ('y', 'Y'):
-                        exit(0)
+                        sys.exit(0)
             else:
-                print >> stderr, 'Please install package "debootstrap".'
-                exit(1)
+                print >> sys.stderr, 'Please install package "debootstrap".'
+                sys.exit(1)
 
         self.target_distro = distro
 
@@ -159,15 +159,14 @@ class pbuilder_dist:
                     self.operation = 'build'
                     return [operation]
                 else:
-                    print >> stderr, ('Error: Could not find file "%s".'
-                                      % operation)
-                    exit(1)
+                    print >> sys.stderr, ('Error: Could not find file "%s".'
+                                          % operation)
+                    sys.exit(1)
             else:
-                print >> stderr, (
-                        'Error: "%s" is not a recognized argument.\n'
-                        'Please use one of these: %s.'
-                    ) % (operation, ', '.join(arguments))
-                exit(1)
+                print >> sys.stderr, ('Error: "%s" is not a recognized '
+                                      'argument.\nPlease use one of these: '
+                                      '%s.') % (operation, ', '.join(arguments))
+                sys.exit(1)
         else:
             self.operation = operation
             return []
@@ -201,9 +200,9 @@ class pbuilder_dist:
             try:
                 os.makedirs(result)
             except OSError:
-                print >> stderr, ('Error: Cannot create results directory "%s"'
-                                  % result)
-                exit(1)
+                print >> sys.stderr, ('Error: Cannot create results directory '
+                                      '"%s"' % result)
+                sys.exit(1)
 
         arguments = [
             '--%s' % self.operation,
@@ -218,8 +217,9 @@ class pbuilder_dist:
         elif self.builder == 'cowbuilder':
             arguments += ['--basepath', prefix + '-base.cow']
         else:
-            print >> stderr, 'Error: Unrecognized builder "%s".' % self.builder
-            exit(1)
+            print >> sys.stderr, 'Error: Unrecognized builder "%s".' % \
+                                 self.builder
+            sys.exit(1)
 
 
         if self.logfile:
@@ -235,7 +235,7 @@ class pbuilder_dist:
                     'deb file:///var/cache/archive/ %s/' % self.target_distro,
             ]
 
-        if self.target_distro in debian_distros:
+        if self.target_distro in DEBIAN_DISTROS:
             arguments += ['--mirror', 'http://ftp.debian.org/debian']
             components = 'main'
             if self.extra_components:
@@ -255,21 +255,22 @@ class pbuilder_dist:
 
         # Work around LP:#599695
         if (ubuntutools.misc.system_distribution() == 'Debian'
-                and self.target_distro not in debian_distros):
+                and self.target_distro not in DEBIAN_DISTROS):
             if not os.path.exists(
                     '/usr/share/keyrings/ubuntu-archive-keyring.gpg'):
-                print >> stderr, 'Error: ubuntu-keyring not installed'
-                exit(1)
+                print >> sys.stderr, 'Error: ubuntu-keyring not installed'
+                sys.exit(1)
             arguments += [
                     '--debootstrapopts',
                     '--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg',
             ]
         elif (ubuntutools.misc.system_distribution() == 'Ubuntu'
-                and self.target_distro in debian_distros):
+                and self.target_distro in DEBIAN_DISTROS):
             if not os.path.exists(
                     '/usr/share/keyrings/debian-archive-keyring.gpg'):
-                print >> stderr, 'Error: debian-archive-keyring not installed'
-                exit(1)
+                print >> sys.stderr, ('Error: debian-archive-keyring not '
+                                      'installed')
+                sys.exit(1)
             arguments += [
                     '--debootstrapopts',
                     '--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
@@ -316,14 +317,14 @@ def ask(question):
 
     return answer
 
-def help(exit_code = 0):
+def show_help(exit_code = 0):
     """ help() -> None
 
     Print a help message for pbuilder-dist, and exit with the given code.
     """
     print 'See  man pbuilder-dist  for more information.'
 
-    exit(exit_code)
+    sys.exit(exit_code)
 
 def main():
     """ main() -> None
@@ -333,24 +334,24 @@ def main():
     executable's name and command line options and finally either ends
     the script and runs pbuilder itself or exists with an error message.
     """
-    script_name = os.path.basename(argv[0])
+    script_name = os.path.basename(sys.argv[0])
     parts = script_name.split('-')
 
     # Copy arguments into another list for save manipulation
-    args = argv[1:]
+    args = sys.argv[1:]
 
     if ('-' in script_name and parts[0] not in ('pbuilder', 'cowbuilder')
             or len(parts) > 3):
-        print >> stderr, ('Error: "%s" is not a valid name for a '
-                          '"pbuilder-dist" executable.') % script_name
-        exit(1)
+        print >> sys.stderr, ('Error: "%s" is not a valid name for a '
+                              '"pbuilder-dist" executable.') % script_name
+        sys.exit(1)
 
     if len(args) < 1:
-        print >> stderr, 'Insufficient number of arguments.'
-        help(1)
+        print >> sys.stderr, 'Insufficient number of arguments.'
+        show_help(1)
 
     if args[0] in ('-h', '--help', 'help'):
-        help(0)
+        show_help(0)
 
     app = pbuilder_dist(parts[0])
 
@@ -380,28 +381,28 @@ def main():
                     ('sparc', 'sparc64'), ('sparc64', 'sparc')]):
             args += ['--debootstrap', 'qemu-debootstrap']
 
-    if 'mainonly' in argv or '--main-only' in argv:
+    if 'mainonly' in sys.argv or '--main-only' in sys.argv:
         app.extra_components = False
-        if 'mainonly' in argv:
+        if 'mainonly' in sys.argv:
             args.remove('mainonly')
         else:
             args.remove('--main-only')
 
     if len(args) < 1:
-        print >> stderr, 'Insufficient number of arguments.'
-        help(1)
+        print >> sys.stderr, 'Insufficient number of arguments.'
+        show_help(1)
 
     # Parse the operation
     args = app.set_operation(args.pop(0)) + args
 
     if app.operation == 'build' and '.dsc' not in ' '.join(args):
-        print >> stderr, ('Error: You have to specify a .dsc file if you want '
-                          'to build.')
-        exit(1)
+        print >> sys.stderr, ('Error: You have to specify a .dsc file '
+                              'if you want to build.')
+        sys.exit(1)
 
     # Execute the pbuilder command
     if not '--debug-echo' in args:
-        exit(subprocess.call(app.get_command(args)))
+        sys.exit(subprocess.call(app.get_command(args)))
     else:
         print app.get_command([arg for arg in args if arg != '--debug-echo'])
 
@@ -409,5 +410,5 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print >> stderr, 'Manually aborted.'
-        exit(1)
+        print >> sys.stderr, 'Manually aborted.'
+        sys.exit(1)
