@@ -45,44 +45,47 @@ def main():
     # Our usage options.
     usage = ('Usage: %prog [options] '
              '<source package> [<target release> [base version]]')
-    p = OptionParser(usage)
+    parser = OptionParser(usage)
 
-    p.add_option('-d', type='string',
-                 dest='dist', default='unstable',
-                 help='Debian distribution to sync from.')
-    p.add_option('-k', type='string',
-                 dest='keyid', default=None,
-                 help='GnuPG key ID to use for signing report '
-                      '(only used when emailing the sync request).')
-    p.add_option('-n', action='store_true',
-                 dest='newpkg', default=False,
-                 help='Whether package to sync is a new package in Ubuntu.')
-    p.add_option('--lp', action='store_true',
-                 dest='lpapi', default=False,
-                 help='Specify whether to use the LP API for filing '
-                      'the sync request (recommended).')
-    p.add_option('-l', '--lpinstance', metavar='INSTANCE',
-                 dest='lpinstance', default=None,
-                 help='Launchpad instance to connect to (default: production).')
-    p.add_option('-s', action='store_true',
-                 dest='sponsorship', default=False,
-                 help='Force sponsorship')
-    p.add_option('-C', action='store_true',
-                 dest='missing_changelog_ok', default=False,
-                 help='Allow changelog to be manually filled in when missing')
-    p.add_option('-e', action='store_true',
-                 dest='ffe', default=False,
-                 help='Use this after FeatureFreeze for non-bug fix syncs, '
-                      'changes default subscription to the appropriate '
-                      'release team.')
-    p.add_option('--no-conf', action='store_true',
-                 dest='no_conf', default=False,
-                 help="Don't read config files or environment variables")
+    parser.add_option('-d', type='string',
+                      dest='dist', default='unstable',
+                      help='Debian distribution to sync from.')
+    parser.add_option('-k', type='string',
+                      dest='keyid', default=None,
+                      help='GnuPG key ID to use for signing report '
+                           '(only used when emailing the sync request).')
+    parser.add_option('-n', action='store_true',
+                      dest='newpkg', default=False,
+                      help='Whether package to sync is a new package in '
+                           'Ubuntu.')
+    parser.add_option('--lp', action='store_true',
+                      dest='lpapi', default=False,
+                      help='Specify whether to use the LP API for filing '
+                           'the sync request (recommended).')
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                      dest='lpinstance', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production).')
+    parser.add_option('-s', action='store_true',
+                      dest='sponsorship', default=False,
+                      help='Force sponsorship')
+    parser.add_option('-C', action='store_true',
+                      dest='missing_changelog_ok', default=False,
+                      help='Allow changelog to be manually filled in '
+                           'when missing')
+    parser.add_option('-e', action='store_true',
+                      dest='ffe', default=False,
+                      help='Use this after FeatureFreeze for non-bug fix '
+                           'syncs, changes default subscription to the '
+                           'appropriate release team.')
+    parser.add_option('--no-conf', action='store_true',
+                      dest='no_conf', default=False,
+                      help="Don't read config files or environment variables")
 
-    (options, args) = p.parse_args()
+    (options, args) = parser.parse_args()
 
     if not len(args):
-        p.print_help()
+        parser.print_help()
         sys.exit(1)
 
     config = UDTConfig(options.no_conf)
@@ -151,7 +154,7 @@ def main():
         force_base_version = Version(args[2])
     else:
         print >> sys.stderr, 'E: Too many arguments.'
-        p.print_help()
+        parser.print_help()
         sys.exit(1)
 
     # Get the current Ubuntu source package
@@ -177,8 +180,8 @@ def main():
         debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
         debian_version = Version(debian_srcpkg.getVersion())
         debian_component = debian_srcpkg.getComponent()
-    except udtexceptions.PackageNotFoundException, e:
-        print >> sys.stderr, "E: %s" % e
+    except udtexceptions.PackageNotFoundException, error:
+        print >> sys.stderr, "E: %s" % error
         sys.exit(1)
 
     # Stop if Ubuntu has already the version from Debian or a newer version
@@ -190,8 +193,8 @@ def main():
                     srcpkg, distro)
             debian_version = Version(debian_srcpkg.getVersion())
             debian_component = debian_srcpkg.getComponent()
-        except udtexceptions.PackageNotFoundException, e:
-            print >> sys.stderr, "E: %s" % e
+        except udtexceptions.PackageNotFoundException, error:
+            print >> sys.stderr, "E: %s" % error
             sys.exit(1)
 
     if ubuntu_version == debian_version:
