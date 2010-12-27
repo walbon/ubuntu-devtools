@@ -36,12 +36,12 @@ class PylintTestCase(unittest.TestCase):
             if 'python' in f.readline():
                 files.append(script)
             f.close()
-        p = subprocess.Popen(['pylint', '--rcfile=ubuntutools/test/pylint.conf',
-                             '-E', '--include-ids=y', '--'] + files,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             close_fds=True)
+        cmd = ['pylint', '--rcfile=ubuntutools/test/pylint.conf', '-E',
+               '--include-ids=y', '--'] + files
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, close_fds=True)
 
-        out, err = p.communicate()
+        out, err = process.communicate()
         self.assertEqual(err, '')
 
         filtered_out = []

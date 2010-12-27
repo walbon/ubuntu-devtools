@@ -58,9 +58,9 @@ class UDTConfig(object):
         dictionary
         """
         config = {}
-        for fn in ('/etc/devscripts.conf', '~/.devscripts'):
+        for filename in ('/etc/devscripts.conf', '~/.devscripts'):
             try:
-                f = open(os.path.expanduser(fn), 'r')
+                f = open(os.path.expanduser(filename), 'r')
             except IOError:
                 continue
             for line in f:
@@ -130,10 +130,10 @@ def ubu_email(name=None, email=None, export=True):
     name_email_re = re.compile(r'^\s*(.+?)\s*<(.+@.+)>\s*$')
 
     if email:
-        m = name_email_re.match(email)
-        if m and not name:
-            name = m.group(1)
-            email = m.group(2)
+        match = name_email_re.match(email)
+        if match and not name:
+            name = match.group(1)
+            email = match.group(2)
 
     if export and not name and not email and 'UBUMAIL' not in os.environ:
         export = False
@@ -147,12 +147,12 @@ def ubu_email(name=None, email=None, export=True):
         if name and email:
             break
         if var in os.environ:
-            m = name_email_re.match(os.environ[var])
-            if m:
+            match = name_email_re.match(os.environ[var])
+            if match:
                 if not name:
-                    name = m.group(1)
+                    name = match.group(1)
                 if not email:
-                    email = m.group(2)
+                    email = match.group(2)
             elif target == 'name' and not name:
                 name = os.environ[var].strip()
             elif target == 'email' and not email:

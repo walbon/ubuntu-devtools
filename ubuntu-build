@@ -30,7 +30,7 @@ from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
                                           PackageNotFoundException,
                                           PocketDoesNotExistError,)
 from ubuntutools.lp.lpapicache import Distribution, PersonTeam
-from ubuntutools.misc import splitReleasePocket
+from ubuntutools.misc import split_release_pocket
 
 def main():
     # Usage.
@@ -124,7 +124,7 @@ def main():
 
         # split release and pocket
         try:
-            (release, pocket) = splitReleasePocket(release)
+            (release, pocket) = split_release_pocket(release)
         except PocketDoesNotExistError, error:
             print 'E: %s' % error
             sys.exit(1)
@@ -220,7 +220,7 @@ def main():
     release = (options.series or
                Distribution('ubuntu').getDevelopmentSeries().name)
     try:
-        (release, pocket) = splitReleasePocket(release)
+        (release, pocket) = split_release_pocket(release)
     except PocketDoesNotExistError, error:
         print 'E: %s' % error
         sys.exit(1)

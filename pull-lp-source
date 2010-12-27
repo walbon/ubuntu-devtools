@@ -34,7 +34,7 @@ from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
         PackageNotFoundException, PocketDoesNotExistError)
-from ubuntutools.misc import splitReleasePocket, dsc_url
+from ubuntutools.misc import split_release_pocket, dsc_url
 
 def main():
     usage = "Usage: %prog <package> [release]"
@@ -70,7 +70,7 @@ def main():
                                         .getDevelopmentSeries().name)
 
     try:
-        (release, pocket) = splitReleasePocket(release)
+        (release, pocket) = split_release_pocket(release)
     except PocketDoesNotExistError, error:
         Logger.error(error)
         sys.exit(1)

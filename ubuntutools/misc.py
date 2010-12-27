@@ -40,15 +40,16 @@ def system_distribution():
     if _system_distribution is None:
         try:
             if os.path.isfile('/usr/bin/dpkg-vendor'):
-                p = Popen(('dpkg-vendor', '--query', 'vendor'), stdout=PIPE)
+                process = Popen(('dpkg-vendor', '--query', 'vendor'),
+                                stdout=PIPE)
             else:
-                p = Popen(('lsb_release', '-cs'), stdout=PIPE)
-            output = p.communicate()[0]
+                process = Popen(('lsb_release', '-cs'), stdout=PIPE)
+            output = process.communicate()[0]
         except OSError:
             print ('Error: Could not determine what distribution you are '
                    'running.')
             return None
-        if p.returncode != 0:
+        if process.returncode != 0:
             print 'Error determininng system distribution'
             return None
         _system_distribution = output.strip()
@@ -95,7 +96,7 @@ def readlist(filename, uniq=True):
 
     return items
 
-def splitReleasePocket(release):
+def split_release_pocket(release):
     '''Splits the release and pocket name.
 
     If the argument doesn't contain a pocket name then the 'Release' pocket
@@ -128,5 +129,5 @@ def dsc_name(package, version):
 def dsc_url(mirror, component, package, version):
     "Build a source package URL"
     group = package[:4] if package.startswith('lib') else package[0]
-    fn = dsc_name(package, version)
-    return os.path.join(mirror, 'pool', component, group, package, fn)
+    filename = dsc_name(package, version)
+    return os.path.join(mirror, 'pool', component, group, package, filename)

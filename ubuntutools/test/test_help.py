@@ -59,13 +59,14 @@ class HelpTestCase(unittest.TestCase):
                 raise unittest.SkipTest("Blacklisted: " + BLACKLIST[script])
 
             null = open('/dev/null', 'r')
-            p = subprocess.Popen(['./' + script, '--help'],
-                                 close_fds=True, stdin=null,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(['./' + script, '--help'],
+                                       close_fds=True, stdin=null,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             started = time.time()
             out = []
 
-            fds = [p.stdout.fileno(), p.stderr.fileno()]
+            fds = [process.stdout.fileno(), process.stderr.fileno()]
             for fd in fds:
                 fcntl.fcntl(fd, fcntl.F_SETFL,
                             fcntl.fcntl(fd, fcntl.F_GETFL) | os.O_NONBLOCK)
@@ -73,17 +74,17 @@ class HelpTestCase(unittest.TestCase):
             while time.time() - started < TIMEOUT:
                 for fd in select.select(fds, [], fds, TIMEOUT)[0]:
                     out.append(os.read(fd, 1024))
-                if p.poll() is not None:
+                if process.poll() is not None:
                     break
 
-            if p.poll() is None:
-                os.kill(p.pid, signal.SIGTERM)
+            if process.poll() is None:
+                os.kill(process.pid, signal.SIGTERM)
                 time.sleep(1)
-                if p.poll() is None:
-                    os.kill(p.pid, signal.SIGKILL)
+                if process.poll() is None:
+                    os.kill(process.pid, signal.SIGKILL)
             null.close()
 
-            self.assertEqual(p.poll(), 0,
+            self.assertEqual(process.poll(), 0,
                              "%s failed to return usage within %i seconds.\n"
                              "Output:\n%s"
                              % (script, TIMEOUT, ''.join(out)))
