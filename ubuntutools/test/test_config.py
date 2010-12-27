@@ -14,12 +14,14 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import __builtin__
 import os
 import os.path
 import sys
 from StringIO import StringIO
 
-import ubuntutools.config
+import mox
+
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
@@ -41,25 +43,24 @@ def fake_open(filename, mode='r'):
     return StringIO(files[filename])
 
 
-class ConfigTestCase(unittest.TestCase):
+class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
     def setUp(self):
-        ubuntutools.config.open = fake_open
+        super(ConfigTestCase, self).setUp()
+        self.mox.stubs.Set(__builtin__, 'open', fake_open)
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()
 
-        self.cleanEnvironment()
+        self.clean_environment()
 
     def tearDown(self):
-        del ubuntutools.config.open
-
         self.assertEqual(Logger.stdout.getvalue(), '')
         self.assertEqual(Logger.stderr.getvalue(), '')
         Logger.stdout = sys.stdout
         Logger.stderr = sys.stderr
 
-        self.cleanEnvironment()
+        self.clean_environment()
 
-    def cleanEnvironment(self):
+    def clean_environment(self):
         config_files['system'] = ''
         config_files['user'] = ''
         for k in os.environ.keys():
@@ -154,12 +155,12 @@ REPEAT=yes
 
 class UbuEmailTestCase(unittest.TestCase):
     def setUp(self):
-        self.cleanEnvironment()
+        self.clean_environment()
 
     def tearDown(self):
-        self.cleanEnvironment()
+        self.clean_environment()
 
-    def cleanEnvironment(self):
+    def clean_environment(self):
         for k in ('UBUMAIL', 'DEBEMAIL', 'DEBFULLNAME'):
             if k in os.environ:
                 del os.environ[k]
