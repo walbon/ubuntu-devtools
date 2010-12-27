@@ -153,9 +153,9 @@ def unsubscribe_sponsors(launchpad, bug):
     print "ubuntu-sponsors unsubscribed"
 
 
-def main(bug_numbers, all_package, all_version, all_section, update,
-         all_uploader_email, key, upload, lpinstance, verbose=False,
-         silent=False):
+def ack_sync(bug_numbers, all_package, all_version, all_section, update,
+             all_uploader_email, key, upload, lpinstance, verbose=False,
+             silent=False):
     launchpad = get_launchpad("ubuntu-dev-tools", server=lpinstance)
     # TODO: use release-info (once available)
     series = launchpad.distributions["ubuntu"].current_series
@@ -333,7 +333,7 @@ def usage():
   -v, --verbose             be more verbosive
   -V, --version=<version>   set the version"""
 
-if __name__ == '__main__':
+def main():
     try:
         long_opts = ["help", "key=", "lvm=", "package=", "section=", "silent",
                      "update", "upload", "verbose", "version=", "with-sbuild",
@@ -429,5 +429,8 @@ if __name__ == '__main__':
         update = config.get_value('UPDATE_BUILDER', boolean=True)
     #TODO: Support WORKDIR
 
-    main(bug_numbers, package, version, section, update, uploader_email, key,
-        upload, lpinstance, verbose, silent)
+    ack_sync(bug_numbers, package, version, section, update, uploader_email,
+             key, upload, lpinstance, verbose, silent)
+
+if __name__ == '__main__':
+    main()

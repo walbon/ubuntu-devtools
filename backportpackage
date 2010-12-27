@@ -27,7 +27,7 @@ import tempfile
 import urllib
 
 from debian.deb822 import Dsc
-import launchpadlib.launchpad
+from launchpadlib.launchpad import Launchpad
 import lsb_release
 
 from ubuntutools.config import UDTConfig, ubu_email
@@ -134,8 +134,8 @@ def parse(args):
 
     return opts, args
 
-def find_release_package(lp, package, version, source_release):
-    ubuntu = lp.distributions['ubuntu']
+def find_release_package(launchpad, package, version, source_release):
+    ubuntu = launchpad.distributions['ubuntu']
     archive = ubuntu.main_archive
     series = ubuntu.getSeries(name_or_version=source_release)
     status = 'Published'
@@ -159,8 +159,8 @@ def find_release_package(lp, package, version, source_release):
 
     return srcpkg
 
-def find_version_package(lp, package, version):
-    ubuntu = lp.distributions['ubuntu']
+def find_version_package(launchpad, package, version):
+    ubuntu = launchpad.distributions['ubuntu']
     archive = ubuntu.main_archive
     try:
         # Might get more than one (i.e. same version in multiple
@@ -171,24 +171,25 @@ def find_version_package(lp, package, version):
         error('Version %s of package %s was never published in Ubuntu.' %
               (version, package))
 
-def dscurls_from_package(lp, mirror, workdir, package, version, source_release):
+def dscurls_from_package(launchpad, mirror, package, version, source_release):
     if not source_release and not version:
-        source_release = lp.distributions['ubuntu'].current_series.name
+        source_release = launchpad.distributions['ubuntu'].current_series.name
 
     # If source_release is specified, then version is just for verification
     if source_release:
-        srcpkg = find_release_package(lp, package, version, source_release)
+        srcpkg = find_release_package(launchpad, package, version,
+                                      source_release)
     else:
-        srcpkg = find_version_package(lp, package, version)
+        srcpkg = find_version_package(launchpad, package, version)
 
     urls = []
     if mirror:
         urls.append(dsc_url(mirror, srcpkg.component_name, package,
                             srcpkg.source_package_version))
 
-    for f in srcpkg.sourceFileUrls():
-        if f.endswith('.dsc'):
-            urls.append(urllib.unquote(f))
+    for source_file in srcpkg.sourceFileUrls():
+        if source_file.endswith('.dsc'):
+            urls.append(urllib.unquote(source_file))
             return urls
     else:
         error('Package %s contains no .dsc file.' % package)
@@ -201,13 +202,13 @@ def dscurl_from_dsc(package):
         # Can't resolve it as a local path? Let's just hope it's good as-is
         return package
 
-def fetch_package(lp, mirror, workdir, package, version, source_release):
+def fetch_package(launchpad, mirror, workdir, package, version, source_release):
     # Returns the path to the .dsc file that was fetched
     if package.endswith('.dsc'):
         dscs = [dscurl_from_dsc(package)]
     else:
-        dscs = dscurls_from_package(lp, mirror, workdir, package, version,
-                                     source_release)
+        dscs = dscurls_from_package(launchpad, mirror, package, version,
+                                    source_release)
 
     for dsc in dscs:
         cmd = ('dget', '--download-only', '--allow-unauthenticated', dsc)
@@ -217,12 +218,12 @@ def fetch_package(lp, mirror, workdir, package, version, source_release):
             return os.path.join(workdir, os.path.basename(dsc))
 
 def get_backport_version(version, suffix, upload, release):
-    v = version + ('~%s1' % release)
+    backport_version = version + ('~%s1' % release)
     if suffix is not None:
-        v += suffix
+        backport_version += suffix
     elif upload and upload.startswith('ppa:'):
-        v += '~ppa1'
-    return v
+        backport_version += '~ppa1'
+    return backport_version
 
 def get_backport_dist(upload, release):
     if not upload or upload == 'ubuntu':
@@ -293,14 +294,13 @@ def main(args):
     opts, (package_or_dsc,) = parse(args[1:])
 
     script_name = os.path.basename(sys.argv[0])
-    lp = launchpadlib.launchpad.Launchpad.login_anonymously(script_name,
-                                                            opts.lpinstance)
+    launchpad = Launchpad.login_anonymously(script_name, opts.lpinstance)
 
     if not opts.dest_releases:
+        distinfo = lsb_release.get_distro_information()
         try:
-            distinfo = lsb_release.get_distro_information()
             opts.dest_releases = [distinfo['CODENAME']]
-        except:
+        except KeyError:
             error('No destination release specified and unable to guess yours.')
 
     if opts.workdir:
@@ -312,7 +312,7 @@ def main(args):
         os.makedirs(workdir)
 
     try:
-        dscfile = fetch_package(lp,
+        dscfile = fetch_package(launchpad,
                                 opts.ubuntu_mirror,
                                 workdir,
                                 package_or_dsc,

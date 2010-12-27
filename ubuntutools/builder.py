@@ -136,8 +136,10 @@ class Sbuild(Builder):
                     ["sbuild-distupgrade"],
                     ["sbuild-clean", "-a", "-c"]]
         for cmd in commands:
+            #pylint: disable=W0631
             Logger.command(cmd + [chroot])
             ret = subprocess.call(cmd + [chroot])
+            #pylint: enable=W0631
             if ret != 0:
                 return self._update_failure(ret, dist)
         return 0

@@ -97,7 +97,7 @@ def ask_for_manual_fixing():
 def get_patch_or_branch(bug):
     patch = None
     branch = None
-    attached_patches = filter(lambda a: a.type == "Patch", bug.attachments)
+    attached_patches = [a for a in bug.attachments if a.type == "Patch"]
     linked_branches = [b.branch for b in bug.linked_branches]
     if len(attached_patches) == 0 and len(linked_branches) == 0:
         if len(bug.attachments) == 0:
@@ -114,15 +114,16 @@ def get_patch_or_branch(bug):
         branch = linked_branches[0].bzr_identity
     else:
         if len(attached_patches) == 0:
-            Logger.normal("https://launchpad.net/bugs/%i has %i branches " \
-                          "linked:" % (bug.id, len(linked_branches)))
+            msg = "https://launchpad.net/bugs/%i has %i branches linked:" % \
+                  (bug.id, len(linked_branches))
         elif len(linked_branches) == 0:
-            Logger.normal("https://launchpad.net/bugs/%i has %i patches" \
-                          " attached:" % (bug.id, len(attached_patches)))
+            msg = "https://launchpad.net/bugs/%i has %i patches attached:" % \
+                  (bug.id, len(attached_patches))
         else:
-            Logger.normal("https://launchpad.net/bugs/%i has %i branch(es)" \
-                          " linked and %i patch(es) attached:" % \
-                          (bug.id, len(linked_branches), len(attached_patches)))
+            msg = ("https://launchpad.net/bugs/%i has %i branch(es) linked and "
+                   "%i patch(es) attached:") % (bug.id, len(linked_branches),
+                                                len(attached_patches))
+        Logger.normal(msg)
         i = 0
         for linked_branch in linked_branches:
             i += 1
@@ -205,8 +206,8 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
-def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
-         workdir, verbose=False):
+def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
+                  upload, workdir, verbose=False):
     workdir = os.path.expanduser(workdir)
     if not os.path.isdir(workdir):
         try:
@@ -228,7 +229,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
     (patch, branch) = get_patch_or_branch(bug)
 
     bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
-    ubuntu_tasks = filter(lambda x: x.is_ubuntu_task(), bug_tasks)
+    ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
     if len(ubuntu_tasks) == 0:
         Logger.error("No Ubuntu bug task found on bug #%i." % (bug_number))
         sys.exit(1)
@@ -240,7 +241,7 @@ def main(bug_number, build, builder, edit, keyid, lpinstance, update, upload,
                         (len(ubuntu_tasks), bug_number))
             for task in ubuntu_tasks:
                 print task.get_short_info()
-        open_ubuntu_tasks = filter(lambda x: not x.is_complete(), ubuntu_tasks)
+        open_ubuntu_tasks = [x for x in ubuntu_tasks if x.is_complete()]
         if len(open_ubuntu_tasks) == 1:
             task = open_ubuntu_tasks[0]
         else:

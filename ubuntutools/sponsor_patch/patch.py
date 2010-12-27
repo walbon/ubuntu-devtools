@@ -35,11 +35,11 @@ class Patch(object):
     def get_strip_level(self):
         strip_level = None
         if self.is_debdiff():
-            changelog = filter(lambda f: f.endswith("debian/changelog"),
-                               self.changed_files)[0]
+            changelog = [f for f in self.changed_files
+                         if f.endswith("debian/changelog")][0]
             strip_level = len(changelog.split(os.sep)) - 2
         return strip_level
 
     def is_debdiff(self):
-        return len(filter(lambda f: f.endswith("debian/changelog"),
-                          self.changed_files)) > 0
+        return len([f for f in self.changed_files
+                    if f.endswith("debian/changelog")]) > 0

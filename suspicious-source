@@ -84,17 +84,17 @@ DEFAULT_WHITELISTED_EXTENSIONS = [
     ".xgf",   # font source format: Xgridfit
 ]
 
-def main(whitelisted_mimetypes, whitelisted_extensions, directory,
-         verbose=False):
-    ms = magic.open(magic.MAGIC_MIME_TYPE)
-    ms.load()
+def suspicious_source(whitelisted_mimetypes, whitelisted_extensions, directory,
+                      verbose=False):
+    magic_cookie = magic.open(magic.MAGIC_MIME_TYPE)
+    magic_cookie.load()
 
     for root, dirs, files in os.walk(directory):
         for f in files:
-            mimetype = ms.file(os.path.join(root, f))
+            mimetype = magic_cookie.file(os.path.join(root, f))
             if mimetype not in whitelisted_mimetypes:
-                if not filter(lambda x: f.lower().endswith(x),
-                              whitelisted_extensions):
+                if not [x for x in whitelisted_extensions
+                        if f.lower().endswith(x)]:
                     if verbose:
                         print "%s (%s)" % (os.path.join(root, f), mimetype)
                     else:
@@ -103,7 +103,7 @@ def main(whitelisted_mimetypes, whitelisted_extensions, directory,
             if vcs_dir in dirs:
                 dirs.remove(vcs_dir)
 
-if __name__ == "__main__":
+def main():
     script_name = os.path.basename(sys.argv[0])
     usage = "%s [options]" % (script_name)
     epilog = "See %s(1) for more info." % (script_name)
@@ -130,5 +130,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     whitelisted_extensions = [x.lower() for x in options.whitelisted_extensions]
-    main(options.whitelisted_mimetypes, whitelisted_extensions,
-         options.directory, options.verbose)
+    suspicious_source(options.whitelisted_mimetypes, whitelisted_extensions,
+                      options.directory, options.verbose)
+
+if __name__ == "__main__":
+    main()

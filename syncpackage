@@ -117,31 +117,32 @@ def quote_parameter(parameter):
         return parameter
 
 def print_command(script_name, cmd):
-    print "%s: I: %s" % (script_name, " ".join(map(quote_parameter, cmd)))
+    cmd = [quote_parameter(x) for x in cmd]
+    print "%s: I: %s" % (script_name, " ".join(cmd))
 
 def remove_signature(dscname):
     '''Removes the signature from a .dsc file if the .dsc file is signed.'''
 
-    f = open(dscname)
-    if f.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
+    dsc_file = open(dscname)
+    if dsc_file.readline().strip() == "-----BEGIN PGP SIGNED MESSAGE-----":
         unsigned_file = []
         # search until begin of body found
-        for line in f:
+        for line in dsc_file:
             if line.strip() == "":
                 break
 
         # search for end of body
-        for line in f:
+        for line in dsc_file:
             if line.strip() == "":
                 break
             unsigned_file.append(line)
 
-        f.close()
-        f = open(dscname, "w")
-        f.writelines(unsigned_file)
-        f.close()
+        dsc_file.close()
+        dsc_file = open(dscname, "w")
+        dsc_file.writelines(unsigned_file)
+        dsc_file.close()
 
-def dsc_getfiles(dscurl):
+def dsc_getfiles(dscurl, script_name):
     '''Return list of files in a .dsc file (excluding the .dsc file itself).'''
 
     basepath = os.path.dirname(dscurl)
@@ -154,17 +155,17 @@ def dsc_getfiles(dscurl):
         sys.exit(1)
 
     files = []
-    for f in dsc['Files']:
-        url = os.path.join(basepath, f['name'])
-        if not f['name'].endswith('.dsc'):
-            files.append(File(url, f['md5sum'], f['size']))
+    for source_file in dsc['Files']:
+        url = os.path.join(basepath, source_file['name'])
+        if not source_file['name'].endswith('.dsc'):
+            files.append(File(url, source_file['md5sum'], source_file['size']))
     return files
 
-def add_fixed_bugs(changes, bugs, script_name=None, verbose=False):
+def add_fixed_bugs(changes, bugs):
     '''Add additional Launchpad bugs to the list of fixed bugs in changes
        file.'''
 
-    changes = filter(lambda l: l.strip() != "", changes.split("\n"))
+    changes = [l for l in changes.split("\n") if l.strip() != ""]
     # Remove duplicates
     bugs = set(bugs)
 
@@ -208,8 +209,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     try:
         ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
         ubuntu_ver = Version(ubuntu_source.getVersion())
-        ubuntu_dsc = filter(lambda f: f.endswith(".dsc"),
-                            ubuntu_source.sourceFileUrls())
+        ubuntu_dsc = [f for f in ubuntu_source.sourceFileUrls()
+                      if f.endswith(".dsc")]
         assert len(ubuntu_dsc) == 1
         ubuntu_dsc = ubuntu_dsc[0]
     except udtexceptions.PackageNotFoundException:
@@ -226,7 +227,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         print '%s: D: Source %s: current version %s, new version %s' % \
               (script_name, srcpkg, ubuntu_ver, new_ver)
 
-    files = dsc_getfiles(dscurl)
+    files = dsc_getfiles(dscurl, script_name)
     source_files = [f for f in files if f.is_source_file()]
     if verbose:
         print '%s: D: Files: %s' % (script_name,
@@ -238,7 +239,7 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     if ubuntu_dsc is None:
         ubuntu_files = None
     else:
-        ubuntu_files = dsc_getfiles(ubuntu_dsc)
+        ubuntu_files = dsc_getfiles(ubuntu_dsc, script_name)
 
     # do we need the orig.tar.gz?
     need_orig = True
@@ -247,9 +248,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         # We need to check if all .orig*.tar.* tarballs exist in Ubuntu
         need_orig = False
         for source_file in source_files:
-            ubuntu_file = filter(lambda f: f.get_name() == 
-                                           source_file.get_name(),
-                                 ubuntu_files)
+            ubuntu_file = [f for f in ubuntu_files
+                           if f.get_name() == source_file.get_name()]
             if len(ubuntu_file) == 0:
                 # The source file does not exist in Ubuntu
                 if verbose:
@@ -304,7 +304,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
 
     if len(fakesync_files) == 0:
         # create the changes file
-        changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
+        changes_filename = "%s_%s_source.changes" % \
+                           (srcpkg, new_ver.strip_epoch())
         cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver.full_version,
                "-DDistribution=" + release,
                "-DOrigin=debian/" + debian_dist,
@@ -316,13 +317,13 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         if not verbose:
             cmd += ["-q"]
         if verbose:
-            print_command(script_name, cmd + [">", "../" + changes_file])
+            print_command(script_name, cmd + [">", "../" + changes_filename])
         changes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                   env={"DEB_VENDOR": "Ubuntu"}).communicate()[0]
 
         # Add additional bug numbers
         if len(bugs) > 0:
-            changes = add_fixed_bugs(changes, bugs, verbose)
+            changes = add_fixed_bugs(changes, bugs)
 
         # remove extracted (temporary) files
         if verbose:
@@ -331,14 +332,14 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
         shutil.rmtree(directory, True)
 
         # write changes file
-        f = open(changes_file, "w")
-        f.writelines(changes)
-        f.close()
+        changes_file = open(changes_filename, "w")
+        changes_file.writelines(changes)
+        changes_file.close()
 
         # remove signature and sign package
         remove_signature(dscname)
         if keyid is not False:
-            cmd = ["debsign", changes_file]
+            cmd = ["debsign", changes_filename]
             if not keyid is None:
                 cmd.insert(1, "-k" + keyid)
             if verbose:
@@ -347,7 +348,8 @@ def sync_dsc(script_name, dscurl, debian_dist, release, name, email, bugs,
     else:
         # Create fakesync changelog entry
         new_ver = Version(new_ver.full_version + "fakesync1")
-        changes_file = "%s_%s_source.changes" % (srcpkg, new_ver.strip_epoch())
+        changes_filename = "%s_%s_source.changes" % \
+                           (srcpkg, new_ver.strip_epoch())
         if len(bugs) > 0:
             message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
                       (", ".join(["#" + str(b) for b in bugs]))
@@ -418,7 +420,7 @@ def get_debian_dscurl(package, dist, release, version=None, component=None):
                           package, dsc_file)
     return dscurl
 
-if __name__ == "__main__":
+def main():
     script_name = os.path.basename(sys.argv[0])
     usage = "%s [options] <.dsc URL/path or package name>" % (script_name)
     epilog = "See %s(1) for more info." % (script_name)
@@ -510,3 +512,6 @@ if __name__ == "__main__":
     sync_dsc(script_name, dscurl, options.dist, options.release,
              options.uploader_name, options.uploader_email, options.bugs,
              options.keyid, options.verbose)
+
+if __name__ == "__main__":
+    main()

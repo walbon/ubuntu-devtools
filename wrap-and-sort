@@ -87,6 +87,8 @@ class WrapAndSortControl(Control):
 
 class Install(object):
     def __init__(self, filename):
+        self.content = None
+        self.filename = None
         self.open(filename)
 
     def open(self, filename):
@@ -97,9 +99,9 @@ class Install(object):
     def save(self, filename=None):
         if filename:
             self.filename = filename
-        f = open(self.filename, "w")
-        f.write("".join(self.content))
-        f.close()
+        install_file = open(self.filename, "w")
+        install_file.write("".join(self.content))
+        install_file.close()
 
     def sort(self):
         self.content = sorted(self.content)
@@ -120,11 +122,11 @@ def sort_list(unsorted_list):
     param = [x for x in unsorted_list if x.startswith("${")]
     return sorted(normal) + sorted(param)
 
-def main(options):
+def wrap_and_sort(options):
     debdir = lambda x: os.path.join(options.debian_directory, x)
 
-    control_files = filter(os.path.isfile,
-                           [debdir("control"), debdir("control.in")])
+    possible_control_files = [debdir("control"), debdir("control.in")]
+    control_files = [f for f in possible_control_files if os.path.isfile(f)]
     for control_file in control_files:
         if options.verbose:
             print control_file
@@ -135,8 +137,8 @@ def main(options):
                               options.sort_binary_packages, options.keep_first)
         control.save()
 
-    copyright_files = filter(os.path.isfile,
-                             [debdir("copyright"), debdir("copyright.in")])
+    possible_copyright_files = [debdir("copyright"), debdir("copyright.in")]
+    copyright_files = [f for f in possible_copyright_files if os.path.isfile(f)]
     for copyright_file in copyright_files:
         if options.verbose:
             print copyright_file
@@ -152,7 +154,7 @@ def main(options):
         install.sort()
         install.save()
 
-if __name__ == "__main__":
+def main():
     script_name = os.path.basename(sys.argv[0])
     usage = "%s [options]" % (script_name)
     epilog = "See %s(1) for more info." % (script_name)
@@ -196,4 +198,7 @@ if __name__ == "__main__":
                                                    options.debian_directory)
         sys.exit(1)
 
-    main(options)
+    wrap_and_sort(options)
+
+if __name__ == "__main__":
+    main()

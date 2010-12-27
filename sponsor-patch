@@ -23,93 +23,98 @@ import tempfile
 from ubuntutools.config import UDTConfig
 from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
-from ubuntutools.sponsor_patch.main import main
+from ubuntutools.sponsor_patch.sponsor_patch import sponsor_patch
 
-script_name = os.path.basename(sys.argv[0])
-usage = "%s [options] <bug number>" % (script_name)
-epilog = "See %s(1) for more info." % (script_name)
-parser = optparse.OptionParser(usage=usage, epilog=epilog)
+def main():
+    script_name = os.path.basename(sys.argv[0])
+    usage = "%s [options] <bug number>" % (script_name)
+    epilog = "See %s(1) for more info." % (script_name)
+    parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
-parser.add_option("-b", "--build", dest="build",
-                  help="Build the package with the specified builder.",
-                  action="store_true", default=False)
-parser.add_option("-B", "--builder", dest="builder", default=None,
-                  help="Specify the package builder (default pbuilder)")
-parser.add_option("-e", "--edit",
-                  help="launch sub-shell to allow editing of the patch",
-                  dest="edit", action="store_true", default=False)
-parser.add_option("-k", "--key", dest="keyid", default=None,
-                  help="Specify the key ID to be used for signing.")
-parser.add_option("-l", "--lpinstance", dest="lpinstance", default=None,
-                  help="Launchpad instance to connect to (default: production)",
-                  metavar="INSTANCE")
-parser.add_option("--no-conf", dest="no_conf", default=False,
-                  help="Don't read config files or environment variables.",
-                  action="store_true")
-parser.add_option("-s", "--sponsor", help="sponsoring; equals -b -u ubuntu",
-                  dest="sponsoring", action="store_true", default=False)
-parser.add_option("-u", "--upload", dest="upload", default=None,
-                  help="Specify an upload destination (default none).")
-parser.add_option("-U", "--update", dest="update", default=False,
-                  action="store_true",
-                  help="Update the build environment before building.")
-parser.add_option("-v", "--verbose", help="print more information",
-                  dest="verbose", action="store_true", default=False)
-parser.add_option("-w", "--workdir", dest="workdir", default=None,
-                  help="Specify a working directory.")
+    parser.add_option("-b", "--build", dest="build",
+                      help="Build the package with the specified builder.",
+                      action="store_true", default=False)
+    parser.add_option("-B", "--builder", dest="builder", default=None,
+                      help="Specify the package builder (default pbuilder)")
+    parser.add_option("-e", "--edit",
+                      help="launch sub-shell to allow editing of the patch",
+                      dest="edit", action="store_true", default=False)
+    parser.add_option("-k", "--key", dest="keyid", default=None,
+                      help="Specify the key ID to be used for signing.")
+    parser.add_option("-l", "--lpinstance", dest="lpinstance", default=None,
+                      help="Launchpad instance to connect to "
+                           "(default: production)",
+                      metavar="INSTANCE")
+    parser.add_option("--no-conf", dest="no_conf", default=False,
+                      help="Don't read config files or environment variables.",
+                      action="store_true")
+    parser.add_option("-s", "--sponsor", help="sponsoring; equals -b -u ubuntu",
+                      dest="sponsoring", action="store_true", default=False)
+    parser.add_option("-u", "--upload", dest="upload", default=None,
+                      help="Specify an upload destination (default none).")
+    parser.add_option("-U", "--update", dest="update", default=False,
+                      action="store_true",
+                      help="Update the build environment before building.")
+    parser.add_option("-v", "--verbose", help="print more information",
+                      dest="verbose", action="store_true", default=False)
+    parser.add_option("-w", "--workdir", dest="workdir", default=None,
+                      help="Specify a working directory.")
 
-(options, args) = parser.parse_args()
-Logger.set_verbosity(options.verbose)
+    (options, args) = parser.parse_args()
+    Logger.set_verbosity(options.verbose)
 
-if len(args) == 0:
-    Logger.error("No bug number specified.")
-    sys.exit(1)
-elif len(args) > 1:
-    Logger.error("Multiple bug numbers specified: %s" % (", ".join(args)))
-    sys.exit(1)
+    if len(args) == 0:
+        Logger.error("No bug number specified.")
+        sys.exit(1)
+    elif len(args) > 1:
+        Logger.error("Multiple bug numbers specified: %s" % (", ".join(args)))
+        sys.exit(1)
 
-bug_number = args[0]
-if bug_number.isdigit():
-    bug_number = int(bug_number)
-else:
-    Logger.error("Invalid bug number specified: %s" % (bug_number))
-    sys.exit(1)
+    bug_number = args[0]
+    if bug_number.isdigit():
+        bug_number = int(bug_number)
+    else:
+        Logger.error("Invalid bug number specified: %s" % (bug_number))
+        sys.exit(1)
 
-config = UDTConfig(options.no_conf)
-if options.builder is None:
-    options.builder = config.get_value("BUILDER")
-if options.lpinstance is None:
-    options.lpinstance = config.get_value("LPINSTANCE")
-if not options.update:
-    options.update = config.get_value("UPDATE_BUILDER", boolean=True)
-if options.workdir is None:
-    options.workdir = config.get_value("WORKDIR")
-
-builder = get_builder(options.builder)
-if not builder:
-    sys.exit(1)
-
-if options.sponsoring:
-    options.build = True
-    options.upload = "ubuntu"
-
-if not options.upload and not options.workdir:
-    Logger.error("Please specify either a working directory or an upload "
-                 "target!")
-    sys.exit(1)
-
-if options.workdir is None:
-    workdir = tempfile.mkdtemp(prefix=script_name+"-")
-else:
-    workdir = options.workdir
-
-try:
-    main(bug_number, options.build, builder, options.edit, options.keyid,
-         options.lpinstance, options.update, options.upload, workdir,
-         options.verbose)
-except KeyboardInterrupt:
-    print "\nUser abort."
-    sys.exit(2)
-finally:
+    config = UDTConfig(options.no_conf)
+    if options.builder is None:
+        options.builder = config.get_value("BUILDER")
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value("LPINSTANCE")
+    if not options.update:
+        options.update = config.get_value("UPDATE_BUILDER", boolean=True)
     if options.workdir is None:
-        shutil.rmtree(workdir)
+        options.workdir = config.get_value("WORKDIR")
+
+    builder = get_builder(options.builder)
+    if not builder:
+        sys.exit(1)
+
+    if options.sponsoring:
+        options.build = True
+        options.upload = "ubuntu"
+
+    if not options.upload and not options.workdir:
+        Logger.error("Please specify either a working directory or an upload "
+                     "target!")
+        sys.exit(1)
+
+    if options.workdir is None:
+        workdir = tempfile.mkdtemp(prefix=script_name+"-")
+    else:
+        workdir = options.workdir
+
+    try:
+        sponsor_patch(bug_number, options.build, builder, options.edit,
+                      options.keyid, options.lpinstance, options.update,
+                      options.upload, workdir, options.verbose)
+    except KeyboardInterrupt:
+        print "\nUser abort."
+        sys.exit(2)
+    finally:
+        if options.workdir is None:
+            shutil.rmtree(workdir)
+
+if __name__ == "__main__":
+    main()
