@@ -203,7 +203,7 @@ def Download(dscinfo, number, filename, verify=True):
         if not res[0]:
             error(104, "Verification of %s failed: %s", filename, res[2])
     status("Getting %s", filename)
-    debug("%s%s/%s", base_url,number,filename)
+    debug("%s%s/%s", base_url, number, filename)
     try:
         fd = urllib2.urlopen("%s%s/%s" % (base_url, number, filename))
         outfd = open(filename, 'wb')

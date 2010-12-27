@@ -48,7 +48,7 @@ def main():
         version = extract(iso, '/.disk/info')
 
         if len(version) == 0:
-            print >>sys.stderr, '%s does not appear to be an Ubuntu ISO' % iso
+            print >> sys.stderr, '%s does not appear to be an Ubuntu ISO' % iso
             err = True
             continue
 

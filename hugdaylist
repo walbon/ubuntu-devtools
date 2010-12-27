@@ -81,7 +81,7 @@ def main():
     (howmany, url) = check_args()
     if len(url.split("?", 1)) == 2:
         # search options not supported, because there is no mapping web ui options <-> API options
-        print >> sys.stderr, "Options in url are not supported, url: %s" %url
+        print >> sys.stderr, "Options in url are not supported, url: %s" % url
         sys.exit(1)
 
     launchpad = None
@@ -97,7 +97,7 @@ def main():
     except Exception, e:
         x = getattr(e, "response", {})
         if x.get("status", None) == "404":
-            print >> sys.stderr, "The URL at '%s' does not appear to be a valid url to a product" %url
+            print >> sys.stderr, "The URL at '%s' does not appear to be a valid url to a product" % url
             sys.exit(1)
         else:
             raise
