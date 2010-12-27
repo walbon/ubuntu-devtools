@@ -149,7 +149,6 @@ Files: dch-repeat,
        ubuntutools/lp/libsupport.py,
        ubuntutools/lp/lpapicache.py,
        ubuntutools/misc.py,
-       ubuntutools/packages.py,
        what-patch
 Copyright: 2007-2010, Canonical Ltd.
            2008-2009, Iain Lane <iain@orangesquash.org.uk>

@@ -46,12 +46,13 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * Add most dependencies to Build-Depends for successfully run the tests.
   * Recommend python-gnupginterface (used by dgetlp).
   * update-maintainer: Rewrite completely using python-debian (LP: #666504).
+  * ubuntutools/packages.py: Removed (used nowhere).
 
   [ Michael Vogt ]
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 26 Dec 2010 21:56:07 +0200
+ -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 27 Dec 2010 22:38:34 +0100
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
