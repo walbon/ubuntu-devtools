@@ -38,9 +38,9 @@ if not os.path.exists('/usr/bin/reportbug'):
     sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
-    for v in changelog.get_versions():
-        if not re.search('(ubuntu|build)', v.full_version):
-            return v.full_version
+    for version in changelog.get_versions():
+        if not re.search('(ubuntu|build)', version.full_version):
+            return version.full_version
 
 def get_bug_body(changelog):
     msg = """In Ubuntu, the attached patch was applied to achieve the following:
@@ -95,7 +95,8 @@ def check_file(fname, critical = True):
     if os.path.exists(fname):
         return fname
     else:
-        if not critical: return False
+        if not critical:
+            return False
         print "Couldn't find «%s».\n" % fname
         sys.exit(1)
 
@@ -103,7 +104,7 @@ def edit_debdiff(debdiff):
     cmd = 'sensible-editor %s' % (debdiff)
     run_cmd(cmd)
 
-def submit_bugreport(body, debdiff, changelog):
+def submit_bugreport(body, debdiff, deb_version, changelog):
     cmd = ('reportbug -P "User: ubuntu-devel@lists.ubuntu.com" '
            '-P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s '
            '-B debian -i %s -V %s %s') % \
@@ -115,20 +116,24 @@ def run_cmd(cmd):
         print "%s\n" % cmd
     os.system(cmd)
 
-changelog_file = (check_file('debian/changelog', critical = False) or
-                  check_file('../debian/changelog'))
-changelog = Changelog(file(changelog_file).read())
+def main():
+    changelog_file = (check_file('debian/changelog', critical = False) or
+                      check_file('../debian/changelog'))
+    changelog = Changelog(file(changelog_file).read())
 
-deb_version = get_most_recent_debian_version(changelog)
-bug_body = get_bug_body(changelog)
+    deb_version = get_most_recent_debian_version(changelog)
+    bug_body = get_bug_body(changelog)
 
-fd, body = mkstemp()
-fp = os.fdopen(fd, 'w')
-fp.write(bug_body)
-fp.close()
+    fd, body = mkstemp()
+    fp = os.fdopen(fd, 'w')
+    fp.write(bug_body)
+    fp.close()
 
-debdiff = gen_debdiff(changelog)
-edit_debdiff(debdiff)
-submit_bugreport(body, debdiff, changelog)
-os.unlink(body)
-os.unlink(debdiff)
+    debdiff = gen_debdiff(changelog)
+    edit_debdiff(debdiff)
+    submit_bugreport(body, debdiff, deb_version, changelog)
+    os.unlink(body)
+    os.unlink(debdiff)
+
+if __name__ == '__main__':
+    main()
