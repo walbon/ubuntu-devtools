@@ -33,9 +33,7 @@ from ubuntutools.misc import dsc_name, dsc_url
 DEFAULT_DEBIAN_MIRROR = 'http://ftp.debian.org/debian'
 DEFAULT_DEBSEC_MIRROR = 'http://security.debian.org'
 
-opts = None
-
-def pull(package, version, unpack=False):
+def pull(package, version, opts, unpack=False):
     "Download Debian source package version version"
     urls = []
     # TODO: Not all packages are main :)
@@ -50,8 +48,8 @@ def pull(package, version, unpack=False):
     for url in urls:
         cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
         Logger.command(cmd)
-        p = subprocess.call(cmd)
-        if p == 0:
+        return_code = subprocess.call(cmd)
+        if return_code == 0:
             return True
 
     Logger.normal('Trying snapshot.debian.org')
@@ -86,37 +84,37 @@ def pull_from_snapshot(package, version, unpack=False):
             Logger.error('Unable to dowload info for hash.')
             return False
 
-        fn = info['result'][0]['name']
-        if '/' in fn:
-            Logger.error('Unacceptable file name: %s', fn)
+        filename = info['result'][0]['name']
+        if '/' in filename:
+            Logger.error('Unacceptable file name: %s', filename)
             return False
 
-        if os.path.exists(fn):
-            f = open(fn, 'r')
-            s = hashlib.sha1()
-            s.update(f.read())
-            f.close()
-            if s.hexdigest() == hash_:
-                Logger.normal('Using existing %s', fn)
+        if os.path.exists(filename):
+            source_file = open(filename, 'r')
+            sha1 = hashlib.sha1()
+            sha1.update(source_file.read())
+            source_file.close()
+            if sha1.hexdigest() == hash_:
+                Logger.normal('Using existing %s', filename)
                 continue
 
-        Logger.normal('Downloading: %s (%0.3f MiB)', fn,
+        Logger.normal('Downloading: %s (%0.3f MiB)', filename,
                       info['result'][0]['size'] / 1024.0 / 1024)
         try:
             in_ = urllib2.urlopen('http://snapshot.debian.org/file/%s' % hash_)
-            out = open(fn, 'w')
+            out = open(filename, 'w')
             while True:
-                b = in_.read(10240)
-                if b == '':
+                block = in_.read(10240)
+                if block == '':
                     break
-                out.write(b)
+                out.write(block)
                 sys.stdout.write('.')
                 sys.stdout.flush()
             sys.stdout.write('\n')
             sys.stdout.flush()
             out.close()
         except urllib2.URLError:
-            Logger.error('Error downloading %s', fn)
+            Logger.error('Error downloading %s', filename)
             return False
 
     if unpack:
@@ -132,12 +130,12 @@ def previous_version(package, version, distance):
     if ':' in upver:
         upver = upver.split(':', 1)[1]
     upver = upver.split('-')[0]
-    fn = '%s-%s/debian/changelog' % (package, upver)
-    f = open(fn, 'r')
-    c = debian.changelog.Changelog(f.read())
-    f.close()
+    filename = '%s-%s/debian/changelog' % (package, upver)
+    changelog_file = open(filename, 'r')
+    changelog = debian.changelog.Changelog(changelog_file.read())
+    changelog_file.close()
     seen = 0
-    for entry in c:
+    for entry in changelog:
         if entry.distributions == 'UNRELEASED':
             continue
         if seen == distance:
@@ -146,28 +144,28 @@ def previous_version(package, version, distance):
     return False
 
 def main():
-    global opts
-    p = optparse.OptionParser('%prog [options] <package> <version> [distance]')
-    p.add_option('-f', '--fetch',
-                 dest='fetch_only', default=False, action='store_true',
-                 help="Only fetch the source packages, don't diff.")
-    p.add_option('-d', '--debian-mirror', metavar='DEBIAN_MIRROR',
-                 dest='debian_mirror',
-                 help='Preferred Debian mirror '
-                      '(default: http://ftp.debian.org/debian)')
-    p.add_option('-s', '--debsec-mirror', metavar='DEBSEC_MIRROR',
-                 dest='debsec_mirror',
-                 help='Preferred Debian Security mirror '
-                      '(default: http://security.debian.org)')
-    p.add_option('--no-conf',
-                 dest='no_conf', default=False, action='store_true',
-                 help="Don't read config files or environment variables")
+    parser = optparse.OptionParser('%prog [options] <package> <version> '
+                                   '[distance]')
+    parser.add_option('-f', '--fetch',
+                      dest='fetch_only', default=False, action='store_true',
+                      help="Only fetch the source packages, don't diff.")
+    parser.add_option('-d', '--debian-mirror', metavar='DEBIAN_MIRROR',
+                      dest='debian_mirror',
+                      help='Preferred Debian mirror '
+                           '(default: http://ftp.debian.org/debian)')
+    parser.add_option('-s', '--debsec-mirror', metavar='DEBSEC_MIRROR',
+                      dest='debsec_mirror',
+                      help='Preferred Debian Security mirror '
+                           '(default: http://security.debian.org)')
+    parser.add_option('--no-conf',
+                      dest='no_conf', default=False, action='store_true',
+                      help="Don't read config files or environment variables")
 
-    opts, args = p.parse_args()
+    opts, args = parser.parse_args()
     if len(args) < 2:
-        p.error('Must specify package and version')
+        parser.error('Must specify package and version')
     elif len(args) > 3:
-        p.error('Too many arguments')
+        parser.error('Too many arguments')
     package = args[0]
     version = args[1]
     distance = args[2] if len(args) > 2 else 1
@@ -179,7 +177,7 @@ def main():
         opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
 
     Logger.normal('Downloading %s %s', package, version)
-    if not pull(package, version, unpack=not opts.fetch_only):
+    if not pull(package, version, opts, unpack=not opts.fetch_only):
         Logger.error("Couldn't locate version %s of %s.", version, package)
         sys.exit(1)
 
@@ -191,18 +189,18 @@ def main():
         Logger.error('No previous version could be found')
         sys.exit(1)
     Logger.normal('Downloading %s %s', package, oldversion)
-    if not pull(package, oldversion, unpack=True):
+    if not pull(package, oldversion, opts, unpack=True):
         Logger.error("Couldn't locate version %s of %s.", oldversion, package)
         sys.exit(1)
 
     cmd = ('debdiff', dsc_name(package, oldversion), dsc_name(package, version))
     Logger.command(cmd)
     difffn = dsc_name(package, version)[:-3] + 'debdiff'
-    f = open(difffn, 'w')
-    if subprocess.call(cmd, stdout=f) > 2:
+    debdiff_file = open(difffn, 'w')
+    if subprocess.call(cmd, stdout=debdiff_file) > 2:
         Logger.error('Debdiff failed.')
         sys.exit(1)
-    f.close()
+    debdiff_file.close()
     cmd = ('diffstat', '-p0', difffn)
     Logger.command(cmd)
     subprocess.check_call(cmd)
