@@ -234,7 +234,7 @@ def unpack():
 def getHost(url):
     return urllib2.splithost(urllib2.splittype(url)[1])[0]
 
-if __name__ == "__main__":
+def main():
     parser = OptionParser(usage=Usage)
     parser.add_option("-d", "--debug", action="store_true", dest="debug",
         default=False, help="Enable debugging")
@@ -320,3 +320,6 @@ if __name__ == "__main__":
 
     status("Unpacking")
     unpack()
+
+if __name__ == "__main__":
+    main()

@@ -41,7 +41,7 @@ from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
 # entry point
 #
 
-if __name__ == '__main__':
+def main():
     # Our usage options.
     usage = ('Usage: %prog [options] '
              '<source package> [<target release> [base version]]')
@@ -293,3 +293,6 @@ if __name__ == '__main__':
         mailBug(srcpkg, subscribe, status, title, report, options.lpinstance,
                 options.keyid, email_from, mailserver_host, mailserver_port,
                 mailserver_user, mailserver_pass)
+
+if __name__ == '__main__':
+    main()

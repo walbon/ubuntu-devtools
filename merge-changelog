@@ -252,7 +252,7 @@ def deb_cmp(x, y):
     return 0
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'):
         usage(exit=0)
     if len(sys.argv) != 3:
@@ -263,3 +263,6 @@ if __name__ == '__main__':
 
     merge_changelog(left_changelog, right_changelog)
     sys.exit(0)
+
+if __name__ == '__main__':
+    main()
