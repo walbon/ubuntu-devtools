@@ -36,7 +36,7 @@ import GnuPGInterface
 from cStringIO import StringIO
 from email.feedparser import FeedParser
 
-Usage = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
+USAGE = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 
 This scripts simulates «dget»'s behaviour for files hosted at
 launchpadlibrarian.net.
@@ -48,12 +48,11 @@ Example:
     %prog http://launchpadlibrarian.net/10348157/coreutils_5.97-5.4ubuntu1.dsc
 """
 
-unpack_cmd = "dpkg-source -x "
-base_url = "http://launchpadlibrarian.net/"
+BASE_URL = "http://launchpadlibrarian.net/"
 
 Debug = Verbose = Quiet = False
 
-def Unsign(data):
+def unsign(data):
     if data.splitlines()[0] != "-----BEGIN PGP SIGNED MESSAGE-----":
         return data
     oldstdout = sys.stdout
@@ -74,7 +73,7 @@ def Unsign(data):
     sys.stderr = oldstderr
     return plain
 
-def getEntries(data):
+def get_entries(data):
     parser = FeedParser()
     parser.feed(data)
     return parser.close()
@@ -86,7 +85,7 @@ class DscParse(object):
         __init__(data)
         Given the contents of a .dsc, parse it and extract it's content
         """
-        self.entries = getEntries(Unsign(data))
+        self.entries = get_entries(unsign(data))
         self.files = [x.strip().split() for x in
                       self.entries['Files'].splitlines()]
 
@@ -117,37 +116,37 @@ class DscParse(object):
                     f = i
         if not f:
             raise ValueError, "%s is not in the .dsc" % name
-        (sum, size, name) = tuple(f)
+        (md5sum, size, name) = tuple(f)
         stat = os.stat(name)
         if str(stat.st_size) != size:
             return (False, name, "Expected a size of %s, got %s" % \
                 (size, stat.st_size))
-        return self.getsum(name, sum)
+        return self.getsum(name, md5sum)
 
-    def getsum(self, name, sum=None):
+    def getsum(self, name, md5sum=None):
         """
-        getsum(name[, sum])
+        getsum(name[, md5sum])
         Read the file 'name' (in 1MB chunks) and generate an md5 sum,
         then compares that to the md5 sum in the .dsc file.
         """
         chunk_size = 1073741824
         fd = open(name, 'rb')
         res = hashlib.md5()
-        if not sum:
+        if not md5sum:
             assert self.files, "I have no files"
-            sum = [x[0] for x in self.files if x[2] == name][0]
+            md5sum = [x[0] for x in self.files if x[2] == name][0]
         data = fd.read(chunk_size)
         while data:
             res.update(data)
             data = fd.read(chunk_size)
-        if res.hexdigest() != sum:
+        if res.hexdigest() != md5sum:
             return (False, name, "Expected md5sum of %r, got %r" % \
-                (sum, res.hexdigest()) )
+                                 (md5sum, res.hexdigest()))
         return (True, name, None)
 
-    def isNative(self):
+    def is_native(self):
         """
-        isNative()
+        is_native()
         Returns True if this .dsc describes a native debian package;
         else false.
         """
@@ -193,8 +192,8 @@ def status(msg, *args):
     if not Quiet:
         print msg % tuple(args)
 
-def Download(dscinfo, number, filename, verify=True):
-    """Download filename"""
+def download(dscinfo, number, filename, verify=True):
+    """download filename"""
     ftype = filename.endswith(".diff.gz") and "diff.gz" or \
         filename.endswith(".orig.tar.gz") and "orig.tar.gz" or \
         filename.endswith(".dsc") and "dsc" or "tar.gz"
@@ -204,44 +203,46 @@ def Download(dscinfo, number, filename, verify=True):
         if not res[0]:
             error(104, "Verification of %s failed: %s", filename, res[2])
     status("Getting %s", filename)
-    debug("%s%s/%s", base_url, number, filename)
+    debug("%s%s/%s", BASE_URL, number, filename)
     try:
-        fd = urllib2.urlopen("%s%s/%s" % (base_url, number, filename))
+        fd = urllib2.urlopen("%s%s/%s" % (BASE_URL, number, filename))
         outfd = open(filename, 'wb')
         outfd.write(fd.read())
         fd.close()
         outfd.close()
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError, err:
         status("Failed to fetch «%s» file, aborting.", ftype)
-        error(106, "Error: (%d %s)", e.code, e.msg)
-    except urllib2.URLError, e:
+        error(106, "Error: (%d %s)", err.code, err.msg)
+    except urllib2.URLError, err:
         status("Failed to fetch «%s» file, aborting.", ftype)
-        error(105, "Error: %s", e)
-    except IOError, e:
+        error(105, "Error: %s", err)
+    except IOError, err:
         status('Could not create "%s"', filename)
-        error(107, "Error: %s", e)
+        error(107, "Error: %s", err)
 
-def unpack():
+def unpack(filename):
     out = open('/dev/null', 'w')
     err = open('/dev/null', 'w')
-    ret = subprocess.call(unpack_cmd.split(), stdout=out, stderr=err)
+    cmd = ["dpkg-source", "-x", filename]
+    ret = subprocess.call(cmd, stdout=out, stderr=err)
     out.close()
     err.close()
     if ret:
         status("Failed to unpack source, aborting.")
         sys.exit(108)
 
-def getHost(url):
+def get_host(url):
     return urllib2.splithost(urllib2.splittype(url)[1])[0]
 
 def main():
-    parser = OptionParser(usage=Usage)
+    global Debug, Verbose, Quiet
+    parser = OptionParser(usage=USAGE)
     parser.add_option("-d", "--debug", action="store_true", dest="debug",
-        default=False, help="Enable debugging")
+                      default=False, help="Enable debugging")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
-        default=False, help="Enable verbose output")
+                      default=False, help="Enable verbose output")
     parser.add_option("-q", "--quiet", action="store_true", dest="quiet",
-        default=False, help="Never print any output")
+                      default=False, help="Never print any output")
 
     (options, args) = parser.parse_args()
     if len(args) != 1:
@@ -263,12 +264,12 @@ def main():
     if not url.startswith("http://"):
         url = "http://" + url
 
-    if getHost(url).startswith("www."):
+    if get_host(url).startswith("www."):
         url = url.replace("www.", "", 1)
 
-    if getHost(url) != getHost(base_url):
+    if get_host(url) != get_host(BASE_URL):
         error(1, "Error: This utility only works for files on %s.\n"
-                 "Maybe you want to try dget?", base_url)
+                 "Maybe you want to try dget?", BASE_URL)
 
     (number, filename) = url.split('/')[3:]
 
@@ -280,17 +281,15 @@ def main():
     except:
         error(3, "Bad URL format")
 
-    unpack_cmd += filename
-
     if os.path.exists(filename):
         os.remove(filename)
 
-    Download(None, number, filename, False)
+    download(None, number, filename, False)
     try:
         fd = open(filename)
         dsc_data = fd.read()
         fd.close()
-    except Exception, e:
+    except Exception:
         status("Error: Please report this bug, providing the URL and attach"
                " the following backtrace")
         raise
@@ -313,13 +312,13 @@ def main():
 
 # Only one file listed in the .dsc means it's native package
     if len(dscinfo.files) == 1:
-        Download(dscinfo, number-1, dscinfo.files[0][-1]) # .tar.gz
+        download(dscinfo, number-1, dscinfo.files[0][-1]) # .tar.gz
     else:
-        Download(dscinfo, number-1, dscinfo.files[1][-1]) # .diff.gz
-        Download(dscinfo, number-2, dscinfo.files[0][-1]) # .orig.tar.gz
+        download(dscinfo, number-1, dscinfo.files[1][-1]) # .diff.gz
+        download(dscinfo, number-2, dscinfo.files[0][-1]) # .orig.tar.gz
 
     status("Unpacking")
-    unpack()
+    unpack(filename)
 
 if __name__ == "__main__":
     main()

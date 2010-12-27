@@ -33,38 +33,40 @@ from ubuntutools.lp.lpapicache import PersonTeam
 def main():
     usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
     usage += "\nUsage: %prog <team>"
-    optParser = OptionParser(usage)
+    opt_parser = OptionParser(usage)
 
     # Our options.
-    optParser.add_option("-d", "--directory", action = "store", type = "string",
-        dest = "directory", default = os.getcwd(),
-        help = "Directory to download branches to.")
-    optParser.add_option("-t", "--team", action = "store", type = "string",
-        dest = "lpteam", help = "Launchpad team to download branches from.")
-    optParser.add_option("-o", "--operation", action = "store", type = "string",
-        dest = "operation", default = "branch",
-        help = "Whether to branch or checkout the Bazaar branches. May be " \
-            "either 'branch' or 'checkout'.")
+    opt_parser.add_option("-d", "--directory", action="store", type="string",
+                          dest="directory", default=os.getcwd(),
+                          help="Directory to download branches to.")
+    opt_parser.add_option("-t", "--team", action="store", type="string",
+                          dest="lpteam",
+                          help="Launchpad team to download branches from.")
+    opt_parser.add_option("-o", "--operation", action="store", type="string",
+                          dest="operation", default="branch",
+                          help="Whether to branch or checkout the Bazaar "
+                               "branches. May be either 'branch' or "
+                               "'checkout'.")
 
-    (options, args) = optParser.parse_args()
+    (options, args) = opt_parser.parse_args()
 
     # Fetch our current directory to return to later.
     pwd = os.getcwd()
 
     # Parse our options.
     if len(args) != 1 and options.lpteam == None:
-        optParser.error("No team has been specified.")
+        opt_parser.error("No team has been specified.")
 
     # Dictionary settings.
     directory = options.directory
     if not os.path.isdir(directory): # Check that it is a directory.
-        optParser.error("%s is not a valid directory." % directory)
+        opt_parser.error("%s is not a valid directory." % directory)
     os.chdir(directory)
 
     # Type of Bazaar operation to perform.
     operation_type = options.operation.lower()
     if operation_type not in ("branch", "checkout"):
-        optParser.error("Invalid operation '%s' for '-o' flag." % \
+        opt_parser.error("Invalid operation '%s' for '-o' flag." % \
             operation_type)
 
     # Launchpad team setting.
