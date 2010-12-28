@@ -22,7 +22,6 @@
 
 import debian.deb822
 import debian.debian_support
-import hashlib
 import optparse
 import os
 import re
@@ -30,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import urllib
+import urlparse
 
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.requestsync.mail import getDebianSrcPkg \
@@ -38,6 +38,7 @@ from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.logger import Logger
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools.mirrors import pull_source_pkg
 
 class File(object):
     def __init__(self, url, checksum, size):
@@ -59,28 +60,6 @@ class File(object):
 
     def is_source_file(self):
         return re.match(".*\.orig.*\.tar\..*", self.name)
-
-    def download(self):
-        '''Download file (by URL)  to the current directory.
-
-        If the file is already present, this function does nothing.'''
-
-        file_exists = os.path.exists(self.name)
-
-        if file_exists:
-            # Check for correct checksum
-            md5 = hashlib.md5()
-            md5.update(open(self.name).read())
-            file_exists = md5.hexdigest() == self.checksum
-
-        if not file_exists:
-            Logger.info('Downloading %s...', self.url)
-            try:
-                urllib.urlretrieve(self.url, self.name)
-            except IOError as err:
-                Logger.error('Failed to download %s [Errno %i]: %s.',
-                             self.name, err.errno, err.strerror)
-                sys.exit(1)
 
 
 class Version(debian.debian_support.Version):
@@ -107,7 +86,7 @@ class Version(debian.debian_support.Version):
         return Version(related_debian_version)
 
     def is_modified_in_ubuntu(self):
-        return self.full_version.find('ubuntu') > 0
+        return 'ubuntu' in self.full_version
 
 def remove_signature(dscname):
     '''Removes the signature from a .dsc file if the .dsc file is signed.'''
@@ -169,22 +148,14 @@ def add_fixed_bugs(changes, bugs):
 
     return "\n".join(changes + [""])
 
-def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None):
-    assert dscurl.endswith(".dsc")
-    dscname = os.path.basename(dscurl)
-    basepath = os.path.dirname(dscurl)
+def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
+             keyid=None):
+    assert dscname.endswith(".dsc")
+    assert os.path.exists(dscname)
+    assert '/' not in dscname
     (srcpkg, new_ver) = dscname.split('_')
     uploader = name + " <" + email + ">"
 
-    if os.path.exists(os.path.join(basepath, dscname)):
-        dscfile = dscurl
-    else:
-        try:
-            urllib.urlretrieve(dscurl, dscname)
-        except IOError as error:
-            Logger.error('Failed to download %s [Errno %i]: %s.',
-                         dscname, error.errno, error.strerror)
-            sys.exit(1)
     dscfile = debian.deb822.Dsc(file(dscname))
     if "Version" not in dscfile:
         Logger.error('No Version field found in the dsc file. Please check %s!',
@@ -203,19 +174,13 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None):
         ubuntu_ver = Version('~')
         ubuntu_dsc = None
 
-    # No need to continue if version is not greater than current one
-    if new_ver <= ubuntu_ver:
-        Logger.error('%s version %s is not greater than already available %s',
-                     srcpkg, new_ver, ubuntu_ver)
-        sys.exit(1)
     Logger.debug('Source %s: current version %s, new version %s',
                  srcpkg, ubuntu_ver, new_ver)
 
-    files = dsc_getfiles(dscurl)
+    files = dsc_getfiles(dscname)
     source_files = [f for f in files if f.is_source_file()]
     Logger.debug('Files: %s', str([x.get_name() for x in files]))
     Logger.debug('Source files: %s', str([x.get_name() for x in source_files]))
-    [f.download() for f in files]
 
     if ubuntu_dsc is None:
         ubuntu_files = None
@@ -263,7 +228,8 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None):
     # Do a fake sync if required
     if len(fakesync_files) > 0:
         # Download Ubuntu files (override Debian source tarballs)
-        [f.download() for f in fakesync_files]
+        pull_source_pkg('UBUNTU', ubuntu_mirror, ubuntu_source.getComponent(),
+                        srcpkg, ubuntu_ver.full_version)
 
     # change into package directory
     directory = srcpkg + '-' + new_ver.upstream_version
@@ -352,39 +318,52 @@ def sync_dsc(dscurl, debian_dist, release, name, email, bugs, keyid=None):
                          'Please check build log above.')
             sys.exit(1)
 
-def get_debian_dscurl(package, dist, release, version=None, component=None):
+def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
+    """Download the specified source package.
+    dist, version, component, mirror can all be None.
+    """
     if dist is None:
         dist = "unstable"
+    requested_version = version
     if type(version) == str:
         version = Version(version)
 
     if version is None or component is None:
         debian_srcpkg = getDebianSrcPkg(package, dist)
-        try:
-            src_pkg = getUbuntuSrcPkg(package, release)
-            ubuntu_version = Version(src_pkg.getVersion())
-        except udtexceptions.PackageNotFoundException:
-            ubuntu_version = Version('~')
-        if ubuntu_version >= Version(debian_srcpkg.getVersion()):
-            # The LP importer is maybe out of date
-            debian_srcpkg = requestsync_mail_getDebianSrcPkg(package, dist)
-
         if version is None:
             version = Version(debian_srcpkg.getVersion())
+        try:
+            ubuntu_srcpkg = getUbuntuSrcPkg(package, ubuntu_release)
+            ubuntu_version = Version(ubuntu_srcpkg.getVersion())
+        except udtexceptions.PackageNotFoundException:
+            ubuntu_version = Version('~')
+        if ubuntu_version >= version:
+            # The LP importer is maybe out of date
+            debian_srcpkg = requestsync_mail_getDebianSrcPkg(package, dist)
+            if requested_version is None:
+                version = Version(debian_srcpkg.getVersion())
+            if ubuntu_version >= version:
+                Logger.error("Version in Debian %s (%s) isn't newer than "
+                             "Ubuntu %s (%s)",
+                             version, dist, ubuntu_version, ubuntu_release)
+                sys.exit(1)
         if component is None:
             component = debian_srcpkg.getComponent()
 
-    assert component in ("main", "contrib", "non-free")
+    assert component in ('main', 'contrib', 'non-free')
 
-    if package.startswith("lib"):
-        group = package[0:4]
-    else:
-        group = package[0]
+    return pull_source_pkg('DEBIAN', mirror, component, package,
+                           version.full_version)
 
-    dsc_file = package + "_" + version.strip_epoch() + ".dsc"
-    dscurl = os.path.join("http://ftp.debian.org/debian/pool", component, group,
-                          package, dsc_file)
-    return dscurl
+def fetch_dsc(dscfile):
+    "Fetch a dsc"
+    url = urlparse.urlparse(dscfile)
+    if not url.scheme:
+        dscfile = 'file://' + os.path.abspath(dscfile)
+    cmd = ('dget', '--allow-unauthenticated', '-d', dscfile)
+    Logger.command(cmd)
+    subprocess.check_call(cmd)
+    return os.path.basename(url.path)
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
@@ -424,6 +403,16 @@ def main():
                       dest="bugs", action="append", default=list(),
                       help="Mark Launchpad bug BUG as being fixed by this "
                            "upload.")
+    parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
+                      dest='debian_mirror',
+                      help='Preferred Debian mirror '
+                           '(default: %s)'
+                           % UDTConfig.defaults['DEBIAN_MIRROR'])
+    parser.add_option('-U', '--ubuntu-mirror', metavar='UBUNTU_MIRROR',
+                      dest='ubuntu_mirror',
+                      help='Prefeed Ubuntu mirror '
+                           '(default: %s)'
+                           % UDTConfig.defaults['UBUNTU_MIRROR'])
     parser.add_option('--no-conf',
                       dest='no_conf', default=False, action='store_true',
                       help="Don't read config files or environment variables.")
@@ -441,11 +430,19 @@ def main():
         parser.error('Invalid bug number(s) specified: '
                      + ', '.join(invalid_bug_numbers))
 
-    config = UDTConfig(options.no_conf)
+    if options.component not in (None, "main", "contrib", "non-free"):
+        parser.error('%s is not a valid Debian component. '
+                     'It should be one of main, contrib, or non-free.'
+                     % options.component)
 
+    Logger.verbose = options.verbose
+    config = UDTConfig(options.no_conf)
+    if options.debian_mirror is None:
+        options.debian_mirror = config.get_value('DEBIAN_MIRROR')
+    if options.ubuntu_mirror is None:
+        options.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
     if options.uploader_name is None:
         options.uploader_name = ubu_email(export=False)[0]
-
     if options.uploader_email is None:
         options.uploader_email = ubu_email(export=False)[1]
 
@@ -454,19 +451,17 @@ def main():
         options.release = Launchpad.distributions["ubuntu"].current_series.name
 
     if args[0].endswith(".dsc"):
-        dscurl = args[0]
+        dscfile = args[0]
+        if '/' in dscfile:
+            dscfile = fetch_dsc(dscfile)
     else:
-        if options.component not in (None, "main", "contrib", "non-free"):
-            parser.error('%s is not a valid Debian component. '
-                         'It should be one of main, contrib, or non-free.'
-                         % options.component)
-        dscurl = get_debian_dscurl(args[0], options.dist, options.release,
-                                   options.debversion, options.component)
+        dscfile = fetch_source_pkg(args[0], options.dist, options.debversion,
+                                   options.component, options.release,
+                                   options.debian_mirror)
 
-    Logger.verbose = options.verbose
-    Logger.debug('.dsc url: %s', dscurl)
-    sync_dsc(dscurl, options.dist, options.release, options.uploader_name,
-             options.uploader_email, options.bugs, options.keyid)
+    sync_dsc(dscfile, options.dist, options.release, options.uploader_name,
+             options.uploader_email, options.bugs, options.ubuntu_mirror,
+             options.keyid)
 
 if __name__ == "__main__":
     main()
