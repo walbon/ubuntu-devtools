@@ -20,6 +20,12 @@
 import os
 import sys
 
+def escape_arg(arg):
+    "Shell-escpae arg, if necessary"
+    if ' ' not in arg:
+        return arg
+    return '"%s"' % arg.replace('\\', r'\\').replace('"', r'\"')
+
 class Logger(object):
     script_name = os.path.basename(sys.argv[0])
     verbose = False
@@ -30,10 +36,9 @@ class Logger(object):
     @classmethod
     def command(cls, cmd):
         if cls.verbose:
-            for i in xrange(len(cmd)):
-                if cmd[i].find(" ") >= 0:
-                    cmd[i] = '"' + cmd[i] + '"'
-            print >> cls.stdout, "%s: I: %s" % (cls.script_name, " ".join(cmd))
+            print >> cls.stdout, "%s: I: %s" % (cls.script_name,
+                                                " ".join(escape_arg(arg)
+                                                         for arg in cmd))
 
     @classmethod
     def debug(cls, message, *args):
