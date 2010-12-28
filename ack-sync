@@ -51,7 +51,7 @@ def strip_epoch(version):
     version = ':'.join(parts)
     return version
 
-def LogCall(command):
+def log_call(command):
     command = map(str, command)
     logging.info("Running %s", " ".join(command))
     return command
@@ -88,22 +88,22 @@ def get_source(package, version, section, dist, uploader_name, uploader_email,
         sys.exit(1)
     return dsc_file
 
-def build_source(dist, dsc_file):
+def build_source(dist, dsc_file, pbuilder, sbuild):
     try:
         if sbuild:
             cmd = ["sbuild", "-d", dist, "-A", dsc_file]
-            subprocess.check_call(LogCall(cmd))
+            subprocess.check_call(log_call(cmd))
         else:
             if not os.path.isdir("buildresult"):
                 os.makedirs("buildresult")
             cmd = ["sudo", "-E", "DIST=" + dist, pbuilder, "--build",
                    "--buildresult", "buildresult", dsc_file]
-            subprocess.check_call(LogCall(cmd))
+            subprocess.check_call(log_call(cmd))
     except subprocess.CalledProcessError:
         print >> sys.stderr, "E: %s failed to build." % (dsc_file)
         sys.exit(1)
 
-def test_install(dist, dsc_file):
+def test_install(dist, dsc_file, sbuild, lvm):
     changes_files = glob.glob(os.path.splitext(dsc_file)[0]+"_*.changes")
     changes_file = ""
 
@@ -122,9 +122,9 @@ def test_install(dist, dsc_file):
                "restricted multiverse", changes_file]
         if sbuild:
             lvm_volume = lvm + "/" + dist + "_chroot"
-            subprocess.check_call(LogCall(cmd + ["--lvm-volume="+lvm_volume]))
+            subprocess.check_call(log_call(cmd + ["--lvm-volume="+lvm_volume]))
         else:
-            subprocess.check_call(LogCall(cmd + ["--pbuilder"]))
+            subprocess.check_call(log_call(cmd + ["--pbuilder"]))
     except subprocess.CalledProcessError:
         print >> sys.stderr, "E: %s failed to install. Please check log" % \
                              (changes_file)
@@ -154,8 +154,8 @@ def unsubscribe_sponsors(launchpad, bug):
 
 
 def ack_sync(bug_numbers, all_package, all_version, all_section, update,
-             all_uploader_email, key, upload, lpinstance, verbose=False,
-             silent=False):
+             all_uploader_email, key, upload, lpinstance, pbuilder, sbuild, lvm,
+             piuparts, verbose, verbose=False, silent=False):
     launchpad = get_launchpad("ubuntu-dev-tools", server=lpinstance)
     # TODO: use release-info (once available)
     series = launchpad.distributions["ubuntu"].current_series
@@ -164,10 +164,10 @@ def ack_sync(bug_numbers, all_package, all_version, all_section, update,
     # update pbuilder
     if update:
         if sbuild:
-            subprocess.call(LogCall(["sbuild-update", dist]))
+            subprocess.call(log_call(["sbuild-update", dist]))
         else:
             cmd = ["sudo", "-E", "DIST=" + dist, pbuilder, "--update"]
-            subprocess.call(LogCall(cmd))
+            subprocess.call(log_call(cmd))
 
     for bug_number in bug_numbers:
         bug = launchpad.bugs[bug_number]
@@ -270,10 +270,10 @@ def ack_sync(bug_numbers, all_package, all_version, all_section, update,
         env['DEB_VENDOR'] = 'Ubuntu'
         subprocess.check_call(["dpkg-source", "-x", dsc_file], env=env)
 
-        build_source(dist, dsc_file)
+        build_source(dist, dsc_file, pbuilder, sbuild)
 
         if piuparts:
-            test_install(dist, dsc_file)
+            test_install(dist, dsc_file, sbuild, lvm)
 
         print bug.title
         print '%s (was %s)' % (task.status, old_status)
@@ -430,7 +430,8 @@ def main():
     #TODO: Support WORKDIR
 
     ack_sync(bug_numbers, package, version, section, update, uploader_email,
-             key, upload, lpinstance, verbose, silent)
+             key, upload, lpinstance, pbuilder, sbuild, lvm, piuparts, verbose,
+             silent)
 
 if __name__ == '__main__':
     main()
