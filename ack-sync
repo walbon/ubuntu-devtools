@@ -155,7 +155,7 @@ def unsubscribe_sponsors(launchpad, bug):
 
 def ack_sync(bug_numbers, all_package, all_version, all_section, update,
              all_uploader_email, key, upload, lpinstance, pbuilder, sbuild, lvm,
-             piuparts, verbose, verbose=False, silent=False):
+             piuparts, verbose=False, silent=False):
     launchpad = get_launchpad("ubuntu-dev-tools", server=lpinstance)
     # TODO: use release-info (once available)
     series = launchpad.distributions["ubuntu"].current_series
