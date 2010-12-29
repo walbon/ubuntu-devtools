@@ -27,13 +27,13 @@ import os
 import sys
 from optparse import OptionParser
 
+from ubuntutools.archive import UbuntuSourcePackage
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
                                           PackageNotFoundException,
                                           PocketDoesNotExistError)
-from ubuntutools.mirrors import pull_source_pkg
 from ubuntutools.misc import split_release_pocket
 
 def main():
@@ -83,9 +83,12 @@ def main():
         Logger.error(error)
         sys.exit(1)
 
-    pull_source_pkg('UBUNTU', options.ubuntu_mirror, spph.getComponent(),
-                    package, spph.getVersion(),
-                    unpack=not options.download_only)
+    srcpkg = UbuntuSourcePackage(package, spph.getVersion(),
+                                 component=spph.getComponent(),
+                                 mirrors=[options.ubuntu_mirror])
+    srcpkg.pull()
+    if not options.download_only:
+        srcpkg.unpack()
 
 if __name__ == '__main__':
     main()

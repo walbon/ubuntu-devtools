@@ -18,21 +18,20 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 import optparse
+import os.path
 import subprocess
 import sys
 
+import debian.debian_support
 import debian.changelog
 
+from ubuntutools.archive import DebianSourcePackage
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
-from ubuntutools.mirrors import pull_source_pkg
 
 def previous_version(package, version, distance):
     "Given an (extracted) package, determine the version distance versions ago"
-    upver = version
-    if ':' in upver:
-        upver = upver.split(':', 1)[1]
-    upver = upver.split('-')[0]
+    upver = debian.debian_support.Version(version).upstream_version
     filename = '%s-%s/debian/changelog' % (package, upver)
     changelog_file = open(filename, 'r')
     changelog = debian.changelog.Changelog(changelog_file.read())
@@ -78,15 +77,14 @@ def main():
         opts.debian_mirror = config.get_value('DEBIAN_MIRROR')
     if opts.debsec_mirror is None:
         opts.debsec_mirror = config.get_value('DEBSEC_MIRROR')
+    mirrors = [opts.debsec_mirror, opts.debian_mirror]
 
     Logger.normal('Downloading %s %s', package, version)
 
-    # TODO: Not all packages are main, but snapshot.debian.org should save
-    # the day, as it doesn't care about component.
-    newdsc = pull_source_pkg(('DEBSEC', 'DEBIAN'),
-                             {'DEBSEC': opts.debsec_mirror,
-                              'DEBIAN': opts.debian_mirror},
-                             'main', package, version, unpack=True)
+    #TODO: Proper snapshot and security support
+    newpkg = DebianSourcePackage(package, version, mirrors=mirrors)
+    newpkg.pull()
+    newpkg.unpack()
 
     if opts.fetch_only:
         sys.exit(0)
@@ -96,14 +94,14 @@ def main():
         Logger.error('No previous version could be found')
         sys.exit(1)
     Logger.normal('Downloading %s %s', package, oldversion)
-    olddsc = pull_source_pkg(('DEBSEC', 'DEBIAN'),
-                             {'DEBSEC': opts.debsec_mirror,
-                              'DEBIAN': opts.debian_mirror},
-                             'main', package, oldversion, unpack=True)
 
-    cmd = ('debdiff', olddsc, newdsc)
-    Logger.command(cmd)
+    oldpkg = DebianSourcePackage(package, oldversion, mirrors=mirrors)
+    oldpkg.pull()
+    oldpkg.unpack()
+
+    cmd = ['debdiff', oldpkg.dsc_name, newpkg.dsc_name]
     difffn = newdsc[:-3] + 'debdiff'
+    Logger.command(cmd + ['> %s' % difffn])
     debdiff_file = open(difffn, 'w')
     if subprocess.call(cmd, stdout=debdiff_file) > 2:
         Logger.error('Debdiff failed.')
@@ -112,7 +110,7 @@ def main():
     cmd = ('diffstat', '-p0', difffn)
     Logger.command(cmd)
     subprocess.check_call(cmd)
-    print difffn
+    print 'file://' + os.path.abspath(difffn)
 
 if __name__ == '__main__':
     main()
