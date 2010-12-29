@@ -56,7 +56,7 @@ class _Launchpad(object):
 
     def login(self, service=service):
         '''Enforce a non-anonymous login.'''
-        if '_Launchpad__lp' not in self.__dict__:
+        if not self.logged_in:
             try:
                 self.__lp = libsupport.get_launchpad('ubuntu-dev-tools',
                                                      server=service)
@@ -68,14 +68,26 @@ class _Launchpad(object):
 
     def login_anonymously(self, service=service, api_version=api_version):
         '''Enforce an anonymous login.'''
-        if '_Launchpad__lp' not in self.__dict__:
+        if not self.logged_in:
             self.__lp = launchpad.Launchpad.login_anonymously(
                  'ubuntu-dev-tools', service_root=service, version=api_version)
         else:
             raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
+    def login_existing(self, lp):
+        '''Use an already logged in Launchpad object'''
+        if not self.logged_in:
+            self.__lp = lp
+        else:
+            raise AlreadyLoggedInError('Already logged in to Launchpad.')
+
+    @property
+    def logged_in(self):
+        '''Are we logged in?'''
+        return '_Launchpad__lp' in self.__dict__
+
     def __getattr__(self, attr):
-        if '_Launchpad__lp' not in self.__dict__:
+        if not self.logged_in:
             self.login()
         return getattr(self.__lp, attr)
 
