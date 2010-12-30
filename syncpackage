@@ -28,9 +28,8 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib
-import urlparse
 
+from ubuntutools.archive import DebianSourcePackage, UbuntuSourcePackage
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.requestsync.mail import getDebianSrcPkg \
                                   as requestsync_mail_getDebianSrcPkg
@@ -38,28 +37,6 @@ from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.logger import Logger
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Launchpad
-from ubuntutools.mirrors import pull_source_pkg
-
-class File(object):
-    def __init__(self, url, checksum, size):
-        self.url = url
-        self.name = os.path.basename(url)
-        self.checksum = checksum
-        self.size = size
-
-    def __repr__(self):
-        return self.name + " (" + self.checksum + " " + self.size + \
-               ") source " + str(bool(self.is_source_file()))
-
-    def __eq__(self, other):
-        return self.name == other.name and self.checksum == other.checksum and \
-               self.size == other.size
-
-    def get_name(self):
-        return self.name
-
-    def is_source_file(self):
-        return re.match(".*\.orig.*\.tar\..*", self.name)
 
 
 class Version(debian.debian_support.Version):
@@ -88,6 +65,7 @@ class Version(debian.debian_support.Version):
     def is_modified_in_ubuntu(self):
         return 'ubuntu' in self.full_version
 
+
 def remove_signature(dscname):
     '''Removes the signature from a .dsc file if the .dsc file is signed.'''
 
@@ -110,24 +88,6 @@ def remove_signature(dscname):
         dsc_file.writelines(unsigned_file)
         dsc_file.close()
 
-def dsc_getfiles(dscurl):
-    '''Return list of files in a .dsc file (excluding the .dsc file itself).'''
-
-    basepath = os.path.dirname(dscurl)
-    dsc = debian.deb822.Dsc(urllib.urlopen(dscurl))
-
-    if 'Files' not in dsc:
-        Logger.error('No Files field found in the dsc file. Please check %s!',
-                     os.path.basename(dscurl))
-        sys.exit(1)
-
-    files = []
-    for source_file in dsc['Files']:
-        url = os.path.join(basepath, source_file['name'])
-        if not source_file['name'].endswith('.dsc'):
-            files.append(File(url, source_file['md5sum'], source_file['size']))
-    return files
-
 def add_fixed_bugs(changes, bugs):
     '''Add additional Launchpad bugs to the list of fixed bugs in changes
        file.'''
@@ -148,44 +108,26 @@ def add_fixed_bugs(changes, bugs):
 
     return "\n".join(changes + [""])
 
-def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
+def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
              keyid=None):
-    assert dscname.endswith(".dsc")
-    assert os.path.exists(dscname)
-    assert '/' not in dscname
-    (srcpkg, new_ver) = dscname.split('_')
     uploader = name + " <" + email + ">"
 
-    dscfile = debian.deb822.Dsc(file(dscname))
-    if "Version" not in dscfile:
-        Logger.error('No Version field found in the dsc file. Please check %s!',
-                     dscname)
-        sys.exit(1)
-    new_ver = Version(dscfile["Version"])
+    src_pkg.pull_dsc()
+    new_ver = Version(src_pkg.dsc["Version"])
 
     try:
-        ubuntu_source = getUbuntuSrcPkg(srcpkg, release)
+        ubuntu_source = getUbuntuSrcPkg(src_pkg.source, release)
         ubuntu_ver = Version(ubuntu_source.getVersion())
-        ubuntu_dsc = [f for f in ubuntu_source.sourceFileUrls()
-                      if f.endswith(".dsc")]
-        assert len(ubuntu_dsc) == 1
-        ubuntu_dsc = ubuntu_dsc[0]
+        ubu_pkg = UbuntuSourcePackage(src_pkg.source, ubuntu_ver.full_version,
+                                      ubuntu_source.getComponent(),
+                                      mirrors=[ubuntu_mirror])
+        ubu_pkg.pull_dsc()
     except udtexceptions.PackageNotFoundException:
         ubuntu_ver = Version('~')
-        ubuntu_dsc = None
+        ubu_pkg = None
 
     Logger.debug('Source %s: current version %s, new version %s',
-                 srcpkg, ubuntu_ver, new_ver)
-
-    files = dsc_getfiles(dscname)
-    source_files = [f for f in files if f.is_source_file()]
-    Logger.debug('Files: %s', str([x.get_name() for x in files]))
-    Logger.debug('Source files: %s', str([x.get_name() for x in source_files]))
-
-    if ubuntu_dsc is None:
-        ubuntu_files = None
-    else:
-        ubuntu_files = dsc_getfiles(ubuntu_dsc)
+                 src_pkg.source, ubuntu_ver, new_ver)
 
     # do we need the orig.tar.gz?
     need_orig = True
@@ -193,21 +135,25 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
     if ubuntu_ver.upstream_version == new_ver.upstream_version:
         # We need to check if all .orig*.tar.* tarballs exist in Ubuntu
         need_orig = False
-        for source_file in source_files:
-            ubuntu_file = [f for f in ubuntu_files
-                           if f.get_name() == source_file.get_name()]
-            if len(ubuntu_file) == 0:
-                # The source file does not exist in Ubuntu
+        deb_files = dict((e['name'], e['md5sum']) for e in src_pkg.dsc['Files']
+                         if not e['name'].endswith('.dsc'))
+        ubu_files = dict((e['name'], e['md5sum']) for e in ubu_pkg.dsc['Files']
+                         if not e['name'].endswith('.dsc'))
+        for name in deb_files.iterkeys():
+            if not re.match(r'.*\.orig(-[^.]+)?\.tar\.[^.]+$', name):
+                continue
+            if name in ubu_files:
+                if deb_files[name] != ubu_files[name]:
+                    Logger.warn('The checksums of the file %s mismatch. '
+                                'A fake sync is required.', name)
+                    fakesync_files.append(name)
+                    Logger.debug('Ubuntu version: %s', deb_files[name])
+                    Logger.debug('Debian version: %s', ubu_files[name])
+            else:
                 Logger.info('%s does not exist in Ubuntu.',
-                            source_file.get_name())
+                            name)
                 need_orig = True
-            elif not ubuntu_file[0] == source_file:
-                # The checksum of the files mismatch -> We need a fake sync
-                Logger.warn('The checksum of the file %s mismatch. '
-                            'A fake sync is required.', source_file.get_name())
-                fakesync_files.append(ubuntu_file[0])
-                Logger.debug('Ubuntu version: %s', ubuntu_file[0])
-                Logger.debug('Debian version: %s', source_file)
+
     Logger.debug('Needs source tarball: %s', str(need_orig))
 
     cur_ver = ubuntu_ver.get_related_debian_version()
@@ -216,23 +162,16 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
                     'setting current version to %s',
                     ubuntu_ver.full_version, cur_ver.full_version)
 
-    # extract package
-    cmd = ['dpkg-source', '-x', dscname]
-    env = os.environ
-    env['DEB_VENDOR'] = 'Ubuntu'
-    if not Logger.verbose:
-        cmd.insert(1, "-q")
-    Logger.command(cmd)
-    subprocess.check_call(cmd, env=env)
+    src_pkg.pull()
+    src_pkg.unpack()
 
     # Do a fake sync if required
-    if len(fakesync_files) > 0:
+    if fakesync_files:
         # Download Ubuntu files (override Debian source tarballs)
-        pull_source_pkg('UBUNTU', ubuntu_mirror, ubuntu_source.getComponent(),
-                        srcpkg, ubuntu_ver.full_version)
+        ubu_pkg.pull()
 
     # change into package directory
-    directory = srcpkg + '-' + new_ver.upstream_version
+    directory = src_pkg.source + '-' + new_ver.upstream_version
     Logger.command(('cd', directory))
     os.chdir(directory)
 
@@ -244,7 +183,7 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
     if len(fakesync_files) == 0:
         # create the changes file
         changes_filename = "%s_%s_source.changes" % \
-                           (srcpkg, new_ver.strip_epoch())
+                           (src_pkg.source, new_ver.strip_epoch())
         cmd = ["dpkg-genchanges", "-S", "-v" + cur_ver.full_version,
                "-DDistribution=" + release,
                "-DOrigin=debian/" + debian_dist,
@@ -256,8 +195,7 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
         if not Logger.verbose:
             cmd += ["-q"]
         Logger.command(cmd + ['>', '../' + changes_filename])
-        changes = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                  env={"DEB_VENDOR": "Ubuntu"}).communicate()[0]
+        changes = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 
         # Add additional bug numbers
         if len(bugs) > 0:
@@ -274,7 +212,7 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
         changes_file.close()
 
         # remove signature and sign package
-        remove_signature(dscname)
+        remove_signature(src_pkg.dsc_name)
         if keyid is not False:
             cmd = ["debsign", changes_filename]
             if not keyid is None:
@@ -285,14 +223,15 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
         # Create fakesync changelog entry
         new_ver = Version(new_ver.full_version + "fakesync1")
         changes_filename = "%s_%s_source.changes" % \
-                           (srcpkg, new_ver.strip_epoch())
+                           (src_pkg.source, new_ver.strip_epoch())
         if len(bugs) > 0:
             message = "Fake sync due to mismatching orig tarball (LP: %s)." % \
                       (", ".join(["#" + str(b) for b in bugs]))
         else:
             message = "Fake sync due to mismatching orig tarball."
-        cmd = ["dch", "-v", new_ver.full_version, "-D", release, message]
-        env = {"DEBFULLNAME": name, "DEBEMAIL": email}
+        cmd = ['dch', '-v', new_ver.full_version, '--force-distribution',
+               '-D', release, message]
+        env = {'DEBFULLNAME': name, 'DEBEMAIL': email}
         Logger.command(cmd)
         subprocess.check_call(cmd, env=env)
 
@@ -305,14 +244,12 @@ def sync_dsc(dscname, debian_dist, release, name, email, bugs, ubuntu_mirror,
 
         # Build source package
         cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
-        env = os.environ
-        env['DEB_VENDOR'] = 'Ubuntu'
         if need_orig:
             cmd += ['-sa']
         if keyid:
             cmd += ["-k" + keyid]
         Logger.command(cmd)
-        returncode = subprocess.call(cmd, env=env)
+        returncode = subprocess.call(cmd)
         if returncode != 0:
             Logger.error('Source-only build with debuild failed. '
                          'Please check build log above.')
@@ -322,6 +259,9 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     """Download the specified source package.
     dist, version, component, mirror can all be None.
     """
+    if package.endswith('.dsc'):
+        return DebianSourcePackage(dscfile=package, mirrors=[mirror])
+
     if dist is None:
         dist = "unstable"
     requested_version = version
@@ -352,18 +292,8 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
 
     assert component in ('main', 'contrib', 'non-free')
 
-    return pull_source_pkg('DEBIAN', mirror, component, package,
-                           version.full_version)
-
-def fetch_dsc(dscfile):
-    "Fetch a dsc"
-    url = urlparse.urlparse(dscfile)
-    if not url.scheme:
-        dscfile = 'file://' + os.path.abspath(dscfile)
-    cmd = ('dget', '--allow-unauthenticated', '-d', dscfile)
-    Logger.command(cmd)
-    subprocess.check_call(cmd)
-    return os.path.basename(url.path)
+    return DebianSourcePackage(package, version.full_version, component,
+                               mirrors=[mirror])
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
@@ -450,16 +380,13 @@ def main():
     if options.release is None:
         options.release = Launchpad.distributions["ubuntu"].current_series.name
 
-    if args[0].endswith(".dsc"):
-        dscfile = args[0]
-        if '/' in dscfile:
-            dscfile = fetch_dsc(dscfile)
-    else:
-        dscfile = fetch_source_pkg(args[0], options.dist, options.debversion,
-                                   options.component, options.release,
-                                   options.debian_mirror)
+    os.environ['DEB_VENDOR'] = 'Ubuntu'
 
-    sync_dsc(dscfile, options.dist, options.release, options.uploader_name,
+    src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
+                               options.component, options.release,
+                               options.debian_mirror)
+
+    sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
              options.uploader_email, options.bugs, options.ubuntu_mirror,
              options.keyid)
 
