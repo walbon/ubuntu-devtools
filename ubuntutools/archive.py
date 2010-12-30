@@ -31,6 +31,7 @@ import hashlib
 import os.path
 import subprocess
 import urllib2
+import urlparse
 import sys
 
 import debian.deb822
@@ -46,6 +47,8 @@ class DownloadError(Exception):
 
 
 class Dsc(debian.deb822.Dsc):
+    "Extend deb822's Dsc with checksum verification abilities"
+
     def get_strongest_checksum(self):
         "Return alg, dict by filename of size, hash_ pairs"
         if 'Checksums-Sha256' in self:
@@ -74,22 +77,50 @@ class Dsc(debian.deb822.Dsc):
                 if buf == '':
                     break
                 hash_func.update(buf)
+            f.close()
             return hash_func.hexdigest() == digest
         return False
 
 
 class SourcePackage(object):
-    distribution = ''
+    """Base class for source package downloading.
+    Use DebianSourcePackage or UbuntuSourcePackage instead of using this
+    directly.
+    """
+    distribution = 'unknown'
 
-    def __init__(self, package, version, component=None, lp=None, mirrors=()):
+    def __init__(self, package=None, version=None, component=None,
+                 dscfile=None, lp=None, mirrors=(), workdir='.'):
+        "Can be initialised either using package, version or dscfile"
+        assert ((package is not None and version is not None)
+                or dscfile is not None)
+
         self.source = package
-        self.version = debian.debian_support.Version(version)
-        self._component = component
+        self.version = version
         self._lp = lp
+        self.workdir = workdir
+
+        # Cached values:
+        self._component = component
+        self._dsc = None
         self._spph = None
+
+        # State:
+        self._dsc_fetched = False
+
+        # Mirrors
+        self._dsc_source = dscfile
         self.mirrors = list(mirrors)
-        self.masters = []
-        self.workdir = '.'
+        self.masters = [UDTConfig.defaults['%s_MIRROR'
+                                           % self.distribution.upper()]]
+        if dscfile is not None:
+            d_source, d_version = os.path.basename(dscfile)[:-4].split('_')
+            if self.source is None:
+                self.source = d_source
+            if self.version is None:
+                self.version = d_version
+
+        self.version = debian.debian_support.Version(self.version)
 
     @property
     def lp_spph(self):
@@ -130,6 +161,14 @@ class SourcePackage(object):
         "Return the dsc_name, with the workdir path"
         return os.path.join(self.workdir, self.dsc_name)
 
+    @property
+    def dsc(self):
+        "Return a the Dsc"
+        if not self._dsc:
+            if self._dsc_fetched:
+                self._dsc = Dsc(file(self.dsc_pathname, 'rb').read())
+        return self._dsc
+
     def _mirror_url(self, mirror, filename):
         "Build a source package URL on a mirror"
         if self.source.startswith('lib'):
@@ -144,15 +183,46 @@ class SourcePackage(object):
         return os.path.join('https://launchpad.net', self.distribution,
                             '+archive', 'primary', '+files', filename)
 
-    def download_file(self, url, dsc=None):
-        "Download url to pathname"
+    def _source_urls(self, name):
+        "Generator of sources for name"
+        if self._dsc_source:
+            yield os.path.join(os.path.dirname(self._dsc_source), name)
+        for mirror in self.mirrors:
+            yield self._mirror_url(mirror, name)
+        yield self._lp_url(name)
+
+    def pull_dsc(self):
+        "Retrieve dscfile and parse"
+        if self._dsc_source:
+            parsed = urlparse.urlparse(self._dsc_source)
+            if parsed.scheme == '':
+                self._dsc_source = 'file://' + os.path.abspath(self._dsc_source)
+                parsed = urlparse.urlparse(self._dsc_source)
+
+            if (parsed.scheme != 'file'
+                    or os.path.realpath(os.path.dirname(parsed.path))
+                        != os.path.realpath(self.workdir)):
+                self._download_file(self._dsc_source)
+        else:
+            self._download_file(self._lp_url(self.dsc_name))
+
+        self._dsc_fetched = True
+
+        assert self.source == self.dsc['Source']
+        version = debian.debian_support.Version(self.dsc['Version'])
+        assert self.version.upstream_version == version.upstream_version
+        assert self.version.debian_revision == version.debian_revision
+        self.version = version
+
+    def _download_file(self, url):
+        "Download url to workdir"
         filename = os.path.basename(url)
         pathname = os.path.join(self.workdir, filename)
-        if dsc:
-            if dsc.verify_file(pathname):
+        if self.dsc and not url.endswith('.dsc'):
+            if self.dsc.verify_file(pathname):
                 Logger.debug('Using existing %s', filename)
                 return True
-            size = [entry['size'] for entry in dsc['Files']
+            size = [entry['size'] for entry in self.dsc['Files']
                     if entry['name'] == filename]
             assert len(size) == 1
             size = int(size[0])
@@ -174,46 +244,38 @@ class SourcePackage(object):
         out.close()
         sys.stdout.write(' done\n')
         sys.stdout.flush()
-        if dsc:
-            if not dsc.verify_file(pathname):
+        if self.dsc and not url.endswith('.dsc'):
+            if not self.dsc.verify_file(pathname):
                 Logger.error('Checksum does not match.')
                 return False
         return True
 
     def pull(self):
         "Pull into workdir"
-        self.download_file(self._lp_url(self.dsc_name))
-        dsc = Dsc(file(self.dsc_pathname, 'rb').read())
-        for entry in dsc['Files']:
-            name = entry['name']
-            for mirror in self.mirrors:
+        if self.dsc is None:
+            self.pull_dsc()
+        for entry in self.dsc['Files']:
+            for url in self._source_urls(entry['name']):
                 try:
-                    if self.download_file(self._mirror_url(mirror, name), dsc):
+                    if self._download_file(url):
                         break
                 except urllib2.HTTPError, e:
                     Logger.normal('HTTP Error %i: %s', e.code, str(e))
                 except urllib2.URLError, e:
                     Logger.normal('URL Error: %s', e.reason)
             else:
-                try:
-                    if not self.download_file(self._lp_url(name), dsc):
-                        raise DownloadError('Could not find %s anywhere.'
-                                            % name)
-                except urllib2.HTTPError, e:
-                    Logger.normal('HTTP Error %i: %s', e.code, str(e))
-                except urllib2.URLError, e:
-                    Logger.normal('URL Error: %s', e.reason)
+                return False
         return True
 
     def unpack(self):
         "Unpack in workdir"
-        cmd = ('dpkg-source', '-x', '--require-valid-signature',
-               self.dsc_name)
+        cmd = ('dpkg-source', '-x', self.dsc_name)
         Logger.command(cmd)
         subprocess.check_call(cmd, cwd=self.workdir)
 
 
 class DebianSourcePackage(SourcePackage):
+    "Download / unpack a Debian source package"
     distribution = 'debian'
     # TODO: Security support
     # TODO: snapshot support
@@ -221,6 +283,7 @@ class DebianSourcePackage(SourcePackage):
     # TODO: GPG verification fallback
 
 class UbuntuSourcePackage(SourcePackage):
+    "Download / unpack an Ubuntu source package"
     distribution = 'ubuntu'
 
 # TODO: Delete everything after this point.

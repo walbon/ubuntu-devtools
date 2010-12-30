@@ -13,6 +13,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Added ubuntu-dev-tools.5
     - Support this in many u-d-t scripts, and update manpages.
     - Deprecate old configuration environment variables.
+  * New source package downloading framework in ubuntutools.archive. Use in
+    many scripts.
   * Support the combined "Name <email>" format in UBUMAIL, DEBFULLNAME, and
     DEBEMAIL. (LP: #665202)
   * Add the beginnings of a test suite. (LP: #690386)
@@ -54,7 +56,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 30 Dec 2010 17:13:05 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 30 Dec 2010 17:14:09 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 
