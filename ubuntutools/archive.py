@@ -359,7 +359,7 @@ class DebianSourcePackage(SourcePackage):
                 yield it.next()
             except StopIteration:
                 break
-        if self._snapshot_list:
+        if self.snapshot_list:
             yield self._snapshot_url(name)
 
     def pull_dsc(self):
