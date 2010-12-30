@@ -213,7 +213,7 @@ class SourcePackage(object):
                 raise DownloadError('dsc not found')
         self._check_dsc()
 
-    def _check_dsc(self):
+    def _check_dsc(self, verify_signature=False):
         "Check that the dsc matches what we are expecting"
         assert os.path.exists(self.dsc_name)
         self._dsc_fetched = True
@@ -223,6 +223,25 @@ class SourcePackage(object):
         assert self.version.upstream_version == version.upstream_version
         assert self.version.debian_revision == version.debian_revision
         self.version = version
+
+        gpg_info = self.dsc.get_gpg_info()
+        if gpg_info.valid():
+            message = 'Valid signature'
+        else:
+            message = 'Signature on %s could not be verified' % self.dsc_name
+        if 'GOODSIG' in gpg_info:
+            message = 'Good signature by %s (0x%s)' % (gpg_info['GOODSIG'][1],
+                                                       gpg_info['GOODSIG'][0])
+        elif 'VALIDSIG' in gpg_info:
+            message = 'Valid signature by 0x%s' % gpg_info['VALIDSIG'][0]
+        if verify_signature:
+            if gpg_info.valid():
+                Logger.normal(message)
+            else:
+                Logger.error(message)
+                raise DownloadError(message)
+        else:
+            Logger.info(message)
 
     def _download_file(self, url, filename):
         "Download url to filename in workdir."
@@ -245,7 +264,7 @@ class SourcePackage(object):
 
         try:
             in_ = urllib2.urlopen(url)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError:
             return False
 
         out = open(pathname, 'wb')
@@ -358,7 +377,7 @@ class DebianSourcePackage(SourcePackage):
                 break
         else:
             raise DownloadError('dsc could not be found anywhere')
-        self._check_dsc()
+        self._check_dsc(verify_signature=True)
 
     # Local methods:
     @property
@@ -393,8 +412,6 @@ class DebianSourcePackage(SourcePackage):
         "Return the snapshot.debian.org URL for name"
         return os.path.join('http://snapshot.debian.org/file',
                             self.snapshot_list[name])
-
-    # TODO: GPG verification fallback
 
 
 class UbuntuSourcePackage(SourcePackage):
