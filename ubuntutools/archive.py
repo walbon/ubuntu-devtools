@@ -267,9 +267,11 @@ class SourcePackage(object):
                 return False
         return True
 
-    def unpack(self):
+    def unpack(self, destdir=None):
         "Unpack in workdir"
-        cmd = ('dpkg-source', '-x', self.dsc_name)
+        cmd = ['dpkg-source', '-x', self.dsc_name]
+        if destdir:
+            cmd.append(destdir)
         Logger.command(cmd)
         subprocess.check_call(cmd, cwd=self.workdir)
 
