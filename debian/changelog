@@ -27,7 +27,9 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * edit-patch: Don't let cat error through if debian/source/format doesn't
     exist.
   * pull-debian-debdiff: Rewrite in Python, and use snapshot.debian.org.
-  * pull-lp-source: Support -d (LP: #681699)
+  * pull-lp-source:
+    - Support -d (LP: #681699)
+    - str() exceptions before passing to Logger (LP: #695523)
   * suspicious-source: Whitelist Python source code.
 
   [ Michael Bienia ]
@@ -52,7 +54,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 27 Dec 2010 22:38:34 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 30 Dec 2010 17:13:05 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

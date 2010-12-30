@@ -71,16 +71,16 @@ def main():
 
     try:
         (release, pocket) = split_release_pocket(release)
-    except PocketDoesNotExistError, error:
-        Logger.error(error)
+    except PocketDoesNotExistError, e:
+        Logger.error(str(e))
         sys.exit(1)
 
     try:
         spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
                                                                     release,
                                                                     pocket)
-    except (SeriesNotFoundException, PackageNotFoundException), error:
-        Logger.error(error)
+    except (SeriesNotFoundException, PackageNotFoundException), e:
+        Logger.error(str(e))
         sys.exit(1)
 
     srcpkg = UbuntuSourcePackage(package, spph.getVersion(),
