@@ -39,7 +39,10 @@ import debian.debian_support
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
-from ubuntutools.lp.lpapicache import Launchpad, Distribution
+from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
+                                       SourcePackagePublishingHistory)
+from ubuntutools.requestsync.mail import (SourcePackagePublishingHistory
+                                          as rmadison_SPPH)
 
 class DownloadError(Exception):
     "Unable to pull a source package"
@@ -137,7 +140,7 @@ class SourcePackage(object):
                               version=self.version.full_version,
                               exact_match=True,
                           ))
-            self._spph = spph[0]
+            self._spph = SourcePackagePublishingHistory(spph[0])
         return self._spph
 
     @property
@@ -145,7 +148,7 @@ class SourcePackage(object):
         "Cached archive component, in available"
         if not self._component:
             Logger.debug('Determining component from Launchpad')
-            self._component = self.lp_spph.component_name
+            self._component = self.lp_spph.getComponent()
         return self._component
 
     @property
@@ -202,10 +205,17 @@ class SourcePackage(object):
             if (parsed.scheme != 'file'
                     or os.path.realpath(os.path.dirname(parsed.path))
                         != os.path.realpath(self.workdir)):
-                self._download_file(self._dsc_source)
+                if not self._download_file(self._dsc_source, self.dsc_name):
+                    raise DownloadError('dsc not found')
         else:
-            self._download_file(self._lp_url(self.dsc_name))
+            if not self._download_file(self._lp_url(self.dsc_name),
+                                       self.dsc_name):
+                raise DownloadError('dsc not found')
+        self._check_dsc()
 
+    def _check_dsc(self):
+        "Check that the dsc matches what we are expecting"
+        assert os.path.exists(self.dsc_name)
         self._dsc_fetched = True
 
         assert self.source == self.dsc['Source']
@@ -214,9 +224,11 @@ class SourcePackage(object):
         assert self.version.debian_revision == version.debian_revision
         self.version = version
 
-    def _download_file(self, url):
-        "Download url to workdir"
-        filename = os.path.basename(url)
+    def _download_file(self, url, filename):
+        "Download url to filename in workdir."
+        logurl = url
+        if os.path.basename(url) != filename:
+            logurl += ' -> ' + filename
         pathname = os.path.join(self.workdir, filename)
         if self.dsc and not url.endswith('.dsc'):
             if self.dsc.verify_file(pathname):
@@ -226,12 +238,16 @@ class SourcePackage(object):
                     if entry['name'] == filename]
             assert len(size) == 1
             size = int(size[0])
-            Logger.normal('Downloading %s (%0.3f MiB)', url,
+            Logger.normal('Downloading %s (%0.3f MiB)', logurl,
                           size / 1024.0 / 1024)
         else:
-            Logger.normal('Downloading %s', url)
+            Logger.normal('Downloading %s', logurl)
 
-        in_ = urllib2.urlopen(url)
+        try:
+            in_ = urllib2.urlopen(url)
+        except urllib2.HTTPError, e:
+            return False
+
         out = open(pathname, 'wb')
         while True:
             block = in_.read(10240)
@@ -255,9 +271,10 @@ class SourcePackage(object):
         if self.dsc is None:
             self.pull_dsc()
         for entry in self.dsc['Files']:
-            for url in self._source_urls(entry['name']):
+            name = entry['name']
+            for url in self._source_urls(name):
                 try:
-                    if self._download_file(url):
+                    if self._download_file(url, name):
                         break
                 except urllib2.HTTPError, e:
                     Logger.normal('HTTP Error %i: %s', e.code, str(e))
@@ -279,149 +296,107 @@ class SourcePackage(object):
 class DebianSourcePackage(SourcePackage):
     "Download / unpack a Debian source package"
     distribution = 'debian'
-    # TODO: Security support
-    # TODO: snapshot support
-    # TODO: Madison component fallback
+
+    def __init__(self, *args, **kwargs):
+        super(DebianSourcePackage, self).__init__(*args, **kwargs)
+        self.masters.append(UDTConfig.defaults['DEBSEC_MIRROR'])
+        # Cached values:
+        self._snapshot_list = None
+
+    # Overridden methods:
+    @property
+    def lp_spph(self):
+        "Return the LP Source Package Publishing History entry"
+        if not self._spph:
+            try:
+                return super(DebianSourcePackage, self).lp_spph
+            except IndexError:
+                pass
+
+            Logger.normal('Using rmadison for component determination')
+            p = subprocess.Popen(('rmadison', '-u', 'debian', self.source),
+                                 stdout=subprocess.PIPE)
+            rmadison = p.communicate()[0]
+            comp = 'main'
+            for line in rmadison.strip().splitlines():
+                pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
+                comp = 'main'
+                if '/' in dist:
+                    dist, comp = dist.split('/')
+                if ver == self.version.full_version:
+                    self._spph = rmadison_SPPH(pkg, ver, comp)
+                    return self._spph
+
+            Logger.normal('Guessing component from most recent upload')
+            self._spph = rmadison_SPPH(self.source, self.version.full_version,
+                                       comp)
+        return self._spph
+
+    def _source_urls(self, name):
+        "Generator of sources for name"
+        it = super(DebianSourcePackage, self)._source_urls(name)
+        while True:
+            try:
+                yield it.next()
+            except StopIteration:
+                break
+        if self._snapshot_list:
+            yield self._snapshot_url(name)
+
+    def pull_dsc(self):
+        "Retrieve dscfile and parse"
+        try:
+            super(DebianSourcePackage, self).pull_dsc()
+            return
+        except DownloadError:
+            pass
+
+        # Not all Debian Source packages get imported to LP
+        # (or the importer could be lagging)
+        for url in self._source_urls(self.dsc_name):
+            if self._download_file(url, self.dsc_name):
+                break
+        else:
+            raise DownloadError('dsc could not be found anywhere')
+        self._check_dsc()
+
+    # Local methods:
+    @property
+    def snapshot_list(self):
+        "Return a filename -> hash dictionary from snapshot.debian.org"
+        if self._snapshot_list is None:
+            try:
+                import json
+            except ImportError:
+                import simplejson as json
+            except ImportError:
+                Logger.error("Please install python-simplejson.")
+                sys.exit(1)
+
+            try:
+                srcfiles = json.load(urllib2.urlopen(
+                    'http://snapshot.debian.org'
+                    '/mr/package/%s/%s/srcfiles?fileinfo=1'
+                        % (self.source, self.version.full_version)))
+            except urllib2.HTTPError:
+                Logger.error('Version %s of %s not found on '
+                             'snapshot.debian.org',
+                             self.version.full_version, self.source)
+                self._snapshot_list = False
+                return False
+            self._snapshot_list = dict((info[0]['name'], hash_)
+                                       for hash_, info
+                                       in srcfiles['fileinfo'].iteritems())
+        return self._snapshot_list
+
+    def _snapshot_url(self, name):
+        "Return the snapshot.debian.org URL for name"
+        return os.path.join('http://snapshot.debian.org/file',
+                            self.snapshot_list[name])
+
     # TODO: GPG verification fallback
+
 
 class UbuntuSourcePackage(SourcePackage):
     "Download / unpack an Ubuntu source package"
     distribution = 'ubuntu'
-
-# TODO: Delete everything after this point.
-def pull_source_pkg(archives, mirrors, component, package, version, workdir='.',
-                    unpack=False):
-    """Download a source package or die.
-    archives may be a list or single item (in which case mirrors can be too)
-    mirrors should be a dict (keyed on archive) unless archives is single"""
-
-    if not isinstance(archives, (tuple, list)):
-        if not isinstance(mirrors, dict):
-            mirrors = {archives: mirrors}
-        archives = [archives]
-    assert all(x in ('DEBIAN', 'DEBSEC', 'UBUNTU') for x in archives)
-
-    for archive in archives:
-        filename = try_pull_from_archive(archive, mirrors.get(archive),
-                                         component, package, version,
-                                         workdir, unpack)
-        if filename:
-            return filename
-
-    if 'DEBIAN' in archives or 'DEBSEC' in archives:
-        Logger.info('Trying snapshot.debian.org')
-        filename = try_pull_from_snapshot(package, version, workdir, unpack)
-        if filename:
-            return filename
-
-    if 'UBUNTU' in archives:
-        Logger.info('Trying Launchpad')
-        filename = try_pull_from_lp(package, 'ubuntu', version, workdir, unpack)
-        if filename:
-            return filename
-
-    raise Exception('Unable to locate %s/%s %s' % (package, component, version))
-
-def try_pull_from_archive(archive, mirror, component, package, version,
-                          workdir='.', unpack=False):
-    """Download a source package from the specified source, return filename.
-    Try mirror first, then master.
-    """
-    assert archive in ('DEBIAN', 'DEBSEC', 'UBUNTU')
-    urls = []
-    if mirror and mirror != UDTConfig.defaults[archive + '_MIRROR']:
-        urls.append(dsc_url(mirror, component, package, version))
-    urls.append(dsc_url(UDTConfig.defaults[archive + '_MIRROR'], component,
-                        package, version))
-
-    for url in urls:
-        cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
-        Logger.command(cmd)
-        return_code = subprocess.call(cmd, cwd=workdir)
-        if return_code == 0:
-            return os.path.basename(url)
-
-def try_pull_from_snapshot(package, version, workdir='.', unpack=False):
-    """Download Debian source package version version from snapshot.debian.org.
-    Return filename.
-    """
-    try:
-        import json
-    except ImportError:
-        import simplejson as json
-    except ImportError:
-        Logger.error("Please install python-simplejson.")
-        sys.exit(1)
-
-    try:
-        srcfiles = json.load(urllib2.urlopen(
-                'http://snapshot.debian.org/mr/package/%s/%s/srcfiles'
-                % (package, version)))
-    except urllib2.HTTPError:
-        Logger.error('Version %s of %s not found on snapshot.debian.org',
-                     version, package)
-        return
-
-    for hash_ in srcfiles['result']:
-        hash_ = hash_['hash']
-
-        try:
-            info = json.load(urllib2.urlopen(
-                'http://snapshot.debian.org/mr/file/%s/info' % hash_))
-        except urllib2.URLError:
-            Logger.error('Unable to dowload info for hash.')
-            return
-
-        filename = info['result'][0]['name']
-        if '/' in filename:
-            Logger.error('Unacceptable file name: %s', filename)
-            return
-        pathname = os.path.join(workdir, filename)
-
-        if os.path.exists(pathname):
-            source_file = open(pathname, 'r')
-            sha1 = hashlib.sha1()
-            sha1.update(source_file.read())
-            source_file.close()
-            if sha1.hexdigest() == hash_:
-                Logger.normal('Using existing %s', filename)
-                continue
-
-        Logger.normal('Downloading: %s (%0.3f MiB)', filename,
-                      info['result'][0]['size'] / 1024.0 / 1024)
-        try:
-            in_ = urllib2.urlopen('http://snapshot.debian.org/file/%s' % hash_)
-            out = open(pathname, 'w')
-            while True:
-                block = in_.read(10240)
-                if block == '':
-                    break
-                out.write(block)
-                sys.stdout.write('.')
-                sys.stdout.flush()
-            sys.stdout.write('\n')
-            sys.stdout.flush()
-            out.close()
-        except urllib2.URLError:
-            Logger.error('Error downloading %s', filename)
-            return
-
-    filename = dsc_name(package, version)
-    if unpack:
-        cmd = ('dpkg-source', '--no-check', '-x', filename)
-        Logger.command(cmd)
-        subprocess.check_call(cmd)
-    return filename
-
-def try_pull_from_lp(package, distro, version, workdir='.', unpack=False):
-    """Try to download the specified version of a source package from Launchpad.
-    Return filename.
-    """
-    filename = dsc_name(package, version)
-    url = ('https://launchpad.net/%s/+archive/primary/+files/%s'
-            % (distro, filename))
-    cmd = ('dget', '-u' + ('x' if unpack else 'd'), url)
-    Logger.command(cmd)
-    return_code = subprocess.call(cmd, cwd=workdir)
-    if return_code == 0:
-        return filename

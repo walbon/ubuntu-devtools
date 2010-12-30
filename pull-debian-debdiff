@@ -100,7 +100,7 @@ def main():
     oldpkg.unpack()
 
     cmd = ['debdiff', oldpkg.dsc_name, newpkg.dsc_name]
-    difffn = newdsc[:-3] + 'debdiff'
+    difffn = newpkg.dsc_name[:-3] + 'debdiff'
     Logger.command(cmd + ['> %s' % difffn])
     debdiff_file = open(difffn, 'w')
     if subprocess.call(cmd, stdout=debdiff_file) > 2:
