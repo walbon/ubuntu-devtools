@@ -12,7 +12,8 @@ primary archive or PPA starting from a pristine Debian package.
 Debian ones, as the common script used by Ubuntu archive administrators does,
 this way you can preserve source files integrity between the two distributions.
 .PP
-\fBsyncpackage\fR will detect source tarballs with mismatching checksums and will automatically create fake syncs instead.
+\fBsyncpackage\fR will detect source tarballs with mismatching checksums
+and will automatically create fake syncs instead.
 .SH WARNING
 The use of \fBsyncpackage\fR is discouraged by the Ubuntu Archive
 Administrators, as it introduces an unnecessary window for error.
@@ -40,12 +41,15 @@ Specify the version to sync from.
 Specify the component to sync from.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
-print more information
+Display more progress information.
 .TP
-\fB\-n\fI UPLOADER\fR, \fB\-\-uploader\fR=\fIUPLOADER\fR
-Use UPLOADER as the name and email address of the
-maintainer for this upload instead of evaluating
-DEBFULLNAME and DEBEMAIL.
+\fB\-n\fI UPLOADER_NAME\fR, \fB\-\-uploader\-name\fR=\fIUPLOADER_NAME\fR
+Use UPLOADER_NAME as the name of the maintainer for this upload instead
+of evaluating DEBFULLNAME and UBUMAIL.
+.TP
+\fB\-e\fI UPLOADER_EMAIL\fR, \fB\-\-uploader\-email\fR=\fIUPLOADER_EMAIL\fR
+Use UPLOADER_EMAIL as the email address of the maintainer for this
+upload instead of evaluating DEBEMAIL and UBUMAIL.
 .TP
 \fB\-k\fI KEYID\fR, \fB\-\-key\fR=\fIKEYID\fR
 Specify the key ID to be used for signing.
@@ -55,7 +59,49 @@ Do not sign the upload.
 .TP
 \fB\-b\fI BUG\fR, \fB\-\-bug\fR=\fIBUG\fR
 Mark a Launchpad bug as being fixed by this upload.
-.PP
+.TP
+.B \-d \fIDEBIAN_MIRROR\fR, \fB\-\-debian\-mirror\fR=\fIDEBIAN_MIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://ftp.debian.org/debian\fR.
+If the package isn't found on this mirror, \fBsyncpackage\fR will fall
+back to the default mirror.
+.TP
+.B \-s \fIUBUNTU_MIRROR\fR, \fB\-\-debsec\-mirror\fR=\fIUBUNTU_MIRROR\fR
+Use the specified Debian security mirror.
+Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.
+If the package isn't found on this mirror, \fBsyncpackage\fR will fall
+back to the default mirror.
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+.SH ENVIRONMENT
+.TP
+.BR DEBFULLNAME ", " DEBEMAIL ", " UBUMAIL
+Used to determine the uploader (if not supplied as options).
+See
+.BR ubuntu\-dev\-tools (5)
+for details.
+.P
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR SYNCPACKAGE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
+The default value for \fB\-\-debian\-mirror\fR.
+.TP
+.BR SYNCPACKAGE_UBUNTU_MIRROR ", " UBUNTUTOOLS_DEBSEC_MIRROR
+The default value for \fB\-\-ubuntu\-mirror\fR.
+.SH SEE ALSO
+.BR requestsync (1),
+.BR ubuntu\-dev\-tools (5)
 .SH AUTHOR
 \fBsyncpackage\fR was written by Martin Pitt <martin.pitt@canonical.com> and Benjamin Drung <bdrung@ubuntu.com>.
 .PP
