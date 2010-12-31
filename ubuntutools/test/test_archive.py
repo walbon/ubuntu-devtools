@@ -20,15 +20,14 @@ import __builtin__
 import os.path
 import shutil
 import StringIO
-import subprocess
-import sys
 import tempfile
 import urllib2
-import urlparse
 
+import debian.deb822
 import mox
 
 import ubuntutools.archive
+from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
@@ -74,7 +73,7 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
 
 
 class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
-    SourcePackage = ubuntutools.archive.DebianSourcePackage
+    SourcePackage = ubuntutools.archive.UbuntuSourcePackage
 
     def setUp(self):
         super(LocalSourcePackageTestCase, self).setUp()
@@ -84,11 +83,33 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         self.mox.StubOutWithMock(ubuntutools.archive, 'rmadison')
         self.urlopen = urllib2.urlopen
         self.mox.StubOutWithMock(urllib2, 'urlopen')
-        self.mox.StubOutWithMock(Logger, 'stdout')
+        # Silence the tests a little:
+        self.mox.stubs.Set(Logger, 'stdout', StringIO.StringIO())
+        self.mox.stubs.Set(Logger, 'stderr', StringIO.StringIO())
 
     def tearDown(self):
         super(LocalSourcePackageTestCase, self).tearDown()
         shutil.rmtree(self.workdir)
+
+    def urlopen_proxy(self, url, destname=None):
+        "Grab the file from test-data"
+        if destname is None:
+            destname = os.path.basename(url)
+        return self.urlopen('file://'
+                            + os.path.join(os.path.abspath('test-data'),
+                                           destname))
+
+    def urlopen_file(self, filename):
+        "Wrapper for urlopen_proxy for named files"
+        return lambda url: self.urlopen_proxy(url, filename)
+
+    def urlopen_null(self, url):
+        "urlopen for zero length files"
+        return StringIO.StringIO('')
+
+    def urlopen_404(self, url):
+        "urlopen for errors"
+        raise urllib2.HTTPError(url, 404, "Not Found", {}, None)
 
     def test_local_copy(self):
         urllib2.urlopen(mox.Regex('^file://.*\.dsc$')
@@ -97,8 +118,6 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
                        ).WithSideEffects(self.urlopen)
         urllib2.urlopen(mox.Regex('^file://.*\.debian\.tar\.gz$')
                        ).WithSideEffects(self.urlopen)
-        Logger.stdout.write(mox.IsA(basestring)).MultipleTimes()
-        Logger.stdout.flush().MultipleTimes()
         self.mox.ReplayAll()
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
@@ -118,15 +137,143 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
                        ).WithSideEffects(self.urlopen)
         urllib2.urlopen(mox.Regex('^file://.*\.debian\.tar\.gz$')
                        ).WithSideEffects(self.urlopen)
-        Logger.stdout.write(mox.IsA(basestring)).MultipleTimes()
-        Logger.stdout.flush().MultipleTimes()
         self.mox.ReplayAll()
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
         pkg.pull()
+
+    def test_pull(self):
+        dist = self.SourcePackage.distribution
+        mirror = UDTConfig.defaults['%s_MIRROR' % dist.upper()]
+        urlbase = '/pool/main/e/example/'
+        urllib2.urlopen('https://launchpad.net/%s/+archive/primary/'
+                        '+files/example_1.0-1.dsc' % dist
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + urlbase + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + urlbase + 'example_1.0-1.debian.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir)
+        pkg.pull()
+
+    def test_mirrors(self):
+        master = UDTConfig.defaults['UBUNTU_MIRROR']
+        mirror = 'http://mirror'
+        lpbase = 'https://launchpad.net/ubuntu/+archive/primary/+files/'
+        urlbase = '/pool/main/e/example/'
+        urllib2.urlopen(lpbase + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + urlbase + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_null)
+        urllib2.urlopen(master + urlbase + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(lpbase + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + urlbase + 'example_1.0-1.debian.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir, mirrors=[mirror])
+        pkg.pull()
+
+    def test_dsc_missing(self):
+        lpbase = 'https://launchpad.net/ubuntu/+archive/primary/+files/'
+        urllib2.urlopen(lpbase + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_404)
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir)
+        self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
+
+
+class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
+    SourcePackage = ubuntutools.archive.DebianSourcePackage
+
+    def test_mirrors(self):
+        debian_master = UDTConfig.defaults['DEBIAN_MIRROR']
+        debsec_master = UDTConfig.defaults['DEBSEC_MIRROR']
+        debian_mirror = 'http://mirror/debian'
+        debsec_mirror = 'http://mirror/debsec'
+        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
+        base = '/pool/main/e/example/'
+        urllib2.urlopen(lpbase + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(debian_mirror + base + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_null)
+        urllib2.urlopen(debsec_mirror + base + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(debian_master + base + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(debsec_master + base + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(lpbase + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen('http://snapshot.debian.org/mr/package/example/1.0-1/'
+                        'srcfiles?fileinfo=1'
+                       ).WithSideEffects(lambda x: StringIO.StringIO(
+            '{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'
+            ))
+        urllib2.urlopen('http://snapshot.debian.org/file/hashabc'
+                       ).WithSideEffects(self.urlopen_file(
+                           'example_1.0.orig.tar.gz'))
+        urllib2.urlopen(debian_mirror + base + 'example_1.0-1.debian.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir, mirrors=[debian_mirror,
+                                                                debsec_mirror])
+        pkg.pull()
         pkg.unpack()
 
-class UbuntuLocalSourcePackageTestCase(LocalSourcePackageTestCase):
-    SourcePackage = ubuntutools.archive.UbuntuSourcePackage
+    def test_dsc_missing(self):
+        mirror = 'http://mirror'
+        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
+        base = '/pool/main/e/example/'
+        urllib2.urlopen(lpbase + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(mirror + base + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + base + 'example_1.0.orig.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+        urllib2.urlopen(mirror + base + 'example_1.0-1.debian.tar.gz'
+                       ).WithSideEffects(self.urlopen_proxy)
+
+        self.mox.StubOutWithMock(debian.deb822.GpgInfo, 'from_sequence')
+        debian.deb822.GpgInfo.from_sequence(mox.IsA(str)).WithSideEffects(
+                lambda x: debian.deb822.GpgInfo.from_output(
+                    '[GNUPG:] GOODSIG DEADBEEF Joe Developer '
+                    '<joe@example.net>'))
+
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir, mirrors=[mirror])
+        pkg.pull()
+
+    def test_dsc_badsig(self):
+        mirror = 'http://mirror'
+        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
+        base = '/pool/main/e/example/'
+        urllib2.urlopen(lpbase + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_404)
+        urllib2.urlopen(mirror + base + 'example_1.0-1.dsc'
+                       ).WithSideEffects(self.urlopen_proxy)
+
+        self.mox.StubOutWithMock(debian.deb822.GpgInfo, 'from_sequence')
+        debian.deb822.GpgInfo.from_sequence(mox.IsA(str)).WithSideEffects(
+                lambda x: debian.deb822.GpgInfo.from_output(
+                    '[GNUPG:] ERRSIG DEADBEEF'))
+
+        self.mox.ReplayAll()
+
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 workdir=self.workdir, mirrors=[mirror])
+        self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
