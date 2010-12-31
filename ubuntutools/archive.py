@@ -273,12 +273,12 @@ class SourcePackage(object):
             if block == '':
                 break
             out.write(block)
-            sys.stdout.write('.')
-            sys.stdout.flush()
+            Logger.stdout.write('.')
+            Logger.stdout.flush()
         in_.close()
         out.close()
-        sys.stdout.write(' done\n')
-        sys.stdout.flush()
+        Logger.stdout.write(' done\n')
+        Logger.stdout.flush()
         if self.dsc and not url.endswith('.dsc'):
             if not self.dsc.verify_file(pathname):
                 Logger.error('Checksum does not match.')
