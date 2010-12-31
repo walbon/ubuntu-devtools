@@ -215,7 +215,7 @@ class SourcePackage(object):
 
     def _check_dsc(self, verify_signature=False):
         "Check that the dsc matches what we are expecting"
-        assert os.path.exists(self.dsc_name)
+        assert os.path.exists(self.dsc_pathname)
         self._dsc_fetched = True
 
         assert self.source == self.dsc['Source']
