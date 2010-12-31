@@ -303,8 +303,7 @@ class SourcePackage(object):
                 except urllib2.URLError, e:
                     Logger.normal('URL Error: %s', e.reason)
             else:
-                return False
-        return True
+                raise DownloadError('File %s could not be found' % name)
 
     def unpack(self, destdir=None):
         "Unpack in workdir"
