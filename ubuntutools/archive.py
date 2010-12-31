@@ -192,6 +192,9 @@ class SourcePackage(object):
             yield os.path.join(os.path.dirname(self._dsc_source), name)
         for mirror in self.mirrors:
             yield self._mirror_url(mirror, name)
+        for mirror in self.masters:
+            if mirror not in self.mirrors:
+                yield self._mirror_url(mirror, name)
         yield self._lp_url(name)
 
     def pull_dsc(self):
