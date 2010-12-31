@@ -433,7 +433,7 @@ def rmadison(url, package):
             yield {
                    'source': pkg,
                    'version': ver,
-                   'distribution': dist,
+                   'suite': dist,
                    'component': comp,
                   }
         archs.discard('source')
@@ -441,7 +441,7 @@ def rmadison(url, package):
             yield {
                    'binary': pkg,
                    'version': ver,
-                   'distribution': dist,
+                   'suite': dist,
                    'component': comp,
                    'architectures': archs,
                   }
