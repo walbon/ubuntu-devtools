@@ -28,7 +28,7 @@ import urlparse
 
 import mox
 
-from ubuntutools.archive import Dsc, DebianSourcePackage, UbuntuSourcePackage
+import ubuntutools.archive
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
@@ -36,7 +36,7 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
     def setUp(self):
         super(DscVerificationTestCase, self).setUp()
         with open('test-data/example_1.0-1.dsc', 'rb') as f:
-            self.dsc = Dsc(f.read())
+            self.dsc = ubuntutools.archive.Dsc(f.read())
 
     def tearDown(self):
         super(DscVerificationTestCase, self).tearDown()
@@ -74,19 +74,16 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
 
 
 class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
-    SourcePackage = DebianSourcePackage
+    SourcePackage = ubuntutools.archive.DebianSourcePackage
 
     def setUp(self):
         super(LocalSourcePackageTestCase, self).setUp()
         self.workdir = tempfile.mkdtemp(prefix='udt-test')
 
-        for funcname in ('ubuntutools.archive.Distribution',
-                         'ubuntutools.archive.rmadison',
-                         'urllib2.urlopen',
-                        ):
-            mod, func = funcname.rsplit('.', 1)
-            setattr(self, 'o_' + func, getattr(sys.modules[mod], func))
-            self.mox.StubOutWithMock(sys.modules[mod], func)
+        self.mox.StubOutWithMock(ubuntutools.archive, 'Distribution')
+        self.mox.StubOutWithMock(ubuntutools.archive, 'rmadison')
+        self.urlopen = urllib2.urlopen
+        self.mox.StubOutWithMock(urllib2, 'urlopen')
         self.mox.StubOutWithMock(Logger, 'stdout')
 
     def tearDown(self):
@@ -95,11 +92,11 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
 
     def test_local_copy(self):
         urllib2.urlopen(mox.Regex('^file://.*\.dsc$')
-                       ).WithSideEffects(self.o_urlopen)
+                       ).WithSideEffects(self.urlopen)
         urllib2.urlopen(mox.Regex('^file://.*\.orig\.tar\.gz$')
-                       ).WithSideEffects(self.o_urlopen)
+                       ).WithSideEffects(self.urlopen)
         urllib2.urlopen(mox.Regex('^file://.*\.debian\.tar\.gz$')
-                       ).WithSideEffects(self.o_urlopen)
+                       ).WithSideEffects(self.urlopen)
         Logger.stdout.write(mox.IsA(basestring)).MultipleTimes()
         Logger.stdout.flush().MultipleTimes()
         self.mox.ReplayAll()
@@ -118,9 +115,9 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
                   'r+b') as f:
             f.write('CORRUPTION')
         urllib2.urlopen(mox.Regex('^file://.*\.dsc$')
-                       ).WithSideEffects(self.o_urlopen)
+                       ).WithSideEffects(self.urlopen)
         urllib2.urlopen(mox.Regex('^file://.*\.debian\.tar\.gz$')
-                       ).WithSideEffects(self.o_urlopen)
+                       ).WithSideEffects(self.urlopen)
         Logger.stdout.write(mox.IsA(basestring)).MultipleTimes()
         Logger.stdout.flush().MultipleTimes()
         self.mox.ReplayAll()
@@ -132,4 +129,4 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         pkg.unpack()
 
 class UbuntuLocalSourcePackageTestCase(LocalSourcePackageTestCase):
-    SourcePackage = UbuntuSourcePackage
+    SourcePackage = ubuntutools.archive.UbuntuSourcePackage
