@@ -333,17 +333,14 @@ class DebianSourcePackage(SourcePackage):
                 pass
 
             Logger.normal('Using rmadison for component determination')
-            p = subprocess.Popen(('rmadison', '-u', 'debian', self.source),
-                                 stdout=subprocess.PIPE)
-            rmadison = p.communicate()[0]
             comp = 'main'
-            for line in rmadison.strip().splitlines():
-                pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
-                comp = 'main'
-                if '/' in dist:
-                    dist, comp = dist.split('/')
-                if ver == self.version.full_version:
-                    self._spph = rmadison_SPPH(pkg, ver, comp)
+            for record in rmadison(self.distribution, self.source):
+                if record.get('source') != self.source:
+                    continue
+                comp = record['component']
+                if record['version'] == self.version.full_version:
+                    self._spph = rmadison_SPPH(record['source'],
+                                               record['version'], comp)
                     return self._spph
 
             Logger.normal('Guessing component from most recent upload')
@@ -417,3 +414,34 @@ class DebianSourcePackage(SourcePackage):
 class UbuntuSourcePackage(SourcePackage):
     "Download / unpack an Ubuntu source package"
     distribution = 'ubuntu'
+
+
+def rmadison(url, package):
+    "Call rmadison and parse the result"
+    p = subprocess.Popen(('rmadison', '-u', url, package),
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         close_fds=True)
+    output = p.communicate()[0]
+    assert p.wait() == 0
+    for line in output.strip().splitlines():
+        pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
+        comp = 'main'
+        if '/' in dist:
+            dist, comp = dist.split('/')
+        archs = set(x.strip() for x in archs.split(','))
+        if 'source' in archs:
+            yield {
+                   'source': pkg,
+                   'version': ver,
+                   'distribution': dist,
+                   'component': comp,
+                  }
+        archs.discard('source')
+        if archs:
+            yield {
+                   'binary': pkg,
+                   'version': ver,
+                   'distribution': dist,
+                   'component': comp,
+                   'architectures': archs,
+                  }
