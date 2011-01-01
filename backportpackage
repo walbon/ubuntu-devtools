@@ -28,7 +28,7 @@ import tempfile
 from launchpadlib.launchpad import Launchpad
 import lsb_release
 
-from ubuntutools.archive import UbuntuSourcePackage
+from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
@@ -298,6 +298,8 @@ def main(args):
                         opts.update,
                         opts.upload,
                         opts.prompt)
+    except DownloadError, e:
+        error(str(e))
     finally:
         if not opts.workdir:
             shutil.rmtree(workdir)

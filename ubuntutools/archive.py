@@ -389,7 +389,9 @@ class DebianSourcePackage(SourcePackage):
                 import simplejson as json
             except ImportError:
                 Logger.error("Please install python-simplejson.")
-                sys.exit(1)
+                raise DownloadError("Unable to dowload from "
+                                    "snapshot.debian.org without "
+                                    "python-simplejson")
 
             try:
                 srcfiles = json.load(urllib2.urlopen(

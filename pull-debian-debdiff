@@ -25,7 +25,7 @@ import sys
 import debian.debian_support
 import debian.changelog
 
-from ubuntutools.archive import DebianSourcePackage
+from ubuntutools.archive import DebianSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
@@ -81,9 +81,12 @@ def main():
 
     Logger.normal('Downloading %s %s', package, version)
 
-    #TODO: Proper snapshot and security support
     newpkg = DebianSourcePackage(package, version, mirrors=mirrors)
-    newpkg.pull()
+    try:
+        newpkg.pull()
+    except DownloadError, e:
+        Logger.error(str(e))
+        sys.exit(1)
     newpkg.unpack()
 
     if opts.fetch_only:
@@ -96,7 +99,11 @@ def main():
     Logger.normal('Downloading %s %s', package, oldversion)
 
     oldpkg = DebianSourcePackage(package, oldversion, mirrors=mirrors)
-    oldpkg.pull()
+    try:
+        oldpkg.pull()
+    except DownloadError, e:
+        Logger.error(str(e))
+        sys.exit(1)
     oldpkg.unpack()
 
     cmd = ['debdiff', oldpkg.dsc_name, newpkg.dsc_name]

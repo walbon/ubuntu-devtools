@@ -269,7 +269,12 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
         version = Version(version)
 
     if version is None or component is None:
-        debian_srcpkg = getDebianSrcPkg(package, dist)
+        try:
+            debian_srcpkg = getDebianSrcPkg(package, dist)
+        except (udtexceptions.PackageNotFoundException,
+                udtexceptions.SeriesNotFoundException), e:
+            Logger.error(str(e))
+            sys.exit(1)
         if version is None:
             version = Version(debian_srcpkg.getVersion())
         try:
@@ -277,6 +282,9 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
             ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         except udtexceptions.PackageNotFoundException:
             ubuntu_version = Version('~')
+        except udtexceptions.SeriesNotFoundException, e:
+            Logger.error(str(e))
+            sys.exit(1)
         if ubuntu_version >= version:
             # The LP importer is maybe out of date
             debian_srcpkg = requestsync_mail_getDebianSrcPkg(package, dist)
