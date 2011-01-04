@@ -29,6 +29,8 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * pull-debian-debdiff: Rewrite in Python, and use snapshot.debian.org.
   * pull-lp-source: Support -d (LP: #681699)
   * suspicious-source: Whitelist Python source code.
+  * import-bug-from-debian: Add --package option, for importing bugs from
+    psuedo-packages.
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
@@ -52,7 +54,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Benjamin Drung <bdrung@ubuntu.com>  Mon, 27 Dec 2010 22:38:34 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Tue, 04 Jan 2011 22:23:20 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

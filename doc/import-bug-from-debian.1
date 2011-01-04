@@ -4,7 +4,7 @@ import\-bug\-from\-debian \- Import bugs from Debian's BTS, and file
 them against Ubuntu in LP.
 
 .SH SYNOPSIS
-.B import\-bug\-from\-debian \fR[\fB\-nb\fR] \fIbug\fR...
+.B import\-bug\-from\-debian \fR[\fIoptions\fR] \fIbug\fR...
 .br
 .B import\-bug\-from\-debian \-h
 
@@ -27,6 +27,11 @@ Display a help message and exit.
 .B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".
+.TP
+.B \-p \fIPACKAGE\fR, \fB\-\-package\fR=\fIPACKAGE\fR
+Launchpad package to file bug against, if not the same source package
+name as Debian.
+Useful for importing removal bugs filed against \fBftp.debian.org\fR.
 .TP
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment

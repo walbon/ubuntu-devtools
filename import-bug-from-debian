@@ -54,6 +54,10 @@ def main():
     parser.add_option("-n", "--dry-run",
                       help=SUPPRESS_HELP,
                       dest="lpinstance", action="store_const", const="staging")
+    parser.add_option("-p", "--package", metavar="PACKAGE",
+                      help="Launchpad package to file bug against "
+                           "(default: Same as Debian)",
+                      dest="package", default=None)
     parser.add_option("--no-conf", dest="no_conf", default=False,
                       help="Don't read config files or environment variables.",
                       action="store_true")
@@ -96,15 +100,21 @@ def main():
     for bug in bugs:
         bug = bug.value
         package = bug.package
+        ubupackage = package
+        if options.package:
+            ubupackage = options.package
         bug_num = bug.bug_num
         subject = bug.subject
         log = debbugs.get_bug_log(bug_num)
         summary = log[0][0]
-        target = ubuntu.getSourcePackage(name=package)
+        target = ubuntu.getSourcePackage(name=ubupackage)
         u_bug = launchpad.bugs.createBug(target=target, title=subject,
                 description="Imported from Debian bug %d:\n\n%s"
                     % (bug_num, summary))
-        d_task = u_bug.addTask(target=debian.getSourcePackage(name=package))
+        d_sp = debian.getSourcePackage(name=package)
+        if d_sp is None and options.package:
+            d_sp = debian.getSourcePackage(name=options.package)
+        d_task = u_bug.addTask(target=d_sp)
         d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
         d_task.bug_watch = d_watch
         d_task.lp_save()
