@@ -109,8 +109,9 @@ def main():
         summary = log[0][0]
         target = ubuntu.getSourcePackage(name=ubupackage)
         u_bug = launchpad.bugs.createBug(target=target, title=subject,
-                description="Imported from Debian bug %d:\n\n%s"
-                    % (bug_num, summary))
+                description='Imported from Debian bug '
+                            'http://bugs.debian.org/%d:\n\n%s'
+                            % (bug_num, summary))
         d_sp = debian.getSourcePackage(name=package)
         if d_sp is None and options.package:
             d_sp = debian.getSourcePackage(name=options.package)
