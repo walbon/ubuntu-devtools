@@ -30,7 +30,7 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * pull-lp-source: Support -d (LP: #681699)
   * suspicious-source: Whitelist Python source code.
   * import-bug-from-debian: Add --package option, for importing bugs from
-    psuedo-packages.
+    pseudo-packages.
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
