@@ -2,8 +2,7 @@ Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-dev-team@lists.alioth.debian.org>
-Uploaders: Luca Falavigna <dktrkranz@debian.org>,
-           Benjamin Drung <bdrung@ubuntu.com>
+Uploaders: Benjamin Drung <bdrung@ubuntu.com>
 Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Build-Depends: dctrl-tools,
