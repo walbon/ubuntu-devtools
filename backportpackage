@@ -42,7 +42,7 @@ def check_call(cmd, *args, **kwargs):
     Logger.command(cmd)
     ret = subprocess.call(cmd, *args, **kwargs)
     if ret != 0:
-        error('%s returned %d.' % (cmd, ret))
+        error('%s returned %d.' % (cmd[0], ret))
 
 def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
