@@ -54,6 +54,11 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
+  [ Martin Pitt ]
+  * Add check-mir script: Check components of build dependencies and warn
+    about universe/multiverse ones, for a package destined for
+    main/restricted. Add doc/check-mir.1 manpage.
+
  -- Stefano Rivera <stefanor@ubuntu.com>  Tue, 04 Jan 2011 22:23:20 +0200
 
 ubuntu-dev-tools (0.108) experimental; urgency=low

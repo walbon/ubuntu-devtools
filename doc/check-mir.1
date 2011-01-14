@@ -1,0 +1,18 @@
+.TH check\-mir "1" "13 January 2011" "ubuntu-dev-tools"
+.SH NAME
+check\-mir \- check support status of dependencies
+
+.SH SYNOPSIS
+.B check\-build\-deps
+
+.SH DESCRIPTION
+This script checks if any of a package's build or binary dependencies is
+in universe/multiverse. If the source package is destined for Ubuntu main or
+restricted, these either need to be eliminated or need to be promoted to main,
+following \fBhttps://wiki.ubuntu.com/MainInclusionProcess\fR.
+
+There are no options, just run it in a source package directory.
+
+.SH AUTHOR
+.B check\-mir
+was written by Martin Pitt <martin.pitt@ubuntu.com>.
