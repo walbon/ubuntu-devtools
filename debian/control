@@ -66,6 +66,7 @@ Description: useful tools for Ubuntu developers
  .
   - 404main - used to check what components a package's deps are in, for
     doing a main inclusion report for example.
+  - check-mir - check support status of build/binary dependencies
   - check-symbols - will compare and give you a diff of the exported symbols of
     all .so files in a binary package.
   - dch-repeat - used to repeat a change log into an older release.
