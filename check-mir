@@ -21,15 +21,15 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import apt, sys, os.path
+import apt
+import sys
+import os.path
 
-apt_cache = apt.Cache()
-
-def check_support(pkgname, alt=False):
+def check_support(apt_cache, pkgname, alt=False):
     '''Check if pkgname is in main or restricted.
 
     This prints messages if a package is not in main/restricted, or only
-    partially (i.  e. source in main, but binary in universe).
+    partially (i. e. source in main, but binary in universe).
     '''
     if alt:
         prefix = '  ... alternative ' + pkgname
@@ -46,17 +46,23 @@ def check_support(pkgname, alt=False):
     if section.startswith('universe') or section.startswith('multiverse'):
         # check if the source package is in main and thus will only need binary
         # promotion
-        sr = apt.apt_pkg.SourceRecords()
-        if not sr.lookup(pkg.candidate.source_name):
-            print >> sys.stderr, 'ERROR: Cannot lookup source package for', pkg.name
+        source_records = apt.apt_pkg.SourceRecords()
+        if not source_records.lookup(pkg.candidate.source_name):
+            print >> sys.stderr, 'ERROR: Cannot lookup source package for', \
+                                 pkg.name
             print prefix, 'package is in', section.split('/')[0]
             return False
-        src = apt.apt_pkg.TagSection(sr.record)
-        if src['Section'].startswith('universe') or src['Section'].startswith('multiverse'):
-            print prefix, 'binary and source package is in', section.split('/')[0]
+        src = apt.apt_pkg.TagSection(source_records.record)
+        if (src['Section'].startswith('universe') or
+            src['Section'].startswith('multiverse')):
+            print prefix, 'binary and source package is in', \
+                  section.split('/')[0]
             return False
         else:
-            print prefix, 'is in', section.split('/')[0] + ', but its source', pkg.candidate.source_name, 'is already in main; file an ubuntu-archive bug for promoting the current preferred alternative'
+            print prefix, 'is in', section.split('/')[0] + ', but its source', \
+                  pkg.candidate.source_name, \
+                  ('is already in main; file an ubuntu-archive bug for '
+                   'promoting the current preferred alternative')
             return True
 
     if alt:
@@ -64,60 +70,74 @@ def check_support(pkgname, alt=False):
 
     return True
 
+def check_build_dependencies(apt_cache, control):
+    print 'Checking support status of build dependencies...'
 
-#
-# main
-#
+    any_unsupported = False
 
-if not os.path.exists('debian/control'):
-    print >> sys.stderr, 'debian/control not found. You need to run this tool in a source package directory'
-    sys.exit(1)
-
-print 'Checking support status of build dependencies...'
-
-# get build dependencies from debian/control
-control=apt.apt_pkg.TagFile(open('debian/control'))
-control.next()
-
-
-any_unsupported = False
-
-for field in ('Build-Depends', 'Build-Depends-Indep'):
-    if field not in control.section:
-        continue
-    for or_group in apt.apt_pkg.parse_src_depends(control.section[field]):
-        pkgname = or_group[0][0]
-        if not check_support(pkgname):
-            # check non-preferred alternatives
-            for altpkg in or_group[1:]:
-                if check_support(altpkg[0], alt=True):
-                    break
-            else:
-                any_unsupported = True
-
-print '\nChecking support status of binary dependencies...'
-while True:
-    try:
-        control.next()
-    except StopIteration:
-        break
-
-    for field in ('Depends', 'Pre-Depends', 'Recommends'):
+    for field in ('Build-Depends', 'Build-Depends-Indep'):
         if field not in control.section:
             continue
-        for or_group in apt.apt_pkg.parse_depends(control.section[field]):
+        for or_group in apt.apt_pkg.parse_src_depends(control.section[field]):
             pkgname = or_group[0][0]
-            if pkgname.startswith('$'):
-                continue
-            if not check_support(pkgname):
+            if not check_support(apt_cache, pkgname):
                 # check non-preferred alternatives
                 for altpkg in or_group[1:]:
-                    if check_support(altpkg[0], alt=True):
+                    if check_support(apt_cache, altpkg[0], alt=True):
                         break
                 else:
                     any_unsupported = True
 
-if any_unsupported:
-    print '\nPlease check https://wiki.ubuntu.com/MainInclusionProcess if this source package needs to get into in main/restricted, or reconsider if the package really needs above dependencies.'
-else:
-    print 'All dependencies are supported in main or restricted.'
+    return any_unsupported
+
+def check_binary_dependencies(apt_cache, control):
+    any_unsupported = False
+
+    print '\nChecking support status of binary dependencies...'
+    while True:
+        try:
+            control.next()
+        except StopIteration:
+            break
+
+        for field in ('Depends', 'Pre-Depends', 'Recommends'):
+            if field not in control.section:
+                continue
+            for or_group in apt.apt_pkg.parse_depends(control.section[field]):
+                pkgname = or_group[0][0]
+                if pkgname.startswith('$'):
+                    continue
+                if not check_support(apt_cache, pkgname):
+                    # check non-preferred alternatives
+                    for altpkg in or_group[1:]:
+                        if check_support(apt_cache, altpkg[0], alt=True):
+                            break
+                    else:
+                        any_unsupported = True
+
+    return any_unsupported
+
+def main():
+    apt_cache = apt.Cache()
+
+    if not os.path.exists('debian/control'):
+        print >> sys.stderr, ('debian/control not found. You need to run '
+                              'this tool in a source package directory')
+        sys.exit(1)
+
+    # get build dependencies from debian/control
+    control = apt.apt_pkg.TagFile(open('debian/control'))
+    control.next()
+
+    unsupported_build_deps = check_build_dependencies(apt_cache, control)
+    unsupported_binary_deps = check_binary_dependencies(apt_cache, control)
+
+    if unsupported_build_deps or unsupported_binary_deps:
+        print ('\nPlease check https://wiki.ubuntu.com/MainInclusionProcess if '
+               'this source package needs to get into in main/restricted, or '
+               'reconsider if the package really needs above dependencies.')
+    else:
+        print 'All dependencies are supported in main or restricted.'
+
+if __name__ == '__main__':
+    main()
