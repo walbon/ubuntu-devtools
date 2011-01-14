@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.110) UNRELEASED; urgency=low
 
   * doc/check-mir.1: Fix typo.
+  * check-mir: Check binary dependencies, too.
 
  -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 13 Jan 2011 19:24:07 -0600
 

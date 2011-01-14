@@ -39,7 +39,7 @@ def check_support(pkgname, alt=False):
     try:
         pkg = apt_cache[pkgname]
     except KeyError:
-        print >> sys.stderr, pkgname, 'does not exist (pure virtual?)'
+        print >> sys.stderr, prefix, 'does not exist (pure virtual?)'
         return False
     
     section = pkg.candidate.section
@@ -95,7 +95,29 @@ for field in ('Build-Depends', 'Build-Depends-Indep'):
             else:
                 any_unsupported = True
 
+print '\nChecking support status of binary dependencies...'
+while True:
+    try:
+        control.next()
+    except StopIteration:
+        break
+
+    for field in ('Depends', 'Pre-Depends', 'Recommends'):
+        if field not in control.section:
+            continue
+        for or_group in apt.apt_pkg.parse_depends(control.section[field]):
+            pkgname = or_group[0][0]
+            if pkgname.startswith('$'):
+                continue
+            if not check_support(pkgname):
+                # check non-preferred alternatives
+                for altpkg in or_group[1:]:
+                    if check_support(altpkg[0], alt=True):
+                        break
+                else:
+                    any_unsupported = True
+
 if any_unsupported:
     print '\nPlease check https://wiki.ubuntu.com/MainInclusionProcess if this source package needs to get into in main/restricted, or reconsider if the package really needs above dependencies.'
 else:
-    print 'All build dependencies are supported in main or restricted.'
+    print 'All dependencies are supported in main or restricted.'
