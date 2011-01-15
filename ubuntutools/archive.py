@@ -401,10 +401,10 @@ class DebianSourcePackage(SourcePackage):
 
     def _source_urls(self, name):
         "Generator of sources for name"
-        it = super(DebianSourcePackage, self)._source_urls(name)
+        wrapped_iterator = super(DebianSourcePackage, self)._source_urls(name)
         while True:
             try:
-                yield it.next()
+                yield wrapped_iterator.next()
             except StopIteration:
                 break
         if self.snapshot_list:
@@ -471,11 +471,11 @@ class UbuntuSourcePackage(SourcePackage):
 
 def rmadison(url, package):
     "Call rmadison and parse the result"
-    p = subprocess.Popen(('rmadison', '-u', url, package),
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                         close_fds=True)
-    output = p.communicate()[0]
-    assert p.wait() == 0
+    process = subprocess.Popen(('rmadison', '-u', url, package),
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               close_fds=True)
+    output = process.communicate()[0]
+    assert process.wait() == 0
     for line in output.strip().splitlines():
         pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
         comp = 'main'
