@@ -44,8 +44,6 @@ from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
-from ubuntutools.requestsync.mail import (SourcePackagePublishingHistory
-                                          as rmadison_SPPH)
 
 class DownloadError(Exception):
     "Unable to pull a source package"
@@ -390,13 +388,12 @@ class DebianSourcePackage(SourcePackage):
                     continue
                 comp = record['component']
                 if record['version'] == self.version.full_version:
-                    self._spph = rmadison_SPPH(record['source'],
-                                               record['version'], comp)
+                    self._spph = FakeSPPH(record['source'], record['version'],
+                                          comp)
                     return self._spph
 
             Logger.normal('Guessing component from most recent upload')
-            self._spph = rmadison_SPPH(self.source, self.version.full_version,
-                                       comp)
+            self._spph = FakeSPPH(self.source, self.version.full_version, comp)
         return self._spph
 
     def _source_urls(self, name):
@@ -469,11 +466,35 @@ class UbuntuSourcePackage(SourcePackage):
     distribution = 'ubuntu'
 
 
-def rmadison(url, package):
+class FakeSPPH(object):
+    """Provide the same interface as
+    ubuntutools.lpapicache.SourcePackagePublishingHistory
+    """
+    def __init__(self, name, version, component):
+        self.name = name
+        self.version = version
+        self.component = component
+
+    def getPackageName(self):
+        return self.name
+
+    def getVersion(self):
+        return self.version
+
+    def getComponent(self):
+        return self.component
+
+
+def rmadison(url, package, suite=None, arch=None):
     "Call rmadison and parse the result"
-    process = subprocess.Popen(('rmadison', '-u', url, package),
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                               close_fds=True)
+    cmd = ['rmadison', '-u', url]
+    if suite:
+        cmd += ['-s', suite]
+    if arch:
+        cmd += ['-a', arch]
+    cmd.append(package)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, close_fds=True)
     output = process.communicate()[0]
     assert process.wait() == 0
     for line in output.strip().splitlines():
