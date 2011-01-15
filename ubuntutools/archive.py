@@ -34,6 +34,7 @@ import os.path
 import subprocess
 import urllib2
 import urlparse
+import re
 import sys
 
 import debian.deb822
@@ -316,6 +317,24 @@ class SourcePackage(object):
                     Logger.normal('URL Error: %s', e.reason)
             else:
                 raise DownloadError('File %s could not be found' % name)
+
+    def verify(self):
+        """Verify that the source package in workdir matches the dsc.
+        Return boolean
+        """
+        return all(self.dsc.verify_file(os.path.join(self.workdir,
+                                                     entry['name']))
+                   for entry in self.dsc['Files'])
+
+    def verify_orig(self):
+        """Verify that the .orig files in workdir match the dsc.
+        Return boolean
+        """
+        orig_re = re.compile(r'.*\.orig(-[^.]+)?\.tar\.[^.]+$')
+        return all(self.dsc.verify_file(os.path.join(self.workdir,
+                                                     entry['name']))
+                   for entry in self.dsc['Files']
+                   if orig_re.match(entry['name']))
 
     def unpack(self, destdir=None):
         "Unpack in workdir"

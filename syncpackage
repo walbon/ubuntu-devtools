@@ -24,7 +24,6 @@ import debian.deb822
 import debian.debian_support
 import optparse
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -122,38 +121,15 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
                                       ubuntu_source.getComponent(),
                                       mirrors=[ubuntu_mirror])
         ubu_pkg.pull_dsc()
+        need_orig = ubuntu_ver.upstream_version != new_ver.upstream_version
     except udtexceptions.PackageNotFoundException:
         ubuntu_ver = Version('~')
         ubu_pkg = None
+        need_orig = True
+        Logger.info('%s does not exist in Ubuntu.', name)
 
     Logger.debug('Source %s: current version %s, new version %s',
                  src_pkg.source, ubuntu_ver, new_ver)
-
-    # do we need the orig.tar.gz?
-    need_orig = True
-    fakesync_files = []
-    if ubuntu_ver.upstream_version == new_ver.upstream_version:
-        # We need to check if all .orig*.tar.* tarballs exist in Ubuntu
-        need_orig = False
-        deb_files = dict((e['name'], e['md5sum']) for e in src_pkg.dsc['Files']
-                         if not e['name'].endswith('.dsc'))
-        ubu_files = dict((e['name'], e['md5sum']) for e in ubu_pkg.dsc['Files']
-                         if not e['name'].endswith('.dsc'))
-        for name in deb_files.iterkeys():
-            if not re.match(r'.*\.orig(-[^.]+)?\.tar\.[^.]+$', name):
-                continue
-            if name in ubu_files:
-                if deb_files[name] != ubu_files[name]:
-                    Logger.warn('The checksums of the file %s mismatch. '
-                                'A fake sync is required.', name)
-                    fakesync_files.append(name)
-                    Logger.debug('Ubuntu version: %s', deb_files[name])
-                    Logger.debug('Debian version: %s', ubu_files[name])
-            else:
-                Logger.info('%s does not exist in Ubuntu.',
-                            name)
-                need_orig = True
-
     Logger.debug('Needs source tarball: %s', str(need_orig))
 
     cur_ver = ubuntu_ver.get_related_debian_version()
@@ -165,8 +141,11 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     src_pkg.pull()
     src_pkg.unpack()
 
-    # Do a fake sync if required
-    if fakesync_files:
+    fakesync = not ubu_pkg.verify_orig()
+
+    if fakesync:
+        Logger.warn('The checksums of the Debian and Ubuntu packages mismatch. '
+                    'A fake sync is required.')
         # Download Ubuntu files (override Debian source tarballs)
         ubu_pkg.pull()
 
@@ -180,7 +159,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         line = open("debian/changelog").readline()
         debian_dist = line.split(" ")[2].strip(";")
 
-    if len(fakesync_files) == 0:
+    if not fakesync:
         # create the changes file
         changes_filename = "%s_%s_source.changes" % \
                            (src_pkg.source, new_ver.strip_epoch())
