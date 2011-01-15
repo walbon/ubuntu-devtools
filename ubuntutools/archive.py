@@ -102,7 +102,6 @@ class SourcePackage(object):
                 or dscfile is not None)
 
         self.source = package
-        self.version = version
         self._lp = lp
         self.workdir = workdir
 
@@ -122,10 +121,10 @@ class SourcePackage(object):
         if dscfile is not None:
             if self.source is None:
                 self.source = 'unknown'
-            if self.version is None:
-                self.version = 'unknown'
+            if version is None:
+                version = 'unknown'
 
-        self.version = debian.debian_support.Version(self.version)
+        self.version = debian.debian_support.Version(version)
 
     @property
     def lp_spph(self):
