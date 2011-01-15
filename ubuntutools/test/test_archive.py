@@ -30,37 +30,38 @@ import ubuntutools.archive
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
+
 from ubuntutools.test.example_package import ExamplePackage
 
-ex_pkg = ExamplePackage()
 def setUpModule():
-    ex_pkg.create_orig()
-    ex_pkg.create()
+    if not os.path.exists('test-data/example-0.1-1.dsc'):
+        ex_pkg = ExamplePackage()
+        ex_pkg.create_orig()
+        ex_pkg.create()
+        ex_pkg.cleanup()
 
-def tearDownModule():
-    ex_pkg.cleanup()
 
 class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
     def setUp(self):
         super(DscVerificationTestCase, self).setUp()
-        with open(ex_pkg.pathname('example_1.0-1.dsc'), 'rb') as f:
+        with open('test-data/example_1.0-1.dsc', 'rb') as f:
             self.dsc = ubuntutools.archive.Dsc(f.read())
 
     def tearDown(self):
         super(DscVerificationTestCase, self).tearDown()
 
     def test_good(self):
-        self.assertTrue(self.dsc.verify_file(ex_pkg.pathname(
-            'example_1.0.orig.tar.gz')))
-        self.assertTrue(self.dsc.verify_file(ex_pkg.pathname(
-            'example_1.0-1.debian.tar.gz')))
+        self.assertTrue(self.dsc.verify_file(
+            'test-data/example_1.0.orig.tar.gz'))
+        self.assertTrue(self.dsc.verify_file(
+            'test-data/example_1.0-1.debian.tar.gz'))
 
     def test_missing(self):
-        self.assertFalse(self.dsc.verify_file(ex_pkg.pathname(
-            'does.not.exist')))
+        self.assertFalse(self.dsc.verify_file(
+            'test-data/does.not.exist'))
 
     def test_bad(self):
-        fn = ex_pkg.pathname('example_1.0.orig.tar.gz')
+        fn = 'test-data/example_1.0.orig.tar.gz'
         with open(fn, 'rb') as f:
             data = f.read()
         data = data[:-1] +  chr(ord(data[-1]) ^ 8)
@@ -105,7 +106,8 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         if destname is None:
             destname = os.path.basename(url)
         return self.urlopen('file://'
-                            + os.path.abspath(ex_pkg.pathname(destname)))
+                            + os.path.join(os.path.abspath('test-data'),
+                                           destname))
 
     def urlopen_file(self, filename):
         "Wrapper for urlopen_proxy for named files"
@@ -129,15 +131,15 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         self.mox.ReplayAll()
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
-                                 dscfile=ex_pkg.pathname('example_1.0-1.dsc'),
+                                 dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
         pkg.pull()
         pkg.unpack()
 
     def test_verification(self):
-        for fn in ('example_1.0-1.dsc', 'example_1.0.orig.tar.gz',
-                   'example_1.0-1.debian.tar.gz'):
-            shutil.copy2(ex_pkg.pathname(fn), self.workdir)
+        shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
+        shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
+        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
         with open(os.path.join(self.workdir, 'example_1.0-1.debian.tar.gz'),
                   'r+b') as f:
             f.write('CORRUPTION')
@@ -148,7 +150,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         self.mox.ReplayAll()
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
-                                 dscfile=ex_pkg.pathname('example_1.0-1.dsc'),
+                                 dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
         pkg.pull()
 
