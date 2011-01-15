@@ -7,6 +7,6 @@ Standards-Version: 3.9.1
 
 Package: example
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Example package for testing purposes
  An example package used by the test suite. Useless.
