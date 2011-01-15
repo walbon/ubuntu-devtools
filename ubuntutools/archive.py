@@ -120,11 +120,10 @@ class SourcePackage(object):
         self.masters = [UDTConfig.defaults['%s_MIRROR'
                                            % self.distribution.upper()]]
         if dscfile is not None:
-            d_source, d_version = os.path.basename(dscfile)[:-4].split('_')
             if self.source is None:
-                self.source = d_source
+                self.source = 'unknown'
             if self.version is None:
-                self.version = d_version
+                self.version = 'unknown'
 
         self.version = debian.debian_support.Version(self.version)
 
@@ -223,12 +222,14 @@ class SourcePackage(object):
         "Check that the dsc matches what we are expecting"
         assert os.path.exists(self.dsc_pathname)
         self._dsc_fetched = True
+        old_pathname = self.dsc_pathname
 
-        assert self.source == self.dsc['Source']
-        version = debian.debian_support.Version(self.dsc['Version'])
-        assert self.version.upstream_version == version.upstream_version
-        assert self.version.debian_revision == version.debian_revision
-        self.version = version
+        self.source = self.dsc['Source']
+        self.version = debian.debian_support.Version(self.dsc['Version'])
+
+        # If source or version was previously unknown
+        if self.dsc_pathname != old_pathname:
+            os.rename(old_pathname, self.dsc_pathname)
 
         valid = False
         message = None
