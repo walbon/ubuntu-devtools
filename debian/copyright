@@ -194,10 +194,10 @@ Files: doc/pull-debian-debdiff.1,
        ubuntutools/update_maintainer.py,
        update-maintainer,
        wrap-and-sort
-Copyright: 2010, Benjamin Drung <bdrung@ubuntu.com>
-           2010, Evan Broder <evan@ebroder.net>
-           2008, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
-           2010, Stefano Rivera <stefanor@ubuntu.com>
+Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
+           2010,      Evan Broder <evan@ebroder.net>
+           2008,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
+           2010-2011, Stefano Rivera <stefanor@ubuntu.com>
 License: ISC
  Permission to use, copy, modify, and/or distribute this software for any
  purpose with or without fee is hereby granted, provided that the above

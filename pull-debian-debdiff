@@ -2,7 +2,7 @@
 # pull-debian-debdiff - find and download a specific version of a Debian
 #                       package and its immediate parent to generate a debdiff.
 #
-# Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+# Copyright (C) 2010-2011, Stefano Rivera <stefanor@ubuntu.com>
 # Inspired by a tool of the same name by Kees Cook.
 #
 # Permission to use, copy, modify, and/or distribute this software for any
@@ -105,19 +105,7 @@ def main():
         Logger.error(str(e))
         sys.exit(1)
     oldpkg.unpack()
-
-    cmd = ['debdiff', oldpkg.dsc_name, newpkg.dsc_name]
-    difffn = newpkg.dsc_name[:-3] + 'debdiff'
-    Logger.command(cmd + ['> %s' % difffn])
-    debdiff_file = open(difffn, 'w')
-    if subprocess.call(cmd, stdout=debdiff_file) > 2:
-        Logger.error('Debdiff failed.')
-        sys.exit(1)
-    debdiff_file.close()
-    cmd = ('diffstat', '-p0', difffn)
-    Logger.command(cmd)
-    subprocess.check_call(cmd)
-    print 'file://' + os.path.abspath(difffn)
+    print 'file://' + oldpkg.debdiff(newpkg, diffstat=True)
 
 if __name__ == '__main__':
     main()

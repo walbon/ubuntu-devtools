@@ -1,7 +1,7 @@
 # archive.py - Functions for dealing with Debian source packages, archives,
 #              and mirrors.
 #
-# Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+# Copyright (C) 2010-2011, Stefano Rivera <stefanor@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -26,6 +26,8 @@ Approach:
    3. Launchpad
 3. Verify checksums.
 """
+
+from __future__ import with_statement
 
 import hashlib
 import os.path
@@ -74,13 +76,12 @@ class Dsc(debian.deb822.Dsc):
             if os.path.getsize(pathname) != size:
                 return False
             hash_func = getattr(hashlib, alg)()
-            f = open(pathname, 'rb')
-            while True:
-                buf = f.read(hash_func.block_size)
-                if buf == '':
-                    break
-                hash_func.update(buf)
-            f.close()
+            with open(pathname, 'rb') as f:
+                while True:
+                    buf = f.read(hash_func.block_size)
+                    if buf == '':
+                        break
+                    hash_func.update(buf)
             return hash_func.hexdigest() == digest
         return False
 
@@ -270,16 +271,15 @@ class SourcePackage(object):
         except urllib2.HTTPError:
             return False
 
-        out = open(pathname, 'wb')
-        while True:
-            block = in_.read(10240)
-            if block == '':
-                break
-            out.write(block)
-            Logger.stdout.write('.')
-            Logger.stdout.flush()
+        with open(pathname, 'wb') as out:
+            while True:
+                block = in_.read(10240)
+                if block == '':
+                    break
+                out.write(block)
+                Logger.stdout.write('.')
+                Logger.stdout.flush()
         in_.close()
-        out.close()
         Logger.stdout.write(' done\n')
         Logger.stdout.flush()
         if self.dsc and not url.endswith('.dsc'):
@@ -312,6 +312,24 @@ class SourcePackage(object):
             cmd.append(destdir)
         Logger.command(cmd)
         subprocess.check_call(cmd, cwd=self.workdir)
+
+    def debdiff(self, newpkg, diffstat=False):
+        """Write a debdiff comparing this src pkg to a newer one.
+        Optionally print diffstat.
+        Return the debdiff filename.
+        """
+        cmd = ['debdiff', self.dsc_name, newpkg.dsc_name]
+        difffn = newpkg.dsc_name[:-3] + 'debdiff'
+        Logger.command(cmd + ['> %s' % difffn])
+        with open(difffn, 'w') as f:
+            if subprocess.call(cmd, stdout=f, cwd=self.workdir) > 2:
+                Logger.error('Debdiff failed.')
+                sys.exit(1)
+        if diffstat:
+            cmd = ('diffstat', '-p1', difffn)
+            Logger.command(cmd)
+            subprocess.check_call(cmd)
+        return os.path.abspath(difffn)
 
 
 class DebianSourcePackage(SourcePackage):
