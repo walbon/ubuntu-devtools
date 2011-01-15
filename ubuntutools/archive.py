@@ -76,12 +76,13 @@ class Dsc(debian.deb822.Dsc):
             if os.path.getsize(pathname) != size:
                 return False
             hash_func = getattr(hashlib, alg)()
-            with open(pathname, 'rb') as f:
-                while True:
-                    buf = f.read(hash_func.block_size)
-                    if buf == '':
-                        break
-                    hash_func.update(buf)
+            f = open(pathname, 'rb')
+            while True:
+                buf = f.read(hash_func.block_size)
+                if buf == '':
+                    break
+                hash_func.update(buf)
+            f.close()
             return hash_func.hexdigest() == digest
         return False
 
