@@ -279,7 +279,7 @@ class SourcePackage(object):
 
         try:
             in_ = urllib2.urlopen(url)
-        except urllib2.HTTPError:
+        except urllib2.URLError:
             return False
 
         with open(pathname, 'wb') as out:
