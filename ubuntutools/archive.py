@@ -228,18 +228,29 @@ class SourcePackage(object):
         assert self.version.debian_revision == version.debian_revision
         self.version = version
 
-        gpg_info = self.dsc.get_gpg_info()
-        if gpg_info.valid():
-            message = 'Valid signature'
-        else:
-            message = 'Signature on %s could not be verified' % self.dsc_name
-        if 'GOODSIG' in gpg_info:
-            message = 'Good signature by %s (0x%s)' % (gpg_info['GOODSIG'][1],
-                                                       gpg_info['GOODSIG'][0])
-        elif 'VALIDSIG' in gpg_info:
-            message = 'Valid signature by 0x%s' % gpg_info['VALIDSIG'][0]
+        valid = False
+        message = None
+        gpg_info = None
+        try:
+            gpg_info = self.dsc.get_gpg_info()
+            valid = gpg_info.valid()
+        except IOError:
+            message = ('Signature on %s could not be verified, install '
+                       'debian-keyring' % self.dsc_name)
+        if message is None:
+            if valid:
+                message = 'Valid signature'
+            else:
+                message = ('Signature on %s could not be verified'
+                           % self.dsc_name)
+        if gpg_info is not None:
+            if 'GOODSIG' in gpg_info:
+                message = ('Good signature by %s (0x%s)'
+                           % (gpg_info['GOODSIG'][1], gpg_info['GOODSIG'][0]))
+            elif 'VALIDSIG' in gpg_info:
+                message = 'Valid signature by 0x%s' % gpg_info['VALIDSIG'][0]
         if verify_signature:
-            if gpg_info.valid():
+            if valid:
                 Logger.normal(message)
             else:
                 Logger.error(message)
