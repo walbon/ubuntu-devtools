@@ -1,4 +1,27 @@
-ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.112) UNRELEASED; urgency=low
+
+  * New source package downloading framework in ubuntutools.archive. Use in
+    many scripts.
+  * pull-lp-source: str() exceptions before passing to Logger (LP: #695523)
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 15 Jan 2011 13:32:12 +0200
+
+ubuntu-dev-tools (0.111) natty; urgency=low
+
+  * ubuntutools/test/test_help.py: Blacklist --help test for check-mir, it
+    does not have help. Fixes FTBFS on the buildd.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 13 Jan 2011 20:15:41 -0600
+
+ubuntu-dev-tools (0.110) natty; urgency=low
+
+  * doc/check-mir.1: Fix typo.
+  * check-mir: Check binary dependencies, too.
+  * debian/control: Add check-mir to package description.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 13 Jan 2011 19:28:20 -0600
+
+ubuntu-dev-tools (0.109) natty; urgency=low
 
   [ Stefano Rivera ]
   * Convert debian/copyright to DEP5, make sure all scripts are listed
@@ -13,8 +36,6 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
     - Added ubuntu-dev-tools.5
     - Support this in many u-d-t scripts, and update manpages.
     - Deprecate old configuration environment variables.
-  * New source package downloading framework in ubuntutools.archive. Use in
-    many scripts.
   * Support the combined "Name <email>" format in UBUMAIL, DEBFULLNAME, and
     DEBEMAIL. (LP: #665202)
   * Add the beginnings of a test suite. (LP: #690386)
@@ -29,10 +50,10 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * edit-patch: Don't let cat error through if debian/source/format doesn't
     exist.
   * pull-debian-debdiff: Rewrite in Python, and use snapshot.debian.org.
-  * pull-lp-source:
-    - Support -d (LP: #681699)
-    - str() exceptions before passing to Logger (LP: #695523)
+  * pull-lp-source: Support -d (LP: #681699)
   * suspicious-source: Whitelist Python source code.
+  * import-bug-from-debian: Add --package option, for importing bugs from
+    pseudo-packages.
 
   [ Michael Bienia ]
   * ubuntutools/lp/lpapicache.py: Allow easier selection of 'staging' as LP
@@ -56,7 +77,12 @@ ubuntu-dev-tools (0.109) UNRELEASED; urgency=low
   * add "add-patch" that provides the non-interactive version of
     edit-patch
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Thu, 30 Dec 2010 17:14:09 +0200
+  [ Martin Pitt ]
+  * Add check-mir script: Check components of build dependencies and warn
+    about universe/multiverse ones, for a package destined for
+    main/restricted. Add doc/check-mir.1 manpage.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 13 Jan 2011 19:16:33 -0600
 
 ubuntu-dev-tools (0.108) experimental; urgency=low
 

@@ -25,6 +25,7 @@ import setup
 from ubuntutools.test import unittest
 
 BLACKLIST = {
+    'check-mir': 'No Help',
     'check-symbols': 'No Help',
     'edit-patch': 'No Help',
     'get-build-deps': 'No Help, runs sudo',

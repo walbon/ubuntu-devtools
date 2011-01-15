@@ -218,6 +218,39 @@ def apply_patch(task, patch):
                 edit = True
     return edit
 
+def get_open_ubuntu_bug_task(launchpad, bug):
+    """Returns an open Ubuntu bug task for a given Launchpad bug.
+
+    The bug task needs to be open (not complete) and target Ubuntu. The user
+    will be ask to select one if multiple open Ubuntu bug task exits for the
+    bug.
+    """
+    bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
+    ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
+    if len(ubuntu_tasks) == 0:
+        Logger.error("No Ubuntu bug task found on bug #%i." % (bug.id))
+        sys.exit(1)
+    elif len(ubuntu_tasks) == 1:
+        task = ubuntu_tasks[0]
+    if len(ubuntu_tasks) > 1:
+        task_list = [t.get_short_info() for t in ubuntu_tasks]
+        Logger.info("%i Ubuntu tasks exist for bug #%i.\n%s", len(ubuntu_tasks),
+                    bug.id, "\n".join(task_list))
+        open_ubuntu_tasks = [x for x in ubuntu_tasks if not x.is_complete()]
+        if len(open_ubuntu_tasks) == 1:
+            task = open_ubuntu_tasks[0]
+        else:
+            Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
+                          % (bug.id, len(ubuntu_tasks)))
+            for i in xrange(len(ubuntu_tasks)):
+                print "%i) %s" % (i + 1,
+                                  ubuntu_tasks[i].get_package_and_series())
+            selected = input_number("To which Ubuntu tasks do the patch belong",
+                                    1, len(ubuntu_tasks))
+            task = ubuntu_tasks[selected - 1]
+    Logger.info("Selected Ubuntu task: %s" % (task.get_short_info()))
+    return task
+
 def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                   upload, workdir, verbose=False):
     workdir = os.path.expanduser(workdir)
@@ -239,33 +272,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
     #pylint: enable=E1101
 
     (patch, branch) = get_patch_or_branch(bug)
-
-    bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
-    ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
-    if len(ubuntu_tasks) == 0:
-        Logger.error("No Ubuntu bug task found on bug #%i." % (bug_number))
-        sys.exit(1)
-    elif len(ubuntu_tasks) == 1:
-        task = ubuntu_tasks[0]
-    if len(ubuntu_tasks) > 1:
-        if verbose:
-            Logger.info("%i Ubuntu tasks exist for bug #%i." % \
-                        (len(ubuntu_tasks), bug_number))
-            for task in ubuntu_tasks:
-                print task.get_short_info()
-        open_ubuntu_tasks = [x for x in ubuntu_tasks if x.is_complete()]
-        if len(open_ubuntu_tasks) == 1:
-            task = open_ubuntu_tasks[0]
-        else:
-            Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
-                          % (bug_number, len(ubuntu_tasks)))
-            for i in xrange(len(ubuntu_tasks)):
-                print "%i) %s" % (i + 1,
-                                  ubuntu_tasks[i].get_package_and_series())
-            selected = input_number("To which Ubuntu tasks do the patch belong",
-                                    1, len(ubuntu_tasks))
-            task = ubuntu_tasks[selected - 1]
-    Logger.info("Selected Ubuntu task: %s" % (task.get_short_info()))
+    task = get_open_ubuntu_bug_task(launchpad, bug)
 
     dsc_file = task.download_source()
     assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)

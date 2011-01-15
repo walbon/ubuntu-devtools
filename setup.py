@@ -15,6 +15,7 @@ if os.path.exists(changelog):
 
 scripts = ['404main',
            'backportpackage',
+           'check-mir',
            'check-symbols',
            'dch-repeat',
            'dgetlp',
