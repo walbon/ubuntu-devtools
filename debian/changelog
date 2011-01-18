@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.112) UNRELEASED; urgency=low
+
+  * manage-credentials: Finish migrating away from the Launchpad 'edge' service
+    root. (LP: #704657)
+
+ -- Robert Collins <robertc@robertcollins.net>  Wed, 19 Jan 2011 12:03:40 +1300
+
 ubuntu-dev-tools (0.111) natty; urgency=low
 
   * ubuntutools/test/test_help.py: Blacklist --help test for check-mir, it
