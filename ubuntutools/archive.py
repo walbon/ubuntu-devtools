@@ -340,7 +340,9 @@ class SourcePackage(object):
         if destdir:
             cmd.append(destdir)
         Logger.command(cmd)
-        subprocess.check_call(cmd, cwd=self.workdir)
+        if subprocess.call(cmd, cwd=self.workdir):
+            Logger.error('Source unpack failed.')
+            sys.exit(1)
 
     def debdiff(self, newpkg, diffstat=False):
         """Write a debdiff comparing this src pkg to a newer one.
@@ -357,7 +359,9 @@ class SourcePackage(object):
         if diffstat:
             cmd = ('diffstat', '-p1', difffn)
             Logger.command(cmd)
-            subprocess.check_call(cmd)
+            if subprocess.call(cmd):
+                Logger.error('diffstat failed.')
+                sys.exit(1)
         return os.path.abspath(difffn)
 
 
