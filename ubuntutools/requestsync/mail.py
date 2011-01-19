@@ -2,7 +2,8 @@
 #
 #   mail.py - methods used by requestsync when used in "mail" mode
 #
-#   Copyright © 2009 Michael Bienia <geser@ubuntu.com>
+#   Copyright © 2009 Michael Bienia <geser@ubuntu.com>,
+#               2011 Stefano Rivera <stefanor@ubuntu.com>
 #
 #   This module may contain code written by other authors/contributors to
 #   the main requestsync script. See there for their names.
@@ -25,6 +26,7 @@ import subprocess
 import smtplib
 import socket
 from debian.changelog import Version
+from ubuntutools.archive import rmadison, FakeSPPH
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
@@ -36,68 +38,15 @@ __all__ = [
     'mailBug',
 ]
 
-class SourcePackagePublishingHistory(object):
-    '''
-    Simulate a SourcePackagePublishingHistory class from the LP API caching
-    module.
-    '''
-    def __init__(self, name, version, component):
-        self.name = name
-        self.version = version
-        self.component = component
-
-    def getPackageName(self):
-        return self.name
-
-    def getVersion(self):
-        return self.version
-
-    def getComponent(self):
-        return self.component
-
-def rmadison(distro, package, release):
-    # Map 'sid' and 'squeeze' to their releasenames else rmadison gets a python
-    # traceback back from the remote script
-    releasenames = {
-        'sid': 'unstable',
-        'squeeze': 'testing', # Needs updating after each Debian release
-    }
-    release = releasenames.get(release, release)
-
-    rmadison_cmd = subprocess.Popen(['rmadison', '-u', distro, '-a', 'source',
-                                     '-s', release, package],
-                                    stdout=subprocess.PIPE)
-
-    rmadison_out = rmadison_cmd.communicate()[0]
-    assert (rmadison_cmd.returncode == 0)
-
-    # Return the most recent source line
-    lines = rmadison_out.splitlines()
-    if not lines:
-        # no output
-        return None
-    lines = [map(lambda x: x.strip(), line.split('|')) for line in lines]
-    lines = [line for line in lines if line[3].find('source') != -1]
-    if lines:
-        return max(lines, key = lambda x: Version(x[1]))
-    else:
-        # no source line
-        return None
-
 def getSrcPkg(distro, name, release):
-    out = rmadison(distro, name, release)
-    if not out:
+    lines = list(rmadison(distro, name, suite=release, arch='source'))
+    if not lines:
         raise PackageNotFoundException("'%s' doesn't appear to exist "
                                        "in %s '%s'"
                                        % (name, distro.capitalize(), release))
+    pkg = max(lines, key=lambda x: Version(x['version']))
 
-    version = out[1]
-    component = 'main'
-    raw_comp = out[2].split('/')
-    if len(raw_comp) == 2:
-        component = raw_comp[1]
-
-    return SourcePackagePublishingHistory(name, version, component)
+    return FakeSPPH(pkg['source'], pkg['version'], pkg['component'])
 
 def getDebianSrcPkg(name, release):
     return getSrcPkg('debian', name, release)

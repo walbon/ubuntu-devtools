@@ -1,9 +1,15 @@
 ubuntu-dev-tools (0.112) UNRELEASED; urgency=low
 
+  [ Robert Collins ]
   * manage-credentials: Finish migrating away from the Launchpad 'edge' service
     root. (LP: #704657)
 
- -- Robert Collins <robertc@robertcollins.net>  Wed, 19 Jan 2011 12:03:40 +1300
+  [ Stefano Rivera ]
+  * New source package downloading framework in ubuntutools.archive. Use in
+    many scripts.
+  * pull-lp-source: str() exceptions before passing to Logger (LP: #695523)
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 20 Jan 2011 00:36:35 +0100
 
 ubuntu-dev-tools (0.111) natty; urgency=low
 

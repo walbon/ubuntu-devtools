@@ -24,17 +24,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import urllib
 
-from debian.deb822 import Dsc
 from launchpadlib.launchpad import Launchpad
 import lsb_release
 
+from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.logger import Logger
 from ubuntutools.question import YesNoQuestion
-from ubuntutools.misc import dsc_url
 
 def error(msg):
     Logger.error(msg)
@@ -44,7 +42,7 @@ def check_call(cmd, *args, **kwargs):
     Logger.command(cmd)
     ret = subprocess.call(cmd, *args, **kwargs)
     if ret != 0:
-        error('%s returned %d.' % (cmd, ret))
+        error('%s returned %d.' % (cmd[0], ret))
 
 def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
@@ -167,63 +165,26 @@ def find_release_package(launchpad, package, version, source_release):
 
     return srcpkg
 
-def find_version_package(launchpad, package, version):
-    ubuntu = launchpad.distributions['ubuntu']
-    archive = ubuntu.main_archive
-    try:
-        # Might get more than one (i.e. same version in multiple
-        # releases), but they should all be identical
-        return archive.getPublishedSources(source_name=package,
-                                           version=version)[0]
-    except IndexError:
-        error('Version %s of package %s was never published in Ubuntu.' %
-              (version, package))
+def find_package(launchpad, mirror, workdir, package, version, source_release):
+    "Returns the SourcePackage"
+    if package.endswith('.dsc'):
+        return UbuntuSourcePackage(version=version, dscfile=package,
+                                   workdir=workdir, lp=launchpad,
+                                   mirrors=[mirror])
 
-def dscurls_from_package(launchpad, mirror, package, version, source_release):
     if not source_release and not version:
         source_release = launchpad.distributions['ubuntu'].current_series.name
 
+    component = None
     # If source_release is specified, then version is just for verification
     if source_release:
         srcpkg = find_release_package(launchpad, package, version,
                                       source_release)
-    else:
-        srcpkg = find_version_package(launchpad, package, version)
+        version = srcpkg.source_package_version
+        component = srcpkg.component_name
 
-    urls = []
-    if mirror:
-        urls.append(dsc_url(mirror, srcpkg.component_name, package,
-                            srcpkg.source_package_version))
-
-    for source_file in srcpkg.sourceFileUrls():
-        if source_file.endswith('.dsc'):
-            urls.append(urllib.unquote(source_file))
-            return urls
-    else:
-        error('Package %s contains no .dsc file.' % package)
-
-def dscurl_from_dsc(package):
-    path = os.path.abspath(os.path.expanduser(package))
-    if os.path.exists(path):
-        return 'file://%s' % path
-    else:
-        # Can't resolve it as a local path? Let's just hope it's good as-is
-        return package
-
-def fetch_package(launchpad, mirror, workdir, package, version, source_release):
-    # Returns the path to the .dsc file that was fetched
-    if package.endswith('.dsc'):
-        dscs = [dscurl_from_dsc(package)]
-    else:
-        dscs = dscurls_from_package(launchpad, mirror, package, version,
-                                    source_release)
-
-    for dsc in dscs:
-        cmd = ('dget', '--download-only', '--allow-unauthenticated', dsc)
-        Logger.command(cmd)
-        ret = subprocess.call(cmd, cwd=workdir)
-        if ret == 0:
-            return os.path.join(workdir, os.path.basename(dsc))
+    return UbuntuSourcePackage(package, version, component, workdir=workdir,
+                               lp=launchpad, mirrors=[mirror])
 
 def get_backport_version(version, suffix, upload, release):
     backport_version = version + ('~%s1' % release)
@@ -239,7 +200,7 @@ def get_backport_dist(upload, release):
     else:
         return release
 
-def do_build(workdir, package, release, bp_version, builder, update):
+def do_build(workdir, dsc, release, builder, update):
     builder = get_builder(builder)
     if not builder:
         return
@@ -248,12 +209,11 @@ def do_build(workdir, package, release, bp_version, builder, update):
         if 0 != builder.update(release):
             sys.exit(1)
 
-    return builder.build(os.path.join(workdir,
-                                      '%s_%s.dsc' % (package, bp_version)),
+    return builder.build(os.path.join(workdir, dsc),
                          release,
                          os.path.join(workdir, "buildresult"))
 
-def do_upload(workdir, package, bp_version, upload, prompt):
+def do_upload(workdir, package, bp_version, changes, upload, prompt):
     print 'Please check %s %s in file://%s carefully!' % \
           (package, bp_version, workdir)
     if prompt or upload == 'ubuntu':
@@ -262,20 +222,21 @@ def do_upload(workdir, package, bp_version, upload, prompt):
         if answer == "no":
             return
 
-    changes_file = '%s_%s_source.changes' % (package, bp_version)
-    check_call(['dput', upload, changes_file], cwd=workdir)
+    check_call(['dput', upload, changes], cwd=workdir)
 
+def do_backport(workdir, pkg, suffix, release, build, builder, update, upload,
+                prompt):
+    dirname = '%s-%s' % (pkg.source, release)
+    pkg.unpack(dirname)
+    srcdir = os.path.join(workdir, dirname)
 
-def do_backport(workdir, package, dscfile, version, suffix, release, build,
-                builder, update, upload, prompt):
-    check_call(['dpkg-source', '-x', dscfile, package], cwd=workdir)
-    srcdir = os.path.join(workdir, package)
-
-    bp_version = get_backport_version(version, suffix, upload, release)
+    bp_version = get_backport_version(pkg.version.full_version, suffix,
+                                      upload, release)
     bp_dist = get_backport_dist(upload, release)
 
     check_call(['dch',
-                '--force-bad-version',
+                '--allow-lower-version',
+                '--force-distribution',
                 '--preserve',
                 '--newversion', bp_version,
                 '--distribution', bp_dist,
@@ -283,15 +244,14 @@ def do_backport(workdir, package, dscfile, version, suffix, release, build,
                cwd=srcdir)
     check_call(['debuild', '--no-lintian', '-S', '-sa'], cwd=srcdir)
 
-    if ':' in bp_version:
-        bp_version = bp_version[bp_version.find(':')+1:]
+    fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
 
     if build:
-        if 0 != do_build(workdir, package, release, bp_version, builder,
-                         update):
+        if 0 != do_build(workdir, fn_base + '.dsc', release, builder, update):
             sys.exit(1)
     if upload:
-        do_upload(workdir, package, bp_version, upload, prompt)
+        do_upload(workdir, pkg.source, bp_version, fn_base + '.changes',
+                  upload, prompt)
 
     shutil.rmtree(srcdir)
 
@@ -320,22 +280,17 @@ def main(args):
         os.makedirs(workdir)
 
     try:
-        dscfile = fetch_package(launchpad,
-                                opts.ubuntu_mirror,
-                                workdir,
-                                package_or_dsc,
-                                opts.version,
-                                opts.source_release)
-
-        dsc = Dsc(open(os.path.join(workdir, dscfile)))
-        package = dsc['Source']
-        version = dsc['Version']
+        pkg = find_package(launchpad,
+                           opts.ubuntu_mirror,
+                           workdir,
+                           package_or_dsc,
+                           opts.version,
+                           opts.source_release)
+        pkg.pull()
 
         for release in opts.dest_releases:
             do_backport(workdir,
-                        package,
-                        dscfile,
-                        version,
+                        pkg,
                         opts.suffix,
                         release,
                         opts.build,
@@ -343,6 +298,8 @@ def main(args):
                         opts.update,
                         opts.upload,
                         opts.prompt)
+    except DownloadError, e:
+        error(str(e))
     finally:
         if not opts.workdir:
             shutil.rmtree(workdir)
