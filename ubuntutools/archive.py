@@ -204,9 +204,9 @@ class SourcePackage(object):
                 self._dsc_source = 'file://' + os.path.abspath(self._dsc_source)
                 parsed = urlparse.urlparse(self._dsc_source)
 
-            if (parsed.scheme != 'file'
-                    or os.path.realpath(os.path.dirname(parsed.path))
-                        != os.path.realpath(self.workdir)):
+            source_is_workdir = (os.path.realpath(os.path.dirname(parsed.path))
+                                 == os.path.realpath(self.workdir))
+            if not (parsed.scheme == 'file' and source_is_workdir):
                 if not self._download_file(self._dsc_source, self.dsc_name):
                     raise DownloadError('dsc not found')
         else:
