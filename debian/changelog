@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.112) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.112) unstable; urgency=low
 
   [ Robert Collins ]
   * manage-credentials: Finish migrating away from the Launchpad 'edge' service
@@ -9,7 +9,7 @@ ubuntu-dev-tools (0.112) UNRELEASED; urgency=low
     many scripts.
   * pull-lp-source: str() exceptions before passing to Logger (LP: #695523)
 
- -- Benjamin Drung <bdrung@debian.org>  Thu, 20 Jan 2011 00:36:35 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 20 Jan 2011 10:25:57 +0100
 
 ubuntu-dev-tools (0.111) natty; urgency=low
 
