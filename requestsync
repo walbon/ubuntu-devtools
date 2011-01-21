@@ -33,6 +33,7 @@ import sys
 from debian.changelog import Version
 
 from ubuntutools.config import UDTConfig, ubu_email
+from ubuntutools.distro_info import UbuntuDistroInfo
 from ubuntutools.lp import udtexceptions
 from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
                                             raw_input_exit_on_ctrlc)
@@ -145,7 +146,7 @@ def main():
         if lpapi:
             release = Distribution('ubuntu').getDevelopmentSeries().name
         else:
-            release = 'natty'
+            release = UbuntuDistroInfo().devel()
         print >> sys.stderr, 'W: Target release missing - assuming %s' % release
     elif len(args) == 2:
         release = args[1]

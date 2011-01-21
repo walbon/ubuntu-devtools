@@ -25,6 +25,8 @@
 import re, os, sys
 from tempfile import mkstemp
 
+from ubuntutools.distro_info import UbuntuDistroInfo
+
 try:
     from debian.changelog import Changelog
 except ImportError:
@@ -106,9 +108,10 @@ def edit_debdiff(debdiff):
 
 def submit_bugreport(body, debdiff, deb_version, changelog):
     cmd = ('reportbug -P "User: ubuntu-devel@lists.ubuntu.com" '
-           '-P "Usertags: origin-ubuntu natty ubuntu-patch" -T patch -A %s '
+           '-P "Usertags: origin-ubuntu %s ubuntu-patch" -T patch -A %s '
            '-B debian -i %s -V %s %s') % \
-          (debdiff, body, deb_version, changelog.package)
+           (UbuntuDistroInfo().devel(), debdiff, body, deb_version,
+            changelog.package)
     run_cmd(cmd)
 
 def run_cmd(cmd):

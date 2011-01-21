@@ -20,6 +20,7 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
+from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
@@ -29,12 +30,7 @@ def getDebianSrcPkg(name, release):
     debian = Distribution('debian')
     debian_archive = debian.getArchive()
 
-    # Map 'unstable' and 'testing' to their codenames as LP knows only them
-    codenames = {
-        'unstable': 'sid',
-        'testing': 'squeeze', # Needs updating after each Debian release
-    }
-    release = codenames.get(release, release)
+    release = DebianDistroInfo().codenames(release, None, release)
 
     return debian_archive.getSourcePackage(name, release)
 

@@ -113,6 +113,20 @@ class DebianDistroInfo(DistroInfo):
     def __init__(self):
         super(DebianDistroInfo, self).__init__("debian")
 
+    def codename(self, release, date=None, default=None):
+        """Map 'unstable', 'testing', etc. to their codenames."""
+        if release == "unstable":
+            codename = self.devel(date)
+        elif release == "testing":
+            codename = self.testing(date)
+        elif release == "stable":
+            codename = self.stable(date)
+        elif release == "old":
+            codename = self.old(date)
+        else:
+            codename = default
+        return codename
+
     def old(self, date=None):
         """Get old (stable) Debian distribution based on the given date."""
         if date is None:

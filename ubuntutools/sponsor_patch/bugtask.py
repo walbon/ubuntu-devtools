@@ -21,6 +21,7 @@ import urllib
 
 import debian.debian_support
 
+from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.logger import Logger
 
 class BugTask(object):
@@ -96,10 +97,9 @@ class BugTask(object):
             if "experimental" in title:
                 series = "experimental"
             elif "testing" in title:
-                # TODO: Do not hard code series!
-                series = "squeeze"
+                series = DebianDistroInfo().testing()
             else:
-                series = "sid"
+                series = DebianDistroInfo().devel()
             status = "Pending"
         else:
             project = self.project
