@@ -2,8 +2,10 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
 
   * debian-distro-info, distro-info, ubuntu-distro-info: New tools.
   * Use new ubuntutools.distro_info in various scripts.
+  * backportpackage: dput correct changes filename (regression in 0.112)
+    (LP: #706010)
 
- -- Benjamin Drung <bdrung@debian.org>  Fri, 21 Jan 2011 19:19:01 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Fri, 21 Jan 2011 21:06:42 +0200
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 

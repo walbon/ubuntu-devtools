@@ -250,7 +250,7 @@ def do_backport(workdir, pkg, suffix, release, build, builder, update, upload,
         if 0 != do_build(workdir, fn_base + '.dsc', release, builder, update):
             sys.exit(1)
     if upload:
-        do_upload(workdir, pkg.source, bp_version, fn_base + '.changes',
+        do_upload(workdir, pkg.source, bp_version, fn_base + '_source.changes',
                   upload, prompt)
 
     shutil.rmtree(srcdir)
