@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
+
+  * debian-distro-info, distro-info, ubuntu-distro-info: New tools.
+
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 21 Jan 2011 18:22:23 +0100
+
 ubuntu-dev-tools (0.112) unstable; urgency=low
 
   [ Robert Collins ]

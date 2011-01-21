@@ -1,6 +1,6 @@
-Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
-Name: Ubuntu Developer Tools
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=165
+Upstream-Name: Ubuntu Developer Tools
+Upstream-Contact: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Source: https://launchpad.net/ubuntu-dev-tools
 
 Files: *,
@@ -175,20 +175,27 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
 
-Files: doc/pull-debian-debdiff.1,
+Files: data/*,
+       debian-distro-info,
+       doc/debian-distro-info.1,
+       doc/distro-info.1,
+       doc/pull-debian-debdiff.1,
        doc/sponsor-patch.1,
        doc/suspicious-source.1,
        doc/ubuntu-dev-tools.5,
+       doc/ubuntu-distro-info.1,
        doc/update-maintainer.1,
        doc/wrap-and-sort.1,
        pull-debian-debdiff,
        sponsor-patch,
        suspicious-source,
        test-data/*,
+       ubuntu-distro-info,
        ubuntutools/archive.py,
        ubuntutools/builder.py,
        ubuntutools/config.py,
        ubuntutools/control.py,
+       ubuntutools/distro_info.py,
        ubuntutools/logger.py,
        ubuntutools/question.py,
        ubuntutools/sponsor_patch/*,
@@ -196,7 +203,7 @@ Files: doc/pull-debian-debdiff.1,
        ubuntutools/update_maintainer.py,
        update-maintainer,
        wrap-and-sort
-Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
+Copyright: 2009-2011, Benjamin Drung <bdrung@ubuntu.com>
            2010,      Evan Broder <evan@ebroder.net>
            2008,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
            2010-2011, Stefano Rivera <stefanor@ubuntu.com>

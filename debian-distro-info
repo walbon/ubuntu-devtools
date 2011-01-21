@@ -1,0 +1,98 @@
+#!/usr/bin/python
+
+# Copyright (C) 2009-2011, Benjamin Drung <bdrung@ubuntu.com>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+"""provides information about Debian's distributions"""
+
+import optparse
+import os
+import sys
+
+from ubuntutools.distro_info import convert_date, DebianDistroInfo
+
+def main():
+    script_name = os.path.basename(sys.argv[0])
+    usage = "%s [options]" % (script_name)
+    epilog = "See %s(1) for more info." % (script_name)
+    parser = optparse.OptionParser(usage=usage, epilog=epilog)
+
+    parser.add_option("--date", dest="date", default=None,
+                      help="date for calculating the version (default: today).")
+    parser.add_option("-a", "--all", dest="all",
+                      help="list all known versions",
+                      action="store_true", default=False)
+    parser.add_option("-d", "--devel", dest="devel",
+                      help="latest development version",
+                      action="store_true", default=False)
+    parser.add_option("-o", "--old", dest="old",
+                      help="latest old (stable) version",
+                      action="store_true", default=False)
+    parser.add_option("-s", "--stable", dest="stable",
+                      help="latest stable version",
+                      action="store_true", default=False)
+    parser.add_option("--supported", dest="supported",
+                      help="list of all supported stable versions",
+                      action="store_true", default=False)
+    parser.add_option("-t", "--testing", dest="testing",
+                      help="current testing version",
+                      action="store_true", default=False)
+    parser.add_option("--unsupported", dest="unsupported",
+                      help="list of all unsupported stable versions",
+                      action="store_true", default=False)
+
+    (options, args) = parser.parse_args()
+
+    if len(args) != 0:
+        parser.error("This script does not take any additional parameters.")
+        return 1
+
+    versions = [options.all, options.devel, options.old, options.stable,
+                options.supported, options.testing, options.unsupported]
+    if len([x for x in versions if x]) != 1:
+        parser.error("You have to select exactly one of --all, --devel, --old, "
+                     "--stable, --supported, --testing, --unsupported.")
+        return 1
+
+    if options.date is None:
+        date = None
+    else:
+        try:
+            date = convert_date(options.date)
+        except ValueError:
+            parser.error("Option --date needs to be an date in ISO 8601 "
+                         "format.")
+            return 1
+
+    if options.all:
+        for distro in DebianDistroInfo().all:
+            print distro
+    elif options.devel:
+        print DebianDistroInfo().devel(date)
+    elif options.old:
+        print DebianDistroInfo().old(date)
+    elif options.stable:
+        print DebianDistroInfo().stable(date)
+    elif options.supported:
+        for distro in DebianDistroInfo().supported(date):
+            print distro
+    elif options.testing:
+        print DebianDistroInfo().testing(date)
+    elif options.unsupported:
+        for distro in DebianDistroInfo().unsupported(date):
+            print distro
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
