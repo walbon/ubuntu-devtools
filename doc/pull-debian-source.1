@@ -1,29 +1,39 @@
-.TH PULL\-DEBIAN\-SOURCE "1" "20 December 2008" "ubuntu-dev-tools"
+.\" Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH PULL\-DEBIAN\-SOURCE "1" "22 January 2011" "ubuntu\-dev\-tools"
 
 .SH NAME
-pull\-debian\-source \- download a source package from Debian
+pull\-debian\-source \- download and extract a source package from Debian
 
 .SH SYNOPSIS
-.B pull\-debian\-source \fR[\fIoptions\fR] <\fIsource package\fR> [\fItarget release\fR]
+.B pull\-debian\-source \fR[\fIoptions\fR] <\fIsource package\fR> [\fIrelease\fR]
 
 .SH DESCRIPTION
-\fBpull\-debian\-source\fR downloads and extracts the latest version of
-<\fBsource package\fR> from Debian.
-If the optional parameter [\fItarget release\fR] is specified, the latest
-version in that release will be downloaded instead.
+\fBpull\-debian\-source\fR downloads and extracts the current version of
+\fIsource package\fR in the specified Debian \fIrelease\fR.
 
 .SH OPTIONS
-Listed below are the command line options for pull\-debian\-source:
 .TP
 .I source package
-This is the source package that you would like to be downloaded from Debian.
+The source package to download from Debian.
 .TP
-.I target release
-This is the release that you would like the source package to be downloaded from.
-This value defaults to 'unstable'.
+.I release
+The release to download the source package from. Defaults to
+\fBunstable\fR.
 .TP
-.BR \-h ", " \-\-help
-Display the usage instructions and exit.
+.BR \-d ", " \-\-download\-only
+Do not extract the source package.
 .TP
 .B \-m \fIDEBIAN_MIRROR\fR, \fB\-\-mirror\fR=\fIDEBIAN_MIRROR\fR
 Use the specified mirror.
@@ -31,9 +41,18 @@ Should be in the form \fBhttp://ftp.debian.org/debian\fR.
 If the package isn't found on this mirror, \fBpull\-debian\-source\fR
 will fall back to the default mirror.
 .TP
+.B \-s \fIDEBSEC_MIRROR\fR, \fB\-\-security\-mirror\fR=\fIDEBSEC_MIRROR\fR
+Use the specified mirror.
+Should be in the form \fBhttp://security.debian.org\fR.
+If the package isn't found on this mirror, \fBpull\-debian\-source\fR
+will fall back to the default mirror.
+.TP
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment
 variables.
+.TP
+.BR \-h ", " \-\-help
+Display the usage instructions and exit.
 
 .SH ENVIRONMENT
 All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
@@ -50,16 +69,12 @@ package\-wide variable.
 .TP
 .BR PULL_DEBIAN_SOURCE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
 The default value for \fB\-\-mirror\fR.
+.TP
+.BR PULL_DEBIAN_SOURCE_DEBSEC_MIRROR ", " UBUNTUTOOLS_DEBSEC_MIRROR
+The default value for \fB\-\-security\-mirror\fR.
 
 .SH SEE ALSO
 .BR dget (1),
 .BR pull\-debian\-debdiff (1),
 .BR pull\-lp\-source (1),
 .BR ubuntu\-dev\-tools (5)
-
-.SH AUTHOR
-.PP
-\fBpull\-debian\-source\fR and this manual page were written by Nathan Handler
-<nhandler@ubuntu.com>. The manual page was based on Iain Lane's manual page for
-pull-lp-source.
-Both are released under the GNU General Public License, version 3 or later.

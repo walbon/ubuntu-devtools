@@ -1,194 +1,77 @@
-#!/usr/bin/perl
-# Script Name: pull-debian-source
-# Author: Nathan Handler <nhandler@ubuntu.com>
-# Usage: pull-debian-source <source package> [release]
-# Copyright (C) 2008-2009 Nathan Handler <nhandler@ubuntu.com>,
-#                    2010 Stefano Rivera <stefanor@ubuntu.com>
-# License: GNU General Public License
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+#!/usr/bin/python
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# pull-debian-source -- pull a source package from Launchpad
+# Inspired by a tool of the same name by Nathan Handler.
 #
-# On Debian GNU/Linux systems, the complete text of the GNU General
-# Public License can be found in the /usr/share/common-licenses/GPL-3 file.
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
 
-use warnings;
-use strict;
-use LWP::Simple;
-use File::Basename;
-use Getopt::Long;
-use AptPkg::Version;
+import sys
+from optparse import OptionParser
 
-my($name) = basename($0);
-my($help, $mirror, $no_conf);
-GetOptions('h|help' => \$help,
-           'm|mirror=s' => \$mirror,
-           'no-conf' => \$no_conf,
-          );
-&usage(0) if($help);
-my($package) = $ARGV[0] || &usage(2);
+from ubuntutools.archive import DebianSourcePackage, rmadison
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 
-if (! $no_conf) {
-	my($shell_cmd);
-	$shell_cmd .= "[ -f /etc/devscripts.conf ] && . /etc/devscripts.conf\n";
-	$shell_cmd .= "[ -f ~/.devscripts ] && . ~/.devscripts\n";
-	foreach my $var qw(PULL_DEBIAN_SOURCE_DEBIAN_MIRROR
-	                   UBUNTUTOOLS_DEBIAN_MIRROR
-	                   PULL_DEBIAN_SOURCE_MIRROR_FALLBACK
-	                   UBUNTUTOOLS_MIRROR_FALLBACK) {
-		$shell_cmd .= "echo $var=\$$var\n";
-	}
-	my $shell_out = `/bin/bash -c '$shell_cmd'`;
-	my %config_values;
-	foreach my $line (split /\n/, $shell_out) {
-		my($k, $v) = split /=/, $line, 2;
-		$config_values{$k} = $v;
-	}
-	$mirror = $config_values{'PULL_DEBIAN_SOURCE_DEBIAN_MIRROR'}
-	          || $config_values{'UBUNTUTOOLS_DEBIAN_MIRROR'}
-	          if (! $mirror);
-}
-my($default_mirror) = 'http://ftp.debian.org/debian';
-my(@mirrors);
-push @mirrors, $mirror if $mirror && $mirror ne $default_mirror;
-push @mirrors, $default_mirror;
+def main():
+    usage = 'Usage: %prog <package> [release]'
+    parser = OptionParser(usage)
+    parser.add_option('-d', '--download-only',
+                      dest='download_only', default=False, action='store_true',
+                      help='Do not extract the source package')
+    parser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
+                      dest='debian_mirror',
+                      help='Preferred Debian mirror (default: %s)'
+                           % UDTConfig.defaults['DEBIAN_MIRROR'])
+    parser.add_option('-s', '--security-mirror', metavar='DEBSEC_MIRROR',
+                      dest='debsec_mirror',
+                      help='Preferred Debian Security mirror (default: %s)'
+                           % UDTConfig.defaults['DEBSEC_MIRROR'])
+    parser.add_option('--no-conf',
+                      dest='no_conf', default=False, action='store_true',
+                      help="Don't read config files or environment variables")
+    (options, args) = parser.parse_args()
+    if not args:
+        parser.error('Must specify package name')
+    elif len(args) > 2:
+        parser.error('Too many arguments. '
+                     'Must only specify package and (optionally) release.')
 
-my($release)=$ARGV[1] || 'unstable';
-$release=&convertCodeName($release);
-&checkRelease($release);
-my($madison) = &getMadison(&getURL($package,$release));
+    config = UDTConfig(options.no_conf)
+    if options.debian_mirror is None:
+        options.debian_mirror = config.get_value('DEBIAN_MIRROR')
+    if options.debsec_mirror is None:
+        options.debsec_mirror = config.get_value('DEBSEC_MIRROR')
 
-foreach my $mirror (@mirrors) {
-	my($dsc)=&getDSC($madison, $mirror);
-	print "$dsc\n";
-	system("dget -xu $dsc");
-	exit(0) if ($? == 0);
-}
-exit(1);
+    package = args[0].lower()
 
-sub convertCodeName {
-	my($release)=shift || die("No Release Passed To convertCodeName!\n");
-	chomp $release;
-	if($release=~m/^lenny$/i) {
-		return "stable";
-	}
-	elsif($release=~m/^squeeze$/i) {
-		return "testing";
-	}
-	elsif($release=~m/^sid$/i) {
-		return "unstable";
-	}
-	elsif($release=~m/^etch$/i) {
-		return "oldstable";
-	}
-	return $release;
-}
-sub checkRelease {
-	my($release)=shift || die("No Release Passed To checkRelease!\n");
-	chomp $release;
-	my %releases=(
-		'stable' => 1,
-		'testing' => 1,
-		'unstable' => 1,
-		'experimental' => 1,
-		'oldstable' => 1
-	);
-	&invalidRelease(\%releases) unless $releases{$release}
-}
-sub getURL{
-	my($package)=shift || die("No Package Passed To getURL: $!\n");
-	my($release)=shift || die("No Release Passed to getURL: $!\n");
-	chomp $package;
-	chomp $release;
-	$package=lc($package);
-	$package=~s/\+/%2b/g;
-	$release=lc($release);
-	my($baseURL)='http://qa.debian.org/madison.php?text=on&a=source';
-	my($url)=$baseURL . '&package=' . $package . '&s=' . $release;
-	return $url;
-}
-sub getMadison {
-	my($url)=shift || die("No URL Passed to getMadison: $!\n");
-	chomp $url;
-	my($madison)=get($url);
-	die("The source package $package isn't available in Debian testing.\nRun $name $package unstable if the package has not yet migrated from Debian unstable to Debian testing.\n") if ($release=~m/testing/ && $madison=~m/^\s*$/);
-	return $madison;
-}
-sub getDSC {
-	my($madison)=shift || die("No madison Passed to getDSC: $!\n");
-	if($madison=~m/^[WE]:/i) {
-		die("$madison");
-	}
-	my($baseURL)=shift || die ("No baseURL Passed to getDSC: $!\n");
-	my(@madison)=split(/\n/,$madison);
-	my %urls;
-	my $url;
-	foreach my $line (@madison) {
-		$url = $baseURL . '/pool/';
-		my($package,$version,$release,$archs)=split(/\|/,$line,4);
-		$package=~s/\s*//g;
-		$version=~s/\s*//g;
-		$release=~s/\s*//g;
-		$archs=~s/\s*//g;
-		$version=~s/^.*?\://;
-		if($archs=~m/source/) {
-			print "Package: $package\nVersion: $version\nRelease: $release\nArchitectures: $archs\n";
-			my($firstLetter);
-			if($package=~m/^lib/) {
-				$firstLetter="lib" . substr($package,3,1);
-			}
-			else {
-				$firstLetter=substr($package,0,1);
-			}
-			if($release=~m/contrib/) {
-				$url .= 'contrib/';
-			}
-			elsif($release=~m/non\-free/) {
-				$url .= 'non-free/';
-			}
-			else {
-				$url .= 'main/';
-			}
-			$url .= $firstLetter . '/' . $package . '/' . $package . '_' . $version . '.dsc';
-			$urls{$version} = $url;
-		}
+    if len(args) > 1:
+        suite = args[1].lower()
+    else:
+        suite = 'unstable'
 
-	}
+    line = list(rmadison('debian', package, suite, 'source'))
+    if not line:
+        Logger.error('Unable to find %s in %s.', package, suite)
+        sys.exit(1)
 
-	my @vers = reverse sort AptPkg::Version::CmpVersion keys %urls;
+    line = line[-1]
+    srcpkg = DebianSourcePackage(package, line['version'],
+                                 component=line['component'],
+                                 mirrors=[options.debian_mirror,
+                                          options.debsec_mirror])
+    srcpkg.pull()
+    if not options.download_only:
+        srcpkg.unpack()
 
-	return $urls{$vers[0]} or die("Unable To Find Source Package On Madison\n");
-
-}
-sub usage {
-	my($exit)=shift;
-	print <<"EOF";
-USAGE: $name [options] <source package> [target release]
-
-Options:
-  -h, --help            Show this help message and exit
-  -m DEBIAN_MIRROR, --mirror=DEBIAN_MIRROR
-                        Preferred Debian mirror
-                        (default: http://ftp.debian.org/debian)
-  --no-conf             Don't read config files or environment variables
-EOF
-	exit($exit);
-}
-sub invalidRelease {
-	my($releases)=shift || die("Invalid Release!");
-	my(%releases)=%$releases;
-	my($validReleases);
-	while ( my ($key, $value) = each(%releases) ) {
-		if($value) {
-			$validReleases .= $key . ", ";
-		}
-	}
-	$validReleases=~s/,\s*$//;
-	die("Invalid Release!\nValid Releases: $validReleases\n");
-}
+if __name__ == '__main__':
+    main()
