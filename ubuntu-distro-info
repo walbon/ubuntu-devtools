@@ -53,14 +53,12 @@ def main():
 
     if len(args) != 0:
         parser.error("This script does not take any additional parameters.")
-        return 1
 
     versions = [options.all, options.devel, options.lts, options.stable,
                 options.supported, options.unsupported]
     if len([x for x in versions if x]) != 1:
         parser.error("You have to select exactly one of --all, --devel, --lts, "
                      "--stable, --supported, --unsupported.")
-        return 1
 
     if options.date is None:
         date = None
@@ -70,7 +68,6 @@ def main():
         except ValueError:
             parser.error("Option --date needs to be an date in ISO 8601 "
                          "format.")
-            return 1
 
     if options.all:
         for distro in UbuntuDistroInfo().all:
@@ -87,7 +84,6 @@ def main():
     elif options.unsupported:
         for distro in UbuntuDistroInfo().unsupported(date):
             print distro
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
