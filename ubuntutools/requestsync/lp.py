@@ -30,7 +30,7 @@ def getDebianSrcPkg(name, release):
     debian = Distribution('debian')
     debian_archive = debian.getArchive()
 
-    release = DebianDistroInfo().codenames(release, None, release)
+    release = DebianDistroInfo().codename(release, None, release)
 
     return debian_archive.getSourcePackage(name, release)
 
