@@ -206,7 +206,10 @@ class SourcePackage(object):
 
             source_is_workdir = (os.path.realpath(os.path.dirname(parsed.path))
                                  == os.path.realpath(self.workdir))
-            if not (parsed.scheme == 'file' and source_is_workdir):
+            if parsed.scheme == 'file' and source_is_workdir:
+                # Temporarily rename to the filename we are going to open
+                os.rename(parsed.path, self.dsc_pathname)
+            else:
                 if not self._download_file(self._dsc_source, self.dsc_name):
                     raise DownloadError('dsc not found')
         else:

@@ -136,6 +136,29 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         pkg.pull()
         pkg.unpack()
 
+    def test_workdir_srcpkg_noinfo(self):
+        shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
+        shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
+        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+        self.mox.ReplayAll()
+        pkg = self.SourcePackage(dscfile=os.path.join(self.workdir,
+                                                      'example_1.0-1.dsc'),
+                                 workdir=self.workdir)
+        pkg.pull()
+        pkg.unpack()
+
+    def test_workdir_srcpkg_info(self):
+        shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
+        shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
+        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+        self.mox.ReplayAll()
+        pkg = self.SourcePackage('example', '1.0-1', 'main',
+                                 dscfile=os.path.join(self.workdir,
+                                                      'example_1.0-1.dsc'),
+                                 workdir=self.workdir)
+        pkg.pull()
+        pkg.unpack()
+
     def test_verification(self):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)

@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.114) UNRELEASED; urgency=low
+
+  * ubuntutools.archive: Handle source package in workdir correctly.
+    Add regression tests. (LP: #706403)
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 23:18:13 +0200
+
 ubuntu-dev-tools (0.113) unstable; urgency=low
 
   [ Benjamin Drung ]
