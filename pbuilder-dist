@@ -216,6 +216,7 @@ class PbuilderDist:
             arguments += ['--basepath', prefix + '-base.cow']
         else:
             Logger.error('Unrecognized builder "%s".', self.builder)
+            sys.exit(1)
 
         if self.logfile:
             arguments += ['--logfile', self.logfile]
