@@ -10,8 +10,10 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
   * bash_completion/pbuilder-dist: Use *-distro-info to determine pbuilder
     file names.
   * pbuilder-dist: Use ubuntutools.logger.
+  * pbuilder-dist-simple: Remove all mention of supporting Debian.
+    (LP: #481223)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 17:55:56 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 18:22:55 +0200
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 

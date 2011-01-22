@@ -20,11 +20,11 @@
 # ##################################################################
 #
 # This script is a wrapper to be able to easily use pbuilder for
-# different distributions (eg, Gutsy, Hardy, Debian unstable, etc).
+# different Ubuntu distributions (eg, Lucid, Natty, etc).
 #
-# Create symlinks to this script naming them 'pbuilder-feisty', 'pbuilder-
-# gutsy', 'pbuilder-hardy', etc. If you want additional features try
-# out the more advanced script 'pbuilder-dist'.
+# Create symlinks to this script naming them 'pbuilder-lucid',
+# 'pbuilder-natty', etc. If you want additional features try out the more
+# advanced script 'pbuilder-dist'.
 
 OPERATION=$1
 DISTRIBUTION=`basename $0 | cut -f2 -d '-'`

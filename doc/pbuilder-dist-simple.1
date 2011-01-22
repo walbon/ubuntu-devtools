@@ -1,35 +1,36 @@
-.TH PBUILDER\-DIST 1 "February 25, 2008" "ubuntu-dev-tools"
+.TH PBUILDER\-DIST\-SIMPLE 1 "February 25, 2008" "ubuntu\-dev\-tools"
 
 .SH NAME
-pbuilder\-dist\-simple \- simple multi-distribution pbuilder wrapper
+pbuilder\-dist\-simple \- simple multi\-release pbuilder wrapper
 
 .SH SYNOPSIS
 \fBpbuilder\-\fI<dist>\fR\fP \fIoperation\fR [\fI...\fR]
 
 .SH DESCRIPTION
-\fBpbuilder\-dist\fP is a wrapper that makes it easy to use pbuilder with
-chroots for many different Ubuntu/Debian distributions.
+\fBpbuilder\-dist\-simple\fP is a wrapper that makes it easy to use
+pbuilder with chroots for many different Ubuntu distributions.
 If you need more features than \fBpbuilder\-dist\-simple\fP provides, have a
-look at \fBpbuilder\-dist\fP.
+look at
+.BR pbuilder\-dist (1).
 
 .SH USAGE
 Create one symlink to \fBpbuilder\-dist\-simple\fP for each distribution
-for which you want a build environment, naming them like "pbuilder\-hardy",
-"pbuilder\-gutsy", etc.
+for which you want a build environment, naming them like "pbuilder\-lucid",
+"pbuilder\-natty", etc.
 .PP
 Replace \fIoperation\fP with the action you want \fBpbuilder\-dist\-simple\fP
 to do (create, update, build, clean, login or execute).
 
 .SH EXAMPLES
 .TP
-pbuilder\-gutsy create
-Creates a \fBpbuilder\fP environment for Ubuntu Gutsy.
+pbuilder\-natty create
+Creates a \fBpbuilder\fP environment for Ubuntu Natty.
 .TP
-pbuilder\-sid update
-Updates an existing Debian Sid environment.
+pbuilder\-lucid update
+Updates an existing Ubuntu Lucid environment.
 .TP
-pbuilder\-hardy build ./sample_1.0\-0ubuntu1.dsc
-Builds the specified package on an already existing Ubuntu Hardy environment.
+pbuilder\-lucid build ./sample_1.0\-0ubuntu1.dsc
+Builds the specified package on an already existing Ubuntu Lucid environment.
 
 .SH FILES
 By default, \fBpbuilder\-dist\-simple\fP will store all the files it
@@ -39,12 +40,14 @@ to any other directory you want.
 If the directory doesn't exit, it will be created at runtime.
 
 .SH SEE ALSO
-\fBpbuilder\fR, \fBpbuilderrc\fR
+.BR pbuilder (1),
+.BR pbuilderrc (5),
+.BR pbuilder\-dist (1)
 
 .SH AUTHORS
 \fBpbuilder\-dist\fP was originally written by Jamin W. Collins
 <jcollins@asgardsrealm.net> and Jordan Mantha <mantha@ubuntu.com>, and
-this manpage by Siegfried-A. Gevatter <rainct@ubuntu.com>.
+this manpage by Siegfried\-A. Gevatter <rainct@ubuntu.com>.
 .PP
 Both are released under the GNU General Public License, version 2 or
 later.
