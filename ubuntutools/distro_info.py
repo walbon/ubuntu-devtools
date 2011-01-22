@@ -43,6 +43,7 @@ def _get_data_dir():
         data_dir = os.path.join(os.path.dirname(sys.argv[0]), "data")
     return data_dir
 
+
 class DistroDataOutdated(Exception):
     """Distribution data outdated."""
 
