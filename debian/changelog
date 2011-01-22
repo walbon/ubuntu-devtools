@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.113) unstable; urgency=low
 
   [ Benjamin Drung ]
   * debian-distro-info, distro-info, ubuntu-distro-info: New tools.
@@ -17,7 +17,7 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
   * pull-debian-source: Rewritten in Python to take advantage of the new
     ubuntutools library functions.
 
- -- Stefano Rivera <stefano@rivera.za.net>  Sat, 22 Jan 2011 22:00:57 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 22 Jan 2011 21:06:57 +0100
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 
