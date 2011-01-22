@@ -21,7 +21,7 @@ import sys
 
 def convert_date(string):
     """Convert a date string in ISO 8601 into a datetime object."""
-    if string is None or string == "":
+    if not string:
         date = None
     else:
         try:
