@@ -16,8 +16,8 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import optparse
 import sys
-from optparse import OptionParser
 
 from ubuntutools.archive import DebianSourcePackage, rmadison
 from ubuntutools.config import UDTConfig
@@ -25,7 +25,7 @@ from ubuntutools.logger import Logger
 
 def main():
     usage = 'Usage: %prog <package> [release]'
-    parser = OptionParser(usage)
+    parser = optparse.OptionParser(usage)
     parser.add_option('-d', '--download-only',
                       dest='download_only', default=False, action='store_true',
                       help='Do not extract the source package')
