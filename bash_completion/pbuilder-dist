@@ -30,6 +30,17 @@ _pbuilder-dist()
 
     return 0
 }
-[ "$have" ] && complete -F _pbuilder-dist -o filenames \
-{pbuilder,cowbuilder}-{dist,dapper,hardy,jaunty,karmic,lucid,maverick,natty,sarge,etch,lenny,squeeze,sid,experimental}
-# Make it pbuilder-* if you know how to do it
+[ "$have" ] && _pbuilder-aliases()
+{
+    local distro builder arch
+    for distro in $(ubuntu-distro-info --all; debian-distro-info --all) stable testing unstable experimental; do
+        for builder in pbuilder cowbuilder; do
+            echo "$builder-$distro"
+            for arch in i386 amd64 armel; do
+                echo "$builder-$distro-$arch"
+            done
+        done
+    done
+    return 0
+}
+[ "$have" ] && complete -F _pbuilder-dist -o filenames pbuilder-dist cowbuilder-dist $(_pbuilder-aliases)

@@ -7,8 +7,10 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * backportpackage: dput correct changes filename (regression in 0.112)
     (LP: #706010)
+  * bash_completion/pbuilder-dist: Use *-distro-info to determine pbuilder
+    file names.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 22 Jan 2011 02:09:02 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 15:17:15 +0200
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 
