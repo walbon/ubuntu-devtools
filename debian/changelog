@@ -10,13 +10,14 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
   * Use new *-distro-info in:
     - bash_completion/pbuilder-dist: To determine pbuilder file names.
     - dch-repeat.
+    - reverse-build-depends.
   * pbuilder-dist: Use ubuntutools.logger.
   * pbuilder-dist-simple: Remove all mention of supporting Debian.
     (LP: #481223)
   * pull-debian-source: Rewritten in Python to take advantage of the new
     ubuntutools library functions.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 21:56:24 +0200
+ -- Stefano Rivera <stefano@rivera.za.net>  Sat, 22 Jan 2011 22:00:57 +0200
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 
