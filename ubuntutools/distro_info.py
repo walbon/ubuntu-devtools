@@ -24,15 +24,18 @@ def convert_date(string):
     if not string:
         date = None
     else:
-        try:
-            (year, month, day) = [int(x) for x in string.split("-")]
+        parts = [int(x) for x in string.split("-")]
+        if len(parts) == 3:
+            (year, month, day) = parts
             date = datetime.date(year, month, day)
-        except ValueError:
-            (year, month) = [int(x) for x in string.split("-")]
+        elif len(parts) == 2:
+            (year, month) = parts
             if month == 12:
                 date = datetime.date(year, month, 31)
             else:
                 date = datetime.date(year, month + 1, 1) - datetime.timedelta(1)
+        else:
+            raise ValueError("Date not in ISO 8601 format.")
     return date
 
 def _get_data_dir():
