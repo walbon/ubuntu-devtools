@@ -96,7 +96,7 @@ class PbuilderDist:
                         'This is probably not what you want. '
                         'pbuilder-dist will use sudo itself, when necessary.')
         if os.stat(os.environ['HOME']).st_uid != os.getuid():
-            Logger.error("Error: You don't own $HOME")
+            Logger.error("You don't own $HOME")
             sys.exit(1)
 
         if not os.path.isdir(self.base):
