@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
 # pull-debian-source -- pull a source package from Launchpad
+# Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
 # Inspired by a tool of the same name by Nathan Handler.
 #
 # Permission to use, copy, modify, and/or distribute this software for any
