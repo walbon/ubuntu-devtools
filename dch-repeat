@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 2007-2008 Canonical, Ltd.
+# Copyright (C) 2007-2008 Canonical, Ltd.,
+#               2011,     Stefano Rivera <stefanor@ubuntu.com>
 # Author: Kees Cook <kees@ubuntu.com>
 #
 # ##################################################################
@@ -47,11 +48,11 @@ EOM
     exit(0);
 }
 
-my @releases = ('dapper', 'hardy', 'jaunty', 'karmic', 'lucid', 'maverick', 'natty');
+my @releases = undef;
+our $devel_release = undef;
 
 #Getopt::Long::Configure("bundling", "no_ignore_case");
 our $opt_build_tree = "/scratch/ubuntu/build";
-our $opt_devel_release = $releases[$#releases];
 our $opt_pocket = undef;
 our $opt_package = undef;
 our $opt_source_release = undef;
@@ -69,6 +70,10 @@ Usage() unless (GetOptions(
     "verbose|v",
 ));
 Usage() if ($opt_help);
+
+@releases = split(/\s+/, `ubuntu-distro-info --supported`);
+$devel_release = `ubuntu-distro-info --devel`;
+chomp($devel_release);
 
 sub get_changelog($)
 {
@@ -135,8 +140,8 @@ warn "package: '$opt_package\n" if ($opt_verbose);
 
 # By default, take changelog from newer release
 if (!defined($opt_source_release)) {
-    if ($opt_target_release eq $opt_devel_release) {
-        die "No more recent release than '$opt_devel_release' to take changelog from\n";
+    if ($opt_target_release eq $devel_release) {
+        die "No more recent release than '$devel_release' to take changelog from\n";
     }
     foreach my $i (0 .. $#releases) {
         if ($releases[$i] eq $opt_target_release) {
@@ -148,11 +153,11 @@ if (!defined($opt_source_release)) {
     }
 }
 warn "source-release: '$opt_source_release\n" if ($opt_verbose);
-warn "devel-release: '$opt_devel_release\n" if ($opt_verbose);
+warn "devel-release: '$devel_release\n" if ($opt_verbose);
 
 # By default, use "security" pocket for non-devel releases
 if (!defined($opt_pocket)) {
-    if ($opt_target_release eq $opt_devel_release) {
+    if ($opt_target_release eq $devel_release) {
         $opt_pocket = "";
     }
     else {

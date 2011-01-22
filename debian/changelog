@@ -7,15 +7,16 @@ ubuntu-dev-tools (0.113) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * backportpackage: dput correct changes filename (regression in 0.112)
     (LP: #706010)
-  * bash_completion/pbuilder-dist: Use *-distro-info to determine pbuilder
-    file names.
+  * Use new *-distro-info in:
+    - bash_completion/pbuilder-dist: To determine pbuilder file names.
+    - dch-repeat.
   * pbuilder-dist: Use ubuntutools.logger.
   * pbuilder-dist-simple: Remove all mention of supporting Debian.
     (LP: #481223)
   * pull-debian-source: Rewritten in Python to take advantage of the new
     ubuntutools library functions.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 20:55:57 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 21:56:24 +0200
 
 ubuntu-dev-tools (0.112) unstable; urgency=low
 
