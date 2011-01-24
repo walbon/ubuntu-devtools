@@ -75,7 +75,6 @@ Description: useful tools for Ubuntu developers
   - debian-distro-info - provides information about Debian's distributions.
   - dgetlp - download a source package from the Launchpad library.
   - distro-info - provides information about the distributions' releases.
-  - errno - search POSIX error codes by error number, name, or description
   - get-branches - used to branch/checkout all the bzr branches in a Launchpad
     team.
   - get-build-deps - install the build dependencies needed for a package

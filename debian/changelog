@@ -1,9 +1,15 @@
 ubuntu-dev-tools (0.114) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * ubuntutools.archive: Handle source package in workdir correctly.
     Add regression tests. (LP: #706403)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 22 Jan 2011 23:18:13 +0200
+  [ Dustin Kirkland ]
+  * debian/control, debian/copyright, doc/errno.1, errno, setup.py:
+    - purge the errno utility per request of the ubuntu-dev-tools
+      maintainer;  errno now provided by the 'errno' package; (LP: #666540)
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 24 Jan 2011 00:40:03 -0600
 
 ubuntu-dev-tools (0.113) unstable; urgency=low
 
