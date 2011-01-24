@@ -188,15 +188,12 @@ def main():
     (options, args) = parser.parse_args()
 
     if len(args) != 0:
-        print >> sys.stderr, ("%s: Error: Unsupported additional parameters "
-                              "specified: %s") % (script_name, ", ".join(args))
-        sys.exit(1)
+        parser.error("Unsupported additional parameters specified: %s" % \
+                     ", ".join(args))
 
     if not os.path.isdir(options.debian_directory):
-        print >> sys.stderr, ('%s: Error: Debian directory not found, '
-                              'expecting "%s"') % (script_name,
-                                                   options.debian_directory)
-        sys.exit(1)
+        parser.error('Debian directory not found, expecting "%s".' % \
+                     options.debian_directory)
 
     wrap_and_sort(options)
 
