@@ -12,8 +12,9 @@ ubuntu-dev-tools (0.114) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * wrap-and-sort: Add option to use on individual file (LP: #699696).
+  * update_maintainer.py: Process control.in first.
 
- -- Benjamin Drung <bdrung@debian.org>  Tue, 25 Jan 2011 21:52:55 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 25 Jan 2011 22:08:49 +0100
 
 ubuntu-dev-tools (0.113) unstable; urgency=low
 

@@ -47,7 +47,7 @@ def update_maintainer(debian_directory, verbose=False):
     Policy: https://wiki.ubuntu.com/DebianMaintainerField
     """
     possible_contol_files = [os.path.join(debian_directory, f) for
-                             f in ["control", "control.in"]]
+                             f in ["control.in", "control"]]
 
     changelog_file = os.path.join(debian_directory, "changelog")
     control_files = [f for f in possible_contol_files if os.path.isfile(f)]
