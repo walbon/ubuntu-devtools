@@ -10,7 +10,10 @@ ubuntu-dev-tools (0.114) UNRELEASED; urgency=low
     - purge the errno utility per request of the ubuntu-dev-tools
       maintainer;  errno now provided by the 'errno' package; (LP: #666540)
 
- -- Dustin Kirkland <kirkland@ubuntu.com>  Mon, 24 Jan 2011 00:40:03 -0600
+  [ Benjamin Drung ]
+  * wrap-and-sort: Add option to use on individual file (LP: #699696).
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 25 Jan 2011 21:52:55 +0100
 
 ubuntu-dev-tools (0.113) unstable; urgency=low
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>,
+# Copyright (C) 2010-2011, Benjamin Drung <bdrung@ubuntu.com>
 #               2010, Stefano Rivera <stefanor@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
@@ -19,6 +19,7 @@ import glob
 import optparse
 import os
 import os.path
+import re
 import sys
 
 from ubuntutools.control import Control
@@ -35,6 +36,15 @@ CONTROL_LIST_FIELDS = (
     "Replaces",
     "Suggests",
     "Xb-Npp-MimeType",
+)
+
+SUPPORTED_FILES = (
+    "control",
+    "control.in",
+    "copyright",
+    "copyright.in",
+    "install",
+    "*.install",
 )
 
 class WrapAndSortControl(Control):
@@ -123,10 +133,7 @@ def sort_list(unsorted_list):
     return sorted(normal) + sorted(param)
 
 def wrap_and_sort(options):
-    debdir = lambda x: os.path.join(options.debian_directory, x)
-
-    possible_control_files = [debdir("control"), debdir("control.in")]
-    control_files = [f for f in possible_control_files if os.path.isfile(f)]
+    control_files = [f for f in options.files if re.search("/control[^/]*$", f)]
     for control_file in control_files:
         if options.verbose:
             print control_file
@@ -137,22 +144,27 @@ def wrap_and_sort(options):
                               options.sort_binary_packages, options.keep_first)
         control.save()
 
-    possible_copyright_files = [debdir("copyright"), debdir("copyright.in")]
-    copyright_files = [f for f in possible_copyright_files if os.path.isfile(f)]
+    copyright_files = [f for f in options.files
+                       if re.search("/copyright[^/]*$", f)]
     for copyright_file in copyright_files:
         if options.verbose:
             print copyright_file
         remove_trailing_whitespaces(copyright_file)
 
-    install_files = sorted(glob.glob(debdir("*.install")))
-    if os.path.isfile(debdir("install")):
-        install_files.insert(0, debdir("install"))
-    for install_file in install_files:
+    install_files = [f for f in options.files if re.search("install$", f)]
+    for install_file in sorted(install_files):
         if options.verbose:
             print install_file
         install = Install(install_file)
         install.sort()
         install.save()
+
+def get_files(debian_directory):
+    """Returns a list of files that should be wrapped and sorted."""
+    files = []
+    for supported_files in SUPPORTED_FILES:
+        files.extend(glob.glob(os.path.join(debian_directory, supported_files)))
+    return files
 
 def main():
     script_name = os.path.basename(sys.argv[0])
@@ -182,7 +194,11 @@ def main():
     parser.add_option("-d", "--debian-directory", dest="debian_directory",
                       help="location of the 'debian' directory (default: "
                            "./debian)", metavar="PATH", default="debian")
-    parser.add_option("-v", "--verbose", help="print more information",
+    parser.add_option("-f", "--file", metavar="FILE",
+                      dest="files", action="append", default=list(),
+                      help="Wrap and sort only the specified file.")
+    parser.add_option("-v", "--verbose",
+                      help="print all files that are touched",
                       dest="verbose", action="store_true", default=False)
 
     (options, args) = parser.parse_args()
@@ -194,6 +210,13 @@ def main():
     if not os.path.isdir(options.debian_directory):
         parser.error('Debian directory not found, expecting "%s".' % \
                      options.debian_directory)
+
+    not_found = [f for f in options.files if not os.path.isfile(f)]
+    if not_found:
+        parser.error('Specified files not found: %s' % ", ".join(not_found))
+
+    if not options.files:
+        options.files = get_files(options.debian_directory)
 
     wrap_and_sort(options)
 
