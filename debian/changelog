@@ -3,6 +3,7 @@ ubuntu-dev-tools (0.114) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * ubuntutools.archive: Handle source package in workdir correctly.
     Add regression tests. (LP: #706403)
+  * syncpackage: Don't fakesync when we have a new orig tarball (LP: #707187)
 
   [ Dustin Kirkland ]
   * debian/control, debian/copyright, doc/errno.1, errno, setup.py:

@@ -141,7 +141,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     src_pkg.pull()
     src_pkg.unpack()
 
-    fakesync = not ubu_pkg.verify_orig()
+    fakesync = not (need_orig or ubu_pkg.verify_orig())
 
     if fakesync:
         Logger.warn('The checksums of the Debian and Ubuntu packages mismatch. '
