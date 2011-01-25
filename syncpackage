@@ -327,7 +327,7 @@ def main():
                            % UDTConfig.defaults['DEBIAN_MIRROR'])
     parser.add_option('-U', '--ubuntu-mirror', metavar='UBUNTU_MIRROR',
                       dest='ubuntu_mirror',
-                      help='Prefeed Ubuntu mirror '
+                      help='Preferred Ubuntu mirror '
                            '(default: %s)'
                            % UDTConfig.defaults['UBUNTU_MIRROR'])
     parser.add_option('--no-conf',
