@@ -21,10 +21,10 @@ If pointed a patch not already present, it will copy the patch to
 /debian/patches in the correct format for the patch system in use.
 Next, the patch is applied and a subshell is opened in order to edit the patch.
 Typing "exit" or hitting Ctrl-d will close the subshell and launch an an editor
-to record the debian/changelong entry.
+to record the debian/changelog entry.
 
 \fBedit-patch\fR is integrated with the bzr and git version control systems.
-The patch will be automatically added to the tree, and the debian/changelong
+The patch will be automatically added to the tree, and the debian/changelog
 entry will be used as the commit message.
 
 If no patch system is present, the patch is applied inline,
