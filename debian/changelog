@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.115) UNRELEASED; urgency=low
+
+  * harvest, setup.py: install tool that queries Harvest for information
+    about open opportunities for a given source package.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Wed, 26 Jan 2011 09:21:43 +0100
+
 ubuntu-dev-tools (0.114) unstable; urgency=low
 
   [ Stefano Rivera ]
