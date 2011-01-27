@@ -17,7 +17,6 @@
 import csv
 import datetime
 import os
-import sys
 
 def convert_date(string):
     """Convert a date string in ISO 8601 into a datetime object."""
@@ -39,11 +38,11 @@ def convert_date(string):
     return date
 
 def _get_data_dir():
-    """Get the data directory based on the script location."""
-    if os.path.dirname(sys.argv[0]) == "/usr/bin":
+    """Get the data directory based on the module location."""
+    if __file__.startswith("/usr/lib"):
         data_dir = "/usr/share/ubuntu-dev-tools"
     else:
-        data_dir = os.path.join(os.path.dirname(sys.argv[0]), "data")
+        data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
     return data_dir
 
 
