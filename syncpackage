@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008-2010 Martin Pitt <martin.pitt@canonical.com>,
-#               2010 Benjamin Drung <bdrung@ubuntu.com>,
-#               2010 Stefano Rivera <stefanor@ubuntu.com>
+#               2010      Benjamin Drung <bdrung@ubuntu.com>,
+#               2010-2011 Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -28,10 +28,11 @@ import shutil
 import subprocess
 import sys
 
-from ubuntutools.archive import DebianSourcePackage, UbuntuSourcePackage
+from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
+                                 DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
-from ubuntutools.requestsync.mail import getDebianSrcPkg \
-                                  as requestsync_mail_getDebianSrcPkg
+from ubuntutools.requestsync.mail import (getDebianSrcPkg
+                                          as requestsync_mail_getDebianSrcPkg)
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.logger import Logger
 from ubuntutools.lp import udtexceptions
@@ -138,7 +139,11 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
                     'setting current version to %s',
                     ubuntu_ver.full_version, cur_ver.full_version)
 
-    src_pkg.pull()
+    try:
+        src_pkg.pull()
+    except DownloadError, e:
+        Logger.error('Failed to download: %s', str(e))
+        sys.exit(1)
     src_pkg.unpack()
 
     fakesync = not (need_orig or ubu_pkg.verify_orig())
@@ -147,7 +152,11 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         Logger.warn('The checksums of the Debian and Ubuntu packages mismatch. '
                     'A fake sync is required.')
         # Download Ubuntu files (override Debian source tarballs)
-        ubu_pkg.pull()
+        try:
+            ubu_pkg.pull()
+        except DownloadError, e:
+            Logger.error('Failed to download: %s', str(e))
+            sys.exit(1)
 
     # change into package directory
     directory = src_pkg.source + '-' + new_ver.upstream_version

@@ -19,7 +19,7 @@
 import optparse
 import sys
 
-from ubuntutools.archive import DebianSourcePackage, rmadison
+from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
@@ -70,7 +70,11 @@ def main():
                                  component=line['component'],
                                  mirrors=[options.debian_mirror,
                                           options.debsec_mirror])
-    srcpkg.pull()
+    try:
+        srcpkg.pull()
+    except DownloadError, e:
+        Logger.error('Failed to download: %s', str(e))
+        sys.exit(1)
     if not options.download_only:
         srcpkg.unpack()
 

@@ -3,8 +3,8 @@
 # pull-lp-source -- pull a source package from Launchpad
 # Basic usage: pull-lp-source <source package> [<release>]
 #
-# Copyright (C) 2008, Iain Lane <iain@orangesquash.org.uk>,
-#               2010, Stefano Rivera <stefanor@ubuntu.com>
+# Copyright (C) 2008,      Iain Lane <iain@orangesquash.org.uk>,
+#               2010-2011, Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -27,7 +27,7 @@ import os
 import sys
 from optparse import OptionParser
 
-from ubuntutools.archive import UbuntuSourcePackage
+from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
@@ -86,7 +86,11 @@ def main():
     srcpkg = UbuntuSourcePackage(package, spph.getVersion(),
                                  component=spph.getComponent(),
                                  mirrors=[options.ubuntu_mirror])
-    srcpkg.pull()
+    try:
+        srcpkg.pull()
+    except DownloadError, e:
+        Logger.error('Failed to download: %s', str(e))
+        sys.exit(1)
     if not options.download_only:
         srcpkg.unpack()
 
