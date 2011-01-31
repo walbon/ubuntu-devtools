@@ -95,9 +95,24 @@ def main():
                                          boolean=True)
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
+
+    
     mailserver_host = config.get_value('SMTP_SERVER',
-                                       default='fiordland.ubuntu.com',
-                                       compat_keys=['UBUSMTP', 'DEBSMTP'])
+                             default='',
+                             compat_keys=['UBUSMTP', 'DEBSMTP'])
+    if not mailserver_host:
+        try:
+            import DNS
+            DNS.DiscoverNameServers()
+            mxlist = DNS.mxlookup('launchpad.net')
+            firstmx = mxlist[0]
+            mx1host = firstmx[1]
+            mailserver_host = config.get_value('SMTP_SERVER',
+                                               default=mx1host,
+                                               compat_keys=['UBUSMTP', 'DEBSMTP'])
+        except ImportError, x:
+            print "Please install python-dns to support Launchapd mail server lookup."
+
     mailserver_port = config.get_value('SMTP_PORT', default=25,
                                        compat_keys=['UBUSMTP_PORT',
                                                     'DEBSMTP_PORT'])

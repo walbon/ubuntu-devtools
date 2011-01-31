@@ -55,7 +55,8 @@ Recommends: bzr,
             python-gnupginterface,
             python-magic,
             python-soappy,
-            reportbug (>= 3.39ubuntu1)
+            reportbug (>= 3.39ubuntu1),
+            python-dns
 Suggests: debian-keyring,
           python-simplejson | python (>= 2.7),
           qemu-kvm-extras-static
