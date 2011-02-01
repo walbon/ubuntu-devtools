@@ -107,8 +107,8 @@ def main():
             sys.exit(1)
 
     mailserver_host = config.get_value('SMTP_SERVER',
-                             default=None,
-                             compat_keys=['UBUSMTP', 'DEBSMTP'])
+                                       default=None,
+                                       compat_keys=['UBUSMTP', 'DEBSMTP'])
     if not options.lpapi and not mailserver_host:
         try:
             import DNS
