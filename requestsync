@@ -96,22 +96,30 @@ def main():
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
 
-    
+    if not options.lpapi:
+        if options.lpinstance == 'production':
+            bug_mail_domain = 'bugs.launchpad.net'
+        elif options.lpinstance == 'staging':
+            bug_mail_domain = 'bugs.staging.launchpad.net'
+        else:
+            print >> sys.stderr, ('Error: Unknown launchpad instance: %s'
+                                  % options.lpinstance)
+            sys.exit(1)
+
     mailserver_host = config.get_value('SMTP_SERVER',
-                             default='',
+                             default=None,
                              compat_keys=['UBUSMTP', 'DEBSMTP'])
-    if not mailserver_host:
+    if not options.lpapi and not mailserver_host:
         try:
             import DNS
             DNS.DiscoverNameServers()
-            mxlist = DNS.mxlookup('launchpad.net')
+            mxlist = DNS.mxlookup(bug_mail_domain)
             firstmx = mxlist[0]
-            mx1host = firstmx[1]
-            mailserver_host = config.get_value('SMTP_SERVER',
-                                               default=mx1host,
-                                               compat_keys=['UBUSMTP', 'DEBSMTP'])
+            mailserver_host = firstmx[1]
         except ImportError, x:
-            print "Please install python-dns to support Launchapd mail server lookup."
+            print >> sys.stderr, ('Please install python-dns to support '
+                                  'Launchpad mail server lookup.')
+            sys.exit(1)
 
     mailserver_port = config.get_value('SMTP_PORT', default=25,
                                        compat_keys=['UBUSMTP_PORT',
@@ -309,7 +317,7 @@ def main():
     else:
         email_from = ubu_email(export=False)[1]
         # Mail sync request
-        mailBug(srcpkg, subscribe, status, title, report, options.lpinstance,
+        mailBug(srcpkg, subscribe, status, title, report, bug_mail_domain,
                 options.keyid, email_from, mailserver_host, mailserver_port,
                 mailserver_user, mailserver_pass)
 

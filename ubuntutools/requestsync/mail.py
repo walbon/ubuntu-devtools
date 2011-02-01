@@ -81,20 +81,14 @@ def checkExistingReports(srcpkg):
            'for duplicate sync requests before continuing.' % srcpkg)
     raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
-def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, lpinstance, keyid,
-            myemailaddr, mailserver_host, mailserver_port, mailserver_user,
-            mailserver_pass):
+def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
+            keyid, myemailaddr, mailserver_host, mailserver_port,
+            mailserver_user, mailserver_pass):
     '''
     Submit the sync request per email.
     '''
 
-    if lpinstance == 'production':
-        to = 'new@bugs.launchpad.net'
-    elif lpinstance == 'staging':
-        to = 'new@bugs.staging.launchpad.net'
-    else:
-        print >> sys.stderr, 'Error: Unknown launchpad instance:', lpinstance
-        sys.exit(1)
+    to = 'new@' + bug_mail_domain
 
     # generate mailbody
     if srcpkg:
