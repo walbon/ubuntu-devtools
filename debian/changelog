@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
+
+  * suspicious-source: Add .icns and .java to extension whitelist.
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 01 Feb 2011 15:13:02 +0100
+
 ubuntu-dev-tools (0.115) unstable; urgency=low
 
   [ Stefano Rivera ]
