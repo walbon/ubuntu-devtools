@@ -5,7 +5,7 @@ ubuntu-dev-tools (0.115) UNRELEASED; urgency=low
 
   [ Scott Kitterman ]
   * Update requestsync to send to Launchpad's MX record instead of hard
-    coding to the old MX (fiordland)
+    coding to the old MX (fiordland) (LP: #710925)
   * Recommend python-dns
 
  -- Scott Kitterman <scott@kitterman.com>  Mon, 31 Jan 2011 17:23:20 -0500
