@@ -1,8 +1,10 @@
 ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
 
-  * suspicious-source: Add .icns and .java to extension whitelist.
+  * suspicious-source:
+    - Add .icns and .java to extension whitelist.
+    - Add image/vnd.adobe.photoshop to the mime-type whitelist.
 
- -- Benjamin Drung <bdrung@debian.org>  Tue, 01 Feb 2011 15:13:02 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 01 Feb 2011 15:33:51 +0100
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 

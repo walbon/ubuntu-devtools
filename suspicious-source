@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (c) 2010, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (c) 2010-2011, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -37,6 +37,7 @@ DEFAULT_WHITELISTED_MIMETYPES = [
     "image/jpeg",
     "image/png",
     "image/svg+xml",
+    "image/vnd.adobe.photoshop",
     "image/x-icns",
     "image/x-ico",
     "image/x-ms-bmp",
