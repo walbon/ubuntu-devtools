@@ -1,10 +1,16 @@
 ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * suspicious-source:
     - Add .icns and .java to extension whitelist.
     - Add image/vnd.adobe.photoshop to the mime-type whitelist.
 
- -- Benjamin Drung <bdrung@debian.org>  Tue, 01 Feb 2011 15:33:51 +0100
+  [ Stefano Rivera ]
+  * debian/copyright:
+    - Files is space-separated, not comma.
+    - Bump Format revision.
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 02 Feb 2011 23:28:32 +0200
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 
