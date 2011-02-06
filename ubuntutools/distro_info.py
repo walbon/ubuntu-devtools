@@ -64,7 +64,7 @@ class DistroInfo(object):
         csv_reader = csv.DictReader(csvfile)
         self._rows = []
         for row in csv_reader:
-            for column in ("release", "eol", "eol-server"):
+            for column in ("created", "release", "eol", "eol-server"):
                 if column in row:
                     row[column] = convert_date(row[column])
             self._rows.append(row)
@@ -75,11 +75,15 @@ class DistroInfo(object):
         """List all known distributions."""
         return [x["series"] for x in self._rows]
 
+    def _avail(self, date):
+        """Return all distributions that were available on the given date."""
+        return [x for x in self._rows if date >= x["created"]]
+
     def devel(self, date=None):
         """Get latest development distribution based on the given date."""
         if date is None:
             date = self._date
-        distros = [x for x in self._rows
+        distros = [x for x in self._avail(date)
                    if x["release"] is None or
                       (date < x["release"] and
                        (x["eol"] is None or date <= x["eol"]))]
@@ -91,7 +95,7 @@ class DistroInfo(object):
         """Get latest stable distribution based on the given date."""
         if date is None:
             date = self._date
-        distros = [x for x in self._rows
+        distros = [x for x in self._avail(date)
                    if x["release"] is not None and date >= x["release"] and
                       (x["eol"] is None or date <= x["eol"])]
         if not distros:
@@ -105,7 +109,7 @@ class DistroInfo(object):
     def unsupported(self, date=None):
         """Get list of all unsupported distributions based on the given date."""
         supported = self.supported(date)
-        distros = [x["series"] for x in self._rows
+        distros = [x["series"] for x in self._avail(date)
                    if x["series"] not in supported]
         return distros
 
@@ -134,7 +138,7 @@ class DebianDistroInfo(DistroInfo):
         """Get old (stable) Debian distribution based on the given date."""
         if date is None:
             date = self._date
-        distros = [x for x in self._rows
+        distros = [x for x in self._avail(date)
                    if x["release"] is not None and date >= x["release"]]
         if len(distros) < 2:
             raise DistroDataOutdated()
@@ -145,7 +149,7 @@ class DebianDistroInfo(DistroInfo):
            date."""
         if date is None:
             date = self._date
-        distros = [x["series"] for x in self._rows
+        distros = [x["series"] for x in self._avail(date)
                    if x["eol"] is None or date <= x["eol"]]
         return distros
 
@@ -153,7 +157,7 @@ class DebianDistroInfo(DistroInfo):
         """Get latest testing Debian distribution based on the given date."""
         if date is None:
             date = self._date
-        distros = [x for x in self._rows
+        distros = [x for x in self._avail(date)
                    if x["release"] is None or
                       (date < x["release"] and
                        (x["eol"] is None or date <= x["eol"]))]
@@ -185,7 +189,7 @@ class UbuntuDistroInfo(DistroInfo):
            date."""
         if date is None:
             date = self._date
-        distros = [x["series"] for x in self._rows
+        distros = [x["series"] for x in self._avail(date)
                    if date <= x["eol"] or
                       (x["eol-server"] is not None and date <= x["eol-server"])]
         return distros
