@@ -7,7 +7,8 @@ version,codename,series,release,eol
 2.2,Potato,potato,2000-08-15,2003-07-30
 3.0,Woody,woody,2002-07-19,2006-06-30
 3.1,Sarge,sarge,2005-06-06,2008-03-30
-4.0,Etch,etch,2007-04-08,2010-02-14
-5.0,Lenny,lenny,2009-02-14
-6.0,Squeeze,squeeze
+4.0,Etch,etch,2007-04-08,2010-02-15
+5.0,Lenny,lenny,2009-02-14,2012-02-06
+6.0,Squeeze,squeeze,2011-02-06
+7.0,Wheezy,wheezy
 ,Sid,sid
