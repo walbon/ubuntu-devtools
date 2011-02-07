@@ -12,7 +12,11 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
     - Files is space-separated, not comma.
     - Bump Format revision.
 
- -- Benjamin Drung <bdrung@debian.org>  Sun, 06 Feb 2011 16:47:41 +0100
+  [ Kees Cook ]
+  * ubuntutools/update_maintainer.py: do nothing if the rules file
+    already manages XSBC-Original (e.g. python).
+
+ -- Kees Cook <kees@ubuntu.com>  Mon, 07 Feb 2011 10:42:07 -0800
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 

@@ -60,6 +60,13 @@ def update_maintainer(debian_directory, verbose=False):
         Logger.error("No changelog file found in %s.", debian_directory)
         return(1)
 
+    # If the rules file accounts for XSBC-Original-Maintainer, we should not
+    # touch it this package.
+    if 'XSBC-Original-' in file(os.path.join(debian_directory, "rules")).read():
+        if verbose:
+            print "XSBC-Original is managed by 'rules' file. Doing nothing."
+        return(0)
+
     # Strip things like "-proposed-updates" or "-security" from distribution.
     distribution = _get_distribution(changelog_file).split("-")[0]
 
