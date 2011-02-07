@@ -61,7 +61,7 @@ def update_maintainer(debian_directory, verbose=False):
         return(1)
 
     # If the rules file accounts for XSBC-Original-Maintainer, we should not
-    # touch it this package.
+    # touch it in this package (e.g. the python package).
     if 'XSBC-Original-' in file(os.path.join(debian_directory, "rules")).read():
         if verbose:
             print "XSBC-Original is managed by 'rules' file. Doing nothing."
