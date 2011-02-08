@@ -243,3 +243,11 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         self._files["rules"] = StringIO.StringIO(_COMPLEX_RULES)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_CONTROL)
+
+    def test_update_maintainer_missing_rules(self):
+        """Test: Skip XSBC-Original test when debian/rules is missing."""
+        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
+        self._files["rules"] = None
+        update_maintainer(self._directory)
+        self.assertEqual(self._files["control"].getvalue(), _ABP_UPDATED)
