@@ -236,7 +236,7 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         update_maintainer(self._directory, True)
         self.assertEqual(self._files["control.in"].getvalue(), _ABP_UPDATED)
 
-    def test_update_maintainer_skip_smart_rules(self):
+    def test_skip_smart_rules(self):
         """Test: Skip update when XSBC-Original in debian/rules."""
         self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
         self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
@@ -244,7 +244,7 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_CONTROL)
 
-    def test_update_maintainer_missing_rules(self):
+    def test_missing_rules(self):
         """Test: Skip XSBC-Original test when debian/rules is missing."""
         self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
         self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
