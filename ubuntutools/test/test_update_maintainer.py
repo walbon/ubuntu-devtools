@@ -120,6 +120,36 @@ VCS-Git: git://git.debian.org/pkg-mozext/adblock-plus.git
 Package: xul-ext-adblock-plus
 """
 
+_SIMPLE_RULES = """#!/usr/bin/make -f
+%:
+	dh $@
+"""
+
+_COMPLEX_RULES = """#!/usr/bin/make -f
+... from python2.6 ...
+distribution := $(shell lsb_release -is)
+
+control-file:
+	sed -e "s/@PVER@/$(PVER)/g" \
+		-e "s/@VER@/$(VER)/g" \
+		-e "s/@PYSTDDEP@/$(PYSTDDEP)/g" \
+		-e "s/@PRIO@/$(PY_PRIO)/g" \
+		-e "s/@MINPRIO@/$(PY_MINPRIO)/g" \
+		debian/control.in > debian/control.tmp
+ifeq ($(distribution),Ubuntu)
+  ifneq (,$(findstring ubuntu, $(PKGVERSION)))
+	m='Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>'; \
+		sed -i "/^Maintainer:/s/\(.*\)/Maintainer: $$m\nXSBC-Original-\1/" \
+		debian/control.tmp
+  endif
+endif
+	[ -e debian/control ] \
+		&& cmp -s debian/control debian/control.tmp \
+		&& rm -f debian/control.tmp && exit 0; \
+		mv debian/control.tmp debian/control
+... from python2.6 ...
+"""
+
 #pylint: disable=R0904
 class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
     """TestCase object for ubuntutools.update_maintainer"""
@@ -129,6 +159,7 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         "changelog": None,
         "control": None,
         "control.in": None,
+        "rules": None,
     }
 
     def _fake_isfile(self, filename):
@@ -153,6 +184,7 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         super(UpdateMaintainerTestCase, self).setUp()
         self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
         self.mox.stubs.Set(os.path, 'isfile', self._fake_isfile)
+        self._files["rules"] = StringIO.StringIO(_SIMPLE_RULES)
         Logger.stdout = StringIO.StringIO()
         Logger.stderr = StringIO.StringIO()
 
@@ -162,6 +194,7 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         self._files["changelog"] = None
         self._files["control"] = None
         self._files["control.in"] = None
+        self._files["rules"] = None
         Logger.stdout = sys.stdout
         Logger.stderr = sys.stderr
 
@@ -202,3 +235,11 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
         self._files["control.in"] = StringIO.StringIO(_ABP_OLD_MAINTAINER)
         update_maintainer(self._directory, True)
         self.assertEqual(self._files["control.in"].getvalue(), _ABP_UPDATED)
+
+    def test_update_maintainer_skip_smart_rules(self):
+        """Test: Skip update when XSBC-Original in debian/rules."""
+        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
+        self._files["rules"] = StringIO.StringIO(_COMPLEX_RULES)
+        update_maintainer(self._directory)
+        self.assertEqual(self._files["control"].getvalue(), _ABP_CONTROL)

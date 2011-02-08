@@ -15,8 +15,10 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   [ Kees Cook ]
   * ubuntutools/update_maintainer.py: do nothing if the rules file
     already manages XSBC-Original (e.g. python).
+  * ubuntutools/test/test_update_maintainer.py: update test cases to
+    handle checking for debian/rules.
 
- -- Kees Cook <kees@ubuntu.com>  Mon, 07 Feb 2011 10:42:07 -0800
+ -- Kees Cook <kees@ubuntu.com>  Tue, 08 Feb 2011 10:27:27 -0800
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 
