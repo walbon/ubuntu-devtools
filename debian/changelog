@@ -17,8 +17,10 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
     already manages XSBC-Original (e.g. python).
   * ubuntutools/test/test_update_maintainer.py: update test cases to
     handle checking for debian/rules.
+  * mk-sbuild: work around apt's invocation of GPG needing root's
+    .gnupg directory to already exist.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 08 Feb 2011 10:27:27 -0800
+ -- Kees Cook <kees@ubuntu.com>  Tue, 08 Feb 2011 16:00:17 -0800
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 

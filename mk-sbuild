@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2006-2010 (C) Canonical Ltd.
+# Copyright 2006-2011 (C) Canonical Ltd.
 # Authors:
 #  Kees Cook <kees@ubuntu.com>
 #  Emmet Hikory <persia@ubuntu.com>
@@ -441,6 +441,9 @@ case "$SCHROOT_TYPE" in
 "file")
     MNT=`mktemp -d -t schroot-XXXXXX`
 esac
+
+# work around apt's GPG invocation that fails without root's .gnupg directory
+sudo mkdir -p -m 0700 "$MNT"/root/.gnupg
 
 # debootstrap the chroot
 sudo "$DEBOOTSTRAP_COMMAND" --arch="$CHROOT_ARCH" $variant_opt $debootstrap_opts "$RELEASE" "$MNT" "${DEBOOTSTRAP_MIRROR:-http://archive.ubuntu.com/ubuntu}"
