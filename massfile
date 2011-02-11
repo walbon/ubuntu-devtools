@@ -30,7 +30,6 @@ import email
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.lp.libsupport import (get_launchpad,
-                                       translate_api_web,
                                        translate_web_api)
 
 def read_config():
@@ -94,7 +93,7 @@ def file_bug(config, launchpad):
             target=product_url, tags=tags)
 
         print "Successfully filed bug %i: %s" % \
-              (bug.id, translate_api_web(bug.self_link))
+              (bug.id, bug.web_link)
 
         subscribers = [s for s in [s.strip("\n").strip() for s in
                                    config["subscribers"].split(",")] if s]

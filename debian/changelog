@@ -20,7 +20,11 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   * mk-sbuild: work around apt's invocation of GPG needing root's
     .gnupg directory to already exist.
 
- -- Kees Cook <kees@ubuntu.com>  Tue, 08 Feb 2011 16:00:17 -0800
+  [ Michael Bienia ]
+  * Use the new web_link attribute of LP objects instead of our own
+    translate_api_web() function.
+
+ -- Michael Bienia <geser@ubuntu.com>  Fri, 11 Feb 2011 15:32:12 +0100
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 

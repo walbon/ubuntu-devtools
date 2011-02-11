@@ -30,7 +30,7 @@ import subprocess
 import SOAPpy
 
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import get_launchpad, translate_api_web
+from ubuntutools.lp.libsupport import get_launchpad
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")
@@ -119,10 +119,9 @@ def main():
         d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
         d_task.bug_watch = d_watch
         d_task.lp_save()
-        web_url = translate_api_web(u_bug.self_link)
-        print "Opened %s" % web_url
+        print "Opened %s" % u_bug.web_link
         if not options.browserless:
-            subprocess.call(["xdg-open", web_url])
+            subprocess.call(["xdg-open", u_bug.web_link])
 
 if __name__ == '__main__':
     main()

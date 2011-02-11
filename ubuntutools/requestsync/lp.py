@@ -24,7 +24,6 @@ from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
-from ubuntutools.lp.libsupport import translate_api_web
 
 def getDebianSrcPkg(name, release):
     debian = Distribution('debian')
@@ -80,7 +79,7 @@ def checkExistingReports(srcpkg):
                    ' * %s (%s)\n'
                    'Please check the above URL to verify this before '
                    'continuing.'
-                   % (bug.title, translate_api_web(bug.self_link)))
+                   % (bug.title, bug.web_link))
             raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] '
                                     'to abort. ')
 
@@ -115,4 +114,4 @@ def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
     bug.subscribe(person = PersonTeam(subscribe)())
 
     print ('Sync request filed as bug #%i: %s'
-           % (bug.id, translate_api_web(bug.self_link)))
+           % (bug.id, bug.web_link))

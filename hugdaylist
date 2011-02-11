@@ -32,8 +32,7 @@
 import sys
 from optparse import OptionParser
 
-from ubuntutools.lp.libsupport import (get_launchpad, translate_web_api,
-                                       translate_api_web)
+from ubuntutools.lp.libsupport import (get_launchpad, translate_web_api)
 
 def check_args():
     howmany = -1
@@ -124,7 +123,7 @@ def main():
     for i in list(bug_list)[:howmany]:
         bug = i.bug
         print '||<rowbgcolor="#FFEBBB"> [%s %s] || %s || ||' % \
-            (translate_api_web(bug.self_link), bug.id, bug.title)
+            (bug.web_link, bug.id, bug.title)
 
 
 if __name__ == '__main__':
