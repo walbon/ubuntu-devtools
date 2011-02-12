@@ -7,6 +7,7 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   * data/debian.csv: Add wheezy and release date of squeeze.
   * *distro-info: Add a "created" column to the data.
   * wrap-and-sort: Wrap and sort Build-Conflicts too.
+  * Move debian-keyring from Suggests to Recommends (LP: #717245).
 
   [ Stefano Rivera ]
   * debian/copyright:
@@ -25,7 +26,7 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   * Use the new web_link attribute of LP objects instead of our own
     translate_api_web() function.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 14:15:12 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 14:15:59 +0100
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 

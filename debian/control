@@ -46,20 +46,19 @@ Recommends: bzr,
             bzr-builddeb,
             ca-certificates,
             debian-archive-keyring,
+            debian-keyring,
             debootstrap,
             genisoimage,
             libapt-pkg-perl,
             libwww-perl,
             pbuilder | cowdancer | sbuild,
             perl-modules,
+            python-dns,
             python-gnupginterface,
             python-magic,
             python-soappy,
-            reportbug (>= 3.39ubuntu1),
-            python-dns
-Suggests: debian-keyring,
-          python-simplejson | python (>= 2.7),
-          qemu-kvm-extras-static
+            reportbug (>= 3.39ubuntu1)
+Suggests: python-simplejson | python (>= 2.7), qemu-kvm-extras-static
 Breaks: ${python:Breaks}
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
