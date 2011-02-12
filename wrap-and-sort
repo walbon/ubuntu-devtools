@@ -26,6 +26,7 @@ from ubuntutools.control import Control
 
 CONTROL_LIST_FIELDS = (
     "Breaks",
+    "Build-Conflicts",
     "Build-Depends",
     "Build-Depends-Indep",
     "Conflicts",

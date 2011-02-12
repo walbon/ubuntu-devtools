@@ -6,6 +6,7 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
     - Add image/vnd.adobe.photoshop to the mime-type whitelist.
   * data/debian.csv: Add wheezy and release date of squeeze.
   * *distro-info: Add a "created" column to the data.
+  * wrap-and-sort: Wrap and sort Build-Conflicts too.
 
   [ Stefano Rivera ]
   * debian/copyright:
@@ -24,7 +25,7 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   * Use the new web_link attribute of LP objects instead of our own
     translate_api_web() function.
 
- -- Michael Bienia <geser@ubuntu.com>  Fri, 11 Feb 2011 15:32:12 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 14:15:12 +0100
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 
