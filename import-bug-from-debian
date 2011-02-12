@@ -27,7 +27,12 @@ import re
 import sys
 import subprocess
 
-import SOAPpy
+try:
+    import SOAPpy
+except ImportError:
+    print >> sys.stderr, ("Please install 'python-soappy' in order to use "
+                          "this utility.")
+    sys.exit(1)
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.lp.libsupport import get_launchpad

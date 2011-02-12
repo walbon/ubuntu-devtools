@@ -1,9 +1,10 @@
 ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
 
-  * dgetlp, suspicious-source: Show error messages instead of having the import
-    errors for recommended packages (Closes: #613101, LP: #693813).
+  * dgetlp, import-bug-from-debian, suspicious-source:
+    Show error messages instead of having the import errors for
+    recommended packages (Closes: #613101, LP: #693813).
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 23:07:16 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 23:12:22 +0100
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 
