@@ -54,9 +54,8 @@ class ExamplePackage(object):
     def create(self):
         "Build source package"
         self.changelog_entry(create=True)
-        subprocess.check_call(('dpkg-buildpackage', '-rfakeroot', '-S',
-                               '-uc', '-us'),
-                              cwd=self.srcdir)
+        (basename, dirname) = os.path.split(self.srcdir)
+        subprocess.check_call(('dpkg-source', '-b', dirname), cwd=basename)
 
     def cleanup(self):
         "Remove srcdir"
