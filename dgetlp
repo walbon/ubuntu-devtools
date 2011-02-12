@@ -27,14 +27,16 @@
 # Librarian and attempts to download and then unpack them.
 # This is a Python rewrite of the original bash script
 
-import sys, os
-from optparse import OptionParser
-import urllib2
+import cStringIO
+import email.feedparser
 import hashlib
+import optparse
+import os
 import subprocess
+import sys
+import urllib2
+
 import GnuPGInterface
-from cStringIO import StringIO
-from email.feedparser import FeedParser
 
 USAGE = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 
@@ -74,7 +76,7 @@ def unsign(data):
     return plain
 
 def get_entries(data):
-    parser = FeedParser()
+    parser = email.feedparser.FeedParser()
     parser.feed(data)
     return parser.close()
 
@@ -236,7 +238,7 @@ def get_host(url):
 
 def main():
     global Debug, Verbose, Quiet
-    parser = OptionParser(usage=USAGE)
+    parser = optparse.OptionParser(usage=USAGE)
     parser.add_option("-d", "--debug", action="store_true", dest="debug",
                       default=False, help="Enable debugging")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
@@ -253,8 +255,8 @@ def main():
     if Verbose and Quiet:
         error(4, "Specifying both --verbose and --quiet does not make sense")
     if Quiet:
-        sys.stderr = StringIO()
-        sys.stdout = StringIO()
+        sys.stderr = cStringIO.StringIO()
+        sys.stdout = cStringIO.StringIO()
 
     url = args[0]
 
