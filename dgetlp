@@ -36,7 +36,12 @@ import subprocess
 import sys
 import urllib2
 
-import GnuPGInterface
+try:
+    import GnuPGInterface
+except ImportError:
+    print >> sys.stderr, ("Please install 'python-gnupginterface' in order to "
+                          "use this utility.")
+    sys.exit(1)
 
 USAGE = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 
