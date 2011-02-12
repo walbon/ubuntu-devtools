@@ -14,12 +14,17 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import magic
 import optparse
 import os
 import sys
 
 from ubuntutools.logger import Logger
+
+try:
+    import magic
+except ImportError:
+    Logger.error("Please install 'python-magic' in order to use this utility.")
+    sys.exit(1)
 
 DEFAULT_WHITELISTED_MIMETYPES = [
     "application/vnd.font-fontforge-sfd", # font source: fontforge
