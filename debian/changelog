@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.116) unstable; urgency=low
 
   [ Benjamin Drung ]
   * suspicious-source:
@@ -29,7 +29,7 @@ ubuntu-dev-tools (0.116) UNRELEASED; urgency=low
   * Use the new web_link attribute of LP objects instead of our own
     translate_api_web() function.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 16:35:33 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 19:02:59 +0100
 
 ubuntu-dev-tools (0.115) unstable; urgency=low
 
