@@ -21,7 +21,6 @@
 use warnings;
 use strict;
 use File::Basename;
-use LWP::Simple;
 use Getopt::Long;
 
 my $REVU = "revu.ubuntuwire.com";
@@ -30,6 +29,13 @@ my($package) = lc($ARGV[0]) || usage(2);
 my($help)=0;
 GetOptions('help' => \$help);
 usage(0) if($help);
+
+eval { require LWP::Simple; };
+if ($@=~ m#^Can\'t locate LWP/Simple#) {
+	print(STDERR "Please install libwww-perl.\n");
+	exit(1);
+}
+use LWP::Simple;
 
 dget(getURL());
 

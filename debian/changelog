@@ -13,8 +13,10 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
       qemu-user-static package, like Debian, since natty.
     - Drop Build-Depend on Recommend on libapt-pkg-perl. No longer used.
   * grab-merge: Show help when no arguments are provided.
+  * pull-revu-source: Check for the availability of libwww-perl, and print a
+    more helpful error.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:03:36 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:28:18 +0200
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 
