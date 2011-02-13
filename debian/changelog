@@ -8,8 +8,10 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * ubuntutools/archive.py: Rewrite launchpadlib redirects to https when
     fetching dscs.
-  * debian/control: Suggest qemu-user-static | qemu-kvm-extras-static. Ubuntu
-    provides a qemu-user-static package, like Debian, since natty.
+  * debian/control:
+    - Suggest qemu-user-static | qemu-kvm-extras-static. Ubuntu provides a
+      qemu-user-static package, like Debian, since natty.
+    - Drop Build-Depend on Recommend on libapt-pkg-perl. No longer used.
   * grab-merge: Show help when no arguments are provided.
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:03:36 +0200
