@@ -29,7 +29,7 @@ set -e
 
 MERGE=$1
 
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+if [ -z "$1" -o "$1" = "-h" -o "$1" = "--help" ]; then
     echo "Usage: $0 <package name>"
     echo ""
     echo "grab-merge downloads a merge's packaging files and report from"

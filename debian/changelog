@@ -10,8 +10,9 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
     fetching dscs.
   * debian/control: Suggest qemu-user-static | qemu-kvm-extras-static. Ubuntu
     provides a qemu-user-static package, like Debian, since natty.
+  * grab-merge: Show help when no arguments are provided.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:01:30 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:03:36 +0200
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 
