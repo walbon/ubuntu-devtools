@@ -15,6 +15,8 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
   * grab-merge: Show help when no arguments are provided.
   * pull-revu-source: Check for the availability of libwww-perl, and print a
     more helpful error.
+  * requestsync, grep-merges: Require a UTF-8 locale. (Closes: #613114,
+    LP: #553795)
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:28:18 +0200
 

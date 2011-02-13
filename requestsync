@@ -35,6 +35,7 @@ from debian.changelog import Version
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.distro_info import UbuntuDistroInfo
 from ubuntutools.lp import udtexceptions
+import ubuntutools.misc
 from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
                                             raw_input_exit_on_ctrlc)
 
@@ -88,6 +89,8 @@ def main():
     if not len(args):
         parser.print_help()
         sys.exit(1)
+
+    ubuntutools.misc.require_utf8()
 
     config = UDTConfig(options.no_conf)
     if not options.lpapi:

@@ -23,7 +23,10 @@ import sys
 import urllib2
 import json
 
+import ubuntutools.misc
+
 def main():
+    ubuntutools.misc.require_utf8()
     if len(sys.argv) > 1:
         match = sys.argv[1]
     else:

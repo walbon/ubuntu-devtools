@@ -22,9 +22,11 @@
 # ##################################################################
 
 # Modules.
+import locale
 import os
 import os.path
 from subprocess import Popen, PIPE
+import sys
 
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 
@@ -119,3 +121,10 @@ def split_release_pocket(release):
                                           pocket)
 
     return (release, pocket)
+
+def require_utf8():
+    '''Can be called by programs that only function in UTF-8 locales'''
+    if locale.getpreferredencoding() != 'UTF-8':
+        print >> sys.stderr, ("This program only functions in a UTF-8 locale. "
+                              "Aborting.")
+        sys.exit(1)
