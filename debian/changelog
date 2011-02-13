@@ -1,10 +1,15 @@
 ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * dgetlp, import-bug-from-debian, suspicious-source:
     Show error messages instead of having the import errors for
     recommended packages (Closes: #613101, LP: #693813).
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 12 Feb 2011 23:12:22 +0100
+  [ Stefano Rivera ]
+  * ubuntutools/archive.py: Rewrite launchpadlib redirects to https when
+    fetching dscs.
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 14:39:50 +0200
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 

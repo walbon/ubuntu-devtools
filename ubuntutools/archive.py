@@ -50,6 +50,15 @@ class DownloadError(Exception):
     pass
 
 
+class ForceHTTPSRedirectHandler(urllib2.HTTPRedirectHandler):
+    "Force redirects from http to https"
+    def redirect_request(self, req, fp, code, msg, hdrs, newurl):
+        if newurl.startswith('http://'):
+            newurl = newurl.replace('http://', 'https://')
+        return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code,
+                                                            msg, hdrs, newurl)
+
+
 class Dsc(debian.deb822.Dsc):
     "Extend deb822's Dsc with checksum verification abilities"
 
@@ -280,8 +289,15 @@ class SourcePackage(object):
         else:
             Logger.normal('Downloading %s', logurl)
 
+        # Launchpad will try to redirect us to plain-http Launchpad Librarian,
+        # but we want SSL when fetching the dsc
+        if url.startswith('https') and url.endswith('.dsc'):
+            opener = urllib2.build_opener(ForceHTTPSRedirectHandler())
+        else:
+            opener = urllib2.build_opener()
+
         try:
-            in_ = urllib2.urlopen(url)
+            in_ = opener.open(url)
         except urllib2.URLError:
             return False
 
