@@ -140,14 +140,6 @@ def get_email_from_file(name):
     return None
 
 def unsubscribe_sponsors(launchpad, bug):
-    ums = launchpad.people['ubuntu-main-sponsors']
-    try:
-        bug.unsubscribe(person=ums)
-        print "ubuntu-main-sponsors unsubscribed (for backward compatibility)"
-    except lazr.restfulclient.errors.HTTPError, http_error:
-        print "failed to unsubscribe ubuntu-main-sponsors: " + \
-              http_error.content
-
     us = launchpad.people['ubuntu-sponsors']
     bug.unsubscribe(person=us)
     print "ubuntu-sponsors unsubscribed"
