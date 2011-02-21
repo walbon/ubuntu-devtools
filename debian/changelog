@@ -4,6 +4,8 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
   * dgetlp, import-bug-from-debian, suspicious-source:
     Show error messages instead of having the import errors for
     recommended packages (Closes: #613101, LP: #693813).
+  * update_maintainer.py: Update Maintainer field if it is set to
+    "Ubuntu Core Developers <ubuntu-devel@lists.ubuntu.com>".
 
   [ Stefano Rivera ]
   * ubuntutools/archive.py: Rewrite launchpadlib redirects to https when
@@ -18,7 +20,7 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
   * requestsync, grep-merges: Require a UTF-8 locale. (Closes: #613114,
     LP: #553795)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sun, 13 Feb 2011 15:28:18 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 22 Feb 2011 00:38:36 +0100
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 

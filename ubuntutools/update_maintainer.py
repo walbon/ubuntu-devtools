@@ -25,6 +25,7 @@ from ubuntutools.logger import Logger
 
 # Prior May 2009 these Maintainers were used:
 _PREVIOUS_UBUNTU_MAINTAINER = (
+    "ubuntu core developers <ubuntu-devel@lists.ubuntu.com>",
     "ubuntu core developers <ubuntu-devel-discuss@lists.ubuntu.com>",
     "ubuntu motu developers <ubuntu-motu@lists.ubuntu.com>",
 )
