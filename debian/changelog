@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.117) unstable; urgency=low
 
   [ Benjamin Drung ]
   * dgetlp, import-bug-from-debian, suspicious-source:
@@ -20,7 +20,7 @@ ubuntu-dev-tools (0.117) UNRELEASED; urgency=low
   * requestsync, grep-merges: Require a UTF-8 locale. (Closes: #613114,
     LP: #553795)
 
- -- Benjamin Drung <bdrung@debian.org>  Tue, 22 Feb 2011 00:38:36 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 22 Feb 2011 00:42:33 +0100
 
 ubuntu-dev-tools (0.116) unstable; urgency=low
 
