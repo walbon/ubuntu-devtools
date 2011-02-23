@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.118) UNRELEASED; urgency=low
+
+  * requestsync: Use from...import require_utf8() to work around unexpected
+    scoping from a later import (LP: #723630)
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 23 Feb 2011 14:46:44 +0200
+
 ubuntu-dev-tools (0.117) unstable; urgency=low
 
   [ Benjamin Drung ]
