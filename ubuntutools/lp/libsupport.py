@@ -26,62 +26,13 @@ import urllib
 import urlparse
 import httplib2
 
-try:
-    from launchpadlib.credentials import Credentials
-    from launchpadlib.launchpad import Launchpad
-    from launchpadlib.errors import HTTPError
-except ImportError:
-    print ("Unable to import launchpadlib module, is python-launchpadlib "
-           "installed?")
-    sys.exit(1)
-except:
-    Credentials = None
-    Launchpad = None
+from launchpadlib.launchpad import Launchpad
+from launchpadlib.errors import HTTPError
 
 from ubuntutools.lp import (service, api_version)
 
-def find_credentials(consumer, files, level=None):
-    """ search for credentials matching 'consumer' in path for given access
-        level. """
-    if Credentials is None:
-        raise ImportError
-
-    for f in files:
-        cred = Credentials()
-        try:
-            cred.load(open(f))
-        except:
-            continue
-        if cred.consumer.key == consumer:
-            return cred
-
-    raise IOError("No credentials found for '%s', please see the "
-                  "manage-credentials manpage for help on how to create "
-                  "one for this consumer." % consumer)
-
-def get_credentials(consumer, cred_file=None, level=None):
-    files = list()
-
-    if cred_file:
-        files.append(cred_file)
-
-    if "LPCREDENTIALS" in os.environ:
-        files.append(os.environ["LPCREDENTIALS"])
-
-    files.append(os.path.join(os.getcwd(), "lp_credentials.txt"))
-
-    # Add all files which have our consumer name to file listing.
-    for x in glob.glob(os.path.expanduser("~/.cache/lp_credentials/%s*.txt" %
-                                          consumer)):
-        files.append(x)
-
-    return find_credentials(consumer, files, level)
-
-def get_launchpad(consumer, server=service, cache=None,
-                  cred_file=None, level=None):
-    credentials = get_credentials(consumer, cred_file, level)
-    cache = cache or os.environ.get("LPCACHE", None)
-    return Launchpad(credentials, server, cache, version=api_version)
+def get_launchpad(consumer, server=service, cache=None):
+    return Launchpad.login_with(consumer, server, cache, version=api_version)
 
 def query_to_dict(query_string):
     result = dict()
