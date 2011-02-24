@@ -62,9 +62,6 @@ def translate_web_api(url, launchpad):
                                query, fragment))
     return url
 
-def translate_api_web(self_url):
-    return self_url.replace("api.", "").replace("%s/" % (api_version), "")
-
 LEVEL = {
     0: "UNAUTHORIZED",
     1: "READ_PUBLIC",
