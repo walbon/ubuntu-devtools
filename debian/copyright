@@ -129,7 +129,6 @@ Files: dch-repeat
        doc/get-build-deps.1
        doc/grep-merges.1
        doc/lp-list-bugs.1
-       doc/manage-credentials.1
        doc/mk-sbuild.1
        doc/pull-lp-source.1
        doc/pull-revu-source.1
@@ -138,7 +137,6 @@ Files: dch-repeat
        get-build-deps
        grep-merges
        lp-list-bugs
-       manage-credentials
        mk-sbuild
        pull-lp-source
        pull-revu-source
