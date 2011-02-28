@@ -8,8 +8,9 @@ ubuntu-dev-tools (0.119) UNRELEASED; urgency=low
   * Remove ubuntutools.lp.libsupport.approve_application, no longer used.
   * Remove ubuntutools.lp.libsupport.get_launchpad, no longer used.
   * Remove ubuntutools.lp.libsupport.translate_api_web, no longer used.
+  * Skip pylint test if it crashes.
 
- -- Stefano Rivera <stefanor@debian.org>  Tue, 01 Mar 2011 00:31:48 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 01 Mar 2011 00:50:34 +0200
 
 ubuntu-dev-tools (0.118) unstable; urgency=low
 
