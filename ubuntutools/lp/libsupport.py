@@ -61,39 +61,3 @@ def translate_web_api(url, launchpad):
     url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"),
                                query, fragment))
     return url
-
-LEVEL = {
-    0: "UNAUTHORIZED",
-    1: "READ_PUBLIC",
-    2: "WRITE_PUBLIC",
-    3: "READ_PRIVATE",
-    4: "WRITE_PRIVATE"
-}
-
-def approve_application(credentials, email, password, level, web_root,
-        context):
-    authorization_url = credentials.get_request_token(context, web_root)
-    if level in LEVEL:
-        level = 'field.actions.%s' % LEVEL[level]
-    elif level in LEVEL.values():
-        level = 'field.actions.%s' % level
-    elif (str(level).startswith("field.actions") and
-          str(level).split(".")[-1] in LEVEL):
-        pass
-    else:
-        raise ValueError("Unknown access level '%s'" %level)
-
-    params = {level: 1,
-        "oauth_token": credentials._request_token.key,
-        "lp.context": context or ""}
-
-    lp_creds = ":".join((email, password))
-    basic_auth = "Basic %s" % (lp_creds.encode('base64'))
-    headers = {'Authorization': basic_auth}
-    response, content = httplib2.Http().request(authorization_url,
-        method="POST", body=urllib.urlencode(params), headers=headers)
-    if int(response["status"]) != 200:
-        if not 300 <= int(response["status"]) <= 400: # this means redirection
-            raise HTTPError(response, content)
-    credentials.exchange_request_token_for_access_token(web_root)
-    return credentials

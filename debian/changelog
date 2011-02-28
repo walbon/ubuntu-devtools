@@ -4,9 +4,10 @@ ubuntu-dev-tools (0.119) UNRELEASED; urgency=low
   * Remove manage-credentials, and credential handling code from
     ubuntutools.lp.libsupport. Launchpadlib 1.9 handles this via
     python-keyring. (LP: #387297, #645629, #689100)
-  * Remove ubuntutools.lp.libsupporttranslate_api_web, no longer used.
+  * Remove ubuntutools.lp.libsupport.translate_api_web, no longer used.
+  * Remove ubuntutools.lp.libsupport.approve_application, no longer used.
 
- -- Stefano Rivera <stefanor@debian.org>  Sun, 27 Feb 2011 23:07:06 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 28 Feb 2011 23:55:25 +0200
 
 ubuntu-dev-tools (0.118) unstable; urgency=low
 
