@@ -1,0 +1,14 @@
+ubuntu-dev-tools (0.119) unstable; urgency=low
+
+  * launchpadlib 1.9 will cause some issues, as it uses the GNOME Keyring /
+    KDE wallet to store credentials.
+    https://help.launchpad.net/API/ThirdPartyIntegration
+    Known issues and workarounds:
+    - Seeing keyring.backend.PasswordSetError or gnomekeyring.IOError when
+      using ubuntu-dev-tools on a remote machine?
+      Try ssh -X and run export `dbus-launch` in the ssh session.
+    - Otherwise, uninstalling python-gnomekeyring will force the credentials
+      to be stored in ~/keyring_pass.cfg instead of a keyring, and bypass all
+      these issues.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 01 Mar 2011 00:53:41 +0200
