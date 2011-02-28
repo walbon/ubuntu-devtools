@@ -19,20 +19,8 @@
 #
 
 # Modules.
-import glob
-import os
-import sys
 import urllib
 import urlparse
-import httplib2
-
-from launchpadlib.launchpad import Launchpad
-from launchpadlib.errors import HTTPError
-
-from ubuntutools.lp import (service, api_version)
-
-def get_launchpad(consumer, server=service, cache=None):
-    return Launchpad.login_with(consumer, server, cache, version=api_version)
 
 def query_to_dict(query_string):
     result = dict()
