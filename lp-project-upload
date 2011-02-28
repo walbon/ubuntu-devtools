@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 
-from ubuntutools.lp.libsupport import get_launchpad
+from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
 
 def create_release(project, version):
@@ -88,7 +88,7 @@ def main():
     (project, version, tarball) = sys.argv[1:]
 
     try:
-        launchpad = get_launchpad('ubuntu-dev-tools')
+        launchpad = Launchpad.login_with('ubuntu-dev-tools', 'production')
     except Exception, error:
         print >> sys.stderr, 'Could not connect to Launchpad:', str(error)
         sys.exit(2)

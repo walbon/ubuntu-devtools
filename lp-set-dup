@@ -25,9 +25,9 @@
 import sys
 from optparse import OptionParser
 
+from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
 
-import ubuntutools.lp.libsupport as lp_libsupport
 from ubuntutools.config import UDTConfig
 
 def die(message):
@@ -60,8 +60,7 @@ def main():
     launchpad = None
     try:
         print "Setting up Launchpad"
-        launchpad = lp_libsupport.get_launchpad("ubuntu-dev-tools",
-                                                server=options.lpinstance)
+        launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
         print "Launchpad setup complete"
     except ImportError:
         suggestion = "check whether python-launchpadlib is installed"

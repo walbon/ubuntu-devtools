@@ -28,8 +28,9 @@ import logging
 import glob
 import fnmatch
 
+from launchpadlib.launchpad import Launchpad
+
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import get_launchpad
 
 COMMAND_LINE_SYNTAX_ERROR = 1
 VERSION_DETECTION_FAILED = 2
@@ -148,7 +149,7 @@ def unsubscribe_sponsors(launchpad, bug):
 def ack_sync(bug_numbers, all_package, all_version, all_section, update,
              all_uploader_email, key, upload, lpinstance, pbuilder, sbuild, lvm,
              piuparts, verbose=False, silent=False):
-    launchpad = get_launchpad("ubuntu-dev-tools", server=lpinstance)
+    launchpad = Launchpad.login_with("ubuntu-dev-tools", lpinstance)
     # TODO: use release-info (once available)
     series = launchpad.distributions["ubuntu"].current_series
     dist = series.name
