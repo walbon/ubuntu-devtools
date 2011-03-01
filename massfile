@@ -28,9 +28,10 @@ import os
 import sys
 import email
 
+from launchpadlib.launchpad import Launchpad
+
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import (get_launchpad,
-                                       translate_web_api)
+from ubuntutools.lp.libsupport import translate_web_api
 
 def read_config():
     instructions_file = open("instructions")
@@ -164,7 +165,7 @@ def main():
     if not check_configfiles():
         sys.exit(1)
 
-    launchpad = get_launchpad('ubuntu-dev-tools', server=options.lpinstance)
+    launchpad = Launchpad.login_with('ubuntu-dev-tools', options.lpinstance)
     config = read_config()
     pack_list = read_list()
     buglist = read_buglist(config["buglist-url"], launchpad)

@@ -32,7 +32,9 @@
 import sys
 from optparse import OptionParser
 
-from ubuntutools.lp.libsupport import (get_launchpad, translate_web_api)
+from launchpadlib.launchpad import Launchpad
+
+from ubuntutools.lp.libsupport import translate_web_api
 
 def check_args():
     howmany = -1
@@ -87,7 +89,7 @@ def main():
 
     launchpad = None
     try:
-        launchpad = get_launchpad("ubuntu-dev-tools")
+        launchpad = Launchpad.login_with("ubuntu-dev-tools", 'production')
     except IOError, error:
         print error
         sys.exit(1)

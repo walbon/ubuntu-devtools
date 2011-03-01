@@ -23,8 +23,9 @@ from optparse import OptionParser
 import os
 import sys
 
+from launchpadlib.launchpad import Launchpad
+
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import get_launchpad
 
 USAGE = "grab-attachments <bug numbers>"
 
@@ -45,7 +46,7 @@ def main():
         opts.lpinstance = config.get_value('LPINSTANCE')
 
     try:
-        launchpad = get_launchpad("ubuntu-dev-tools", server=opts.lpinstance)
+        launchpad = Launchpad.login_with("ubuntu-dev-tools", opts.lpinstance)
 
         for arg in args:
             try:

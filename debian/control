@@ -88,7 +88,6 @@ Description: useful tools for Ubuntu developers
   - lp-list-bugs - briefly list status of Launchpad bugs.
   - lp-project-upload - upload a release tarball to a Launchpad project
   - lp-set-dup - sets the "duplicate of" bug of a bug and its dups.
-  - manage-credentials - manage Launchpad token credentials.
   - massfile - fill multiple bugs using a template.
   - merge-changelog - manually merges two Debian changelogs with the same base
     version.

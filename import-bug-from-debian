@@ -34,8 +34,9 @@ except ImportError:
                           "this utility.")
     sys.exit(1)
 
+from launchpadlib.launchpad import Launchpad
+
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.libsupport import get_launchpad
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")
@@ -73,7 +74,7 @@ def main():
         options.lpinstance = config.get_value("LPINSTANCE")
 
     try:
-        launchpad = get_launchpad("ubuntu-dev-tools", options.lpinstance)
+        launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
     except IOError, msg:
         print msg
         print "No credentials, can't continue"

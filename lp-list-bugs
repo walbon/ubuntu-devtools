@@ -23,10 +23,9 @@
 #  Colin Watson <cjwatson@ubuntu.com>
 
 import sys
-
 from optparse import OptionParser
 
-from ubuntutools.lp.libsupport import get_launchpad
+from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
 
 def main():
@@ -37,7 +36,7 @@ def main():
         parser.error("Need at least one bug number")
 
     try:
-        launchpad = get_launchpad('ubuntu-dev-tools')
+        launchpad = Launchpad.login_with('ubuntu-dev-tools', 'production')
     except Exception, error:
         print >> sys.stderr, 'Could not connect to Launchpad:', str(error)
         sys.exit(2)

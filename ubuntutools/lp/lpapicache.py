@@ -26,11 +26,10 @@
 
 import sys
 
-import launchpadlib.launchpad as launchpad
+from launchpadlib.launchpad import Launchpad as LP
 from launchpadlib.errors import HTTPError
 from lazr.restfulclient.resource import Entry
 
-import ubuntutools.lp.libsupport as libsupport
 from ubuntutools.lp import (service, api_version)
 from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
                                           ArchiveNotFoundException,
@@ -58,8 +57,8 @@ class _Launchpad(object):
         '''Enforce a non-anonymous login.'''
         if not self.logged_in:
             try:
-                self.__lp = libsupport.get_launchpad('ubuntu-dev-tools',
-                                                     server=service)
+                self.__lp = LP.login_with('ubuntu-dev-tools', service,
+                                          version=api_version)
             except IOError, error:
                 print >> sys.stderr, 'E: %s' % error
                 raise
@@ -69,8 +68,8 @@ class _Launchpad(object):
     def login_anonymously(self, service=service, api_version=api_version):
         '''Enforce an anonymous login.'''
         if not self.logged_in:
-            self.__lp = launchpad.Launchpad.login_anonymously(
-                 'ubuntu-dev-tools', service_root=service, version=api_version)
+            self.__lp = LP.login_anonymously('ubuntu-dev-tools', service,
+                                             version=api_version)
         else:
             raise AlreadyLoggedInError('Already logged in to Launchpad.')
 
