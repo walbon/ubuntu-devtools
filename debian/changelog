@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.119) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.119) unstable; urgency=low
 
   * Support Launchpadlib 1.9. (LP: #725231, #725092)
     - Document Launchpadlib 1.9 issues in NEWS.
@@ -11,7 +11,7 @@ ubuntu-dev-tools (0.119) UNRELEASED; urgency=low
   * Remove ubuntutools.lp.libsupport.translate_api_web, no longer used.
   * Skip pylint test if it crashes.
 
- -- Stefano Rivera <stefanor@debian.org>  Tue, 01 Mar 2011 01:00:44 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 01 Mar 2011 15:04:40 +0200
 
 ubuntu-dev-tools (0.118) unstable; urgency=low
 
