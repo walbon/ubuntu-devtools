@@ -55,9 +55,9 @@ class Builder(object):
 
 
 class Pbuilder(Builder):
-    def __init__(self):
+    def __init__(self, command="pbuilder"):
         Builder.__init__(self, "pbuilder")
-        self.command = "pbuilder"
+        self.command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
@@ -79,9 +79,9 @@ class Pbuilder(Builder):
 
 
 class Pbuilderdist(Builder):
-    def __init__(self):
+    def __init__(self, command="pbuilder-dist"):
         Builder.__init__(self, "pbuilder-dist")
-        self.command = "pbuilder-dist"
+        self.command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
@@ -96,18 +96,6 @@ class Pbuilderdist(Builder):
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
-
-
-class Cowbuilder(Pbuilder):
-    def __init__(self):
-        Builder.__init__(self, "cowbuilder")
-        self.command = "cowbuilder"
-
-
-class Cowbuilderdist(Pbuilderdist):
-    def __init__(self):
-        Builder.__init__(self, "cowbuilder-dist")
-        self.command = "cowbuilder-dist"
 
 
 class Sbuild(Builder):
@@ -165,9 +153,9 @@ def get_builder(builder):
     elif builder == 'pbuilder-dist':
         return Pbuilderdist()
     elif builder == 'cowbuilder':
-        return Cowbuilder()
+        return Pbuilder("cowbuilder")
     elif builder == 'cowbuilder-dist':
-        return Cowbuilderdist()
+        return Pbuilderdist("cowbuilder-dist")
     elif builder == 'sbuild':
         return Sbuild()
 
