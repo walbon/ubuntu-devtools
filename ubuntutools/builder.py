@@ -57,11 +57,12 @@ class Builder(object):
 class Pbuilder(Builder):
     def __init__(self):
         Builder.__init__(self, "pbuilder")
+        self.command = "pbuilder"
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               "pbuilder", "--build",
+               self.command, "--build",
                "--architecture", self.architecture, "--distribution", dist,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
@@ -70,7 +71,7 @@ class Pbuilder(Builder):
 
     def update(self, dist):
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               "pbuilder", "--update",
+               self.command, "--update",
                "--architecture", self.architecture, "--distribution", dist]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
@@ -80,20 +81,33 @@ class Pbuilder(Builder):
 class Pbuilderdist(Builder):
     def __init__(self):
         Builder.__init__(self, "pbuilder-dist")
+        self.command = "pbuilder-dist"
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
-        cmd = ["pbuilder-dist", dist, self.architecture,
+        cmd = [self.command, dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._build_failure(returncode, dsc_file)
 
     def update(self, dist):
-        cmd = ["pbuilder-dist", dist, self.architecture, "update"]
+        cmd = [self.command, dist, self.architecture, "update"]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
+
+
+class Cowbuilder(Pbuilder):
+    def __init__(self):
+        Builder.__init__(self, "cowbuilder")
+        self.command = "cowbuilder"
+
+
+class Cowbuilderdist(Pbuilderdist):
+    def __init__(self):
+        Builder.__init__(self, "cowbuilder-dist")
+        self.command = "cowbuilder-dist"
 
 
 class Sbuild(Builder):
@@ -150,8 +164,13 @@ def get_builder(builder):
         return Pbuilder()
     elif builder == 'pbuilder-dist':
         return Pbuilderdist()
+    elif builder == 'cowbuilder':
+        return Cowbuilder()
+    elif builder == 'cowbuilder-dist':
+        return Cowbuilderdist()
     elif builder == 'sbuild':
         return Sbuild()
 
     Logger.error("Unsupported builder specified: %s. Only pbuilder, "
-                 "pbuilder-dist and sbuild are supported." % builder)
+                 "pbuilder-dist, cowbuilder, cowbuilder-dist "
+                 "and sbuild are supported." % builder)
