@@ -17,11 +17,17 @@
 pull\-debian\-source \- download and extract a source package from Debian
 
 .SH SYNOPSIS
-.B pull\-debian\-source \fR[\fIoptions\fR] <\fIsource package\fR> [\fIrelease\fR]
+.B pull\-debian\-source \fR[\fIoptions\fR] <\fIsource package\fR>
+[\fIrelease\fR|\fIversion\fR]
 
 .SH DESCRIPTION
-\fBpull\-debian\-source\fR downloads and extracts the current version of
-\fIsource package\fR in the specified Debian \fIrelease\fR.
+\fBpull\-debian\-source\fR downloads and extracts the specified
+\fIversion\fR of \fIsource package\fR, or the latest version in the
+specified Debian \fIrelease\fR.
+.P
+\fBpull\-debian\-source\fR will try the preferred mirror, default
+mirror, security mirror, and fall back to \fBLaunchpad\fR or
+\fBsnapshot.debian.org\fR, in search of the requested version.
 
 .SH OPTIONS
 .TP
@@ -31,6 +37,9 @@ The source package to download from Debian.
 .I release
 The release to download the source package from. Defaults to
 \fBunstable\fR.
+.TP
+.I version
+The specific version of the package to download.
 .TP
 .BR \-d ", " \-\-download\-only
 Do not extract the source package.

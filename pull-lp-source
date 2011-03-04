@@ -29,6 +29,7 @@ from optparse import OptionParser
 
 from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
+from ubuntutools.distro_info import UbuntuDistroInfo
 from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
@@ -37,7 +38,7 @@ from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
 from ubuntutools.misc import split_release_pocket
 
 def main():
-    usage = "Usage: %prog <package> [release]"
+    usage = "Usage: %prog <package> [release|version]"
     opt_parser = OptionParser(usage)
     opt_parser.add_option('-d', '--download-only',
                           dest='download_only', default=False,
@@ -63,28 +64,33 @@ def main():
 
     package = str(args[0]).lower()
 
-    if len(args) >= 2: # Custom distribution specified.
-        release = str(args[1]).lower()
+    ubuntu_info = UbuntuDistroInfo()
+    if len(args) > 1: # Custom distribution specified.
+        version = str(args[1])
     else:
-        release = os.getenv('DIST') or (Distribution('ubuntu')
-                                        .getDevelopmentSeries().name)
+        version = os.getenv('DIST') or ubuntu_info.devel()
+    component = None
 
-    try:
-        (release, pocket) = split_release_pocket(release)
-    except PocketDoesNotExistError, e:
-        Logger.error(str(e))
-        sys.exit(1)
+    # Release, not package version number:
+    if version.split('-', 1)[0] in ubuntu_info.all:
+        release = version
+        try:
+            (release, pocket) = split_release_pocket(release)
+        except PocketDoesNotExistError, e:
+            Logger.error(str(e))
+            sys.exit(1)
+        try:
+            spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
+                                                                        release,
+                                                                        pocket)
+        except (SeriesNotFoundException, PackageNotFoundException), e:
+            Logger.error(str(e))
+            sys.exit(1)
+        version = spph.getVersion()
+        component = spph.getComponent()
 
-    try:
-        spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
-                                                                    release,
-                                                                    pocket)
-    except (SeriesNotFoundException, PackageNotFoundException), e:
-        Logger.error(str(e))
-        sys.exit(1)
-
-    srcpkg = UbuntuSourcePackage(package, spph.getVersion(),
-                                 component=spph.getComponent(),
+    Logger.normal('Downloading %s version %s', package, version)
+    srcpkg = UbuntuSourcePackage(package, version, component=component,
                                  mirrors=[options.ubuntu_mirror])
     try:
         srcpkg.pull()

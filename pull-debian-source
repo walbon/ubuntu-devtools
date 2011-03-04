@@ -21,10 +21,11 @@ import sys
 
 from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
+from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.logger import Logger
 
 def main():
-    usage = 'Usage: %prog <package> [release]'
+    usage = 'Usage: %prog <package> [release|version]'
     parser = optparse.OptionParser(usage)
     parser.add_option('-d', '--download-only',
                       dest='download_only', default=False, action='store_true',
@@ -55,19 +56,22 @@ def main():
 
     package = args[0].lower()
 
-    if len(args) > 1:
-        suite = args[1].lower()
-    else:
-        suite = 'unstable'
+    version = args[1] if len(args) > 1 else 'unstable'
+    component = None
 
-    line = list(rmadison('debian', package, suite, 'source'))
-    if not line:
-        Logger.error('Unable to find %s in %s.', package, suite)
-        sys.exit(1)
+    debian_info = DebianDistroInfo()
+    if version in debian_info.all or debian_info.codename(version) is not None:
+        suite = version
+        line = list(rmadison('debian', package, suite, 'source'))
+        if not line:
+            Logger.error('Unable to find %s in Debian suite "%s".', package, suite)
+            sys.exit(1)
+        line = line[-1]
+        version = line['version']
+        component = line['component']
 
-    line = line[-1]
-    srcpkg = DebianSourcePackage(package, line['version'],
-                                 component=line['component'],
+    Logger.normal('Downloading %s version %s', package, version)
+    srcpkg = DebianSourcePackage(package, version, component=component,
                                  mirrors=[options.debian_mirror,
                                           options.debsec_mirror])
     try:

@@ -4,21 +4,26 @@
 pull\-lp\-source \- download a source package from Launchpad
 
 .SH SYNOPSIS
-.B pull\-lp\-source \fR[\fIoptions\fR]\fB <\fBsource package\fR> [\fItarget release\fR]
+.B pull\-lp\-source \fR[\fIoptions\fR]\fB \fBsource package\fR
+[\fIrelease\fR|\fIversion\fR]
 
 .SH DESCRIPTION
-\fBpull\-lp\-source\fR downloads and extracts the latest version of
-<\fBsource package\fR> from Launchpad.
-If the optional parameter [\fItarget release\fR] is specified, the latest
-version in that release will be downloaded instead.
+\fBpull\-lp\-source\fR downloads and extracts the specified
+\fIversion\fR of <\fBsource package\fR> from Launchpad, or the latest
+version of the specified \fIrelease\fR.
+If no \fIversion\fR or \fIrelease\fR is specified, the latest version in
+the development release will be downloaded.
 
 .SH OPTIONS
 Listed below are the command line options for pull\-lp\-source:
 .TP
-.B <source package>
+.B source package
 This is the source package that you would like to be downloaded from Launchpad.
 .TP
-.B [target release]
+.B version
+This is the version of the source package to be downloaded.
+.TP
+.B release
 This is the release that you would like the source package to be downloaded from.
 This value defaults to the current development release.
 .TP
