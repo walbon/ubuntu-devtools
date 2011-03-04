@@ -526,6 +526,13 @@ def rmadison(url, package, suite=None, arch=None):
         if '/' in dist:
             dist, comp = dist.split('/')
         archs = set(x.strip() for x in archs.split(','))
+
+        # rmadison returns some results outside the requested set.
+        # It'll include backports, and when given an unknown suite,
+        # it ignores that argument
+        if dist != suite:
+            continue
+
         if 'source' in archs:
             yield {
                    'source': pkg,
