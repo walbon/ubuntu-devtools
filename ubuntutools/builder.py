@@ -159,6 +159,6 @@ def get_builder(builder):
     elif builder == 'sbuild':
         return Sbuild()
 
-    Logger.error("Unsupported builder specified: %s. Only pbuilder, "
-                 "pbuilder-dist, cowbuilder, cowbuilder-dist "
+    Logger.error("Unsupported builder specified: %s. Only cowbuilder, "
+                 "cowbuilder-dist, pbuilder, pbuilder-dist "
                  "and sbuild are supported." % builder)
