@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
     - Canonicalise suites (use code-names) before passing them to rmadison.
   * pull-{lp,debian}-source: Download requested versions, as well as simply
     the latest version in a release.
+  * pull-{lp,debian}-source, pull-debian-debdiff: Catch KeyboardInterrupt.
+    (LP: #713845)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 05 Mar 2011 00:47:57 +0200
 
