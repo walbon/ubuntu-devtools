@@ -72,13 +72,13 @@ def main():
     component = None
 
     # Release, not package version number:
-    if version.split('-', 1)[0] in ubuntu_info.all:
-        release = version
-        try:
-            (release, pocket) = split_release_pocket(release)
-        except PocketDoesNotExistError, e:
-            Logger.error(str(e))
-            sys.exit(1)
+    release = None
+    pocket = None
+    try:
+        (release, pocket) = split_release_pocket(version)
+    except PocketDoesNotExistError, e:
+        pass
+    if release in ubuntu_info.all and pocket is not None:
         try:
             spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
                                                                         release,
