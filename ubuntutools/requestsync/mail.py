@@ -27,6 +27,7 @@ import smtplib
 import socket
 from debian.changelog import Version
 from ubuntutools.archive import rmadison, FakeSPPH
+from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
@@ -39,6 +40,11 @@ __all__ = [
 ]
 
 def getSrcPkg(distro, name, release):
+    if distro == 'debian':
+        # Canonicalise release:
+        debian_info = DebianDistroInfo()
+        release = debian_info.codename(release, default=release)
+
     lines = list(rmadison(distro, name, suite=release, arch='source'))
     if not lines:
         raise PackageNotFoundException("'%s' doesn't appear to exist "

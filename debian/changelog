@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
 
   [ Stefano Rivera ]
   * ubuntutools.archive: Filter rmadison results. (LP: #710579)
+    - Canonicalise suites (use code-names) before passing them to rmadison.
   * pull-{lp,debian}-source: Download requested versions, as well as simply
     the latest version in a release.
 

@@ -60,8 +60,8 @@ def main():
     component = None
 
     debian_info = DebianDistroInfo()
-    if version in debian_info.all or debian_info.codename(version) is not None:
-        suite = version
+    if debian_info.codename(version, default=version) in debian_info.all:
+        suite = debian_info.codename(version, default=version)
         line = list(rmadison('debian', package, suite, 'source'))
         if not line:
             Logger.error('Unable to find %s in Debian suite "%s".', package,
