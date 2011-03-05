@@ -64,7 +64,8 @@ def main():
         suite = version
         line = list(rmadison('debian', package, suite, 'source'))
         if not line:
-            Logger.error('Unable to find %s in Debian suite "%s".', package, suite)
+            Logger.error('Unable to find %s in Debian suite "%s".', package,
+                         suite)
             sys.exit(1)
         line = line[-1]
         version = line['version']
