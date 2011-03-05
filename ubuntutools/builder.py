@@ -57,12 +57,12 @@ class Builder(object):
 class Pbuilder(Builder):
     def __init__(self, command="pbuilder"):
         Builder.__init__(self, "pbuilder")
-        self.command = command
+        self._command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               self.command, "--build",
+               self._command, "--build",
                "--architecture", self.architecture, "--distribution", dist,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
@@ -71,7 +71,7 @@ class Pbuilder(Builder):
 
     def update(self, dist):
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               self.command, "--update",
+               self._command, "--update",
                "--architecture", self.architecture, "--distribution", dist]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
@@ -81,18 +81,18 @@ class Pbuilder(Builder):
 class Pbuilderdist(Builder):
     def __init__(self, command="pbuilder-dist"):
         Builder.__init__(self, "pbuilder-dist")
-        self.command = command
+        self._command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
-        cmd = [self.command, dist, self.architecture,
+        cmd = [self._command, dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._build_failure(returncode, dsc_file)
 
     def update(self, dist):
-        cmd = [self.command, dist, self.architecture, "update"]
+        cmd = [self._command, dist, self.architecture, "update"]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
