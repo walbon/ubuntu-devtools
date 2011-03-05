@@ -3,6 +3,10 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
   [ Felix Geyer ]
   * pull-lp-source.1: Document -d option.
 
+  [ Julian Taylor ]
+  * add support for cowbuilder and cowbuilder-dist in builder.py
+    - allows use in sponsor-patch and backportpackage (LP: #728751)
+
  -- Stefano Rivera <stefanor@debian.org>  Wed, 02 Mar 2011 12:34:04 +0200
 
 ubuntu-dev-tools (0.119) unstable; urgency=low
