@@ -109,4 +109,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        Logger.normal('Aborting at user request')
+        Logger.normal('User abort.')
