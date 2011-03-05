@@ -148,14 +148,14 @@ class Sbuild(Builder):
 
 
 def get_builder(builder):
-    if builder == 'pbuilder':
-        return Pbuilder()
-    elif builder == 'pbuilder-dist':
-        return Pbuilderdist()
-    elif builder == 'cowbuilder':
+    if builder == 'cowbuilder':
         return Pbuilder("cowbuilder")
     elif builder == 'cowbuilder-dist':
         return Pbuilderdist("cowbuilder-dist")
+    elif builder == 'pbuilder':
+        return Pbuilder()
+    elif builder == 'pbuilder-dist':
+        return Pbuilderdist()
     elif builder == 'sbuild':
         return Sbuild()
 
