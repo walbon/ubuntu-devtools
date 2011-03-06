@@ -55,13 +55,14 @@ class Builder(object):
 
 
 class Pbuilder(Builder):
-    def __init__(self):
+    def __init__(self, command="pbuilder"):
         Builder.__init__(self, "pbuilder")
+        self._command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               "pbuilder", "--build",
+               self._command, "--build",
                "--architecture", self.architecture, "--distribution", dist,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
@@ -70,7 +71,7 @@ class Pbuilder(Builder):
 
     def update(self, dist):
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               "pbuilder", "--update",
+               self._command, "--update",
                "--architecture", self.architecture, "--distribution", dist]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
@@ -78,19 +79,20 @@ class Pbuilder(Builder):
 
 
 class Pbuilderdist(Builder):
-    def __init__(self):
+    def __init__(self, command="pbuilder-dist"):
         Builder.__init__(self, "pbuilder-dist")
+        self._command = command
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
-        cmd = ["pbuilder-dist", dist, self.architecture,
+        cmd = [self._command, dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._build_failure(returncode, dsc_file)
 
     def update(self, dist):
-        cmd = ["pbuilder-dist", dist, self.architecture, "update"]
+        cmd = [self._command, dist, self.architecture, "update"]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
@@ -146,12 +148,17 @@ class Sbuild(Builder):
 
 
 def get_builder(builder):
-    if builder == 'pbuilder':
+    if builder == 'cowbuilder':
+        return Pbuilder("cowbuilder")
+    elif builder == 'cowbuilder-dist':
+        return Pbuilderdist("cowbuilder-dist")
+    elif builder == 'pbuilder':
         return Pbuilder()
     elif builder == 'pbuilder-dist':
         return Pbuilderdist()
     elif builder == 'sbuild':
         return Sbuild()
 
-    Logger.error("Unsupported builder specified: %s. Only pbuilder, "
-                 "pbuilder-dist and sbuild are supported." % builder)
+    Logger.error("Unsupported builder specified: %s. Only cowbuilder, "
+                 "cowbuilder-dist, pbuilder, pbuilder-dist "
+                 "and sbuild are supported." % builder)

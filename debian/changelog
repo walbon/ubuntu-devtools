@@ -11,6 +11,10 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
   * pull-{lp,debian}-source, pull-debian-debdiff: Catch KeyboardInterrupt.
     (LP: #713845)
 
+  [ Julian Taylor ]
+  * add support for cowbuilder and cowbuilder-dist in builder.py
+    - allows use in sponsor-patch and backportpackage (LP: #728751)
+
  -- Stefano Rivera <stefanor@debian.org>  Sat, 05 Mar 2011 00:47:57 +0200
 
 ubuntu-dev-tools (0.119) unstable; urgency=low
