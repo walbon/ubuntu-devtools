@@ -15,7 +15,10 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
   * add support for cowbuilder and cowbuilder-dist in builder.py
     - allows use in sponsor-patch and backportpackage (LP: #728751)
 
- -- Stefano Rivera <stefanor@debian.org>  Sat, 05 Mar 2011 00:47:57 +0200
+  [ Benjamin Drung ]
+  * data/ubuntu.csv: Add Oneiric Ocelot to the list of know releases.
+
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 07 Mar 2011 11:18:01 +0100
 
 ubuntu-dev-tools (0.119) unstable; urgency=low
 
