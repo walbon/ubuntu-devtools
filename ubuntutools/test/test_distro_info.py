@@ -60,10 +60,9 @@ class DebianDistroInfoTestCase(unittest.TestCase):
 
     def test_unsupported(self):
         """Test: List all unsupported Debian distribution."""
-        unsupported = set(["buzz", "rex", "bo", "hamm", "slink", "potato",
-                           "woody", "sarge", "etch"])
-        self.assertEqual(unsupported -
-                         set(self._distro_info.unsupported(self._date)), set())
+        unsupported = ["buzz", "rex", "bo", "hamm", "slink", "potato", "woody",
+                       "sarge", "etch"]
+        self.assertEqual(self._distro_info.unsupported(self._date), unsupported)
 
 
 #pylint: disable=R0904
@@ -102,10 +101,9 @@ class UbuntuDistroInfoTestCase(unittest.TestCase):
 
     def test_unsupported(self):
         """Test: List all unsupported Ubuntu distributions."""
-        unsupported = set(["warty", "hoary", "breezy", "edgy", "feisty",
-                           "gutsy", "intrepid", "jaunty"])
-        self.assertEqual(unsupported -
-                         set(self._distro_info.unsupported(self._date)), set())
+        unsupported = ["warty", "hoary", "breezy", "edgy", "feisty", "gutsy",
+                       "intrepid", "jaunty"]
+        self.assertEqual(self._distro_info.unsupported(self._date), unsupported)
 
     def test_current_unsupported(self):
         """Test: List all unsupported Ubuntu distributions today."""
