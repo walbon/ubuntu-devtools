@@ -147,18 +147,18 @@ class Sbuild(Builder):
         return 0
 
 
-def get_builder(builder):
-    if builder == 'cowbuilder':
-        return Pbuilder("cowbuilder")
-    elif builder == 'cowbuilder-dist':
-        return Pbuilderdist("cowbuilder-dist")
-    elif builder == 'pbuilder':
-        return Pbuilder()
-    elif builder == 'pbuilder-dist':
-        return Pbuilderdist()
-    elif builder == 'sbuild':
-        return Sbuild()
+_SUPPORTED_BUILDERS = {
+    "cowbuilder": lambda: Pbuilder("cowbuilder"),
+    "cowbuilder-dist": lambda: Pbuilderdist("cowbuilderdist"),
+    "pbuilder": lambda: Pbuilder(),
+    "pbuilder-dist": lambda: Pbuilderdist(),
+    "sbuild": lambda: Sbuild(),
+}
 
-    Logger.error("Unsupported builder specified: %s. Only cowbuilder, "
-                 "cowbuilder-dist, pbuilder, pbuilder-dist "
-                 "and sbuild are supported." % builder)
+def get_builder(builder):
+    if builder in _SUPPORTED_BUILDERS:
+        return _SUPPORTED_BUILDERS[builder]()
+    else:
+        Logger.error("Unsupported builder specified: %s.", builder)
+        Logger.error("Supported builders: %s",
+                     ", ".join(sorted(_SUPPORTED_BUILDERS.keys())))
