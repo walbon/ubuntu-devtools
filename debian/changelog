@@ -17,8 +17,9 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * data/ubuntu.csv: Add Oneiric Ocelot to the list of know releases.
+  * ubuntutools.distro_info: Fix TypeError crash (LP: #731398).
 
- -- Benjamin Drung <bdrung@debian.org>  Mon, 07 Mar 2011 11:18:01 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 08 Mar 2011 16:54:59 +0100
 
 ubuntu-dev-tools (0.119) unstable; urgency=low
 
