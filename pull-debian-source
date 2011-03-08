@@ -30,7 +30,7 @@ def main():
     parser.add_option('-d', '--download-only',
                       dest='download_only', default=False, action='store_true',
                       help='Do not extract the source package')
-    parser.add_option('-m', '--mirror', metavar='UBUNTU_MIRROR',
+    parser.add_option('-m', '--mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror (default: %s)'
                            % UDTConfig.defaults['DEBIAN_MIRROR'])
