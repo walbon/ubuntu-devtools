@@ -101,8 +101,15 @@ class UbuntuDistroInfoTestCase(unittest.TestCase):
         self.assertEqual(self._distro_info.supported(self._date), supported)
 
     def test_unsupported(self):
-        """Test: List all unsupported Ubuntu distribution."""
+        """Test: List all unsupported Ubuntu distributions."""
         unsupported = set(["warty", "hoary", "breezy", "edgy", "feisty",
                            "gutsy", "intrepid", "jaunty"])
         self.assertEqual(unsupported -
                          set(self._distro_info.unsupported(self._date)), set())
+
+    def test_current_unsupported(self):
+        """Test: List all unsupported Ubuntu distributions today."""
+        unsupported = set(["warty", "hoary", "breezy", "edgy", "feisty",
+                           "gutsy", "intrepid", "jaunty"])
+        self.assertEqual(unsupported -
+                         set(self._distro_info.unsupported()), set())
