@@ -10,6 +10,7 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
     the latest version in a release.
   * pull-{lp,debian}-source, pull-debian-debdiff: Catch KeyboardInterrupt.
     (LP: #713845)
+  * pull-debian-source: Handle -p-u and -security suites.
 
   [ Julian Taylor ]
   * add support for cowbuilder and cowbuilder-dist in builder.py

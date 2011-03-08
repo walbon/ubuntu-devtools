@@ -520,6 +520,10 @@ def rmadison(url, package, suite=None, arch=None):
                                stderr=subprocess.PIPE, close_fds=True)
     output = process.communicate()[0]
     assert process.wait() == 0
+
+    # rmadison uses some shorthand
+    suite = suite.replace('-proposed-updates', '-p-u')
+
     for line in output.strip().splitlines():
         pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
         comp = 'main'

@@ -24,6 +24,27 @@ from ubuntutools.config import UDTConfig
 from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.logger import Logger
 
+def is_suite(version):
+    """If version could be considered to be a Debian suite, return the
+    canonical suite name. Otherwise None
+    """
+    debian_info = DebianDistroInfo()
+    debian_releases = debian_info.all + ['experimental']
+
+    if '-' in version:
+        release, pocket = version.split('-', 1)
+        release = debian_info.codename(release, default=release)
+        if release in debian_releases:
+            if pocket in ('proposed-updates', 'p-u'):
+                return (release + '-proposed-updates')
+            elif pocket == 'security':
+                return (release + '-security')
+    else:
+        release = debian_info.codename(version, default=version)
+        if release in debian_releases:
+            return release
+    return None
+
 def main():
     usage = 'Usage: %prog <package> [release|version]'
     parser = optparse.OptionParser(usage)
@@ -59,9 +80,8 @@ def main():
     version = args[1] if len(args) > 1 else 'unstable'
     component = None
 
-    debian_info = DebianDistroInfo()
-    if debian_info.codename(version, default=version) in debian_info.all:
-        suite = debian_info.codename(version, default=version)
+    suite = is_suite(version)
+    if suite is not None:
         line = list(rmadison('debian', package, suite, 'source'))
         if not line:
             Logger.error('Unable to find %s in Debian suite "%s".', package,
