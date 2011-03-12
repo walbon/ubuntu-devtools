@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.120) unstable; urgency=low
 
   [ Felix Geyer ]
   * pull-lp-source.1: Document -d option.
@@ -11,6 +11,8 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
   * pull-{lp,debian}-source, pull-debian-debdiff: Catch KeyboardInterrupt.
     (LP: #713845)
   * pull-debian-source: Handle -p-u and -security suites.
+  * Bump X-Python-Version to >= 2.6, now that python-launchpadlib no longer
+    supports Python 2.5.
 
   [ Julian Taylor ]
   * add support for cowbuilder and cowbuilder-dist in builder.py
@@ -21,7 +23,7 @@ ubuntu-dev-tools (0.120) UNRELEASED; urgency=low
   * ubuntutools.distro_info: Fix TypeError crash and add a test case to
     catch regressions (LP: #731398).
 
- -- Benjamin Drung <bdrung@debian.org>  Tue, 08 Mar 2011 17:19:55 +0100
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Mar 2011 22:07:47 +0200
 
 ubuntu-dev-tools (0.119) unstable; urgency=low
 
