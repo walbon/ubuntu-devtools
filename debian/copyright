@@ -90,6 +90,7 @@ Files: ack-sync
        doc/get-branches.1
        doc/grab-attachments.1
        doc/grab-merge.1
+       doc/harvest.1
        doc/hugdaylist.1
        doc/massfile.1
        doc/merge-changelog.1
@@ -99,13 +100,14 @@ Files: ack-sync
        get-branches
        grab-attachments
        grab-merge
+       harvest
        hugdaylist
        massfile
        merge-changelog
        setup-packaging-environment
        syncpackage
 Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
-           2007-2010, Canonical Ltd.
+           2007-2011, Canonical Ltd.
            2010,      Dustin Kirkland <kirkland@ubuntu.com>
            2008,      Jonathan Patrick Davies <jpds@ubuntu.com>
            2008-2010, Martin Pitt <martin.pitt@canonical.com>
