@@ -21,13 +21,7 @@
 # harvest - grabs information about development opportunities from
 #           harvest.ubuntu.com
 #
-# hugdaylist <url>
-# - produces lists like
-# https://wiki.ubuntu.com/UbuntuBugDay/20070912?action=raw
 #
-# hugdaylist -n <howmany> <url>
-# - will only list <howmany> URLs.
-
 # Daniel Holbach 
 # (c) 2011 Canonical
 
