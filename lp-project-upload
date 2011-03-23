@@ -103,6 +103,10 @@ def main():
                 release = rel
                 break
         if not release:
+            for milestone in proj.all_milestones:
+                if milestone.name == version:
+                    release = milestone.createProductRelease(date_released=datetime.date.today().strftime('%Y-%m-%d'))
+        if not release:
             release = create_release(proj, version)
 
         # Get the file contents.
