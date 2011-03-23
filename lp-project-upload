@@ -141,16 +141,16 @@ def main():
         release.lp_save()
 
         if not new_milestone is None:
-			mil = release.milestone
-			for series in proj.series:
-				broke = False
-				for milestone in series.all_milestones:
-					if mil.name == milestone.name:
-						series.newMilestone(name=new_milestone, date_targeted=datetime.date.today().strftime('%Y-%m-%d'))
-						broke = True
-						break
-				if broke:
-					break
+            mil = release.milestone
+            for series in proj.series:
+                broke = False
+                for milestone in series.all_milestones:
+                    if mil.name == milestone.name:
+                        series.newMilestone(name=new_milestone, date_targeted=datetime.date.today().strftime('%Y-%m-%d'))
+                        broke = True
+                        break
+                if broke:
+                    break
 
     except HTTPError, error:
         print 'An error happened in the upload:', error.content
