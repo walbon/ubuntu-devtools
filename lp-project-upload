@@ -147,8 +147,7 @@ def main():
                 broke = False
                 for milestone in series.all_milestones:
                     if mil.name == milestone.name:
-                        today = datetime.date.today().strftime('%Y-%m-%d')
-                        series.newMilestone(name=new_milestone, date_targeted=today)
+                        series.newMilestone(name=new_milestone)
                         broke = True
                         break
                 if broke:
