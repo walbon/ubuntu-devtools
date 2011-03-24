@@ -105,7 +105,8 @@ def main():
         if not release:
             for milestone in proj.all_milestones:
                 if milestone.name == version:
-                    release = milestone.createProductRelease(date_released=datetime.date.today().strftime('%Y-%m-%d'))
+                    today = datetime.date.today().strftime('%Y-%m-%d')
+                    release = milestone.createProductRelease(date_released=today)
         if not release:
             release = create_release(proj, version)
 
