@@ -148,14 +148,8 @@ def main():
         if not new_milestone is None:
             mil = release.milestone
             for series in proj.series:
-                broke = False
-                for milestone in series.all_milestones:
-                    if mil.name == milestone.name:
-                        series.newMilestone(name=new_milestone)
-                        broke = True
-                        break
-                if broke:
-                    break
+                if mil.name in [milestone.name for milestone in series.all_milestones]:
+                    series.newMilestone(name=new_milestone)
 
     except HTTPError, error:
         print 'An error happened in the upload:', error.content
