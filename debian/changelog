@@ -1,9 +1,14 @@
 ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
 
+  [ Daniel Holbach ]
   * harvest, setup.py: install tool that queries Harvest for information
     about open opportunities for a given source package.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 21 Mar 2011 12:24:56 +0100
+  [ Ted Gould ]
+  * lp-project-upload: Use a milestone that already exists if there is
+    one to use.
+
+ -- Ted Gould <ted@ubuntu.com>  Wed, 23 Mar 2011 20:52:56 -0500
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
