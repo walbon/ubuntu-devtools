@@ -1,7 +1,11 @@
 ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
 
+  [ Daniel Holbach ]
   * harvest, setup.py: install tool that queries Harvest for information
     about open opportunities for a given source package.
+
+  [ Stefano Rivera ]
+  * ubuntutools.archive.rmadison: suite can be None, handle this correctly.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 21 Mar 2011 12:24:56 +0100
 

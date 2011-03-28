@@ -522,7 +522,8 @@ def rmadison(url, package, suite=None, arch=None):
     assert process.wait() == 0
 
     # rmadison uses some shorthand
-    suite = suite.replace('-proposed-updates', '-p-u')
+    if suite:
+        suite = suite.replace('-proposed-updates', '-p-u')
 
     for line in output.strip().splitlines():
         pkg, ver, dist, archs = [x.strip() for x in line.split('|')]
@@ -534,7 +535,7 @@ def rmadison(url, package, suite=None, arch=None):
         # rmadison returns some results outside the requested set.
         # It'll include backports, and when given an unknown suite,
         # it ignores that argument
-        if dist != suite:
+        if suite and dist != suite:
             continue
 
         if 'source' in archs:
