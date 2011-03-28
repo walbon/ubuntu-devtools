@@ -68,7 +68,7 @@ def main():
         parser.error('Too many arguments')
     package = args[0]
     version = args[1]
-    distance = args[2] if len(args) > 2 else 1
+    distance = int(args[2]) if len(args) > 2 else 1
 
     config = UDTConfig(opts.no_conf)
     if opts.debian_mirror is None:

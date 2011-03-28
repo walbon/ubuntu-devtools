@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
 
   [ Stefano Rivera ]
   * ubuntutools.archive.rmadison: suite can be None, handle this correctly.
+  * pull-debian-debdiff: Convert distance to an integer, so it works when
+    specified.
 
  -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 21 Mar 2011 12:24:56 +0100
 
