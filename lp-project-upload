@@ -145,7 +145,7 @@ def main():
         release.lp_save()
 
         # Create a new milestone if requested
-        if not new_milestone is None:
+        if new_milestone is not None:
             mil = release.milestone
             for series in proj.series:
                 if mil.name in [milestone.name for milestone in series.all_milestones]:
