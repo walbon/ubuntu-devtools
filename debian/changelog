@@ -14,8 +14,9 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
     debian/control to avoid mangling this file (LP: #756373). The new
     simplified parser has no problems with comments in debian/control
     (LP: #701487, #713827).
+  * doc/setup-packaging-environment.1: Fix typo "helps to" -> "helps one to".
 
- -- Benjamin Drung <bdrung@debian.org>  Sun, 17 Apr 2011 16:06:49 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Sun, 17 Apr 2011 16:43:55 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
