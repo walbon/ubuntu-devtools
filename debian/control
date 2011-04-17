@@ -24,7 +24,7 @@ Build-Depends: dctrl-tools,
                python-unittest2
 X-Python-Version: >= 2.6
 Homepage: https://launchpad.net/ubuntu-dev-tools
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 
 Package: ubuntu-dev-tools
 Architecture: all
