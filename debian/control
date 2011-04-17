@@ -83,7 +83,7 @@ Description: useful tools for Ubuntu developers
     report.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - grep-merges - search for pending merges from Debian.
-  - harvest - grabs information about development opportunities from 
+  - harvest - grabs information about development opportunities from
     http://harvest.ubuntu.com
   - hugdaylist - compile HugDay lists from bug list URLs.
   - import-bug-from-debian - copy a bug from the Debian BTS to Launchpad
