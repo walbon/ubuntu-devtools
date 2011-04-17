@@ -9,7 +9,13 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
   * pull-debian-debdiff: Convert distance to an integer, so it works when
     specified.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 21 Mar 2011 12:24:56 +0100
+  [ Benjamin Drung ]
+  * ubuntutools.update-maintainer: Do not use python-debian to parse
+    debian/control to avoid mangling this file (LP: #756373). The new
+    simplified parser has no problems with comments in debian/control
+    (LP: #701487, #713827).
+
+ -- Benjamin Drung <bdrung@debian.org>  Sun, 17 Apr 2011 16:06:49 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 

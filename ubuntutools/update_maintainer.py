@@ -17,10 +17,10 @@
 """This module is for updating the Maintainer field of an Ubuntu package."""
 
 import os
+import re
 
 import debian.changelog
 
-from ubuntutools.control import Control
 from ubuntutools.logger import Logger
 
 # Prior May 2009 these Maintainers were used:
@@ -30,6 +30,56 @@ _PREVIOUS_UBUNTU_MAINTAINER = (
     "ubuntu motu developers <ubuntu-motu@lists.ubuntu.com>",
 )
 _UBUNTU_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+
+class Control(object):
+    """Represents a debian/control file"""
+
+    def __init__(self, filename):
+        assert os.path.isfile(filename), "%s does not exist." % (filename)
+        self._filename = filename
+        self._content = open(filename).read()
+
+    def get_maintainer(self):
+        """Returns the value of the Maintainer field."""
+        maintainer = re.search("^Maintainer: ?(.*)$", self._content,
+                               re.MULTILINE)
+        if maintainer:
+            maintainer = maintainer.group(1)
+        return maintainer
+
+    def get_original_maintainer(self):
+        """Returns the value of the XSBC-Original-Maintainer field."""
+        orig_maintainer = re.search("^(?:[XSBC]*-)?Original-Maintainer: ?(.*)$",
+                                    self._content, re.MULTILINE)
+        if orig_maintainer:
+            orig_maintainer = orig_maintainer.group(1)
+        return orig_maintainer
+
+    def save(self, filename=None):
+        """Saves the control file."""
+        if filename:
+            self._filename = filename
+        control_file = open(self._filename, "w")
+        control_file.write(self._content)
+        control_file.close()
+
+    def set_maintainer(self, maintainer):
+        """Sets the value of the Maintainer field."""
+        pattern = re.compile("^Maintainer: ?.*$", re.MULTILINE)
+        self._content = pattern.sub("Maintainer: " + maintainer, self._content)
+
+    def set_original_maintainer(self, original_maintainer):
+        """Sets the value of the XSBC-Original-Maintainer field."""
+        original_maintainer = "XSBC-Original-Maintainer: " + original_maintainer
+        if self.get_original_maintainer():
+            pattern = re.compile("^(?:[XSBC]*-)?Original-Maintainer:.*$",
+                                 re.MULTILINE)
+            self._content = pattern.sub(original_maintainer, self._content)
+        else:
+            pattern = re.compile("^(Maintainer:.*)$", re.MULTILINE)
+            self._content = pattern.sub(r"\1\n" + original_maintainer,
+                                        self._content)
+
 
 def _get_distribution(changelog_file):
     """get distribution of latest changelog entry"""
