@@ -27,7 +27,8 @@ from ubuntutools.sponsor_patch.sponsor_patch import sponsor_patch
 
 def main():
     script_name = os.path.basename(sys.argv[0])
-    usage = "%s [options] <bug number>" % (script_name)
+    usage = ("%s [options] <bug number>\n" % (script_name)
+             + "One of --upload, --workdir, or --sponsor must be specified.")
     epilog = "See %s(1) for more info." % (script_name)
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
@@ -58,7 +59,8 @@ def main():
     parser.add_option("-v", "--verbose", help="print more information",
                       dest="verbose", action="store_true", default=False)
     parser.add_option("-w", "--workdir", dest="workdir", default=None,
-                      help="Specify a working directory.")
+                      help="Specify a working directory (default is a "
+                           "temporary directory, deleted afterwards).")
 
     (options, args) = parser.parse_args()
     Logger.set_verbosity(options.verbose)

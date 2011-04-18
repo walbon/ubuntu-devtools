@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
   * ubuntutools.archive.rmadison: suite can be None, handle this correctly.
   * pull-debian-debdiff: Convert distance to an integer, so it works when
     specified.
+  * sponsor-patch, doc/sponsorpatch.1: Clarify that --upload or --workdir is
+    required. (LP: #712721)
 
   [ Benjamin Drung ]
   * ubuntutools.update-maintainer: Do not use python-debian to parse
@@ -17,7 +19,7 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
   * doc/setup-packaging-environment.1: Fix typo "helps to" -> "helps one to".
   * Bump Standards-Version to 3.9.2 (no changes required).
 
- -- Benjamin Drung <bdrung@debian.org>  Sun, 17 Apr 2011 16:46:11 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 18 Apr 2011 14:15:29 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
