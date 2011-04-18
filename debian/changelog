@@ -10,6 +10,7 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
     specified.
   * sponsor-patch, doc/sponsorpatch.1: Clarify that --upload or --workdir is
     required. (LP: #712721)
+  * Drop Breaks: ${python:Breaks}, no longer used by dh_python2.
 
   [ Benjamin Drung ]
   * ubuntutools.update-maintainer: Do not use python-debian to parse
