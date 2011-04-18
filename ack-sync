@@ -202,7 +202,7 @@ def ack_sync(bug_numbers, all_package, all_version, all_section, update,
         if all_package is not None:
             package = all_package
         else:
-            package = task.bug_target_name.split(" ")
+            package = task.bug_target_name.split(" ")[0]
             if package == "ubuntu":
                 words = bug.title.split(" ")
                 # no source package was defined. Guessing that the second or
