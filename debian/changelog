@@ -19,8 +19,9 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
     (LP: #701487, #713827).
   * doc/setup-packaging-environment.1: Fix typo "helps to" -> "helps one to".
   * Bump Standards-Version to 3.9.2 (no changes required).
+  * Drop transitional qemu-kvm-extras-static from alternative suggests.
 
- -- Stefano Rivera <stefanor@debian.org>  Mon, 18 Apr 2011 14:15:29 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 18 Apr 2011 14:52:41 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
