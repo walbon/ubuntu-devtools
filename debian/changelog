@@ -21,7 +21,11 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
   * Bump Standards-Version to 3.9.2 (no changes required).
   * Drop transitional qemu-kvm-extras-static from alternative suggests.
 
- -- Benjamin Drung <bdrung@debian.org>  Mon, 18 Apr 2011 14:52:41 +0200
+  [ Ted Gould ]
+  * lp-project-upload: Use a milestone that already exists if there is
+    one to use.
+
+ -- Ted Gould <ted@ubuntu.com>  Mon, 18 Apr 2011 17:52:30 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
