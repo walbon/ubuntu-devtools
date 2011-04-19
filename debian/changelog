@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.121) unstable; urgency=low
 
   [ Daniel Holbach ]
   * harvest, setup.py: install tool that queries Harvest for information
@@ -17,7 +17,7 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
     debian/control to avoid mangling this file (LP: #756373). The new
     simplified parser has no problems with comments in debian/control
     (LP: #701487, #713827).
-  * doc/setup-packaging-environment.1: Fix typo "helps to" -> "helps one to".
+  * doc/setup-packaging-environment.1: Fix typo.
   * Bump Standards-Version to 3.9.2 (no changes required).
   * Drop transitional qemu-kvm-extras-static from alternative suggests.
 
@@ -25,7 +25,7 @@ ubuntu-dev-tools (0.121) UNRELEASED; urgency=low
   * lp-project-upload: Use a milestone that already exists if there is
     one to use.
 
- -- Ted Gould <ted@ubuntu.com>  Mon, 18 Apr 2011 17:52:30 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 19 Apr 2011 08:49:06 +0200
 
 ubuntu-dev-tools (0.120) unstable; urgency=low
 
