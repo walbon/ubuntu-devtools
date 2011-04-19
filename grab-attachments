@@ -20,6 +20,7 @@
 # ##################################################################
 
 from optparse import OptionParser
+import errno
 import os
 import sys
 
@@ -61,7 +62,7 @@ def main():
             try:
                 os.mkdir(bug_folder_name)
             except OSError, error:
-                if error.errno == 17:
+                if error.errno == errno.EEXIST:
                     continue
 
             for attachment in bug.attachments:
