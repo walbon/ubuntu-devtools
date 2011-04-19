@@ -61,7 +61,7 @@ def main():
             try:
                 os.mkdir(bug_folder_name)
             except OSError, error:
-                if 'file exists' in error:
+                if error.errno == 17:
                     continue
 
             for attachment in bug.attachments:
