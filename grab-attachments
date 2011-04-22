@@ -20,6 +20,7 @@
 # ##################################################################
 
 from optparse import OptionParser
+import errno
 import os
 import sys
 
@@ -56,9 +57,18 @@ def main():
 
             bug = launchpad.bugs[number]
 
+            bug_folder_name = 'bug-%s' % number
+
+            try:
+                os.mkdir(bug_folder_name)
+            except OSError, error:
+                if error.errno == errno.EEXIST:
+                    continue
+
             for attachment in bug.attachments:
                 f = attachment.data.open()
-                filename = os.path.join(os.getcwd(), f.filename)
+                filename = os.path.join(os.getcwd(), bug_folder_name,
+                    f.filename)
                 local_file = open(filename, "w")
                 local_file.write(f.read())
                 f.close()
