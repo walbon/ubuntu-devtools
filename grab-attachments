@@ -68,7 +68,7 @@ def main():
             for attachment in bug.attachments:
                 f = attachment.data.open()
                 filename = os.path.join(os.getcwd(), bug_folder_name,
-                    f.filename)
+                                        f.filename)
                 local_file = open(filename, "w")
                 local_file.write(f.read())
                 f.close()
