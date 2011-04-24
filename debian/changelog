@@ -7,7 +7,6 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
     - Determine distribution from release name (via distro-info).
     - Reformat manpage.
     - Install qemu-user-static instead of qemu-kvm-extras-static.
-    - Correctly substitute release into security suite name.
     - Put schroot configuration in chroot.d/sbuild-$chroot (LP: #736808)
     - Understand Debian distribution synonyms, and store the chroot under the
       code name.
