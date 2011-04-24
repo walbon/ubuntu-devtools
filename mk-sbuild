@@ -540,6 +540,21 @@ cat "$TEMP_SCHROOTCONF" | sed \
         | \
         sudo bash -c "cat >> /etc/schroot/schroot.conf"
 rm -f "$TEMP_SCHROOTCONF"
+
+# Disable daemons in chroot:
+sudo bash -c "cat >> $MNT/usr/sbin/policy-rc.d" <<EOM
+#!/bin/sh
+while true; do
+    case "\$1" in
+      -*) shift ;;
+      makedev) exit 0;;
+      x11-common) exit 0;;
+      *) exit 101;;
+    esac
+done
+EOM
+sudo chmod a+x "$MNT"/usr/sbin/policy-rc.d
+
 # Create image finalization script
 sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 #!/bin/bash
