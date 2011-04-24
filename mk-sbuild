@@ -70,14 +70,17 @@ function usage()
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
     echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
-    exit 1
+    if [ -z "$1" ]; then
+        exit 1
+    fi
+    exit $1
 }
 
 
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,personality:,distro:,vg:,type:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,personality:,distro:,vg:,type:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -145,8 +148,8 @@ while :; do
             shift
             break
             ;;
-        --help|*)
-            usage
+        -h|--help|*)
+            usage 0
             ;;
      esac
 done
