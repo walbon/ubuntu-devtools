@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
     - Move package installation after option parsing.
     - Exit 0 when showing help, and support -h.
     - Determine distribution from release name (via distro-info).
+    - Reformat manpage.
 
  -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 12:45:31 +0200
 
