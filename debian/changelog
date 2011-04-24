@@ -11,6 +11,7 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
     - Put schroot configuration in chroot.d/sbuild-$chroot (LP: #736808)
     - Understand Debian distribution synonyms, and store the chroot under the
       code name.
+    - Support Debian experimental.
 
  -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 20:35:51 +0200
 

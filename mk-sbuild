@@ -228,6 +228,7 @@ fi
 
 # Determine distribution and possible synonyms
 synonym=""
+EXPERIMENTAL=0
 if debian-distro-info --all | grep -Fqx "$RELEASE"; then
     DISTRO="${DISTRO:-debian}"
     if [ "$RELEASE" = $(debian-distro-info --devel) ]; then
@@ -257,6 +258,11 @@ elif [ "$RELEASE" = "oldstable" ]; then
     DISTRO="${DISTRO:-debian}"
     synonym="$RELEASE"
     RELEASE=$(debian-distro-info --old)
+elif [ "$RELEASE" = "experimental" ]; then
+    DISTRO="${DISTRO:-debian}"
+    EXPERIMENTAL=1
+    name="${name:-experimental}"
+    RELEASE=$(debian-distro-info --devel)
 elif [ -z "$DISTRO" ]; then
     echo "Unable to determine distribution, please provide --distro" >&2
     exit 1
@@ -510,6 +516,12 @@ else
 deb ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 EOM
+    if [ "$EXPERIMENTAL" -eq 1 ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
+deb ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
+deb-src ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
+EOM
+    fi
     if [ -z "$SKIP_UPDATES" ]; then
         cat >> "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
@@ -526,6 +538,12 @@ fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
     sudo bash -c "cat > $MNT/etc/apt/sources.list"
 rm -f "$TEMP_SOURCES"
+
+if [ "$EXPERIMENTAL" -eq 1 ]; then
+    echo 'APT::Default-Release "experimental";' \
+        | sudo tee "$MNT"/etc/apt/apt.conf.d/15sbuild > /dev/null
+fi
+
 # Copy the timezone (comment this out if you want to leave the chroot at UTC)
 sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
 # Create a schroot entry for this chroot
