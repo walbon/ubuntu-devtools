@@ -30,70 +30,6 @@
 # It will deal with sbuild having not be installed and configured before.
 set -e
 
-# For when schroot enters the chroot, we cannot be in a directory that
-# will not exist in the chroot.
-cd /
-
-# Make sure we've got a regular user
-if [ -w /etc/passwd ]; then
-    echo "Please run this script as a regular user, not root." >&2
-    exit 1
-fi
-
-# Perform once-only things to initially set up for using sbuild+schroot
-if [ ! -w /var/lib/sbuild ]; then
-    # Load all the packages you'll need to do work
-    sudo apt-get install sbuild schroot debootstrap
-    # Add self to the sbuild group
-    sudo adduser "$USER" sbuild
-
-    # Prepare a usable default .sbuildrc
-    if [ ! -e ~/.sbuildrc ]; then
-        cat > ~/.sbuildrc <<EOM
-# *** VERIFY AND UPDATE \$mailto and \$maintainer_name BELOW ***
-
-# Mail address where logs are sent to (mandatory, no default!)
-\$mailto = '$USER';
-
-# Name to use as override in .changes files for the Maintainer: field
-# (mandatory, no default!).
-\$maintainer_name='$USER <$USER@localhost>';
-
-# Directory for chroot symlinks and sbuild logs.  Defaults to the
-# current directory if unspecified.
-#\$build_dir='$HOME/ubuntu/build';
-
-# Directory for writing build logs to
-\$log_dir="$HOME/ubuntu/logs";
-
-# don't remove this, Perl needs it:
-1;
-EOM
-        sensible-editor ~/.sbuildrc
-        # Create target directories, if needed
-        eval $(egrep '^\$(build|log)_dir[ 	]*=' ~/.sbuildrc | cut -c2-)
-        if [ -n "$log_dir" ]; then
-            mkdir -p "$log_dir"
-        fi
-        if [ -n "$build_dir" ]; then
-            mkdir -p "$build_dir"
-        fi
-    else
-        echo "Your ~/.sbuildrc already exists -- leaving it as-is."
-    fi
-
-    echo '***********************************************'
-    echo '* Before continuing, you MUST restart your    *'
-    echo '* session to gain "sbuild" group permissions! *'
-    echo '***********************************************'
-    exit 0
-fi
-
-if ! id | fgrep -q '(sbuild)'; then
-    echo "You must be a member of the 'sbuild' group." >&2
-    exit 1
-fi
-
 # Set up configurable defaults (loaded after option processing)
 LV_SIZE="5G"
 SNAPSHOT_SIZE="4G"
@@ -214,6 +150,70 @@ while :; do
             ;;
      esac
 done
+
+# For when schroot enters the chroot, we cannot be in a directory that
+# will not exist in the chroot.
+cd /
+
+# Make sure we've got a regular user
+if [ -w /etc/passwd ]; then
+    echo "Please run this script as a regular user, not root." >&2
+    exit 1
+fi
+
+# Perform once-only things to initially set up for using sbuild+schroot
+if [ ! -w /var/lib/sbuild ]; then
+    # Load all the packages you'll need to do work
+    sudo apt-get install sbuild schroot debootstrap
+    # Add self to the sbuild group
+    sudo adduser "$USER" sbuild
+
+    # Prepare a usable default .sbuildrc
+    if [ ! -e ~/.sbuildrc ]; then
+        cat > ~/.sbuildrc <<EOM
+# *** VERIFY AND UPDATE \$mailto and \$maintainer_name BELOW ***
+
+# Mail address where logs are sent to (mandatory, no default!)
+\$mailto = '$USER';
+
+# Name to use as override in .changes files for the Maintainer: field
+# (mandatory, no default!).
+\$maintainer_name='$USER <$USER@localhost>';
+
+# Directory for chroot symlinks and sbuild logs.  Defaults to the
+# current directory if unspecified.
+#\$build_dir='$HOME/ubuntu/build';
+
+# Directory for writing build logs to
+\$log_dir="$HOME/ubuntu/logs";
+
+# don't remove this, Perl needs it:
+1;
+EOM
+        sensible-editor ~/.sbuildrc
+        # Create target directories, if needed
+        eval $(egrep '^\$(build|log)_dir[ 	]*=' ~/.sbuildrc | cut -c2-)
+        if [ -n "$log_dir" ]; then
+            mkdir -p "$log_dir"
+        fi
+        if [ -n "$build_dir" ]; then
+            mkdir -p "$build_dir"
+        fi
+    else
+        echo "Your ~/.sbuildrc already exists -- leaving it as-is."
+    fi
+
+    echo '***********************************************'
+    echo '* Before continuing, you MUST restart your    *'
+    echo '* session to gain "sbuild" group permissions! *'
+    echo '***********************************************'
+    exit 0
+fi
+
+if ! id | fgrep -q '(sbuild)'; then
+    echo "You must be a member of the 'sbuild' group." >&2
+    exit 1
+fi
 
 # To build the chroot, we need to know which release of Ubuntu to debootstrap
 RELEASE="$1"
