@@ -4,6 +4,7 @@ ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
     - Disable daemons with a policy-rc.d script (like pbuilder does)
     - Move package installation after option parsing.
     - Exit 0 when showing help, and support -h.
+    - Determine distribution from release name (via distro-info).
 
  -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 12:45:31 +0200
 

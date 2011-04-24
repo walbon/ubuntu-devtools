@@ -5,6 +5,7 @@
 #  Kees Cook <kees@ubuntu.com>
 #  Emmet Hikory <persia@ubuntu.com>
 #  Scott Moser <smoser@ubuntu.com>
+#  Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -52,7 +53,8 @@ function usage()
     echo "  --debootstrap-include=list Comma separated list of packages to include"
     echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
     echo "  --distro=DISTRO            Install specific distro:"
-    echo "                                 'ubuntu'(default), or 'debian'"
+    echo "                                 'ubuntu' or 'debian' "
+    echo "                                 (defaults to determining from release name)"
     echo "  --type=SCHROOT_TYPE        Define the schroot type:"
     echo "                                 'directory'(default), 'file', or 'btrfs-snapshot'"
     echo "                                 'lvm-snapshot' is selected via --vg"
@@ -84,7 +86,7 @@ OPTS=`getopt -o 'h' --long "help,debug,skip-updates,arch:,name:,source-template:
 eval set -- "$OPTS"
 
 VG=""
-DISTRO="ubuntu"
+DISTRO=""
 name=""
 while :; do
     case "$1" in
@@ -222,6 +224,21 @@ fi
 RELEASE="$1"
 if [ -z "$RELEASE" ]; then
     usage
+fi
+
+# Determine distribution
+if [ -z "$DISTRO" ]; then
+    if debian-distro-info --all | grep -Fqx "$RELEASE"; then
+        DISTRO=debian
+    elif ubuntu-distro-info --all | grep -Fqx "$RELEASE"; then
+        DISTRO=ubuntu
+    elif [ "$RELEASE" = "unstable" -o "$RELEASE" = "testing" \
+           -o "$RELEASE" = "stable" -o "$RELEASE" = "oldstable" ]; then
+        DISTRO=debian
+    else
+        echo "Unable to determine distribution, please provide --distro" >&2
+        exit 1
+    fi
 fi
 
 # By default, name the schroot the same as the release

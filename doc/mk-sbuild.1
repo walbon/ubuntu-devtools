@@ -4,10 +4,7 @@
 mk\-sbuild \- creates chroots via schroot and sbuild
 
 .SH SYNOPSIS
-\fBmk\-sbuild\fR [\fB\-\-arch=ARCH\fR] [\fB\-\-name=NAME\fR]
-[\fB\-\-personality=PERSONALITY\fR] [\fB\-\-debug\fR] [\fB\-\-source\-template=FILE\fR]
-[\fB\-\-debootstrap\-mirror=URL\fR] [\fB\-\-distro=DISTRO\fR]
-[\fB\-\-vg=VOLUME_GROUP\fR] [\fB\-\-type=SCHROOT_TYPE\fR] <\fBRelease\fR>
+\fBmk\-sbuild\fR [\fIoptions\fR...] <\fIrelease\fR>
 
 .SH DESCRIPTION
 \fBmk\-sbuild\fR creates chroots via schroot and sbuild.
@@ -47,8 +44,9 @@ argument. WARNING: be careful using this option as you can end up
 excluding essential package. See debootstrap (8) for more details.
 .TP
 .B \-\-distro=DISTRO
-Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
-and "debian".
+Enable distro-specific logic.
+When not provided, the distribution is determined from \fIrelease\fR.
+Currently known distros: "\fBdebian\fR" and "\fBubuntu\fR".
 .TP
 .B \-\-vg=VOLUME_GROUP
 Specify a volume group, and subsequently use a default SCHROOT_TYPE of
