@@ -307,10 +307,10 @@ case "$SCHROOT_TYPE" in
     ;;
 "btrfs-snapshot")
     if [ ! -d "${SOURCE_CHROOTS_DIR}" ]; then
-	sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
+        sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
     fi
     if [ ! -d "${CHROOT_SNAPSHOT_DIR}" ]; then
-	sudo mkdir -p "${CHROOT_SNAPSHOT_DIR}"
+        sudo mkdir -p "${CHROOT_SNAPSHOT_DIR}"
     fi
     CHROOT_PATH="${SOURCE_CHROOTS_DIR}/${CHROOT_NAME}"
     ;;
@@ -628,3 +628,5 @@ echo " To CHANGE the golden image: sudo schroot -c ${CHROOT_NAME}-source -u root
 echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
 echo " To BUILD within a snapshot: sbuild -A -d ${CHROOT_NAME} PACKAGE*.dsc"
 echo ""
+
+# vi: set et:
