@@ -426,7 +426,7 @@ if [ "$CHROOT_ARCH" != "$HOST_ARCH" ] ; then
     *)
         DEBOOTSTRAP_COMMAND=qemu-debootstrap
         if ! which "$DEBOOTSTRAP_COMMAND"; then
-            sudo apt-get install qemu-kvm-extras-static
+            sudo apt-get install qemu-user-static
         fi
         ;;
     esac
