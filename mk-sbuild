@@ -551,14 +551,13 @@ fi
 if [ ! -z "$SCHROOT_CONF_SUFFIX" ]; then
     echo "$SCHROOT_CONF_SUFFIX" >> "$TEMP_SCHROOTCONF"
 fi
-cat "$TEMP_SCHROOTCONF" | sed \
-        -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
-        -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
-        -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
-        -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
-        -e "s|CHROOT_SNAPSHOT_DIR|$CHROOT_SNAPSHOT_DIR|g" \
-        | \
-        sudo bash -c "cat >> /etc/schroot/schroot.conf"
+sed -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
+    -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
+    -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
+    -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
+    -e "s|CHROOT_SNAPSHOT_DIR|$CHROOT_SNAPSHOT_DIR|g" \
+    "$TEMP_SCHROOTCONF" \
+    | sudo tee "/etc/schroot/chroot.d/sbuild-$CHROOT_NAME" > /dev/null
 rm -f "$TEMP_SCHROOTCONF"
 
 # Disable daemons in chroot:
