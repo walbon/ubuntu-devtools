@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
 
   * mk-sbuild:
     - Disable daemons with a policy-rc.d script (like pbuilder does)
@@ -9,8 +9,10 @@ ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
     - Install qemu-user-static instead of qemu-kvm-extras-static.
     - Correctly substitute release into security suite name.
     - Put schroot configuration in chroot.d/sbuild-$chroot (LP: #736808)
+    - Understand Debian distribution synonyms, and store the chroot under the
+      code name.
 
- -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 12:45:31 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 20:35:51 +0200
 
 ubuntu-dev-tools (0.122) unstable; urgency=low
 

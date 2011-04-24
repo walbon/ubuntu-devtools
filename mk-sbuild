@@ -226,24 +226,48 @@ if [ -z "$RELEASE" ]; then
     usage
 fi
 
-# Determine distribution
-if [ -z "$DISTRO" ]; then
-    if debian-distro-info --all | grep -Fqx "$RELEASE"; then
-        DISTRO=debian
-    elif ubuntu-distro-info --all | grep -Fqx "$RELEASE"; then
-        DISTRO=ubuntu
-    elif [ "$RELEASE" = "unstable" -o "$RELEASE" = "testing" \
-           -o "$RELEASE" = "stable" -o "$RELEASE" = "oldstable" ]; then
-        DISTRO=debian
-    else
-        echo "Unable to determine distribution, please provide --distro" >&2
-        exit 1
+# Determine distribution and possible synonyms
+synonym=""
+if debian-distro-info --all | grep -Fqx "$RELEASE"; then
+    DISTRO="${DISTRO:-debian}"
+    if [ "$RELEASE" = $(debian-distro-info --devel) ]; then
+        synonym=unstable
+    elif [ "$RELEASE" = $(debian-distro-info --testing) ]; then
+        synonym=testing
+    elif [ "$RELEASE" = $(debian-distro-info --stable) ]; then
+        synonym=stable
+    elif [ "$RELEASE" = $(debian-distro-info --old) ]; then
+        synonym=oldstable
     fi
+elif ubuntu-distro-info --all | grep -Fqx "$RELEASE"; then
+    DISTRO="${DISTRO:-ubuntu}"
+elif [ "$RELEASE" = "unstable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --devel)
+elif [ "$RELEASE" = "testing" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --testing)
+elif [ "$RELEASE" = "stable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --stable)
+elif [ "$RELEASE" = "oldstable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --old)
+elif [ -z "$DISTRO" ]; then
+    echo "Unable to determine distribution, please provide --distro" >&2
+    exit 1
 fi
 
 # By default, name the schroot the same as the release
 if [ -z "$name" ]; then
     name="$RELEASE"
+else
+    # Disable synonym when a custom name is used:
+    synonym=""
 fi
 
 # By default, use the native architecture.
@@ -253,6 +277,12 @@ if [ -z "$CHROOT_ARCH" ]; then
 fi
 
 CHROOT_NAME="${name}-${CHROOT_ARCH}"
+
+if [ -z "$synonym" ]; then
+    CHROOT_SYNONYM=""
+else
+    CHROOT_SYNONYM="${synonym}-${CHROOT_ARCH}"
+fi
 
 # Load customizations
 if [ -r ~/.mk-sbuild.rc ]; then
@@ -547,6 +577,9 @@ EOM
 fi
 if [ ! -z "$personality" ]; then
     echo "personality=$personality" >> "$TEMP_SCHROOTCONF"
+fi
+if [ ! -z "$CHROOT_SYNONYM" ]; then
+    echo "aliases=$CHROOT_SYNONYM" >> "$TEMP_SCHROOTCONF"
 fi
 if [ ! -z "$SCHROOT_CONF_SUFFIX" ]; then
     echo "$SCHROOT_CONF_SUFFIX" >> "$TEMP_SCHROOTCONF"
