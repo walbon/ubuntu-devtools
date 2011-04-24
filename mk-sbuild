@@ -560,7 +560,6 @@ else
         # it helps keep the schroot stanzas separated in the main
         # /etc/schroot/schroot.conf file.
         cat > "$TEMP_SCHROOTCONF" <<EOM
-
 [CHROOT_NAME]
 description=CHROOT_NAME
 groups=sbuild,root,admin
