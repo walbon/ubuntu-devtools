@@ -7,6 +7,7 @@ ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
     - Determine distribution from release name (via distro-info).
     - Reformat manpage.
     - Install qemu-user-static instead of qemu-kvm-extras-static.
+    - Correctly substitute release into security suite name.
 
  -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 12:45:31 +0200
 
