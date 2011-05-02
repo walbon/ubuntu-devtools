@@ -4,10 +4,7 @@
 mk\-sbuild \- creates chroots via schroot and sbuild
 
 .SH SYNOPSIS
-\fBmk\-sbuild\fR [\fB\-\-arch=ARCH\fR] [\fB\-\-name=NAME\fR]
-[\fB\-\-personality=PERSONALITY\fR] [\fB\-\-debug\fR] [\fB\-\-source\-template=FILE\fR]
-[\fB\-\-debootstrap\-mirror=URL\fR] [\fB\-\-distro=DISTRO\fR]
-[\fB\-\-vg=VOLUME_GROUP\fR] [\fB\-\-type=SCHROOT_TYPE\fR] <\fBRelease\fR>
+\fBmk\-sbuild\fR [\fIoptions\fR...] <\fIrelease\fR>
 
 .SH DESCRIPTION
 \fBmk\-sbuild\fR creates chroots via schroot and sbuild.
@@ -15,49 +12,54 @@ mk\-sbuild \- creates chroots via schroot and sbuild
 .SH OPTIONS
 Listed below are the command line options for mk\-sbuild:
 .TP
-.B \-\-arch=ARCH
+.B \-\-arch\fR=\fIARCH
 What architecture to select (defaults to the native architecture).
 .TP
-.B \-\-name=NAME
+.B \-\-name\fR=\fINAME
 Base name for the schroot (arch is appended).
 .TP
-.B \-\-personality=PERSONALITY
-What personality to use (defaults to match \-\-arch).
+.B \-\-personality\fR=\fIPERSONALITY
+What personality to use (defaults to match \fB\-\-arch\fR).
 .TP
 .B \-\-debug
 Turn on script debugging.
 .TP
 .B \-\-skip\-updates
-Do not include the \-updates pocket in the installed sources.list.
+Do not include the \fB\-updates\fR pocket in the installed
+\fBsources.list\fR.
 .TP
-.B \-\-source\-template=FILE
-Use FILE as the sources.list template (defaults to $HOME/.mk\-sbuild.sources).
+.B \-\-source\-template\fR=\fIFILE
+Use \fIFILE\fR as the \fBsources.list\fR template (defaults to
+\fI$HOME\fB/.mk\-sbuild.sources\fR).
 .TP
-.B \-\-debootstrap\-mirror=URL
-Use URL as the debootstrap source (defaults to http://ports.ubuntu.com for lpia,
-official Ubuntu repositories for the supported architectures).
+.B \-\-debootstrap\-mirror\fR=\fIURL
+Use \fIURL\fR as the debootstrap source (defaults to
+\fBhttp://ports.ubuntu.com\fR where appropriate, official Ubuntu
+repositories for the supported architectures).
 .TP
-.B \-\-debootstrap\-include=alpha,beta
-Pass along a comma separated list of packages to debootstrap's \-\-include
-argument. See debootstrap (8) for more details.
+.B \-\-debootstrap\-include\fR=\fIalpha,beta
+Pass along a comma separated list of packages to debootstrap's
+\fB\-\-include\fR argument. See \fBdebootstrap\fR (8) for more details.
 .TP
-.B \-\-debootstrap\-exclude=alpha,beta
-Pass along a comma separated list of packages to debootstrap's \-\-exclude
-argument. WARNING: be careful using this option as you can end up
-excluding essential package. See debootstrap (8) for more details.
+.B \-\-debootstrap\-exclude\fR=\fIalpha,beta
+Pass along a comma separated list of packages to debootstrap's
+\fB\-\-exclude\fR argument.
+\fBWARNING:\fR be careful using this option as you can end up
+excluding essential package. See \fBdebootstrap \fR(8) for more details.
 .TP
-.B \-\-distro=DISTRO
-Enable distro-specific logic.  Currently known distros: "ubuntu" (default)
-and "debian".
+.B \-\-distro\fR=\fIDISTRO
+Enable distro-specific logic.
+When not provided, the distribution is determined from \fIrelease\fR.
+Currently known distros: "\fBdebian\fR" and "\fBubuntu\fR".
 .TP
-.B \-\-vg=VOLUME_GROUP
-Specify a volume group, and subsequently use a default SCHROOT_TYPE of
-"lvm-snapshot" rather than "directory" (via aufs) mounts.
+.B \-\-vg\fR=\fIVOLUME_GROUP
+Specify a volume group, and subsequently use a default \fBSCHROOT_TYPE\fR of
+"\fBlvm-snapshot\fR" rather than "\fBdirectory\fR" (via aufs) mounts.
 .TP
-.B \-\-type=SHROOT_TYPE
-Specify a SCHROOT_TYPE.  Supported values are "directory" (default if
-\-\-vg not specified), "lvm-snapshot" (default if \-\-vg specified),
-"btrfs-snapshot", and "file".
+.B \-\-type\fR=\fISHROOT_TYPE
+Specify a \fBSCHROOT_TYPE\fR.  Supported values are "\fBdirectory\fR"
+(default if \fB\-\-vg\fR not specified), "\fBlvm-snapshot\fR" (default
+if \fB\-\-vg\fR specified), "\fBbtrfs-snapshot\fR", and "\fBfile\fR".
 
 .SH ENVIRONMENT VARIABLES
 .TP
@@ -71,61 +73,67 @@ Size of snapshot LVs (defaults to 4G).
 Lines to append to schroot entries.
 .TP
 .B SKIP_UPDATES
-Do not include the \-updates pocket in the installed sources.list.
+Do not include the \fB\-updates\fR pocket (same as
+\fB\-\-skip\-updates\fR)
 .TP
 .B DEBOOTSTRAP_MIRROR
-Mirror location (same as \-\-debootstrap-mirror)
+Mirror location (same as \fB\-\-debootstrap-mirror\fR)
 .TP
 .B DEBOOTSTRAP_INCLUDE
-Comma separated list of packages to include when bootstrapping (same as \-\-debootstrap-include)
+Comma separated list of packages to include when bootstrapping (same as
+\fB\-\-debootstrap-include\fR)
 .TP
 .B DEBOOTSTRAP_EXCLUDE
-Comma separated list of packages to exclude when bootstrapping (same as \-\-debootstrap-exclude; see warning above)
+Comma separated list of packages to exclude when bootstrapping (same as
+\fB\-\-debootstrap-exclude\fR; see warning above)
 .TP
 .B SOURCE_CHROOTS_DIR
-use SOURCE_CHROOTS_DIR as home of schroot source directories. (default
-/var/lib/schroot/chroots)
+Use \fBSOURCE_CHROOTS_DIR\fR as home of schroot source directories.
+(default \fB/var/lib/schroot/chroots\fR)
 .TP
 .B SOURCE_CHROOTS_TGZ
-use SOURCE_CHROOTS_TGZ as home of schroot source tarballs. (default
-/var/lib/schroot/tarballs)
+Use \fBSOURCE_CHROOTS_TGZ\fR as home of schroot source tarballs.
+(default \fB/var/lib/schroot/tarballs\fR)
 .TP
 .B CHROOT_SNAPSHOT_DIR
-use CHROOT_SNAPSHOT_DIR as home of mounted btrfs snapshots (default
-/var/lib/schroot/snapshots)
+Use \fBCHROOT_SNAPSHOT_DIR\fR as home of mounted btrfs snapshots.
+(default \fB/var/lib/schroot/snapshots\fR)
 
 
 .SH FILES
 .TP
-.B $HOME/.mk\-sbuild.rc
+.IB $HOME /.mk\-sbuild.rc
 Sourced for environment variables (defined above).
 .TP
-.B $HOME/.mk\-sbuild.sources[.$DISTRO]
-Can contain a customized sources.list.
+.IB $HOME /.mk\-sbuild.sources\fR[\fB. $DISTRO\fR]
+Can contain a customized \fBsources.list\fR.
 It will be read when creating the schroot.
-If a file with ".ubuntu" or ".debian" is found (based on the \-\-distro
-argument) that file will use used instead.
-See sources.list(5) for more details on the format.
+If a file with "\fB.ubuntu\fR" or "\fB.debian\fR" is found (as
+appropriate) it will use used instead.
+See \fBsources.list\fR (5) for more details on the format.
 .TP
-.B $HOME/.mk\-sbuild.schroot.conf[.$SCHROOT_TYPE]
+.IB $HOME /.mk\-sbuild.schroot.conf\fR[\fB. $SCHROOT_TYPE\fR]
 Can contain a customized configuration section to be inserted into
-/etc/schroot/schroot.conf.
-If a file with ".lvm-snapshot", ".directory", or ".file" is found (based on the
-values of the \-\-vg and \-\-type arguments) that file will use used instead.
-See schroot.conf(5) for more details on the format.
+\fB/etc/schroot/schroot.conf\fR.
+If a file with "\fB.lvm-snapshot\fR", "\fB.directory\fR", "\fB.file\fR",
+or "\fBbtrfs-snapshot\fR" is found (as appropriate) that file will use used instead.
+See \fBschroot.conf\fR (5) for more details on the format.
 .SH USING THE CHROOTS
 .TP
-To CHANGE the golden image: \fBsudo schroot \-c ${CHROOT_NAME}\-source \-u root\fR
+To CHANGE the golden image: \fBsudo schroot \-c \fI${SCHROOT_NAME}\fB\-source \-u root\fR
 .TP
-To ENTER an image snapshot: \fBschroot \-c ${CHROOT_NAME}\fR
+To ENTER an image snapshot: \fBschroot \-c \fI$SCHROOT_NAME\fR
 .TP
-To BUILD within a snapshot: \fBsbuild \-A \-d ${SCHROOT_NAME} PACKAGE*.dsc\fR
+To BUILD within a snapshot: \fBsbuild \-A \-d \fI$SCHROOT_NAME $PACKAGE\fB*.dsc\fR
 .TP
-for example, to update the packages in a golden image: \fBschroot \-c ${CHROOT_NAME}\-source \-u root -- sh \-c "apt-get \-qq update && apt-get \-qy upgrade && apt-get clean" </dev/null\fR
+for example, to update the packages in a \fBsid\-amd64\fR golden image:
+\fBschroot \-c sid\-amd64\-source \-u root -- sh \-c "apt-get \-qq update && apt-get \-qy upgrade && apt-get clean" </dev/null\fR
 
 .SH SEE ALSO
-sbuild\-setup (7), sources.list (5), schroot.conf (5),
-https://help.ubuntu.com/community/SbuildLVMHowto
+.BR sbuild\-setup (7),
+.BR sources.list (5),
+.BR schroot.conf (5),
+.B https://help.ubuntu.com/community/SbuildLVMHowto
 
 .SH AUTHOR
 \fBmk\-sbuild\fR was written by Kees Cook <kees@ubuntu.com>.

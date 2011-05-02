@@ -1,3 +1,19 @@
+ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
+
+  * mk-sbuild:
+    - Disable daemons with a policy-rc.d script (like pbuilder does)
+    - Move package installation after option parsing.
+    - Exit 0 when showing help, and support -h.
+    - Determine distribution from release name (via distro-info).
+    - Reformat manpage.
+    - Install qemu-user-static instead of qemu-kvm-extras-static.
+    - Put schroot configuration in chroot.d/sbuild-$chroot (LP: #736808)
+    - Understand Debian distribution synonyms, and store the chroot under the
+      code name.
+    - Support Debian experimental.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 20:35:51 +0200
+
 ubuntu-dev-tools (0.122) unstable; urgency=low
 
   [ Ted Gould ]

@@ -5,6 +5,7 @@
 #  Kees Cook <kees@ubuntu.com>
 #  Emmet Hikory <persia@ubuntu.com>
 #  Scott Moser <smoser@ubuntu.com>
+#  Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -29,6 +30,131 @@
 #
 # It will deal with sbuild having not be installed and configured before.
 set -e
+
+# Set up configurable defaults (loaded after option processing)
+LV_SIZE="5G"
+SNAPSHOT_SIZE="4G"
+SOURCE_CHROOTS_DIR="/var/lib/schroot/chroots"
+SOURCE_CHROOTS_TGZ="/var/lib/schroot/tarballs"
+CHROOT_SNAPSHOT_DIR="/var/lib/schroot/snapshots"
+
+function usage()
+{
+    echo "Usage: $0 [OPTIONS] Release" >&2
+    echo "Options:"
+    echo "  --arch=ARCH                What architecture to select"
+    echo "  --name=NAME                Base name for the schroot (arch is appended)"
+    echo "  --personality=PERSONALITY  What personality to use (defaults to match --arch)"
+    echo "  --vg=VG                    use LVM snapshots, with group VG"
+    echo "  --debug                    Turn on script debugging"
+    echo "  --skip-updates             Do not include -updates pocket in sources.list"
+    echo "  --source-template=FILE     Use FILE as the sources.list template"
+    echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
+    echo "  --debootstrap-include=list Comma separated list of packages to include"
+    echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
+    echo "  --distro=DISTRO            Install specific distro:"
+    echo "                                 'ubuntu' or 'debian' "
+    echo "                                 (defaults to determining from release name)"
+    echo "  --type=SCHROOT_TYPE        Define the schroot type:"
+    echo "                                 'directory'(default), 'file', or 'btrfs-snapshot'"
+    echo "                                 'lvm-snapshot' is selected via --vg"
+    echo ""
+    echo "Configuration (via ~/.mk-sbuild.rc)"
+    echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
+    echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
+    echo "  SOURCE_CHROOTS_DIR         Directory to store directory source chroots"
+    echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
+    echo "  CHROOT_SNAPSHOT_DIR        Directory to mount open btrfs snaphshot chroots (default ${CHROOT_SNAPSHOT_DIR})"
+    echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
+    echo "  SKIP_UPDATES               Enable --skip-updates"
+    echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
+    echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
+    echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
+    echo "  TEMPLATE_SOURCES           A template for sources.list"
+    echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
+    if [ -z "$1" ]; then
+        exit 1
+    fi
+    exit $1
+}
+
+
+if [ -z "$1" ]; then
+    usage
+fi
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,personality:,distro:,vg:,type:" -- "$@"`
+eval set -- "$OPTS"
+
+VG=""
+DISTRO=""
+name=""
+while :; do
+    case "$1" in
+        --debug)
+            set -x
+            shift
+            ;;
+        --arch)
+            CHROOT_ARCH="$2"
+            if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
+            then
+                personality="linux32"
+            fi
+            shift 2
+            ;;
+        --personality)
+            personality="$2"
+            shift 2
+            ;;
+        --skip-updates)
+            SKIP_UPDATES="1"
+            shift
+            ;;
+        --name)
+            name="$2"
+            shift 2
+            ;;
+        --source-template)
+            TEMPLATE_SOURCES="$2"
+            shift 2
+            if [ ! -r $TEMPLATE_SOURCES ]; then
+                echo "W: Template file $TEMPLATE_SOURCES is not readable"
+                echo "W: Continuing with default sources!"
+            fi
+            ;;
+        --debootstrap-mirror)
+            DEBOOTSTRAP_MIRROR="$2"
+            shift 2
+            ;;
+        --debootstrap-include)
+            DEBOOTSTRAP_INCLUDE="$2"
+            shift 2
+            ;;
+        --debootstrap-exclude)
+            DEBOOTSTRAP_EXCLUDE="$2"
+            shift 2
+            ;;
+        --distro)
+            DISTRO="$2"
+            shift 2
+            ;;
+        --vg)
+            VG="$2"
+            shift 2
+            ;;
+        --type)
+            SCHROOT_TYPE="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -h|--help|*)
+            usage 0
+            ;;
+     esac
+done
 
 # For when schroot enters the chroot, we cannot be in a directory that
 # will not exist in the chroot.
@@ -94,136 +220,60 @@ if ! id | fgrep -q '(sbuild)'; then
     exit 1
 fi
 
-# Set up configurable defaults (loaded after option processing)
-LV_SIZE="5G"
-SNAPSHOT_SIZE="4G"
-SOURCE_CHROOTS_DIR="/var/lib/schroot/chroots"
-SOURCE_CHROOTS_TGZ="/var/lib/schroot/tarballs"
-CHROOT_SNAPSHOT_DIR="/var/lib/schroot/snapshots"
-
-function usage()
-{
-    echo "Usage: $0 [OPTIONS] Release" >&2
-    echo "Options:"
-    echo "  --arch=ARCH                What architecture to select"
-    echo "  --name=NAME                Base name for the schroot (arch is appended)"
-    echo "  --personality=PERSONALITY  What personality to use (defaults to match --arch)"
-    echo "  --vg=VG                    use LVM snapshots, with group VG"
-    echo "  --debug                    Turn on script debugging"
-    echo "  --skip-updates             Do not include -updates pocket in sources.list"
-    echo "  --source-template=FILE     Use FILE as the sources.list template"
-    echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
-    echo "  --debootstrap-include=list Comma separated list of packages to include"
-    echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
-    echo "  --distro=DISTRO            Install specific distro:"
-    echo "                                 'ubuntu'(default), or 'debian'"
-    echo "  --type=SCHROOT_TYPE        Define the schroot type:"
-    echo "                                 'directory'(default), 'file', or 'btrfs-snapshot'"
-    echo "                                 'lvm-snapshot' is selected via --vg"
-    echo ""
-    echo "Configuration (via ~/.mk-sbuild.rc)"
-    echo "  LV_SIZE                    Size of source LVs (default ${LV_SIZE})"
-    echo "  SNAPSHOT_SIZE              Size of snapshot LVs (default ${SNAPSHOT_SIZE})"
-    echo "  SOURCE_CHROOTS_DIR         Directory to store directory source chroots"
-    echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
-    echo "  CHROOT_SNAPSHOT_DIR        Directory to mount open btrfs snaphshot chroots (default ${CHROOT_SNAPSHOT_DIR})"
-    echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
-    echo "  SKIP_UPDATES               Enable --skip-updates"
-    echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
-    echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
-    echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
-    echo "  TEMPLATE_SOURCES           A template for sources.list"
-    echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
-    exit 1
-}
-
-
-if [ -z "$1" ]; then
-    usage
-fi
-OPTS=`getopt -o '' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,personality:,distro:,vg:,type:" -- "$@"`
-eval set -- "$OPTS"
-
-VG=""
-DISTRO="ubuntu"
-name=""
-while :; do
-    case "$1" in
-        --debug)
-            set -x
-            shift
-            ;;
-        --arch)
-            CHROOT_ARCH="$2"
-            if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
-            then
-                personality="linux32"
-            fi
-            shift 2
-            ;;
-        --personality)
-            personality="$2"
-            shift 2
-            ;;
-        --skip-updates)
-            SKIP_UPDATES="1"
-            shift
-            ;;
-        --name)
-            name="$2"
-            shift 2
-            ;;
-        --source-template)
-            TEMPLATE_SOURCES="$2"
-            shift 2
-            if [ ! -r $TEMPLATE_SOURCES ]; then
-                echo "W: Template file $TEMPLATE_SOURCES is not readable"
-                echo "W: Continuing with default sources!"
-            fi
-            ;;
-        --debootstrap-mirror)
-            DEBOOTSTRAP_MIRROR="$2"
-            shift 2
-            ;;
-        --debootstrap-include)
-            DEBOOTSTRAP_INCLUDE="$2"
-            shift 2
-            ;;
-        --debootstrap-exclude)
-            DEBOOTSTRAP_EXCLUDE="$2"
-            shift 2
-            ;;
-        --distro)
-            DISTRO="$2"
-            shift 2
-            ;;
-        --vg)
-            VG="$2"
-            shift 2
-            ;;
-        --type)
-            SCHROOT_TYPE="$2"
-            shift 2
-            ;;
-        --)
-            shift
-            break
-            ;;
-        --help|*)
-            usage
-            ;;
-     esac
-done
-
 # To build the chroot, we need to know which release of Ubuntu to debootstrap
 RELEASE="$1"
 if [ -z "$RELEASE" ]; then
     usage
 fi
 
+# Determine distribution and possible synonyms
+synonym=""
+EXPERIMENTAL=0
+if debian-distro-info --all | grep -Fqx "$RELEASE"; then
+    DISTRO="${DISTRO:-debian}"
+    if [ "$RELEASE" = $(debian-distro-info --devel) ]; then
+        synonym=unstable
+    elif [ "$RELEASE" = $(debian-distro-info --testing) ]; then
+        synonym=testing
+    elif [ "$RELEASE" = $(debian-distro-info --stable) ]; then
+        synonym=stable
+    elif [ "$RELEASE" = $(debian-distro-info --old) ]; then
+        synonym=oldstable
+    fi
+elif ubuntu-distro-info --all | grep -Fqx "$RELEASE"; then
+    DISTRO="${DISTRO:-ubuntu}"
+elif [ "$RELEASE" = "unstable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --devel)
+elif [ "$RELEASE" = "testing" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --testing)
+elif [ "$RELEASE" = "stable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --stable)
+elif [ "$RELEASE" = "oldstable" ]; then
+    DISTRO="${DISTRO:-debian}"
+    synonym="$RELEASE"
+    RELEASE=$(debian-distro-info --old)
+elif [ "$RELEASE" = "experimental" ]; then
+    DISTRO="${DISTRO:-debian}"
+    EXPERIMENTAL=1
+    name="${name:-experimental}"
+    RELEASE=$(debian-distro-info --devel)
+elif [ -z "$DISTRO" ]; then
+    echo "Unable to determine distribution, please provide --distro" >&2
+    exit 1
+fi
+
 # By default, name the schroot the same as the release
 if [ -z "$name" ]; then
     name="$RELEASE"
+else
+    # Disable synonym when a custom name is used:
+    synonym=""
 fi
 
 # By default, use the native architecture.
@@ -233,6 +283,12 @@ if [ -z "$CHROOT_ARCH" ]; then
 fi
 
 CHROOT_NAME="${name}-${CHROOT_ARCH}"
+
+if [ -z "$synonym" ]; then
+    CHROOT_SYNONYM=""
+else
+    CHROOT_SYNONYM="${synonym}-${CHROOT_ARCH}"
+fi
 
 # Load customizations
 if [ -r ~/.mk-sbuild.rc ]; then
@@ -287,10 +343,10 @@ case "$SCHROOT_TYPE" in
     ;;
 "btrfs-snapshot")
     if [ ! -d "${SOURCE_CHROOTS_DIR}" ]; then
-	sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
+        sudo mkdir -p "${SOURCE_CHROOTS_DIR}"
     fi
     if [ ! -d "${CHROOT_SNAPSHOT_DIR}" ]; then
-	sudo mkdir -p "${CHROOT_SNAPSHOT_DIR}"
+        sudo mkdir -p "${CHROOT_SNAPSHOT_DIR}"
     fi
     CHROOT_PATH="${SOURCE_CHROOTS_DIR}/${CHROOT_NAME}"
     ;;
@@ -406,7 +462,7 @@ if [ "$CHROOT_ARCH" != "$HOST_ARCH" ] ; then
     *)
         DEBOOTSTRAP_COMMAND=qemu-debootstrap
         if ! which "$DEBOOTSTRAP_COMMAND"; then
-            sudo apt-get install qemu-kvm-extras-static
+            sudo apt-get install qemu-user-static
         fi
         ;;
     esac
@@ -460,6 +516,12 @@ else
 deb ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 EOM
+    if [ "$EXPERIMENTAL" -eq 1 ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
+deb ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
+deb-src ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
+EOM
+    fi
     if [ -z "$SKIP_UPDATES" ]; then
         cat >> "$TEMP_SOURCES" <<EOM
 deb ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
@@ -476,6 +538,12 @@ fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
     sudo bash -c "cat > $MNT/etc/apt/sources.list"
 rm -f "$TEMP_SOURCES"
+
+if [ "$EXPERIMENTAL" -eq 1 ]; then
+    echo 'APT::Default-Release "experimental";' \
+        | sudo tee "$MNT"/etc/apt/apt.conf.d/15sbuild > /dev/null
+fi
+
 # Copy the timezone (comment this out if you want to leave the chroot at UTC)
 sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
 # Create a schroot entry for this chroot
@@ -492,7 +560,6 @@ else
         # it helps keep the schroot stanzas separated in the main
         # /etc/schroot/schroot.conf file.
         cat > "$TEMP_SCHROOTCONF" <<EOM
-
 [CHROOT_NAME]
 description=CHROOT_NAME
 groups=sbuild,root,admin
@@ -528,18 +595,35 @@ fi
 if [ ! -z "$personality" ]; then
     echo "personality=$personality" >> "$TEMP_SCHROOTCONF"
 fi
+if [ ! -z "$CHROOT_SYNONYM" ]; then
+    echo "aliases=$CHROOT_SYNONYM" >> "$TEMP_SCHROOTCONF"
+fi
 if [ ! -z "$SCHROOT_CONF_SUFFIX" ]; then
     echo "$SCHROOT_CONF_SUFFIX" >> "$TEMP_SCHROOTCONF"
 fi
-cat "$TEMP_SCHROOTCONF" | sed \
-        -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
-        -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
-        -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
-        -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
-        -e "s|CHROOT_SNAPSHOT_DIR|$CHROOT_SNAPSHOT_DIR|g" \
-        | \
-        sudo bash -c "cat >> /etc/schroot/schroot.conf"
+sed -e "s|CHROOT_NAME|$CHROOT_NAME|g" \
+    -e "s|CHROOT_PATH|$CHROOT_PATH|g" \
+    -e "s|SNAPSHOT_SIZE|$SNAPSHOT_SIZE|g" \
+    -e "s|SCHROOT_TYPE|$SCHROOT_TYPE|g" \
+    -e "s|CHROOT_SNAPSHOT_DIR|$CHROOT_SNAPSHOT_DIR|g" \
+    "$TEMP_SCHROOTCONF" \
+    | sudo tee "/etc/schroot/chroot.d/sbuild-$CHROOT_NAME" > /dev/null
 rm -f "$TEMP_SCHROOTCONF"
+
+# Disable daemons in chroot:
+sudo bash -c "cat >> $MNT/usr/sbin/policy-rc.d" <<EOM
+#!/bin/sh
+while true; do
+    case "\$1" in
+      -*) shift ;;
+      makedev) exit 0;;
+      x11-common) exit 0;;
+      *) exit 101;;
+    esac
+done
+EOM
+sudo chmod a+x "$MNT"/usr/sbin/policy-rc.d
+
 # Create image finalization script
 sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 #!/bin/bash
@@ -593,3 +677,5 @@ echo " To CHANGE the golden image: sudo schroot -c ${CHROOT_NAME}-source -u root
 echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
 echo " To BUILD within a snapshot: sbuild -A -d ${CHROOT_NAME} PACKAGE*.dsc"
 echo ""
+
+# vi: set et:
