@@ -27,26 +27,34 @@ from optparse import OptionParser
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
 
-def die(message):
-    print >> sys.stderr, "Fatal: " + message
+from ubuntutools.logger import Logger
+from ubuntutools.config import UDTConfig
+
+def error_out(msg):
+    Logger.error(msg)
     sys.exit(1)
 
 def main():
     usage = "Usage: %prog <bug number>"
     opt_parser = OptionParser(usage)
+    opt_parser.add_option("-l", "--lpinstance", metavar="INSTANCE",
+                          help="Launchpad instance to connect to "
+                               "(default: production)",
+                          dest="lpinstance", default=None)
+    opt_parser.add_option("--no-conf",
+                          help="Don't read config files or "
+                               "environment variables.",
+                          dest="no_conf", default=False, action="store_true")
     (options, args) = opt_parser.parse_args()
-
+    config = UDTConfig(options.no_conf)
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value("LPINSTANCE")
     if len(args) < 1:
         opt_parser.error("Need at least one bug number.")
 
-    launchpad = None
-    try:
-        launchpad = Launchpad.login_with("ubuntu-dev-tools", "production")
-    except ImportError:
-        suggestion = "check whether python-launchpadlib is installed"
+    launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
     if launchpad is None:
-        die("Couldn't setup Launchpad for the ubuntu-dev-tools consumer; %s" % \
-            (suggestion, ))
+        error_out("Couldn't authenticate to Launchpad.")
 
     # check that the new main bug isn't a duplicate
     try:
@@ -55,15 +63,15 @@ def main():
         if error.response.status == 401:
             print >> sys.stderr, ("E: Don't have enough permissions to access "
                                   "bug %s") % (args[0])
-            die(error.content)
+            error_out(error.content)
         else:
             raise
     if 'bitesize' not in bug.tags:
         bug.tags += ['bitesize']
-    content = """I'm marking this bug as 'bitesize' as it looks like an issue that 
-is easy to fix and suitable for newcomers in Ubuntu development. If you need 
-any help with fixing it, talk to me (https://launchpad.net/~%s) about it.""" % \
-        (launchpad.me.name)
+    content = """I'm marking this bug as 'bitesize' as it looks like an issue 
+that is easy to fix and suitable for newcomers in Ubuntu development. If you 
+need any help with fixing it, talk to me (https://launchpad.net/~%s) about 
+it.""" % (launchpad.me.name)
     bug.newMessage(content=content, subject="bitesize bug")
     bug.lp_save()
 
