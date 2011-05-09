@@ -1,0 +1,31 @@
+.TH bitesize "1" "May 9 2010" "ubuntu-dev-tools"
+.SH NAME
+Add \fIbitesize\fI tag to bugs and add a comment.
+lp\-set\-dup \- mark one or more bugs as duplicate of another bug
+
+.SH SYNOPSIS
+.B bitesize \fR<\fIbug number\fI>\fR
+.br
+.B bitesize \-\-help
+
+.SH DESCRIPTION
+\fBbitesize\fR adds a bitesize tag to the bug, if it's not there yet. It
+also adds a comment to the bug indicating that you are willing to help with
+fixing it.
+It checks for permission to operate on a given bug first,
+then perform required tasks on Launchpad.
+
+.SH OPTIONS
+Listed below are the command line options for \fBbitesize\fR:
+.TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+
+.SH SEE ALSO
+.BR ubuntu\-dev\-tools (5)
+
+.SH AUTHORS
+\fBbitesize\fR and this manual page were written by Daniel Holbach 
+<daniel.holbach@canonical.com>.
+.PP
+Both are released under the terms of the GNU General Public License, version 3.
