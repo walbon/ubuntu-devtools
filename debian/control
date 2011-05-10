@@ -66,6 +66,8 @@ Description: useful tools for Ubuntu developers
  .
   - 404main - used to check what components a package's deps are in, for
     doing a main inclusion report for example.
+  - bitesize - add the 'bitesize' tag to a bug and comment that you are 
+    willing to help fix it.
   - check-mir - check support status of build/binary dependencies
   - check-symbols - will compare and give you a diff of the exported symbols of
     all .so files in a binary package.

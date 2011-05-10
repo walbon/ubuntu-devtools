@@ -61,8 +61,7 @@ def main():
         bug = launchpad.bugs[args[0]]
     except HTTPError, error:
         if error.response.status == 401:
-            print >> sys.stderr, ("E: Don't have enough permissions to access "
-                                  "bug %s") % (args[0])
+            error_out("E: Don't have enough permissions to access bug %s" % args[0])
             error_out(error.content)
         else:
             raise
