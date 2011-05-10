@@ -1,0 +1,54 @@
+.TH bitesize "1" "May 9 2010" "ubuntu-dev-tools"
+.SH NAME
+bitesize \- Add \fBbitesize\fR tag to bugs and add a comment.
+
+.SH SYNOPSIS
+.B bitesize \fR<\fIbug number\fR>
+.br
+.B bitesize \-\-help
+
+.SH DESCRIPTION
+\fBbitesize\fR adds a bitesize tag to the bug, if it's not there yet. It
+also adds a comment to the bug indicating that you are willing to help with
+fixing it.
+It checks for permission to operate on a given bug first,
+then perform required tasks on Launchpad.
+
+.SH OPTIONS
+Listed below are the command line options for \fBbitesize\fR:
+.TP
+.BR \-h ", " \-\-help
+Display a help message and exit.
+.TP
+.B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Use the specified instance of Launchpad (e.g. "staging"), instead of
+the default of "production".
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
+
+.SH ENVIRONMENT
+All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
+environment variables.
+Variables in the environment take precedence to those in configuration
+files.
+
+.SH CONFIGURATION VARIABLES
+The following variables can be set in the environment or in
+.BR ubuntu\-dev\-tools (5)
+configuration files.
+In each case, the script\-specific variable takes precedence over the
+package\-wide variable.
+.TP
+.BR BITESIZE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
+The default value for \fB--lpinstance\fR.
+
+.SH SEE ALSO
+.BR ubuntu\-dev\-tools (5)
+
+.SH AUTHORS
+\fBbitesize\fR and this manual page were written by Daniel Holbach 
+<daniel.holbach@canonical.com>.
+.PP
+Both are released under the terms of the GNU General Public License, version 3.

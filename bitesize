@@ -1,0 +1,78 @@
+#!/usr/bin/python
+"""Add 'bitesize' tag to bugs and add a comment."""
+
+# Copyright (c) 2011 Canonical Ltd.
+#
+# bitesize is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3, or (at your option) any
+# later version.
+#
+# bitesize is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bitesize; see the file COPYING.  If not, write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors:
+#  Daniel Holbach <daniel.holbach@canonical.com>
+
+import sys
+from optparse import OptionParser
+
+from launchpadlib.launchpad import Launchpad
+from launchpadlib.errors import HTTPError
+
+from ubuntutools.logger import Logger
+from ubuntutools.config import UDTConfig
+
+def error_out(msg):
+    Logger.error(msg)
+    sys.exit(1)
+
+def main():
+    usage = "Usage: %prog <bug number>"
+    opt_parser = OptionParser(usage)
+    opt_parser.add_option("-l", "--lpinstance", metavar="INSTANCE",
+                          help="Launchpad instance to connect to "
+                               "(default: production)",
+                          dest="lpinstance", default=None)
+    opt_parser.add_option("--no-conf",
+                          help="Don't read config files or "
+                               "environment variables.",
+                          dest="no_conf", default=False, action="store_true")
+    (options, args) = opt_parser.parse_args()
+    config = UDTConfig(options.no_conf)
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value("LPINSTANCE")
+    if len(args) < 1:
+        opt_parser.error("Need at least one bug number.")
+
+    launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
+    if launchpad is None:
+        error_out("Couldn't authenticate to Launchpad.")
+
+    # check that the new main bug isn't a duplicate
+    try:
+        bug = launchpad.bugs[args[0]]
+    except HTTPError, error:
+        if error.response.status == 401:
+            error_out("E: Don't have enough permissions to access bug %s" % args[0])
+            error_out(error.content)
+        else:
+            raise
+    if 'bitesize' not in bug.tags:
+        bug.tags += ['bitesize']
+    content = """I'm marking this bug as 'bitesize' as it looks like an issue 
+that is easy to fix and suitable for newcomers in Ubuntu development. If you 
+need any help with fixing it, talk to me (https://launchpad.net/~%s) about 
+it.""" % (launchpad.me.name)
+    bug.newMessage(content=content, subject="bitesize bug")
+    bug.lp_save()
+
+if __name__ == '__main__':
+    main()

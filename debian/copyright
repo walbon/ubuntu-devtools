@@ -86,6 +86,7 @@ License: GPL-2+
  version 2 can be found in the /usr/share/common-licenses/GPL-2 file.
 
 Files: ack-sync
+       doc/bitesize.1
        doc/edit-patch.1
        doc/get-branches.1
        doc/grab-attachments.1
@@ -96,6 +97,7 @@ Files: ack-sync
        doc/merge-changelog.1
        doc/setup-packaging-environment.1
        doc/syncpackage.1
+       bitesize
        edit-patch
        get-branches
        grab-attachments

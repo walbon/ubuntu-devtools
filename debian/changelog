@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * mk-sbuild:
     - Disable daemons with a policy-rc.d script (like pbuilder does)
     - Move package installation after option parsing.
@@ -12,7 +13,11 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
       code name.
     - Support Debian experimental.
 
- -- Stefano Rivera <stefanor@debian.org>  Sun, 24 Apr 2011 20:35:51 +0200
+  [ Daniel Holbach ]
+  * bitesize, doc/bitesize.1: add script to tag a bug as bitesize and add a 
+    comment that you are willing to help with fixing the bug.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 09 May 2011 14:33:48 +0200
 
 ubuntu-dev-tools (0.122) unstable; urgency=low
 
