@@ -17,7 +17,11 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
   * bitesize, doc/bitesize.1: add script to tag a bug as bitesize and add a 
     comment that you are willing to help with fixing the bug.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 09 May 2011 14:33:48 +0200
+  [ Benjamin Drung ]
+  * sponsor-patch: Fix assertion error if a relative working directory
+    is specified.
+
+ -- Benjamin Drung <bdrung@debian.org>  Mon, 16 May 2011 00:57:40 +0200
 
 ubuntu-dev-tools (0.122) unstable; urgency=low
 

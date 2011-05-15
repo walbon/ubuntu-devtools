@@ -253,7 +253,7 @@ def get_open_ubuntu_bug_task(launchpad, bug):
 
 def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                   upload, workdir, verbose=False):
-    workdir = os.path.expanduser(workdir)
+    workdir = os.path.realpath(os.path.expanduser(workdir))
     if not os.path.isdir(workdir):
         try:
             os.makedirs(workdir)
