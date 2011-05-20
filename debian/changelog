@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.123) UNRELEASED; urgency=low
 
   [ Stefano Rivera ]
   * mk-sbuild:
@@ -19,9 +19,9 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch: Fix assertion error if a relative working directory
-    is specified.
+    is specified (LP: #785923).
 
- -- Benjamin Drung <bdrung@debian.org>  Mon, 16 May 2011 00:57:40 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 20 May 2011 21:22:10 +0200
 
 ubuntu-dev-tools (0.122) unstable; urgency=low
 
