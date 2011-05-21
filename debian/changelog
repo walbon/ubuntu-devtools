@@ -1,9 +1,12 @@
-ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.124) natty; urgency=low
 
+  [ Benjamin Drung ]
   * Move add-patch, edit-patch, and what-patch from ubuntu-dev-tools into
     devscripts (Closes: #568481).
+  [ Mackenzie Morgan ]
+  * Add debhelper and quilt as recommends (LP: #786370)
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 21 May 2011 17:50:52 +0200
+ -- Mackenzie Morgan <maco.m@ubuntu.com>  Sat, 21 May 2011 19:29:35 -0400
 
 ubuntu-dev-tools (0.123) unstable; urgency=low
 
