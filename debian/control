@@ -30,7 +30,7 @@ Package: ubuntu-dev-tools
 Architecture: all
 Depends: binutils,
          dctrl-tools,
-         devscripts,
+         devscripts (>= 2.10.74~),
          diffstat,
          dpkg-dev,
          lsb-release,
@@ -119,6 +119,4 @@ Description: useful tools for Ubuntu developers
   - ubuntu-distro-info - provides information about Ubuntu's distributions.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - update-maintainer - script to update maintainer field in ubuntu packages.
-  - what-patch - determines what patch system, if any, a source package is
-    using.
   - wrap-and-sort - wrap long lines and sort items in packaging files.
