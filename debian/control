@@ -45,6 +45,7 @@ Depends: binutils,
 Recommends: bzr,
             bzr-builddeb,
             ca-certificates,
+            debhelper,
             debian-archive-keyring,
             debian-keyring,
             debootstrap,
@@ -56,9 +57,8 @@ Recommends: bzr,
             python-gnupginterface,
             python-magic,
             python-soappy,
-            reportbug (>= 3.39ubuntu1),
-			quilt,
-			debhelper
+            quilt,
+            reportbug (>= 3.39ubuntu1)
 Suggests: python-simplejson | python (>= 2.7), qemu-user-static
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
@@ -68,7 +68,7 @@ Description: useful tools for Ubuntu developers
  .
   - 404main - used to check what components a package's deps are in, for
     doing a main inclusion report for example.
-  - bitesize - add the 'bitesize' tag to a bug and comment that you are 
+  - bitesize - add the 'bitesize' tag to a bug and comment that you are
     willing to help fix it.
   - check-mir - check support status of build/binary dependencies
   - check-symbols - will compare and give you a diff of the exported symbols of
