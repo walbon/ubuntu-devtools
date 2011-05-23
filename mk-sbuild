@@ -182,8 +182,7 @@ if [ ! -w /var/lib/sbuild ]; then
 \$mailto = '$USER';
 
 # Name to use as override in .changes files for the Maintainer: field
-# (mandatory, no default!).
-\$maintainer_name='$USER <$USER@localhost>';
+#\$maintainer_name='$USER <$USER@localhost>';
 
 # Directory for chroot symlinks and sbuild logs.  Defaults to the
 # current directory if unspecified.

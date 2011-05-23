@@ -8,13 +8,17 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
   * Add debhelper and quilt as recommends (LP: #786370)
 
   [ Daniel Holbach ]
-  * bitesize: 
+  * bitesize:
     - display error message properly. 
     - error out if bug is already marked as 'bitesize'.
     - rephrase bug comment and subscribe person who adds the comment.
     - work-around LP:336866 and LP:254901.
 
- -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 23 May 2011 15:47:04 +0200
+  [ Stefano Rivera ]
+  * mk-sbuild:
+    - maintainer_name isn't mandatory any more (LP: #787051)
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 23 May 2011 17:14:49 +0100
 
 ubuntu-dev-tools (0.123) unstable; urgency=low
 
