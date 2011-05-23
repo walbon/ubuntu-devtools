@@ -7,7 +7,14 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
   [ Mackenzie Morgan ]
   * Add debhelper and quilt as recommends (LP: #786370)
 
- -- Mackenzie Morgan <maco.m@ubuntu.com>  Sat, 21 May 2011 19:29:35 -0400
+  [ Daniel Holbach ]
+  * bitesize: 
+    - display error message properly. 
+    - error out if bug is already marked as 'bitesize'.
+    - rephrase bug comment and subscribe person who adds the comment.
+    - work-around LP:336866 and LP:254901.
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Mon, 23 May 2011 15:47:04 +0200
 
 ubuntu-dev-tools (0.123) unstable; urgency=low
 
