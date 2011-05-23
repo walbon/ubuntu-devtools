@@ -33,8 +33,9 @@ import os
 import subprocess
 import sys
 
+from devscripts.logger import Logger
+
 from ubuntutools.distro_info import DebianDistroInfo
-from ubuntutools.logger import Logger
 import ubuntutools.misc
 
 class PbuilderDist:

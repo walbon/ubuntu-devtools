@@ -8,7 +8,7 @@ Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Build-Depends: dctrl-tools,
                debhelper (>= 7.0.50~),
-               devscripts,
+               devscripts (>= 2.10.74~),
                libwww-perl,
                lsb-release,
                pylint,
@@ -111,12 +111,9 @@ Description: useful tools for Ubuntu developers
   - sponsor-patch - Downloads a patch from a Launchpad bug, patches the source
     package, and uploads it (to Ubuntu or a PPA)
   - submittodebian - automatically send your changes to Debian as a bug report.
-  - suspicious-source - outputs a list of files which are not common source
-    files.
   - syncpackage - helper to prepare .changes file to upload synced packages
   - ubuntu-build - give commands to the Launchpad build daemons from the
     command line.
   - ubuntu-distro-info - provides information about Ubuntu's distributions.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - update-maintainer - script to update maintainer field in ubuntu packages.
-  - wrap-and-sort - wrap long lines and sort items in packaging files.

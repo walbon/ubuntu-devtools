@@ -28,10 +28,11 @@ import tempfile
 from launchpadlib.launchpad import Launchpad
 import lsb_release
 
+from devscripts.logger import Logger
+
 from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
-from ubuntutools.logger import Logger
 from ubuntutools.question import YesNoQuestion
 
 def error(msg):

@@ -23,7 +23,7 @@ import shlex
 import socket
 import sys
 
-from ubuntutools.logger import Logger
+from devscripts.logger import Logger
 
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and

@@ -19,10 +19,11 @@
 import optparse
 import sys
 
+from devscripts.logger import Logger
+
 from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
 from ubuntutools.distro_info import DebianDistroInfo
-from ubuntutools.logger import Logger
 
 def is_suite(version):
     """If version could be considered to be a Debian suite, return the

@@ -47,13 +47,11 @@ scripts = ['404main',
            'setup-packaging-environment',
            'sponsor-patch',
            'submittodebian',
-           'suspicious-source',
            'syncpackage',
            'ubuntu-build',
            'ubuntu-distro-info',
            'ubuntu-iso',
            'update-maintainer',
-           'wrap-and-sort',
           ]
 
 if __name__ == '__main__':

@@ -40,8 +40,9 @@ import sys
 import debian.deb822
 import debian.debian_support
 
+from devscripts.logger import Logger
+
 from ubuntutools.config import UDTConfig
-from ubuntutools.logger import Logger
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
 

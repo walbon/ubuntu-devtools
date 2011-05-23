@@ -26,9 +26,10 @@ import urllib2
 import debian.deb822
 import mox
 
+from devscripts.logger import Logger
+
 import ubuntutools.archive
 from ubuntutools.config import UDTConfig
-from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
 from ubuntutools.test.example_package import ExamplePackage

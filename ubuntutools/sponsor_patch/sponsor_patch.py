@@ -26,8 +26,9 @@ import debian.changelog
 import debian.deb822
 import launchpadlib.launchpad
 
+from devscripts.logger import Logger
+
 from ubuntutools.update_maintainer import update_maintainer
-from ubuntutools.logger import Logger
 from ubuntutools.question import Question, YesNoQuestion, input_number
 
 from ubuntutools.sponsor_patch.bugtask import BugTask

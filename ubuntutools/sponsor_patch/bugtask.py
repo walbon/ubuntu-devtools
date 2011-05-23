@@ -21,8 +21,9 @@ import urllib
 
 import debian.debian_support
 
+from devscripts.logger import Logger
+
 from ubuntutools.distro_info import DebianDistroInfo
-from ubuntutools.logger import Logger
 
 class BugTask(object):
     def __init__(self, bug_task, launchpad):

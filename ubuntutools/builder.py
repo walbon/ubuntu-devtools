@@ -21,7 +21,7 @@
 import os
 import subprocess
 
-from ubuntutools.logger import Logger
+from devscripts.logger import Logger
 
 def _build_preparation(result_directory):
     """prepares the builder for building a package"""

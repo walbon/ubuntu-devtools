@@ -175,29 +175,23 @@ Files: data/*
        doc/pull-debian-debdiff.1
        doc/pull-debian-source.1
        doc/sponsor-patch.1
-       doc/suspicious-source.1
        doc/ubuntu-dev-tools.5
        doc/ubuntu-distro-info.1
        doc/update-maintainer.1
-       doc/wrap-and-sort.1
        pull-debian-debdiff
        pull-debian-source
        sponsor-patch
-       suspicious-source
        test-data/*
        ubuntu-distro-info
        ubuntutools/archive.py
        ubuntutools/builder.py
        ubuntutools/config.py
-       ubuntutools/control.py
        ubuntutools/distro_info.py
-       ubuntutools/logger.py
        ubuntutools/question.py
        ubuntutools/sponsor_patch/*
        ubuntutools/test/*
        ubuntutools/update_maintainer.py
        update-maintainer
-       wrap-and-sort
 Copyright: 2009-2011, Benjamin Drung <bdrung@ubuntu.com>
            2010,      Evan Broder <evan@ebroder.net>
            2008,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
