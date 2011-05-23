@@ -45,7 +45,6 @@ Depends: binutils,
 Recommends: bzr,
             bzr-builddeb,
             ca-certificates,
-            debhelper,
             debian-archive-keyring,
             debian-keyring,
             debootstrap,
@@ -57,7 +56,6 @@ Recommends: bzr,
             python-gnupginterface,
             python-magic,
             python-soappy,
-            quilt,
             reportbug (>= 3.39ubuntu1)
 Suggests: python-simplejson | python (>= 2.7), qemu-user-static
 Description: useful tools for Ubuntu developers

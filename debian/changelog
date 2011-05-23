@@ -4,9 +4,6 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
   * Move add-patch, edit-patch, and what-patch from ubuntu-dev-tools into
     devscripts (Closes: #568481).
 
-  [ Mackenzie Morgan ]
-  * Add debhelper and quilt as recommends (LP: #786370)
-
   [ Daniel Holbach ]
   * bitesize:
     - display error message properly. 
