@@ -73,7 +73,7 @@ def main():
     except HTTPError, error:
         if error.response.status == 401:
             error_out("Don't have enough permissions to access bug %s. %s" % \
-                        (args[0], error.content))
+                      (args[0], error.content))
         else:
             raise
     if 'bitesize' in bug.tags:
