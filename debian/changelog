@@ -6,7 +6,7 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
 
   [ Daniel Holbach ]
   * bitesize:
-    - display error message properly.
+    - display error message properly (LP: #785973).
     - error out if bug is already marked as 'bitesize'.
     - rephrase bug comment and subscribe person who adds the comment.
     - work-around LP:336866 and LP:254901.
