@@ -71,7 +71,7 @@ class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
         self._config_files['user'] = """#COMMENT=yes
 \tTAB_INDENTED=yes
  SPACE_INDENTED=yes
-SPACE_SUFFIX=yes 
+SPACE_SUFFIX=yes
 SINGLE_QUOTE='yes no'
 DOUBLE_QUOTE="yes no"
 QUOTED_QUOTE="it's"

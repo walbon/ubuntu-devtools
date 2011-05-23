@@ -22,7 +22,7 @@
 #           harvest.ubuntu.com
 #
 #
-# Daniel Holbach 
+# Daniel Holbach
 # (c) 2011 Canonical
 
 from optparse import OptionParser
@@ -63,8 +63,8 @@ def main():
     data = json.loads(response)
     print >> sys.stdout, \
 """%s has %s opportunities: %s
-Find out more: %sopportunities/package/%s""" % (pkg, 
-                              data["total"], 
+Find out more: %sopportunities/package/%s""" % (pkg,
+                              data["total"],
                               opportunity_summary(data),
                               BASE_URL,
                               pkg)

@@ -186,7 +186,7 @@ def ack_sync(bug_numbers, all_package, all_version, all_section, update,
                     print "Taking email address from local file: " + \
                           uploader_email
 
-        # Try to find a Ubuntu bug task, against which the package is raised. 
+        # Try to find a Ubuntu bug task, against which the package is raised.
         for t in bug.bug_tasks:
             if t.bug_target_name.endswith(' (Ubuntu)'):
                 task = t
@@ -198,7 +198,7 @@ def ack_sync(bug_numbers, all_package, all_version, all_section, update,
             task = bug.bug_tasks[0]
             print ("W: Could not find bug task for a Ubuntu package."
                    "  Using task '%s'" % task.bug_target_name)
- 
+
         if all_package is not None:
             package = all_package
         else:

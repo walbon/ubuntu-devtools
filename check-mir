@@ -41,7 +41,7 @@ def check_support(apt_cache, pkgname, alt=False):
     except KeyError:
         print >> sys.stderr, prefix, 'does not exist (pure virtual?)'
         return False
-    
+
     section = pkg.candidate.section
     if section.startswith('universe') or section.startswith('multiverse'):
         # check if the source package is in main and thus will only need binary

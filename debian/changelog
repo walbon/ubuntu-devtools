@@ -6,7 +6,7 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
 
   [ Daniel Holbach ]
   * bitesize:
-    - display error message properly. 
+    - display error message properly.
     - error out if bug is already marked as 'bitesize'.
     - rephrase bug comment and subscribe person who adds the comment.
     - work-around LP:336866 and LP:254901.
@@ -33,7 +33,7 @@ ubuntu-dev-tools (0.123) unstable; urgency=low
     - Support Debian experimental.
 
   [ Daniel Holbach ]
-  * bitesize, doc/bitesize.1: add script to tag a bug as bitesize and add a 
+  * bitesize, doc/bitesize.1: add script to tag a bug as bitesize and add a
     comment that you are willing to help with fixing the bug.
 
   [ Benjamin Drung ]
