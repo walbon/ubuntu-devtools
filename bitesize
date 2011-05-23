@@ -38,7 +38,7 @@ def save_entry(entry):
     try:
         entry.lp_save()
     except HTTPError, error:
-        print error.content
+        error_out(error.content)
 
 def tag_bug(bug):
     bug.tags = bug.tags + ['bitesize'] # LP: #254901 workaround
