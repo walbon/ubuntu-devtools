@@ -31,7 +31,6 @@ from __future__ import with_statement
 
 import hashlib
 import os.path
-import subprocess
 import urllib2
 import urlparse
 import re
@@ -45,6 +44,7 @@ from devscripts.logger import Logger
 from ubuntutools.config import UDTConfig
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
+from ubuntutools import subprocess
 
 class DownloadError(Exception):
     "Unable to pull a source package"

@@ -21,7 +21,6 @@
 import optparse
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 
@@ -34,6 +33,7 @@ from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.question import YesNoQuestion
+from ubuntutools import subprocess
 
 def error(msg):
     Logger.error(msg)

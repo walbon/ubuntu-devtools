@@ -24,8 +24,9 @@ import sys
 import urllib2
 import re
 import tempfile
-import subprocess
 from debian.changelog import Changelog
+
+from ubuntutools import subprocess
 
 def raw_input_exit_on_ctrlc(*args, **kwargs):
     '''

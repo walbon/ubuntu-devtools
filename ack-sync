@@ -22,7 +22,6 @@ import getopt
 import lazr.restfulclient
 import os
 import re
-import subprocess
 import sys
 import logging
 import glob
@@ -31,6 +30,7 @@ import fnmatch
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools.config import UDTConfig
+from ubuntutools import subprocess
 
 COMMAND_LINE_SYNTAX_ERROR = 1
 VERSION_DETECTION_FAILED = 2

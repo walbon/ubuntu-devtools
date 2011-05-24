@@ -25,10 +25,10 @@
 import locale
 import os
 import os.path
-from subprocess import Popen, PIPE
 import sys
 
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
+from ubuntutools.subprocess import Popen, PIPE
 
 _system_distribution = None
 def system_distribution():

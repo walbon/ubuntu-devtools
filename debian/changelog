@@ -15,7 +15,14 @@ ubuntu-dev-tools (0.124) UNRELEASED; urgency=low
   * mk-sbuild:
     - maintainer_name isn't mandatory any more (LP: #787051)
 
- -- Benjamin Drung <bdrung@debian.org>  Mon, 23 May 2011 23:38:51 +0200
+  [ Evan Broder ]
+  * ubuntutools.subprocess:
+    - New drop-in replacement wrapper module around subprocess that
+      backports the restore_signals kwarg and defaults close_fds=True
+    - Switch everything previously using subprocess to use
+      ubuntutools.subprocess instead (LP: #785854)
+
+ -- Evan Broder <evan@ebroder.net>  Tue, 24 May 2011 20:21:47 +0200
 
 ubuntu-dev-tools (0.123) unstable; urgency=low
 

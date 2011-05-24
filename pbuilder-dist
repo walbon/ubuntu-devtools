@@ -30,13 +30,13 @@
 # that the target distribution is always meant to be Ubuntu Hardy.
 
 import os
-import subprocess
 import sys
 
 from devscripts.logger import Logger
 
 from ubuntutools.distro_info import DebianDistroInfo
 import ubuntutools.misc
+from ubuntutools import subprocess
 
 class PbuilderDist:
     def __init__(self, builder):

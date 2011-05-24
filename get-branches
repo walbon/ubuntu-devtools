@@ -25,10 +25,10 @@
 #
 
 import os
-import subprocess
 import sys
 from optparse import OptionParser
 from ubuntutools.lp.lpapicache import PersonTeam
+from ubuntutools import subprocess
 
 def main():
     usage = "Usage: %prog [-d <directory>] -t <team> [-o <operation>]"
