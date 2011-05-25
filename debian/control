@@ -8,7 +8,7 @@ Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Build-Depends: dctrl-tools,
                debhelper (>= 7.0.50~),
-               devscripts (>= 2.10.74~),
+               devscripts (>= 2.11.0~),
                libwww-perl,
                lsb-release,
                pylint,
@@ -29,7 +29,7 @@ Package: ubuntu-dev-tools
 Architecture: all
 Depends: binutils,
          dctrl-tools,
-         devscripts (>= 2.10.74~),
+         devscripts (>= 2.11.0~),
          diffstat,
          dpkg-dev,
          lsb-release,
