@@ -2,8 +2,9 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
 
   * backportpackage: Use --force-bad-version instead of --allow-lower-version
     (which requires a parameter) for debchange.
+  * Adjust EOL date of Ubuntu 9.10 "Karmic Koala".
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:39:20 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 
