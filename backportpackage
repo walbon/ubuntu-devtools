@@ -236,7 +236,7 @@ def do_backport(workdir, pkg, suffix, release, build, builder, update, upload,
     bp_dist = get_backport_dist(upload, release)
 
     check_call(['dch',
-                '--allow-lower-version',
+                '--force-bad-version',
                 '--force-distribution',
                 '--preserve',
                 '--newversion', bp_version,
