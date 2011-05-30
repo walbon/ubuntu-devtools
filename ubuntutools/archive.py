@@ -519,11 +519,14 @@ def rmadison(url, package, suite=None, arch=None):
     cmd.append(package)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, close_fds=True)
-    output = process.communicate()[0]
+    output, error_output = process.communicate()
     try:
         assert process.wait() == 0
     except AssertionError:
-        print "Request failed: install the liburi-perl package and try again."
+        if error_output:
+            Logger.error('rmadison failed with: %s', error_output)
+            sys.exit(1)
+        raise
 
     # rmadison uses some shorthand
     if suite:

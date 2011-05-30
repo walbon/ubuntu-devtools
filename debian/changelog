@@ -1,8 +1,13 @@
 ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * backportpackage: Use --force-bad-version instead of --allow-lower-version
     (which requires a parameter) for debchange.
   * Adjust EOL date of Ubuntu 9.10 "Karmic Koala".
+
+  [ Stefano Rivera ]
+  * ubuntutools.archive: Display any errors rmadison emits, rather than
+    guessing at the cause. (LP: #788447)
 
  -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
 
