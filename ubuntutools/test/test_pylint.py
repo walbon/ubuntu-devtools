@@ -50,6 +50,7 @@ class PylintTestCase(unittest.TestCase):
 
         filtered_out = []
         detected_in = ''
+        # pylint bug: http://www.logilab.org/ticket/46273
         # pylint: disable=E1103
         for line in out.splitlines():
             # pylint: enable=E1103
