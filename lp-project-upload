@@ -15,6 +15,8 @@
 # Authors:
 #  Martin Pitt <martin.pitt@ubuntu.com>, based on
 #  http://blog.launchpad.net/api/recipe-for-uploading-files-via-the-api
+#  Dustin Kirkland <kirkland@ubuntu.com>
+#  - support files for changelog and release notes
 
 '''Upload a release tarball to a Launchpad project.'''
 
@@ -70,25 +72,33 @@ def edit_file(prefix, description):
                  'Lines which start with "#" are ignored.\n' % description)
     os.close(fd)
     subprocess.call(['sensible-editor', f])
+    return cat_file(f)
+
+def cat_file(f):
     content = ''
     for line in open(f):
         if line.startswith('#'):
             continue
         content += line
-
     return content.strip()
 
 def main():
-    if len(sys.argv) != 4 and len(sys.argv) != 5:
+    if len(sys.argv) < 4 or len(sys.argv) > 7:
         print >> sys.stderr, '''Upload a release tarball to a Launchpad project.
 
-    Usage: %s <project name> <version> <tarball> [new milestone]''' % sys.argv[0]
+    Usage: %s <project name> <version> <tarball> [new milestone] [changelog file] [releasenotes file]''' % sys.argv[0]
         sys.exit(1)
 
+    changelog_file = None
+    releasenotes_file = None
     if len(sys.argv) == 4:
         (project, version, tarball) = sys.argv[1:]
-    else:
+    elif len(sys.argv) == 5:
         (project, version, tarball, new_milestone) = sys.argv[1:]
+    elif len(sys.argv) == 6:
+        (project, version, tarball, new_milestone, changelog_file) = sys.argv[1:]
+    elif len(sys.argv) == 7:
+        (project, version, tarball, new_milestone, changelog_file, releasenotes_file) = sys.argv[1:]
 
     try:
         launchpad = Launchpad.login_with('ubuntu-dev-tools', 'production')
@@ -135,10 +145,17 @@ def main():
                 file_type='Code Release Tarball', signature_filename=signature,
                 signature_content=signature_content)
 
-        changelog = edit_file('changelog', 'changelog')
+        if changelog_file is not None:
+            changelog = cat_file(changelog_file)
+        else:
+            changelog = edit_file('changelog', 'changelog')
         if changelog:
             release.changelog = changelog
-        release_notes = edit_file('releasenotes', 'release notes')
+
+        if releasenotes_file is not None:
+            release_notes = cat_file(releasenotes_file)
+        else:
+            release_notes = edit_file('releasenotes', 'release notes')
         if release_notes:
             release.release_notes = release_notes
 

@@ -9,6 +9,13 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
   * ubuntutools.archive: Display any errors rmadison emits, rather than
     guessing at the cause. (LP: #788447)
 
+  [ Dustin Kirkland ]
+  * doc/lp-project-upload.1, lp-project-upload:
+    - add support for optionally specifying files containing the changelog
+      and release notes for the release
+    - allows scripts to avoid the interactive editors
+    - document these changes in the manpage
+
  -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
