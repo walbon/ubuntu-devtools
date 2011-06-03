@@ -332,7 +332,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
             ask_for_manual_fixing()
             continue
 
-        cmd = ["dch", "--maintmaint", "--edit", ""]
+        cmd = ["dch", "--maintmaint", "--release", ""]
         Logger.command(cmd)
         if subprocess.call(cmd) != 0:
             Logger.info("Failed to update timestamp in debian/changelog.")

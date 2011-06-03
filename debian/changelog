@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * ubuntutools.archive: Display any errors rmadison emits, rather than
     guessing at the cause. (LP: #788447)
+  * sponsor-patch: Use dch --release instead of --edit to work with
+    DEBCHANGE_RELEASE_HEURISTIC=changelog.
 
   [ Dustin Kirkland ]
   * doc/lp-project-upload.1, lp-project-upload:
