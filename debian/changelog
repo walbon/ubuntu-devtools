@@ -18,6 +18,10 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
     - allows scripts to avoid the interactive editors
     - document these changes in the manpage
 
+  [ Didier Roche ]
+  * lp-project-upload:
+    - fix a bug when new milestone wasn't specified
+
  -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
 
 ubuntu-dev-tools (0.124) unstable; urgency=low

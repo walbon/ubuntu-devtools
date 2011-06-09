@@ -89,6 +89,7 @@ def main():
     Usage: %s <project name> <version> <tarball> [new milestone] [changelog file] [releasenotes file]''' % sys.argv[0]
         sys.exit(1)
 
+    new_milestone = None
     changelog_file = None
     releasenotes_file = None
     if len(sys.argv) == 4:
