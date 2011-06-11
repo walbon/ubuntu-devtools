@@ -35,8 +35,7 @@ from devscripts.logger import Logger
 from ubuntutools.archive import SourcePackage, DebianSourcePackage, UbuntuSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
-from ubuntutools.distro_info import vendor_to_distroinfo, codename_to_distribution
-from ubuntutools.misc import system_distribution
+from ubuntutools.misc import system_distribution, vendor_to_distroinfo, codename_to_distribution
 from ubuntutools.question import YesNoQuestion
 
 def error(msg):

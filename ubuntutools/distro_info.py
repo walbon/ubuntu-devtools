@@ -18,8 +18,6 @@ import csv
 import datetime
 import os
 
-from ubuntutools.misc import system_distribution_chain
-
 def convert_date(string):
     """Convert a date string in ISO 8601 into a datetime object."""
     if not string:
@@ -197,29 +195,3 @@ class UbuntuDistroInfo(DistroInfo):
                    if date <= x["eol"] or
                       (x["eol-server"] is not None and date <= x["eol-server"])]
         return distros
-
-_vendor_to_distroinfo = {"Debian": DebianDistroInfo,
-                         "Ubuntu": UbuntuDistroInfo}
-def vendor_to_distroinfo(vendor):
-    """ vendor_to_distroinfo(string) -> DistroInfo class
-
-    Convert a string name of a distribution into a DistroInfo subclass
-    representing that distribution, or None if the distribution is
-    unknown.
-    """
-    return _vendor_to_distroinfo.get(vendor)
-
-def codename_to_distribution(codename):
-    """ codename_to_distribution(string) -> string
-
-    Finds a given release codename in your distribution's genaology
-    (i.e. looking at the current distribution and its parents), or
-    print an error message and return None if it can't be found
-    """
-    for distro in system_distribution_chain():
-        info = vendor_to_distroinfo(distro)
-        if not info:
-            continue
-
-        if codename in info().all:
-            return distro
