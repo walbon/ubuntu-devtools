@@ -28,8 +28,11 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
     each distribution's parent.
   * ubuntutools.distro_info: Add a function to find the distribution that
     used a given release codename.
+  * backportpackage, doc/backportpackage.1: Accept codenames from any
+    distribution in the parenting chain. Makes it possible to, e.g.,
+    backport from Debian. (LP: #703099)
 
- -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:06:44 -0700
+ -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:11:23 -0700
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 

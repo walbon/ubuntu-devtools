@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ##################################################################
 #
-# Copyright (C) 2010, Evan Broder <evan@ebroder.net>
+# Copyright (C) 2010-2011, Evan Broder <evan@ebroder.net>
 # Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
 #
 # This program is free software; you can redistribute it and/or
@@ -28,11 +28,15 @@ import tempfile
 from launchpadlib.launchpad import Launchpad
 import lsb_release
 
+from debian.debian_support import Version
+
 from devscripts.logger import Logger
 
-from ubuntutools.archive import UbuntuSourcePackage, DownloadError
+from ubuntutools.archive import SourcePackage, DebianSourcePackage, UbuntuSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
+from ubuntutools.distro_info import vendor_to_distroinfo, codename_to_distribution
+from ubuntutools.misc import system_distribution
 from ubuntutools.question import YesNoQuestion
 
 def error(msg):
@@ -105,9 +109,9 @@ def parse(args):
                            '(default: temporary dir)',
                       metavar='WORKDIR')
     parser.add_option('-m', '--mirror',
-                      dest='ubuntu_mirror',
+                      dest='mirror',
                       default=None,
-                      help='Preferred Ubuntu mirror (default: Launchpad)',
+                      help='Preferred mirror (default: Launchpad)',
                       metavar='INSTANCE')
     parser.add_option('-l', '--lpinstance',
                       dest='lpinstance',
@@ -134,58 +138,74 @@ def parse(args):
         opts.workdir = config.get_value('WORKDIR')
     if opts.lpinstance is None:
         opts.lpinstance = config.get_value('LPINSTANCE')
-    if opts.ubuntu_mirror is None:
-        opts.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
     if not opts.upload and not opts.workdir:
         parser.error('Please specify either a working dir or an upload target!')
 
     return opts, args
 
-def find_release_package(launchpad, package, version, source_release):
-    ubuntu = launchpad.distributions['ubuntu']
-    archive = ubuntu.main_archive
-    series = ubuntu.getSeries(name_or_version=source_release)
-    status = 'Published'
-    for pocket in ('Updates', 'Security', 'Release'):
-        try:
-            srcpkg = archive.getPublishedSources(source_name=package,
-                                                 distro_series=series,
-                                                 pocket=pocket,
-                                                 status=status,
-                                                 exact_match=True)[0]
-            break
-        except IndexError:
+def get_current_version(package, distribution, source_release):
+    latest_version = None
+
+    for record in rmadison(distribution.lower(), package, suite=source_release):
+        if 'source' not in record:
             continue
+
+        if (not latest_version or
+            Version(latest_version) < Version(record['version'])):
+            latest_version = record['version']
+
+    return latest_version
+
+def find_release_package(launchpad, mirror, workdir, package, version, source_release):
+    srcpkg = None
+
+    if source_release:
+        distribution = codename_to_distribution(source_release)
     else:
+        distribution = system_distribution()
+    mirrors = (mirror,) if mirror else ()
+
+    if not version:
+        version = get_current_version(package, distribution, source_release)
+
+    if not version:
         error('Unable to find package %s in release %s.' %
               (package, source_release))
 
-    if version and version != srcpkg.source_package_version:
-        error('Requested backport of version %s but %s is at version %s.' %
-              (version, package, srcpkg.source_package_version))
+    if distribution == 'Debian':
+        srcpkg = DebianSourcePackage(package,
+                                     version,
+                                     workdir=workdir,
+                                     lp=launchpad,
+                                     mirrors=mirrors)
+    elif distribution == 'Ubuntu':
+        srcpkg = UbuntuSourcePackage(package,
+                                     version,
+                                     workdir=workdir,
+                                     lp=launchpad,
+                                     mirrors=mirrors)
 
     return srcpkg
 
 def find_package(launchpad, mirror, workdir, package, version, source_release):
     "Returns the SourcePackage"
     if package.endswith('.dsc'):
-        return UbuntuSourcePackage(version=version, dscfile=package,
-                                   workdir=workdir, lp=launchpad,
-                                   mirrors=[mirror])
+        return SourcePackage(version=version, dscfile=package,
+                             workdir=workdir, lp=launchpad,
+                             mirrors=(mirror,))
 
     if not source_release and not version:
-        source_release = launchpad.distributions['ubuntu'].current_series.name
+        info = vendor_to_distroinfo(system_distribution())
+        source_release = info().devel()
 
-    component = None
-    # If source_release is specified, then version is just for verification
-    if source_release:
-        srcpkg = find_release_package(launchpad, package, version,
-                                      source_release)
-        version = srcpkg.source_package_version
-        component = srcpkg.component_name
+    srcpkg = find_release_package(launchpad, mirror, workdir, package, version, source_release)
+    if version and srcpkg.version != version:
+        error('Requested backport of version %s but %s is at version %s in %s.' %
+              (version, package, srcpkg.version, source_release))
 
-    return UbuntuSourcePackage(package, version, component, workdir=workdir,
-                               lp=launchpad, mirrors=[mirror])
+    return srcpkg
+
+    return UbuntuSourcePackage
 
 def get_backport_version(version, suffix, upload, release):
     backport_version = version + ('~%s1' % release)
@@ -257,7 +277,6 @@ def do_backport(workdir, pkg, suffix, release, build, builder, update, upload,
     shutil.rmtree(srcdir)
 
 def main(args):
-    os.environ['DEB_VENDOR'] = 'Ubuntu'
     ubu_email()
 
     opts, (package_or_dsc,) = parse(args[1:])
@@ -282,7 +301,7 @@ def main(args):
 
     try:
         pkg = find_package(launchpad,
-                           opts.ubuntu_mirror,
+                           opts.mirror,
                            workdir,
                            package_or_dsc,
                            opts.version,
