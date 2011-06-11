@@ -26,8 +26,10 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
   * ubuntutools.misc: Add a new "system_distribution_chain", which returns
     a list starting with the current distribution and working its way up
     each distribution's parent.
+  * ubuntutools.distro_info: Add a function to find the distribution that
+    used a given release codename.
 
- -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:05:21 -0700
+ -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:06:44 -0700
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 
