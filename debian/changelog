@@ -22,7 +22,12 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
   * lp-project-upload:
     - fix a bug when new milestone wasn't specified
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
+  [ Evan Broder ]
+  * ubuntutools.misc: Add a new "system_distribution_chain", which returns
+    a list starting with the current distribution and working its way up
+    each distribution's parent.
+
+ -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:05:21 -0700
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 
