@@ -20,7 +20,7 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
 
   [ Didier Roche ]
   * lp-project-upload:
-    - fix a bug when new milestone wasn't specified
+    - fix a bug when new milestone wasn't specified (LP: #797170)
 
  -- Benjamin Drung <bdrung@debian.org>  Sat, 28 May 2011 19:43:10 +0200
 
