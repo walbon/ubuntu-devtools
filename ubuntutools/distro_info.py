@@ -106,6 +106,10 @@ class DistroInfo(object):
         """Get list of all supported distributions based on the given date."""
         raise NotImplementedError()
 
+    def valid(self, codename):
+        """Check if the given codename is known."""
+        return codename in self.all
+
     def unsupported(self, date=None):
         """Get list of all unsupported distributions based on the given date."""
         if date is None:
@@ -166,6 +170,11 @@ class DebianDistroInfo(DistroInfo):
         if len(distros) < 2:
             raise DistroDataOutdated()
         return distros[-2]["series"]
+
+    def valid(self, codename):
+        """Check if the given codename is known."""
+        return DistroInfo.valid(self, codename) or \
+               codename in ["unstable", "testing", "stable", "old"]
 
 
 class UbuntuDistroInfo(DistroInfo):
