@@ -2,7 +2,8 @@
 #
 # Copyright (C) 2007, Canonical Ltd.
 # Written by Daniel Holbach,
-#            Stefano Rivera
+#            Stefano Rivera,
+#            Brian Murray
 #
 # ##################################################################
 #
@@ -30,6 +31,27 @@ from ubuntutools.config import UDTConfig
 
 USAGE = "grab-attachments <bug numbers>"
 
+
+def download_attachments(bug):
+
+    bug_folder_name = 'bug-%s' % bug.id
+
+    try:
+        os.mkdir(bug_folder_name)
+    except OSError, error:
+        if error.errno == errno.EEXIST:
+            return
+
+    for attachment in bug.attachments:
+        f = attachment.data.open()
+        filename = os.path.join(os.getcwd(), bug_folder_name,
+            f.filename)
+        local_file = open(filename, "w")
+        local_file.write(f.read())
+        f.close()
+        local_file.close()
+
+
 def main():
     parser = OptionParser('Usage: %prog [options] <bug numbers>')
     parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
@@ -39,8 +61,15 @@ def main():
     parser.add_option('--no-conf',
                       dest='no_conf', default=False, action='store_true',
                       help="Don't read config files or environment variables")
+    parser.add_option('-d', '--duplicates', default=False,
+                      action='store_true',
+                      help='Download attachments from duplicates too')
+    parser.add_option('-p', '--package',
+                      help='Download attachments from all bugs with a '
+                           'task for this source package')
+
     opts, args = parser.parse_args()
-    if len(args) < 1:
+    if len(args) < 1 and not opts.package:
         parser.error('No bug numbers provided')
     config = UDTConfig(opts.no_conf)
     if opts.lpinstance is None:
@@ -49,30 +78,26 @@ def main():
     try:
         launchpad = Launchpad.login_with("ubuntu-dev-tools", opts.lpinstance)
 
+        if opts.package:
+            ubuntu = launchpad.projects['ubuntu']
+            src_package = ubuntu.getSourcePackage(name=opts.package)
+            if src_package is None:
+                parser.error('Unable to find package %s' % opts.package)
+            for task in src_package.searchTasks():
+                args.append(task.bug.id)
+
         for arg in args:
             try:
-                number = int(arg)
+                bug_number = int(arg)
             except ValueError:
                 parser.error("'%s' is not a valid bug number." % arg)
 
-            bug = launchpad.bugs[number]
+            bug = launchpad.bugs[bug_number]
+            download_attachments(bug)
 
-            bug_folder_name = 'bug-%s' % number
-
-            try:
-                os.mkdir(bug_folder_name)
-            except OSError, error:
-                if error.errno == errno.EEXIST:
-                    continue
-
-            for attachment in bug.attachments:
-                f = attachment.data.open()
-                filename = os.path.join(os.getcwd(), bug_folder_name,
-                                        f.filename)
-                local_file = open(filename, "w")
-                local_file.write(f.read())
-                f.close()
-                local_file.close()
+            if opts.duplicates is True:
+                for bug in bug.duplicates:
+                    download_attachments(bug)
 
     # no LP credentials
     except IOError, error:
