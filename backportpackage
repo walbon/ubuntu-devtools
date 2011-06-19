@@ -143,6 +143,9 @@ def parse(args):
     return opts, args
 
 def get_current_version(package, distribution, source_release):
+    info = vendor_to_distroinfo(distribution)
+    source_release = info().codename(source_release, default=source_release)
+
     latest_version = None
 
     for record in rmadison(distribution.lower(), package, suite=source_release):
