@@ -177,5 +177,5 @@ def codename_to_distribution(codename):
         if not info:
             continue
 
-        if codename in info().all:
+        if info().valid(codename):
             return distro
