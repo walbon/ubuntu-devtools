@@ -160,6 +160,9 @@ def find_release_package(launchpad, mirror, workdir, package, version, source_re
 
     if source_release:
         distribution = codename_to_distribution(source_release)
+
+        if not distribution:
+            error('Unknown release codename %s' % source_release)
     else:
         distribution = system_distribution()
     mirrors = (mirror,) if mirror else ()
