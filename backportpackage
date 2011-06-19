@@ -204,8 +204,6 @@ def find_package(launchpad, mirror, workdir, package, version, source_release):
 
     return srcpkg
 
-    return UbuntuSourcePackage
-
 def get_backport_version(version, suffix, upload, release):
     backport_version = version + ('~%s1' % release)
     if suffix is not None:
