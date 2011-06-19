@@ -110,6 +110,10 @@ class DistroInfo(object):
         """Check if the given codename is known."""
         return codename in self.all
 
+    def codename(self, release, date=None, default=None):
+        """Map codename aliases to the codename they describe"""
+        return release
+
     def unsupported(self, date=None):
         """Get list of all unsupported distributions based on the given date."""
         if date is None:
