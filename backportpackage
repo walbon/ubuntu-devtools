@@ -32,10 +32,12 @@ from debian.debian_support import Version
 
 from devscripts.logger import Logger
 
-from ubuntutools.archive import SourcePackage, DebianSourcePackage, UbuntuSourcePackage, DownloadError, rmadison
+from ubuntutools.archive import SourcePackage, DebianSourcePackage, \
+    UbuntuSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
-from ubuntutools.misc import system_distribution, vendor_to_distroinfo, codename_to_distribution
+from ubuntutools.misc import system_distribution, vendor_to_distroinfo, \
+    codename_to_distribution
 from ubuntutools.question import YesNoQuestion
 
 def error(msg):
@@ -158,7 +160,8 @@ def get_current_version(package, distribution, source_release):
 
     return latest_version
 
-def find_release_package(launchpad, mirror, workdir, package, version, source_release):
+def find_release_package(launchpad, mirror, workdir, package, version,
+                         source_release):
     srcpkg = None
 
     if source_release:
@@ -203,10 +206,11 @@ def find_package(launchpad, mirror, workdir, package, version, source_release):
         info = vendor_to_distroinfo(system_distribution())
         source_release = info().devel()
 
-    srcpkg = find_release_package(launchpad, mirror, workdir, package, version, source_release)
+    srcpkg = find_release_package(launchpad, mirror, workdir, package, version,
+                                  source_release)
     if version and srcpkg.version != version:
-        error('Requested backport of version %s but %s is at version %s in %s.' %
-              (version, package, srcpkg.version, source_release))
+        error('Requested backport of version %s but version of %s in %s is %s'
+              % (version, package, source_release, srcpkg.version))
 
     return srcpkg
 
