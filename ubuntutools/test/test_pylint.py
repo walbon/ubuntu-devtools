@@ -28,8 +28,8 @@ WHITELIST = [re.compile(': %s$' % x) for x in (
     # mox:
     r"Instance of '.+' has no '(WithSideEffects|MultipleTimes|AndReturn)' "
     r"member",
-    # Wrong Popen
-    r"Function 'Popen' has no '__init__' member",
+    # pylint doesn't like *args/**kwargs
+    r"Instance of 'Popen' has no '.*' member",
 )]
 
 class PylintTestCase(unittest.TestCase):

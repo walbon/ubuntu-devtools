@@ -21,24 +21,25 @@ from subprocess import PIPE, STDOUT, CalledProcessError
 __all__ = ['Popen', 'call', 'check_call', 'check_output', 'CalledProcessError', 'PIPE', 'STDOUT']
 
 
-def Popen(*args, **kwargs):
-    kwargs.setdefault('close_fds', True)
+class Popen(subprocess.Popen):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('close_fds', True)
 
-    if 'restore_signals' not in inspect.getargspec(subprocess.Popen.__init__)[0]:
-        given_preexec_fn = kwargs.pop('preexec_fn', None)
-        restore_signals = kwargs.pop('restore_signals', True)
-        def preexec_fn():
-            if restore_signals:
-                for sig in ('SIGPIPE', 'SIGXFZ', 'SIGXFSZ'):
-                    if hasattr(signal, sig):
-                        signal.signal(getattr(signal, sig),
-                                      signal.SIG_DFL)
+        if 'restore_signals' not in inspect.getargspec(subprocess.Popen.__init__)[0]:
+            given_preexec_fn = kwargs.pop('preexec_fn', None)
+            restore_signals = kwargs.pop('restore_signals', True)
+            def preexec_fn():
+                if restore_signals:
+                    for sig in ('SIGPIPE', 'SIGXFZ', 'SIGXFSZ'):
+                        if hasattr(signal, sig):
+                            signal.signal(getattr(signal, sig),
+                                          signal.SIG_DFL)
 
-            if given_preexec_fn:
-                given_preexec_fn()
-        kwargs['preexec_fn'] = preexec_fn
+                if given_preexec_fn:
+                    given_preexec_fn()
+            kwargs['preexec_fn'] = preexec_fn
 
-    return subprocess.Popen(*args, **kwargs)
+        subprocess.Popen.__init__(self, *args, **kwargs)
 
 
 # call, check_call, and check_output are copied directly from the
