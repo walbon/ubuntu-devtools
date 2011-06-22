@@ -10,6 +10,8 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
     guessing at the cause. (LP: #788447)
   * sponsor-patch: Use dch --release instead of --edit to work with
     DEBCHANGE_RELEASE_HEURISTIC=changelog.
+  * submittodebian: Write a usable .reportbugrc if it doesn't exist.
+    (LP: #800429)
 
   [ Dustin Kirkland ]
   * doc/lp-project-upload.1, lp-project-upload:
