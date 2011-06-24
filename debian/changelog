@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.125ubuntu1) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.125ubuntu1) oneiric; urgency=low
 
   [ Benjamin Drung ]
   * backportpackage: Use --force-bad-version instead of --allow-lower-version
@@ -30,7 +30,7 @@ ubuntu-dev-tools (0.125ubuntu1) UNRELEASED; urgency=low
     - add in download attachments from all bugs about a package
     - document new options in the manpage
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 24 Jun 2011 11:34:54 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 24 Jun 2011 11:50:17 +0200
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 
