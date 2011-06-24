@@ -4,6 +4,7 @@
 # Copyright (C) 2008,      Jonathan Davies <jpds@ubuntu.com>,
 #               2008-2009, Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>,
 #               2010,      Stefano Rivera <stefanor@ubuntu.com>
+#               2011,      Evan Broder <evan@ebroder.net>
 #
 # ##################################################################
 #
@@ -28,9 +29,49 @@ import os.path
 from subprocess import Popen, PIPE
 import sys
 
+from ubuntutools import distro_info
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 
-_system_distribution = None
+_system_distribution_chain = []
+def system_distribution_chain():
+    """ system_distribution_chain() -> [string]
+
+    Detect the system's distribution as well as all of its parent
+    distributions and return them as a list of strings, with the
+    system distribution first (and the greatest grandparent last). If
+    the distribution chain can't be determined, print an error message
+    and return an empty list.
+    """
+    global _system_distribution_chain
+    if len(_system_distribution_chain) == 0:
+        try:
+            p = Popen(('dpkg-vendor', '--query', 'Vendor'),
+                      stdout=PIPE)
+            _system_distribution_chain.append(p.communicate()[0].strip())
+        except OSError:
+            print ('Error: Could not determine what distribution you are '
+                   'running.')
+            return []
+
+        while True:
+            try:
+                p = Popen(('dpkg-vendor',
+                           '--vendor', _system_distribution_chain[-1],
+                           '--query', 'Parent'),
+                          stdout=PIPE)
+                parent = p.communicate()[0].strip()
+                # Don't check return code, because if a vendor has no
+                # parent, dpkg-vendor returns 1
+                if not parent:
+                    break
+                _system_distribution_chain.append(parent)
+            except Exception:
+                print ('Error: Could not determine the parent of the '
+                       'distribution %s' % _system_distribution_chain[-1])
+                return []
+
+    return _system_distribution_chain
+
 def system_distribution():
     """ system_distro() -> string
 
@@ -38,24 +79,7 @@ def system_distribution():
     name of the distribution can't be determined, print an error message
     and return None.
     """
-    global _system_distribution
-    if _system_distribution is None:
-        try:
-            if os.path.isfile('/usr/bin/dpkg-vendor'):
-                process = Popen(('dpkg-vendor', '--query', 'vendor'),
-                                stdout=PIPE)
-            else:
-                process = Popen(('lsb_release', '-cs'), stdout=PIPE)
-            output = process.communicate()[0]
-        except OSError:
-            print ('Error: Could not determine what distribution you are '
-                   'running.')
-            return None
-        if process.returncode != 0:
-            print 'Error determininng system distribution'
-            return None
-        _system_distribution = output.strip()
-    return _system_distribution
+    return system_distribution_chain()[0]
 
 def host_architecture():
     """ host_architecture -> string
@@ -128,3 +152,30 @@ def require_utf8():
         print >> sys.stderr, ("This program only functions in a UTF-8 locale. "
                               "Aborting.")
         sys.exit(1)
+
+
+_vendor_to_distroinfo = {"Debian": distro_info.DebianDistroInfo,
+                         "Ubuntu": distro_info.UbuntuDistroInfo}
+def vendor_to_distroinfo(vendor):
+    """ vendor_to_distroinfo(string) -> DistroInfo class
+
+    Convert a string name of a distribution into a DistroInfo subclass
+    representing that distribution, or None if the distribution is
+    unknown.
+    """
+    return _vendor_to_distroinfo.get(vendor)
+
+def codename_to_distribution(codename):
+    """ codename_to_distribution(string) -> string
+
+    Finds a given release codename in your distribution's genaology
+    (i.e. looking at the current distribution and its parents), or
+    print an error message and return None if it can't be found
+    """
+    for distro in system_distribution_chain():
+        info = vendor_to_distroinfo(distro)
+        if not info:
+            continue
+
+        if info().valid(codename):
+            return distro

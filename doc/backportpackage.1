@@ -10,10 +10,11 @@ backportpackage \- helper to test package backports
 .PP
 .B backportpackage \-h
 .SH DESCRIPTION
-\fBbackportpackage\fR fetches a package from one Ubuntu release or
-from a specified .dsc path or URL and creates a no-change backport of
-that package to a previous release, optionally doing a test build of
-the package and/or uploading the resulting backport for testing.
+\fBbackportpackage\fR fetches a package from one distribution release
+or from a specified .dsc path or URL and creates a no-change backport
+of that package to one or more Ubuntu releases release, optionally
+doing a test build of the package and/or uploading the resulting
+backport for testing.
 .PP
 Unless a working directory is specified, the backported package is
 fetched and built in a temporary directory in \fB/tmp\fR, which is
@@ -29,10 +30,11 @@ is unspecified, then \fBbackportpackage\fR defaults to the release on
 which it is currently running.
 .TP
 .B \-s \fISOURCE\fR, \fB\-\-source\fR=\fISOURCE\fR
-Backport the package from the specified Ubuntu release. If neither
-this option nor \fB\-\-version\fR are specified, then
-\fBbackportpackage\fR defaults to the current Ubuntu development
-release.
+Backport the package from the specified release, which can be any
+release of your distribution or any of your distribution's parent
+distributions. If neither this option nor \fB\-\-version\fR are
+specified, then \fBbackportpackage\fR defaults to the current
+development release for your distribution.
 .TP
 .B \-S \fISUFFIX\fR, \fB\-\-suffix\fR=\fISUFFIX\fR
 Add the specified suffix to the version number when
@@ -72,9 +74,10 @@ If the \fB\-\-source\fR option is specified, then
 \fBbackportpackage\fR verifies that the current version of \fIsource
 package\fR in \fISOURCE\fR is the same as \fIVERSION\fR. Otherwise,
 \fBbackportpackage\fR finds version \fIVERSION\fR of \fIsource
-package\fR, regardless of the release in which it was published (or if
-that version is still current). This option is ignored if a .dsc URL
-or path is passed in instead of a source package name.
+package\fR in your distribution's publishing history, regardless of
+the release in which it was published (or if that version is still
+current). This option is ignored if a .dsc URL or path is passed in
+instead of a source package name.
 .TP
 .B \-w \fIWORKDIR\fR, \fB\-\-workdir\fR=\fIWORKDIR\fR
 If \fIWORKDIR\fR is specified, then all files are downloaded,
@@ -82,7 +85,7 @@ unpacked, built into, and otherwise manipulated in
 \fIWORKDIR\fR. Otherwise, a temporary directory is created, which is
 deleted before \fIbackportpackage\fR exits.
 .TP
-.B \-m \fIUBUNTU_MIRROR\fR, \fB\-\-mirror\fR=\fIUBUNTU_MIRROR\fR
+.B \-m \fIMIRROR\fR, \fB\-\-mirror\fR=\fIMIRROR\fR
 Use the specified mirror.
 Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.
 If the package isn't found on this mirror, \fBbackportpackage\fR
@@ -124,7 +127,12 @@ The default value for \fB--update\fR.
 The default value for \fB--workdir\fR.
 .TP
 .BR BACKPORTPACKAGE_UBUNTU_MIRROR ", " UBUNTUTOOLS_UBUNTU_MIRROR
-The default value for \fB\-\-mirror\fR.
+The default value for \fB\-\-mirror\fR if the specified \fISOURCE\fR
+release is an Ubuntu release.
+.TP
+.BR BACKPORTPACKAGE_DEBIAN_MIRROR ", " UBUNTUTOOLS_DEBIAN_MIRROR
+The default value for \fB\-\-mirror\fR if the specified \fISOURCE\fR
+release is a Debian release.
 .TP
 .BR BACKPORTPACKAGE_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
 The default value for \fB--lpinstance\fR.

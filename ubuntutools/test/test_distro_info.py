@@ -58,6 +58,12 @@ class DebianDistroInfoTestCase(unittest.TestCase):
         """Test: Get latest testing Debian distribution."""
         self.assertEqual(self._distro_info.testing(self._date), "squeeze")
 
+    def test_valid(self):
+        """Test: Check for valid Debian distribution."""
+        self.assertTrue(self._distro_info.valid("sid"))
+        self.assertTrue(self._distro_info.valid("stable"))
+        self.assertFalse(self._distro_info.valid("foobar"))
+
     def test_unsupported(self):
         """Test: List all unsupported Debian distribution."""
         unsupported = ["buzz", "rex", "bo", "hamm", "slink", "potato", "woody",
@@ -111,3 +117,8 @@ class UbuntuDistroInfoTestCase(unittest.TestCase):
                            "gutsy", "intrepid", "jaunty"])
         self.assertEqual(unsupported -
                          set(self._distro_info.unsupported()), set())
+
+    def test_valid(self):
+        """Test: Check for valid Ubuntu distribution."""
+        self.assertTrue(self._distro_info.valid("lucid"))
+        self.assertFalse(self._distro_info.valid("42"))
