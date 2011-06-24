@@ -26,11 +26,11 @@
 import locale
 import os
 import os.path
-from subprocess import Popen, PIPE
 import sys
 
 from ubuntutools import distro_info
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
+from ubuntutools.subprocess import Popen, PIPE
 
 _system_distribution_chain = []
 def system_distribution_chain():

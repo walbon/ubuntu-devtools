@@ -21,7 +21,8 @@
 # ##################################################################
 
 import sys
-import subprocess
+
+from ubuntutools import subprocess
 
 def extract(iso, path):
     command = ['isoinfo', '-R', '-i', iso, '-x', path]

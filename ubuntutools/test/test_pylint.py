@@ -15,10 +15,10 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 import re
-import subprocess
 
 import setup
 from ubuntutools.test import unittest
+from ubuntutools import subprocess
 
 WHITELIST = [re.compile(': %s$' % x) for x in (
     # Wildcard import:
@@ -28,6 +28,8 @@ WHITELIST = [re.compile(': %s$' % x) for x in (
     # mox:
     r"Instance of '.+' has no '(WithSideEffects|MultipleTimes|AndReturn)' "
     r"member",
+    # pylint doesn't like *args/**kwargs
+    r"Instance of 'Popen' has no '.*' member",
 )]
 
 class PylintTestCase(unittest.TestCase):

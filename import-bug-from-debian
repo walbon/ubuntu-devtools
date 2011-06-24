@@ -25,7 +25,6 @@
 from optparse import OptionParser, SUPPRESS_HELP
 import re
 import sys
-import subprocess
 
 try:
     import SOAPpy
@@ -37,6 +36,7 @@ except ImportError:
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools.config import UDTConfig
+from ubuntutools import subprocess
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")

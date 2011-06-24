@@ -22,13 +22,13 @@
 
 import os
 import sys
-import subprocess
 import smtplib
 import socket
 from debian.changelog import Version
 from ubuntutools.archive import rmadison, FakeSPPH
 from ubuntutools.distro_info import DebianDistroInfo
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+from ubuntutools import subprocess
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
 __all__ = [

@@ -32,7 +32,6 @@ import email.feedparser
 import hashlib
 import optparse
 import os
-import subprocess
 import sys
 import urllib2
 
@@ -42,6 +41,8 @@ except ImportError:
     print >> sys.stderr, ("Please install 'python-gnupginterface' in order to "
                           "use this utility.")
     sys.exit(1)
+
+from ubuntutools import subprocess
 
 USAGE = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 

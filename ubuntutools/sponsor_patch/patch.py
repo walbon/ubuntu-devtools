@@ -16,7 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import os
-import subprocess
+
+from ubuntutools import subprocess
 
 class Patch(object):
     def __init__(self, patch_file):

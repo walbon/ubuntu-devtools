@@ -19,7 +19,6 @@ import os
 import pwd
 import re
 import shutil
-import subprocess
 import sys
 
 import debian.changelog
@@ -28,6 +27,7 @@ import launchpadlib.launchpad
 
 from devscripts.logger import Logger
 
+from ubuntutools import subprocess
 from ubuntutools.update_maintainer import update_maintainer
 from ubuntutools.question import Question, YesNoQuestion, input_number
 

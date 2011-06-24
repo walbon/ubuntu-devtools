@@ -22,12 +22,13 @@
 
 import datetime
 import os
-import subprocess
 import sys
 import tempfile
 
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
+
+from ubuntutools import subprocess
 
 def create_release(project, version):
     '''Create new release and milestone for LP project.'''

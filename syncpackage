@@ -25,7 +25,6 @@ import debian.debian_support
 import optparse
 import os
 import shutil
-import subprocess
 import sys
 
 from devscripts.logger import Logger
@@ -38,6 +37,7 @@ from ubuntutools.requestsync.mail import (getDebianSrcPkg
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools import subprocess
 
 
 class Version(debian.debian_support.Version):
