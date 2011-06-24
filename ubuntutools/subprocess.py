@@ -18,14 +18,16 @@ import subprocess
 
 from subprocess import PIPE, STDOUT, CalledProcessError
 
-__all__ = ['Popen', 'call', 'check_call', 'check_output', 'CalledProcessError', 'PIPE', 'STDOUT']
+__all__ = ['Popen', 'call', 'check_call', 'check_output', 'CalledProcessError',
+           'PIPE', 'STDOUT']
 
 
 class Popen(subprocess.Popen):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('close_fds', True)
 
-        if 'restore_signals' not in inspect.getargspec(subprocess.Popen.__init__)[0]:
+        if ('restore_signals' not in
+            inspect.getargspec(subprocess.Popen.__init__)[0]):
             given_preexec_fn = kwargs.pop('preexec_fn', None)
             restore_signals = kwargs.pop('restore_signals', True)
             def preexec_fn():

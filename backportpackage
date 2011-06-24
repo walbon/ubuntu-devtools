@@ -31,12 +31,12 @@ from debian.debian_support import Version
 
 from devscripts.logger import Logger
 
-from ubuntutools.archive import SourcePackage, DebianSourcePackage, \
-    UbuntuSourcePackage, DownloadError, rmadison
+from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
+                                 UbuntuSourcePackage, DownloadError, rmadison)
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
-from ubuntutools.misc import system_distribution, vendor_to_distroinfo, \
-    codename_to_distribution
+from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
+                              codename_to_distribution)
 from ubuntutools.question import YesNoQuestion
 from ubuntutools import subprocess
 
