@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.125ubuntu1) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * backportpackage: Use --force-bad-version instead of --allow-lower-version
@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
   [ Didier Roche ]
   * lp-project-upload:
     - fix a bug when new milestone wasn't specified (LP: #797170)
+  * get-build-deps:
+    - fix a wrong parser when some build-dep have an epoch
 
   [ Brian Murray ]
   * grab-attachments, doc/grab-attachments.1:
@@ -28,7 +30,7 @@ ubuntu-dev-tools (0.125) UNRELEASED; urgency=low
     - add in download attachments from all bugs about a package
     - document new options in the manpage
 
- -- Brian Murray <brian@ubuntu.com>  Thu, 16 Jun 2011 11:59:18 -0700
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 24 Jun 2011 11:34:54 +0200
 
 ubuntu-dev-tools (0.124) unstable; urgency=low
 
