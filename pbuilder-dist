@@ -77,7 +77,7 @@ class PbuilderDist:
         self.builder = builder
 
         self._debian_distros = DebianDistroInfo().all + \
-                               ['stable', 'testing', 'unstable', 'experimental']
+                               ['stable', 'testing', 'unstable']
 
 
         # Ensure that the used builder is installed

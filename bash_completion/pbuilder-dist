@@ -33,7 +33,7 @@ _pbuilder-dist()
 [ "$have" ] && _pbuilder-aliases()
 {
     local distro builder arch
-    for distro in $(ubuntu-distro-info --all; debian-distro-info --all) stable testing unstable experimental; do
+    for distro in $(ubuntu-distro-info --all; debian-distro-info --all) stable testing unstable; do
         for builder in pbuilder cowbuilder; do
             echo "$builder-$distro"
             for arch in i386 amd64 armel; do

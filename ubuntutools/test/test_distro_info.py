@@ -34,7 +34,8 @@ class DebianDistroInfoTestCase(unittest.TestCase):
     def test_all(self):
         """Test: List all known Debian distributions."""
         all_distros = set(["buzz", "rex", "bo", "hamm", "slink", "potato",
-                           "woody", "sarge", "etch", "lenny", "squeeze", "sid"])
+                           "woody", "sarge", "etch", "lenny", "squeeze", "sid",
+                           "experimental"])
         self.assertEqual(all_distros - set(self._distro_info.all), set())
 
     def test_devel(self):
@@ -52,7 +53,7 @@ class DebianDistroInfoTestCase(unittest.TestCase):
     def test_supported(self):
         """Test: List all supported Debian distribution."""
         self.assertEqual(self._distro_info.supported(self._date),
-                         ["lenny", "squeeze", "sid"])
+                         ["lenny", "squeeze", "sid", "experimental"])
 
     def test_testing(self):
         """Test: Get latest testing Debian distribution."""

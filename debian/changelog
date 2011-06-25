@@ -19,7 +19,10 @@ ubuntu-dev-tools (0.126) UNRELEASED; urgency=low
   * submittodebian: Write a usable .reportbugrc if it doesn't exist.
     (LP: #800429)
 
- -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:11:23 -0700
+  [ Benjamin Drung ]
+  * Add experimental to list of Debian distributions.
+
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 25 Jun 2011 16:19:08 +0200
 
 ubuntu-dev-tools (0.125ubuntu1) oneiric; urgency=low
 

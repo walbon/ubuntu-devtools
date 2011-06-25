@@ -144,6 +144,18 @@ class DebianDistroInfo(DistroInfo):
             codename = default
         return codename
 
+    def devel(self, date=None):
+        """Get latest development distribution based on the given date."""
+        if date is None:
+            date = self._date
+        distros = [x for x in self._avail(date)
+                   if x["release"] is None or
+                      (date < x["release"] and
+                       (x["eol"] is None or date <= x["eol"]))]
+        if len(distros) < 2:
+            raise DistroDataOutdated()
+        return distros[-2]["series"]
+
     def old(self, date=None):
         """Get old (stable) Debian distribution based on the given date."""
         if date is None:
@@ -168,12 +180,12 @@ class DebianDistroInfo(DistroInfo):
         if date is None:
             date = self._date
         distros = [x for x in self._avail(date)
-                   if x["release"] is None or
-                      (date < x["release"] and
+                   if (x["release"] is None and x["version"]) or
+                      (x["release"] is not None and date < x["release"] and
                        (x["eol"] is None or date <= x["eol"]))]
-        if len(distros) < 2:
+        if not distros:
             raise DistroDataOutdated()
-        return distros[-2]["series"]
+        return distros[-1]["series"]
 
     def valid(self, codename):
         """Check if the given codename is known."""
