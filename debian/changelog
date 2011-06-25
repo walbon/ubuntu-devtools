@@ -15,6 +15,10 @@ ubuntu-dev-tools (0.126) UNRELEASED; urgency=low
     - Switch everything previously using subprocess to use
       ubuntutools.subprocess instead (LP: #785854)
 
+  [ Stefano Rivera ]
+  * submittodebian: Write a usable .reportbugrc if it doesn't exist.
+    (LP: #800429)
+
  -- Evan Broder <evan@ebroder.net>  Sat, 11 Jun 2011 05:11:23 -0700
 
 ubuntu-dev-tools (0.125ubuntu1) oneiric; urgency=low
@@ -50,6 +54,25 @@ ubuntu-dev-tools (0.125ubuntu1) oneiric; urgency=low
     - document new options in the manpage
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 24 Jun 2011 11:50:17 +0200
+
+ubuntu-dev-tools (0.124) unstable; urgency=low
+
+  [ Benjamin Drung ]
+  * Move add-patch, edit-patch, suspicious-source, what-patch, and wrap-and-sort
+    from ubuntu-dev-tools into devscripts (Closes: #568481).
+
+  [ Daniel Holbach ]
+  * bitesize:
+    - display error message properly (LP: #785973).
+    - error out if bug is already marked as 'bitesize'.
+    - rephrase bug comment and subscribe person who adds the comment.
+    - work-around LP:336866 and LP:254901.
+
+  [ Stefano Rivera ]
+  * mk-sbuild:
+    - maintainer_name isn't mandatory any more (LP: #787051)
+
+ -- Benjamin Drung <bdrung@debian.org>  Wed, 25 May 2011 18:27:46 +0200
 
 ubuntu-dev-tools (0.123) unstable; urgency=low
 
