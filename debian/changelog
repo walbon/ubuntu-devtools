@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.126) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.126) unstable; urgency=low
 
   [ Evan Broder ]
   * ubuntutools.misc: Add a new "system_distribution_chain", which returns
@@ -22,7 +22,7 @@ ubuntu-dev-tools (0.126) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * Add experimental to list of Debian distributions.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 25 Jun 2011 16:19:08 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Sat, 25 Jun 2011 16:38:49 +0200
 
 ubuntu-dev-tools (0.125ubuntu1) oneiric; urgency=low
 
