@@ -28,10 +28,10 @@ import sys
 from optparse import OptionParser
 
 from devscripts.logger import Logger
+from distro_info import UbuntuDistroInfo
 
 from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
-from ubuntutools.distro_info import UbuntuDistroInfo
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
                                           PackageNotFoundException,

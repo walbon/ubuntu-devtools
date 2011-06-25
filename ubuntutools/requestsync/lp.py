@@ -20,7 +20,8 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
-from ubuntutools.distro_info import DebianDistroInfo
+from distro_info import DebianDistroInfo
+
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)

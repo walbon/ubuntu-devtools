@@ -28,7 +28,8 @@ import os
 import os.path
 import sys
 
-from ubuntutools import distro_info
+import distro_info
+
 from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 from ubuntutools.subprocess import Popen, PIPE
 

@@ -20,10 +20,9 @@ import re
 import urllib
 
 import debian.debian_support
+import distro_info
 
 from devscripts.logger import Logger
-
-from ubuntutools.distro_info import DebianDistroInfo
 
 class BugTask(object):
     def __init__(self, bug_task, launchpad):
@@ -98,9 +97,9 @@ class BugTask(object):
             if "experimental" in title:
                 series = "experimental"
             elif "testing" in title:
-                series = DebianDistroInfo().testing()
+                series = distro_info.DebianDistroInfo().testing()
             else:
-                series = DebianDistroInfo().devel()
+                series = distro_info.DebianDistroInfo().devel()
             status = "Pending"
         else:
             project = self.project

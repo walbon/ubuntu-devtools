@@ -3,10 +3,6 @@
 %:
 	dh $@ --with python2
 
-override_dh_auto_install:
-	dh_auto_install
-	ln -s $(shell dpkg-vendor --query Vendor | tr '[:upper:]' '[:lower:]')-distro-info debian/ubuntu-dev-tools/usr/bin/distro-info
-
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 override_dh_auto_test:
 	set -e; \

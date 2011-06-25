@@ -22,12 +22,15 @@
 #
 # ##################################################################
 
-import re, os, sys
+import os
+import re
+import sys
 from tempfile import mkstemp
+
+from distro_info import UbuntuDistroInfo
 
 from ubuntutools.config import ubu_email
 from ubuntutools.question import YesNoQuestion
-from ubuntutools.distro_info import UbuntuDistroInfo
 
 try:
     from debian.changelog import Changelog
