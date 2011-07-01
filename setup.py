@@ -64,7 +64,6 @@ if __name__ == '__main__':
                    ],
           data_files=[('/etc/bash_completion.d',
                        glob.glob("bash_completion/*")),
-                      ('share/ubuntu-dev-tools', glob.glob('data/*')),
                       ('share/doc/ubuntu-dev-tools/examples',
                        glob.glob('examples/*')),
                       ('share/man/man1', glob.glob("doc/*.1")),
