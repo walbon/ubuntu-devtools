@@ -1,9 +1,9 @@
-ubuntu-dev-tools (0.127) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.127) unstable; urgency=low
 
   * Move debian-distro-info, distro-info, and ubuntu-distro-info from
     ubuntu-dev-tools into distro-info.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 25 Jun 2011 17:52:05 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 01 Jul 2011 22:07:18 +0200
 
 ubuntu-dev-tools (0.126) unstable; urgency=low
 
