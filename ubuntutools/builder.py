@@ -19,6 +19,7 @@
 #
 
 import os
+import os.path
 
 from devscripts.logger import Logger
 from ubuntutools import subprocess
@@ -40,6 +41,12 @@ class Builder(object):
             Logger.error("Failed to build %s from source with %s." % \
                          (os.path.basename(dsc_file), self.name))
         return returncode
+
+    def exists_in_path(self):
+        for path in os.environ.get('PATH', os.defpath).split(os.pathsep):
+            if os.path.isfile(os.path.join(path, self.name)):
+                return True
+        return False
 
     def get_architecture(self):
         return self.architecture
@@ -155,7 +162,10 @@ _SUPPORTED_BUILDERS = {
 
 def get_builder(builder):
     if builder in _SUPPORTED_BUILDERS:
-        return _SUPPORTED_BUILDERS[builder]()
+        b = _SUPPORTED_BUILDERS[builder]()
+        if b.exists_in_path():
+            return b
+        Logger.error("Builder doesn't appear to be installed: %s", builder)
     else:
         Logger.error("Unsupported builder specified: %s.", builder)
         Logger.error("Supported builders: %s",
