@@ -55,14 +55,13 @@ class Builder(object):
 
 
 class Pbuilder(Builder):
-    def __init__(self, command="pbuilder"):
-        Builder.__init__(self, "pbuilder")
-        self._command = command
+    def __init__(self, name="pbuilder"):
+        Builder.__init__(self, name)
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               self._command, "--build",
+               self.name, "--build",
                "--architecture", self.architecture, "--distribution", dist,
                "--buildresult", result_directory, dsc_file]
         Logger.command(cmd)
@@ -71,7 +70,7 @@ class Pbuilder(Builder):
 
     def update(self, dist):
         cmd = ["sudo", "-E", "ARCH=" + self.architecture, "DIST=" + dist,
-               self._command, "--update",
+               self.name, "--update",
                "--architecture", self.architecture, "--distribution", dist]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
@@ -79,20 +78,19 @@ class Pbuilder(Builder):
 
 
 class Pbuilderdist(Builder):
-    def __init__(self, command="pbuilder-dist"):
-        Builder.__init__(self, "pbuilder-dist")
-        self._command = command
+    def __init__(self, name="pbuilder-dist"):
+        Builder.__init__(self, name)
 
     def build(self, dsc_file, dist, result_directory):
         _build_preparation(result_directory)
-        cmd = [self._command, dist, self.architecture,
+        cmd = [self.name, dist, self.architecture,
                "build", dsc_file, "--buildresult", result_directory]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._build_failure(returncode, dsc_file)
 
     def update(self, dist):
-        cmd = [self._command, dist, self.architecture, "update"]
+        cmd = [self.name, dist, self.architecture, "update"]
         Logger.command(cmd)
         returncode = subprocess.call(cmd)
         return self._update_failure(returncode, dist)
