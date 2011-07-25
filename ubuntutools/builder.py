@@ -149,7 +149,7 @@ class Sbuild(Builder):
 
 _SUPPORTED_BUILDERS = {
     "cowbuilder": lambda: Pbuilder("cowbuilder"),
-    "cowbuilder-dist": lambda: Pbuilderdist("cowbuilderdist"),
+    "cowbuilder-dist": lambda: Pbuilderdist("cowbuilder-dist"),
     "pbuilder": lambda: Pbuilder(),
     "pbuilder-dist": lambda: Pbuilderdist(),
     "sbuild": lambda: Sbuild(),
