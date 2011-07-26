@@ -159,13 +159,13 @@ _SUPPORTED_BUILDERS = {
     "sbuild": lambda: Sbuild(),
 }
 
-def get_builder(builder):
-    if builder in _SUPPORTED_BUILDERS:
-        b = _SUPPORTED_BUILDERS[builder]()
-        if b.exists_in_path():
-            return b
-        Logger.error("Builder doesn't appear to be installed: %s", builder)
+def get_builder(name):
+    if name in _SUPPORTED_BUILDERS:
+        builder = _SUPPORTED_BUILDERS[name]()
+        if builder.exists_in_path():
+            return builder
+        Logger.error("Builder doesn't appear to be installed: %s", name)
     else:
-        Logger.error("Unsupported builder specified: %s.", builder)
+        Logger.error("Unsupported builder specified: %s.", name)
         Logger.error("Supported builders: %s",
                      ", ".join(sorted(_SUPPORTED_BUILDERS.keys())))
