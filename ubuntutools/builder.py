@@ -19,7 +19,6 @@
 #
 
 import os
-import os.path
 
 from devscripts.logger import Logger
 from ubuntutools import subprocess
