@@ -5,6 +5,8 @@ lp\-shell \- Open an interactive launchpadlib shell.
 .SH SYNOPSIS
 .B lp\-shell
 .RB [ \-a ]
+.RB [ \-\-python ]
+.RB [ \-\-ipython ]
 .RI [ service ]
 .RI [ "LP API version" ]
 
@@ -33,6 +35,14 @@ the third argument. Current supported are: "beta", "1.0" and "devel".
 .TP
 .B \-a
 Login anonymously into Launchpad.
+
+.TP
+.B \-\-ipython
+Use a ipython shell if available (default).
+
+.TP
+.B \-\-python
+Use a regular python shell.
 
 .SH AUTHORS
 .B lp\-shell
