@@ -77,6 +77,8 @@ def main():
                 from IPython.frontend.terminal.embed import InteractiveShellEmbed
                 sh = InteractiveShellEmbed(banner2=banner, user_ns={'lp': launchpad})
             except ImportError: # ipython < 0.11
+                # pylint does not handle nested try-except, disable import error
+                # pylint: disable-msg=E0611
                 from IPython.Shell import IPShellEmbed
                 sh = IPShellEmbed(user_ns={'lp': launchpad})
                 sh.set_banner(sh.IP.BANNER + '\n' + banner)
