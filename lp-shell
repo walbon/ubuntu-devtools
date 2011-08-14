@@ -63,24 +63,35 @@ def main():
 
     banner += '\nNote: LP can be accessed through the "lp" object.'
 
-    class CompleterConsole(code.InteractiveConsole):
-        def __init__(self):
-            local = {'lp': launchpad}
-            code.InteractiveConsole.__init__(self, locals=local)
-            try:
-                import readline
-            except ImportError:
-                print 'I: readline module not available.'
-            else:
-                import rlcompleter
-                readline.parse_and_bind("tab: complete")
+    try:
+        try: # ipython >= 0.11
+            from IPython.frontend.terminal.embed import InteractiveShellEmbed
+            sh = InteractiveShellEmbed(banner2=banner, user_ns={'lp': launchpad})
+        except ImportError: # ipython < 0.11
+            from IPython.Shell import IPShellEmbed
+            sh = IPShellEmbed(user_ns={'lp': launchpad})
+            sh.set_banner(sh.IP.BANNER + '\n' + banner)
+        sh.excepthook = sys.__excepthook__
+        sh()
+    except ImportError:
+        class CompleterConsole(code.InteractiveConsole):
+            def __init__(self):
+                local = {'lp': launchpad}
+                code.InteractiveConsole.__init__(self, locals=local)
+                try:
+                    import readline
+                except ImportError:
+                    print 'I: readline module not available.'
+                else:
+                    import rlcompleter
+                    readline.parse_and_bind("tab: complete")
 
-    # Disable default apport hook, as lp-shell is intended for interactive use
-    # and thus exceptions often bubble up to the top level.
-    sys.excepthook = sys.__excepthook__
+        # Disable default apport hook, as lp-shell is intended for interactive use
+        # and thus exceptions often bubble up to the top level.
+        sys.excepthook = sys.__excepthook__
 
-    console = CompleterConsole()
-    console.interact(banner)
+        console = CompleterConsole()
+        console.interact(banner)
 
 if __name__ == '__main__':
     main()
