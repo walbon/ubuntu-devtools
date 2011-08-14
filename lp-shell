@@ -80,7 +80,7 @@ def main():
                 # pylint does not handle nested try-except, disable import error
                 # pylint: disable-msg=E0611
                 from IPython.Shell import IPShellEmbed
-                sh = IPShellEmbed(user_ns={'lp': launchpad})
+                sh = IPShellEmbed(argv=[], user_ns={'lp': launchpad})
                 sh.set_banner(sh.IP.BANNER + '\n' + banner)
             sh.excepthook = sys.__excepthook__
         except ImportError:
