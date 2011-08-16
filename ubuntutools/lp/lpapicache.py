@@ -172,9 +172,6 @@ class BaseWrapper(object):
         else:
             return '<%s: %r>' % (self.__class__.__name__, self._lpobject)
 
-    def lp_object(self):
-        return self._lpobject
-
 
 class Distribution(BaseWrapper):
     '''
@@ -334,6 +331,25 @@ class Archive(BaseWrapper):
                 raise PackageNotFoundException(msg)
 
         return self._srcpkgs[(name, series.name, pocket)]
+
+    def copyPackage(self, source_name, version, from_archive, to_pocket,
+                    to_series = None, include_binaries = False):
+        '''Copy a single named source into this archive.
+
+        Asynchronously copy a specific version of a named source to the
+        destination archive if necessary.  Calls to this method will return
+        immediately if the copy passes basic security checks and the copy
+        will happen sometime later with full checking.
+        '''
+
+        self._lpobject.copyPackage(
+            source_name=source_name,
+            version=version,
+            from_archive=from_archive._lpobject,
+            to_pocket=to_pocket,
+            to_series=to_series,
+            include_binaries=include_binaries
+            )
 
 
 class SourcePackagePublishingHistory(BaseWrapper):
