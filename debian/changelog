@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.128) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.128) unstable; urgency=low
 
   [ Stefano Rivera ]
   * ubuntutools.builder: Detect missing builder and fail early.
@@ -7,7 +7,7 @@ ubuntu-dev-tools (0.128) UNRELEASED; urgency=low
   [ Julian Taylor ]
   * lp-shell: use ipython shell if available
 
- -- Julian Taylor <jtaylor.debian@googlemail.com>  Sun, 14 Aug 2011 18:56:52 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 16 Aug 2011 10:25:24 +0200
 
 ubuntu-dev-tools (0.127) unstable; urgency=low
 
