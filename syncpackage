@@ -324,6 +324,16 @@ def copy(src_pkg, debian_version, release, simulate=False):
     if simulate:
         return
 
+    if 'ubuntu' in ubuntu_version:
+        print "Ubuntu version had Ubuntu-specific modifications; check them " \
+              "carefully!"
+    try:
+        answer = raw_input("Sync this package? [y/N] ")
+    except:
+        print >>sys.stderr, "Aborted"
+    if answer.lower() not in ("y", "yes"):
+        return
+
     ubuntu_archive.copyPackage(
         source_name=src_pkg,
         version=debian_version,
