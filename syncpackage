@@ -29,6 +29,8 @@ import sys
 
 from devscripts.logger import Logger
 
+from lazr.restfulclient.errors import HTTPError
+
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
@@ -334,13 +336,20 @@ def copy(src_pkg, debian_version, release, simulate=False):
     if answer.lower() not in ("y", "yes"):
         return
 
-    ubuntu_archive.copyPackage(
-        source_name=src_pkg,
-        version=debian_version,
-        from_archive=debian_archive.lp_object(),
-        to_series=ubuntu_series,
-        to_pocket=ubuntu_pocket,
-        include_binaries=False)
+    try:
+        ubuntu_archive.copyPackage(
+            source_name=src_pkg,
+            version=debian_version,
+            from_archive=debian_archive.lp_object(),
+            to_series=ubuntu_series,
+            to_pocket=ubuntu_pocket,
+            include_binaries=False)
+    except HTTPError, error:
+        Logger.error("HTTP Error %s: %s" %
+                     (error.response.status, error.response.reason))
+        Logger.error(error.content)
+        sys.exit(1)
+
     Logger.normal('Request succeeded; you should get an e-mail once it is '
                   'processed.')
 
