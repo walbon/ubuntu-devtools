@@ -2,6 +2,7 @@ ubuntu-dev-tools (0.128) UNRELEASED; urgency=low
 
   [ Stefano Rivera ]
   * ubuntutools.builder: Detect missing builder and fail early.
+  * backportpackage: Backport from local source packages again (LP: #801945)
 
   [ Julian Taylor ]
   * lp-shell: use ipython shell if available
