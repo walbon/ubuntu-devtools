@@ -21,6 +21,7 @@ import os.path
 import shutil
 import StringIO
 import tempfile
+import types
 import urllib2
 
 import debian.deb822
@@ -299,11 +300,17 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         self.mock_opener.open(mirror + base + 'example_1.0-1.debian.tar.gz'
                              ).WithSideEffects(self.urlopen_proxy)
 
-        self.mox.StubOutWithMock(debian.deb822.GpgInfo, 'from_sequence')
-        debian.deb822.GpgInfo.from_sequence(mox.IsA(str)).WithSideEffects(
-                lambda x: debian.deb822.GpgInfo.from_output(
+        def fake_gpg_info(self, message, keyrings=None):
+            return debian.deb822.GpgInfo.from_output(
                     '[GNUPG:] GOODSIG DEADBEEF Joe Developer '
-                    '<joe@example.net>'))
+                    '<joe@example.net>')
+        # We have to stub this out without mox because there some versions of
+        # python-debian will pass keyrings=None, others won't.
+        # http://code.google.com/p/pymox/issues/detail?id=37
+        self.mox.stubs.Set(debian.deb822.GpgInfo, 'from_sequence',
+                           types.MethodType(fake_gpg_info,
+                                            debian.deb822.GpgInfo,
+                                            debian.deb822.GpgInfo))
 
         self.mox.ReplayAll()
 
@@ -323,10 +330,16 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         self.mock_opener.open(mirror + base + 'example_1.0-1.dsc'
                              ).WithSideEffects(self.urlopen_proxy)
 
-        self.mox.StubOutWithMock(debian.deb822.GpgInfo, 'from_sequence')
-        debian.deb822.GpgInfo.from_sequence(mox.IsA(str)).WithSideEffects(
-                lambda x: debian.deb822.GpgInfo.from_output(
-                    '[GNUPG:] ERRSIG DEADBEEF'))
+        def fake_gpg_info(self, message, keyrings=None):
+            return debian.deb822.GpgInfo.from_output(
+                    '[GNUPG:] ERRSIG DEADBEEF')
+        # We have to stub this out without mox because there some versions of
+        # python-debian will pass keyrings=None, others won't.
+        # http://code.google.com/p/pymox/issues/detail?id=37
+        self.mox.stubs.Set(debian.deb822.GpgInfo, 'from_sequence',
+                           types.MethodType(fake_gpg_info,
+                                            debian.deb822.GpgInfo,
+                                            debian.deb822.GpgInfo))
 
         self.mox.ReplayAll()
 

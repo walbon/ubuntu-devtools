@@ -101,7 +101,7 @@ class SourcePackage(object):
     Use DebianSourcePackage or UbuntuSourcePackage instead of using this
     directly.
     """
-    distribution = 'unknown'
+    distribution = None
 
     def __init__(self, package=None, version=None, component=None,
                  dscfile=None, lp=None, mirrors=(), workdir='.'):
@@ -124,8 +124,9 @@ class SourcePackage(object):
         # Mirrors
         self._dsc_source = dscfile
         self.mirrors = list(mirrors)
-        self.masters = [UDTConfig.defaults['%s_MIRROR'
-                                           % self.distribution.upper()]]
+        if self.distribution:
+            self.masters = [UDTConfig.defaults['%s_MIRROR'
+                                               % self.distribution.upper()]]
         if dscfile is not None:
             if self.source is None:
                 self.source = 'unknown'

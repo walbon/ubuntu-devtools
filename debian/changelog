@@ -1,16 +1,22 @@
-ubuntu-dev-tools (0.128) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
+
+  * syncpackage: Convert to new LP API, with --no-lp available for the old
+    style of operation.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 16 Aug 2011 16:40:22 +0100
+
+ubuntu-dev-tools (0.128) unstable; urgency=low
 
   [ Stefano Rivera ]
   * ubuntutools.builder: Detect missing builder and fail early.
+  * backportpackage: Backport from local source packages again (LP: #801945)
+  * ubuntutools.test.test_archive: Forgive newer python-debian's for calling
+    GpgInfo.from_sequence() with the optional keyrings arguments.
 
   [ Julian Taylor ]
   * lp-shell: use ipython shell if available
 
-  [ Colin Watson ]
-  * syncpackage: Convert to new LP API, with --no-lp available for the old
-    style of operation.
-
- -- Julian Taylor <jtaylor.debian@googlemail.com>  Sun, 14 Aug 2011 18:56:52 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 16 Aug 2011 11:15:18 +0200
 
 ubuntu-dev-tools (0.127) unstable; urgency=low
 
