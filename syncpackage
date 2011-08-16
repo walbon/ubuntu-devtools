@@ -323,6 +323,15 @@ def copy(src_pkg, debian_dist, debian_version, release, simulate=False,
         debian_dist = debian_info.codename(debian_dist, default=debian_dist)
         debian_version = debian_archive.getSourcePackage(
             src_pkg, debian_dist).getVersion()
+    else:
+        # Ensure that the provided Debian version actually exists.
+        debian_sources = debian_archive.getPublishedSources(
+            source_name=src_pkg,
+            version=debian_version,
+            exact_match=True)
+        if not debian_sources:
+            Logger.error('Debian version %s does not exist!', debian_version)
+            sys.exit(1)
     try:
         ubuntu_version = ubuntu_archive.getSourcePackage(
             src_pkg, ubuntu_series, ubuntu_pocket).getVersion()
