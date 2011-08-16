@@ -437,6 +437,9 @@ def main():
         options.uploader_email = ubu_email(export=False)[1]
 
     if options.lp:
+        if args[0].endswith('.dsc'):
+            parser.error('.dsc files can only be synced using --no-lp.')
+
         # We need devel for now.
         api_version = 'devel'
 
