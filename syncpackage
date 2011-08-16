@@ -312,15 +312,15 @@ def copy(src_pkg, debian_version, release, simulate=False):
         ubuntu_version = ubuntu_archive.getSourcePackage(
             src_pkg, ubuntu_series, ubuntu_pocket).getVersion()
 
-        Logger.info('Source %s -> %s/%s: current version %s, new version %s',
-                    src_pkg, ubuntu_series, ubuntu_pocket,
-                    ubuntu_version, debian_version)
+        Logger.normal('Source %s -> %s/%s: current version %s, new version %s',
+                      src_pkg, ubuntu_series, ubuntu_pocket,
+                      ubuntu_version, debian_version)
         if Version(debian_version) <= Version(ubuntu_version):
             Logger.error('Debian version is <= Ubuntu version; nothing to do!')
             sys.exit(1)
     except udtexceptions.PackageNotFoundException:
-        Logger.info('Source %s -> %s/%s: not in Ubuntu, new version %s',
-                    src_pkg, ubuntu_series, ubuntu_pocket, debian_version)
+        Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
+                      src_pkg, ubuntu_series, ubuntu_pocket, debian_version)
     if simulate:
         return
 
@@ -331,8 +331,8 @@ def copy(src_pkg, debian_version, release, simulate=False):
         to_series=ubuntu_series,
         to_pocket=ubuntu_pocket,
         include_binaries=False)
-    Logger.info('Request succeeded; you should get an e-mail once it is '
-                'processed.')
+    Logger.normal('Request succeeded; you should get an e-mail once it is '
+                  'processed.')
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
