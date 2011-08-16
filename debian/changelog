@@ -2,6 +2,7 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
 
   * syncpackage: Convert to new LP API, with --no-lp available for the old
     style of operation.
+  * syncpackage: Require -f/--force option to overwrite Ubuntu changes.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 16 Aug 2011 16:40:22 +0100
 
