@@ -42,6 +42,7 @@ from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.misc import split_release_pocket
+from ubuntutools.question import YesNoQuestion
 from ubuntutools import subprocess
 
 
@@ -336,11 +337,8 @@ def copy(src_pkg, debian_dist, debian_version, release, simulate=False):
     if 'ubuntu' in ubuntu_version:
         print "Ubuntu version had Ubuntu-specific modifications; check them " \
               "carefully!"
-    try:
-        answer = raw_input("Sync this package? [y/N] ")
-    except:
-        print >>sys.stderr, "Aborted"
-    if answer.lower() not in ("y", "yes"):
+    answer = YesNoQuestion().ask("Sync this package", "no")
+    if answer != "yes":
         return
 
     try:
