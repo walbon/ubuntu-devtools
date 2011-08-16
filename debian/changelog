@@ -3,11 +3,13 @@ ubuntu-dev-tools (0.128) unstable; urgency=low
   [ Stefano Rivera ]
   * ubuntutools.builder: Detect missing builder and fail early.
   * backportpackage: Backport from local source packages again (LP: #801945)
+  * ubuntutools.test.test_archive: Forgive newer python-debian's for calling
+    GpgInfo.from_sequence() with the optional keyrings arguments.
 
   [ Julian Taylor ]
   * lp-shell: use ipython shell if available
 
- -- Stefano Rivera <stefanor@debian.org>  Tue, 16 Aug 2011 10:25:24 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 16 Aug 2011 11:15:18 +0200
 
 ubuntu-dev-tools (0.127) unstable; urgency=low
 
