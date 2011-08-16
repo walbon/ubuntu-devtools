@@ -35,8 +35,9 @@ from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.requestsync.mail import (getDebianSrcPkg
                                           as requestsync_mail_getDebianSrcPkg)
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
-from ubuntutools.lp import udtexceptions
-from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools.lp import udtexceptions, api_version
+from ubuntutools.lp.lpapicache import Distribution, Launchpad
+from ubuntutools.misc import split_release_pocket
 from ubuntutools import subprocess
 
 
@@ -110,7 +111,7 @@ def add_fixed_bugs(changes, bugs):
     return "\n".join(changes + [""])
 
 def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
-             keyid=None):
+             keyid=None, simulate=False):
     uploader = name + " <" + email + ">"
 
     src_pkg.pull_dsc()
@@ -139,6 +140,8 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         Logger.warn('Overwriting modified Ubuntu version %s, '
                     'setting current version to %s',
                     ubuntu_ver.full_version, cur_ver.full_version)
+    if simulate:
+        return
 
     try:
         src_pkg.pull()
@@ -292,6 +295,45 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     return DebianSourcePackage(package, version.full_version, component,
                                mirrors=[mirror])
 
+def copy(src_pkg, debian_version, release, simulate=False):
+    debian = Distribution('debian')
+    ubuntu = Distribution('ubuntu')
+    debian_archive = debian.getArchive()
+    ubuntu_archive = ubuntu.getArchive()
+    if release is None:
+        ubuntu_series = ubuntu.getDevelopmentSeries().name
+        ubuntu_pocket = 'Release'
+    else:
+        ubuntu_series, ubuntu_pocket = split_release_pocket(release)
+
+    if debian_version is None:
+        debian_version = debian_archive.getSourcePackage(src_pkg).getVersion()
+    try:
+        ubuntu_version = ubuntu_archive.getSourcePackage(
+            src_pkg, ubuntu_series, ubuntu_pocket).getVersion()
+
+        Logger.info('Source %s -> %s/%s: current version %s, new version %s',
+                    src_pkg, ubuntu_series, ubuntu_pocket,
+                    ubuntu_version, debian_version)
+        if Version(debian_version) <= Version(ubuntu_version):
+            Logger.error('Debian version is <= Ubuntu version; nothing to do!')
+            sys.exit(1)
+    except udtexceptions.PackageNotFoundException:
+        Logger.info('Source %s -> %s/%s: not in Ubuntu, new version %s',
+                    src_pkg, ubuntu_series, ubuntu_pocket, debian_version)
+    if simulate:
+        return
+
+    ubuntu_archive.copyPackage(
+        source_name=src_pkg,
+        version=debian_version,
+        from_archive=debian_archive.lp_object(),
+        to_series=ubuntu_series,
+        to_pocket=ubuntu_pocket,
+        include_binaries=False)
+    Logger.info('Request succeeded; you should get an e-mail once it is '
+                'processed.')
+
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
     epilog = "See %s(1) for more info." % os.path.basename(sys.argv[0])
@@ -312,6 +354,14 @@ def main():
     parser.add_option("-v", "--verbose",
                       dest="verbose", action="store_true", default=False,
                       help="Display more progress information.")
+    parser.add_option("--no-lp",
+                      dest="lp", action="store_false", default=True,
+                      help="Construct sync locally rather than letting "
+                           "Launchpad copy the package directly.")
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                      dest='lpinstance', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production).')
     parser.add_option("-n", "--uploader-name",
                       dest="uploader_name", default=None,
                       help="Use UPLOADER_NAME as the name of the maintainer "
@@ -343,6 +393,10 @@ def main():
     parser.add_option('--no-conf',
                       dest='no_conf', default=False, action='store_true',
                       help="Don't read config files or environment variables.")
+    parser.add_option('--simulate',
+                      dest='simulate', default=False, action='store_true',
+                      help="Show what would be done, but don't actually do "
+                           "it.")
 
     (options, args) = parser.parse_args()
 
@@ -362,6 +416,14 @@ def main():
                      'It should be one of main, contrib, or non-free.'
                      % options.component)
 
+    if options.lp and options.uploader_name:
+        parser.error('Uploader name can only be overridden using --no-lp.')
+    if options.lp and options.uploader_email:
+        parser.error('Uploader email address can only be overridden using '
+                     '--no-lp.')
+    # --key, --dont-sign, --debian-mirror, and --ubuntu-mirror are just
+    # ignored with options.lp, and do not require warnings.
+
     Logger.verbose = options.verbose
     config = UDTConfig(options.no_conf)
     if options.debian_mirror is None:
@@ -373,19 +435,34 @@ def main():
     if options.uploader_email is None:
         options.uploader_email = ubu_email(export=False)[1]
 
-    Launchpad.login_anonymously()
-    if options.release is None:
-        options.release = Launchpad.distributions["ubuntu"].current_series.name
+    if options.lp:
+        # We need devel for now.
+        api_version = 'devel'
 
-    os.environ['DEB_VENDOR'] = 'Ubuntu'
+        if options.lpinstance is None:
+            options.lpinstance = config.get_value('LPINSTANCE')
 
-    src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
-                               options.component, options.release,
-                               options.debian_mirror)
+        try:
+            Launchpad.login(service=options.lpinstance)
+        except IOError:
+            sys.exit(1)
 
-    sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
-             options.uploader_email, options.bugs, options.ubuntu_mirror,
-             options.keyid)
+        copy(args[0], options.debversion, options.release, options.simulate)
+    else:
+        Launchpad.login_anonymously()
+        if options.release is None:
+            ubuntu = Launchpad.distributions["ubuntu"]
+            options.release = ubuntu.current_series.name
+
+        os.environ['DEB_VENDOR'] = 'Ubuntu'
+
+        src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
+                                   options.component, options.release,
+                                   options.debian_mirror)
+
+        sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
+                 options.uploader_email, options.bugs, options.ubuntu_mirror,
+                 options.keyid, options.simulate)
 
 if __name__ == "__main__":
     main()

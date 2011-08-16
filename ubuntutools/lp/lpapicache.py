@@ -172,6 +172,9 @@ class BaseWrapper(object):
         else:
             return '<%s: %r>' % (self.__class__.__name__, self._lpobject)
 
+    def lp_object(self):
+        return self._lpobject
+
 
 class Distribution(BaseWrapper):
     '''
