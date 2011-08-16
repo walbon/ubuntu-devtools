@@ -29,6 +29,8 @@ import sys
 
 from devscripts.logger import Logger
 
+from distro_info import DebianDistroInfo
+
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
@@ -297,7 +299,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     return DebianSourcePackage(package, version.full_version, component,
                                mirrors=[mirror])
 
-def copy(src_pkg, debian_version, release, simulate=False):
+def copy(src_pkg, debian_dist, debian_version, release, simulate=False):
     debian = Distribution('debian')
     ubuntu = Distribution('ubuntu')
     debian_archive = debian.getArchive()
@@ -309,7 +311,12 @@ def copy(src_pkg, debian_version, release, simulate=False):
         ubuntu_series, ubuntu_pocket = split_release_pocket(release)
 
     if debian_version is None:
-        debian_version = debian_archive.getSourcePackage(src_pkg).getVersion()
+        if debian_dist is None:
+            debian_dist = 'unstable'
+        debian_info = DebianDistroInfo()
+        debian_dist = debian_info.codename(debian_dist, default=debian_dist)
+        debian_version = debian_archive.getSourcePackage(
+            src_pkg, debian_dist).getVersion()
     try:
         ubuntu_version = ubuntu_archive.getSourcePackage(
             src_pkg, ubuntu_series, ubuntu_pocket).getVersion()
@@ -467,7 +474,8 @@ def main():
         except IOError:
             sys.exit(1)
 
-        copy(args[0], options.debversion, options.release, options.simulate)
+        copy(args[0], options.dist, options.debversion, options.release,
+             options.simulate)
     else:
         Launchpad.login_anonymously()
         if options.release is None:
