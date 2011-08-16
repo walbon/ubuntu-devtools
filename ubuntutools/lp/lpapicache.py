@@ -53,7 +53,7 @@ _POCKETS = ('Release', 'Security', 'Updates', 'Proposed', 'Backports')
 class _Launchpad(object):
     '''Singleton for LP API access.'''
 
-    def login(self, service=service):
+    def login(self, service=service, api_version=api_version):
         '''Enforce a non-anonymous login.'''
         if not self.logged_in:
             try:

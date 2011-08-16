@@ -35,7 +35,7 @@ from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.requestsync.mail import (getDebianSrcPkg
                                           as requestsync_mail_getDebianSrcPkg)
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
-from ubuntutools.lp import udtexceptions, api_version
+from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.misc import split_release_pocket
 from ubuntutools import subprocess
@@ -450,14 +450,11 @@ def main():
         if args[0].endswith('.dsc'):
             parser.error('.dsc files can only be synced using --no-lp.')
 
-        # We need devel for now.
-        api_version = 'devel'
-
         if options.lpinstance is None:
             options.lpinstance = config.get_value('LPINSTANCE')
 
         try:
-            Launchpad.login(service=options.lpinstance)
+            Launchpad.login(service=options.lpinstance, api_version='devel')
         except IOError:
             sys.exit(1)
 
