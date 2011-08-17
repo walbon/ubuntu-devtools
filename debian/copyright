@@ -47,16 +47,12 @@ Files: 404main
        doc/404main.1
        doc/dgetlp.1
        doc/import-bug-from-debian.1
-       doc/lp-project-upload.1
-       doc/lp-set-dup.1
        doc/lp-shell.1
        doc/pbuilder-dist-simple.1
        doc/pbuilder-dist.1
        doc/reverse-build-depends.1
        doc/submittodebian.1
        import-bug-from-debian
-       lp-project-upload
-       lp-set-dup
        pbuilder-dist
        pbuilder-dist-simple
        reverse-build-depends
@@ -130,14 +126,12 @@ Files: dch-repeat
        doc/dch-repeat.1
        doc/get-build-deps.1
        doc/grep-merges.1
-       doc/lp-list-bugs.1
        doc/mk-sbuild.1
        doc/pull-lp-source.1
        doc/pull-revu-source.1
        doc/ubuntu-build.1
        get-build-deps
        grep-merges
-       lp-list-bugs
        mk-sbuild
        pull-lp-source
        pull-revu-source
