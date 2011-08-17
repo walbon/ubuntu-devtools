@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
+
+  * Remove lp-project-upload, lp-list-bugs and lp-set-dup, which are now
+    included in lptools.
+
+ -- Jelmer Vernooij <jelmer@ubuntu.com>  Wed, 17 Aug 2011 12:47:59 +0200
+
 ubuntu-dev-tools (0.128) unstable; urgency=low
 
   [ Stefano Rivera ]
