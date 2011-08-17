@@ -385,7 +385,7 @@ def copy(src_pkg, debian_dist, release, simulate=False, force=False):
     try:
         ubuntu_archive.copyPackage(
             source_name=src_pkg.source,
-            version=str(src_pkg.version),
+            version=src_pkg.version.full_version,
             from_archive=debian_archive,
             to_series=ubuntu_series,
             to_pocket=ubuntu_pocket,
