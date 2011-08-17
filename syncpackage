@@ -322,7 +322,10 @@ def copy(src_pkg, debian_dist, release, simulate=False, force=False):
 
     # Ensure that the provided Debian version actually exists.
     try:
-        debian_spph = src_pkg.lp_spph()
+        debian_spph = debian_archive.getPublishedSources(
+            source_name=src_pkg.source,
+            version=src_pkg.version.full_version,
+            exact_match=True)[0]
     except IndexError:
         Logger.error('Debian version %s does not exist!', src_pkg.version)
         sys.exit(1)
