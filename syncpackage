@@ -260,8 +260,13 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     """Download the specified source package.
     dist, version, component, mirror can all be None.
     """
+    if mirror is None:
+        mirrors = []
+    else:
+        mirrors = [mirror]
+
     if package.endswith('.dsc'):
-        return DebianSourcePackage(dscfile=package, mirrors=[mirror])
+        return DebianSourcePackage(dscfile=package, mirrors=mirrors)
 
     if dist is None:
         dist = "unstable"
@@ -302,10 +307,9 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     assert component in ('main', 'contrib', 'non-free')
 
     return DebianSourcePackage(package, version.full_version, component,
-                               mirrors=[mirror])
+                               mirrors=mirrors)
 
-def copy(src_pkg, debian_dist, debian_version, release, simulate=False,
-         force=False):
+def copy(src_pkg, debian_dist, release, simulate=False, force=False):
     debian = Distribution('debian')
     ubuntu = Distribution('ubuntu')
     debian_archive = debian.getArchive()
@@ -316,42 +320,58 @@ def copy(src_pkg, debian_dist, debian_version, release, simulate=False,
     else:
         ubuntu_series, ubuntu_pocket = split_release_pocket(release)
 
-    if debian_version is None:
-        if debian_dist is None:
-            debian_dist = 'unstable'
-        debian_info = DebianDistroInfo()
-        debian_dist = debian_info.codename(debian_dist, default=debian_dist)
-        debian_version = debian_archive.getSourcePackage(
-            src_pkg, debian_dist).getVersion()
-    else:
-        # Ensure that the provided Debian version actually exists.
-        debian_sources = debian_archive.getPublishedSources(
-            source_name=src_pkg,
-            version=debian_version,
-            exact_match=True)
-        if not debian_sources:
-            Logger.error('Debian version %s does not exist!', debian_version)
-            sys.exit(1)
+    # Ensure that the provided Debian version actually exists.
     try:
-        ubuntu_version = ubuntu_archive.getSourcePackage(
-            src_pkg, ubuntu_series, ubuntu_pocket).getVersion()
+        debian_spph = src_pkg.lp_spph()
+    except IndexError:
+        Logger.error('Debian version %s does not exist!', src_pkg.version)
+        sys.exit(1)
 
-        debian_version = Version(debian_version)
-        ubuntu_version = Version(ubuntu_version)
+    try:
+        ubuntu_spph = getUbuntuSrcPkg(src_pkg.source,
+                                      ubuntu_series, ubuntu_pocket)
+        ubuntu_pkg = UbuntuSourcePackage(src_pkg.source,
+                                         ubuntu_spph.getVersion(),
+                                         ubuntu_spph.getComponent(),
+                                         mirrors=[])
 
         Logger.normal('Source %s -> %s/%s: current version %s, new version %s',
-                      src_pkg, ubuntu_series, ubuntu_pocket,
-                      ubuntu_version, debian_version)
-        if debian_version <= ubuntu_version:
-            Logger.error('Debian version is <= Ubuntu version; nothing to do!')
-            sys.exit(1)
+                      src_pkg.source, ubuntu_series, ubuntu_pocket,
+                      ubuntu_pkg.version, src_pkg.version)
 
+        ubuntu_version = Version(ubuntu_pkg.version.full_version)
         if not force and ubuntu_version.is_modified_in_ubuntu():
             Logger.error('--force is required to discard Ubuntu changes.')
             sys.exit(1)
+
+        # Check whether a fakesync would be required.
+        src_pkg.pull_dsc(quiet=not Logger.verbose)
+        ubuntu_pkg.pull_dsc(quiet=not Logger.verbose)
+        for field, key in (('Checksums-Sha256', 'sha256'),
+                           ('Checksums-Sha1', 'sha1'),
+                           ('Files', 'md5sum')):
+            if field not in src_pkg.dsc or field not in ubuntu_pkg.dsc:
+                continue
+            debian_checksums = \
+                dict((entry['name'], (int(entry['size']), entry[key]))
+                     for entry in src_pkg.dsc[field])
+            ubuntu_checksums = \
+                dict((entry['name'], (int(entry['size']), entry[key]))
+                     for entry in ubuntu_pkg.dsc[field])
+            for name, (size, checksum) in debian_checksums.iteritems():
+                if name not in ubuntu_checksums:
+                    # new file
+                    continue
+                if (size != ubuntu_checksums[name][0] or
+                    checksum != ubuntu_checksums[name][1]):
+                    Logger.error('The checksums of the Debian and Ubuntu '
+                                 'packages mismatch. A fake sync is required.')
+                    sys.exit(1)
+            break # one checksum is good enough
     except udtexceptions.PackageNotFoundException:
         Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
-                      src_pkg, ubuntu_series, ubuntu_pocket, debian_version)
+                      src_pkg.source, ubuntu_series, ubuntu_pocket,
+                      src_pkg.version)
     if simulate:
         return
 
@@ -361,8 +381,8 @@ def copy(src_pkg, debian_dist, debian_version, release, simulate=False,
 
     try:
         ubuntu_archive.copyPackage(
-            source_name=src_pkg,
-            version=str(debian_version),
+            source_name=src_pkg.source,
+            version=str(src_pkg.version),
             from_archive=debian_archive,
             to_series=ubuntu_series,
             to_pocket=ubuntu_pocket,
@@ -493,8 +513,11 @@ def main():
         except IOError:
             sys.exit(1)
 
-        copy(args[0], options.dist, options.debversion, options.release,
-             options.simulate, options.force)
+        src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
+                                   options.component, options.release, None)
+
+        copy(src_pkg, options.dist, options.release, options.simulate,
+             options.force)
     else:
         Launchpad.login_anonymously()
         if options.release is None:
