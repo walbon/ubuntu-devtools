@@ -368,7 +368,8 @@ def copy(src_pkg, debian_dist, release, simulate=False, force=False):
                 if (size != ubuntu_checksums[name][0] or
                     checksum != ubuntu_checksums[name][1]):
                     Logger.error('The checksums of the Debian and Ubuntu '
-                                 'packages mismatch. A fake sync is required.')
+                                 'packages mismatch. A fake sync using '
+                                 '--no-lp is required.')
                     sys.exit(1)
             break # one checksum is good enough
     except udtexceptions.PackageNotFoundException:
