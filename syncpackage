@@ -310,9 +310,8 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
                                mirrors=mirrors)
 
 def copy(src_pkg, debian_dist, release, simulate=False, force=False):
-    debian = Distribution('debian')
     ubuntu = Distribution('ubuntu')
-    debian_archive = debian.getArchive()
+    debian_archive = Distribution('debian').getArchive()
     ubuntu_archive = ubuntu.getArchive()
     if release is None:
         ubuntu_series = ubuntu.getDevelopmentSeries().name
