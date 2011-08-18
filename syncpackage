@@ -321,7 +321,7 @@ def copy(src_pkg, release, simulate=False, force=False):
 
     # Ensure that the provided Debian version actually exists.
     try:
-        debian_spph = debian_archive.getPublishedSources(
+        debian_archive.getPublishedSources(
             source_name=src_pkg.source,
             version=src_pkg.version.full_version,
             exact_match=True)[0]
