@@ -34,7 +34,7 @@ def getDebianSrcPkg(name, release):
 
     return debian_archive.getSourcePackage(name, release)
 
-def getUbuntuSrcPkg(name, release, pocket = 'Release'):
+def getUbuntuSrcPkg(name, release, pocket='Release'):
     ubuntu = Distribution('ubuntu')
     ubuntu_archive = ubuntu.getArchive()
 
