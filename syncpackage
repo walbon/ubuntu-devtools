@@ -348,8 +348,8 @@ def copy(src_pkg, release, simulate=False, force=False):
             sys.exit(1)
 
         # Check whether a fakesync would be required.
-        src_pkg.pull_dsc(quiet=not Logger.verbose)
-        ubuntu_pkg.pull_dsc(quiet=not Logger.verbose)
+        src_pkg.pull_dsc()
+        ubuntu_pkg.pull_dsc()
         if not src_pkg.dsc.compare_dsc(ubuntu_pkg.dsc):
             Logger.error('The checksums of the Debian and Ubuntu packages '
                          'mismatch. A fake sync using --no-lp is required.')
