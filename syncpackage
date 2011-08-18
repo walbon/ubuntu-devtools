@@ -349,28 +349,10 @@ def copy(src_pkg, release, simulate=False, force=False):
         # Check whether a fakesync would be required.
         src_pkg.pull_dsc(quiet=not Logger.verbose)
         ubuntu_pkg.pull_dsc(quiet=not Logger.verbose)
-        for field, key in (('Checksums-Sha256', 'sha256'),
-                           ('Checksums-Sha1', 'sha1'),
-                           ('Files', 'md5sum')):
-            if field not in src_pkg.dsc or field not in ubuntu_pkg.dsc:
-                continue
-            debian_checksums = \
-                dict((entry['name'], (int(entry['size']), entry[key]))
-                     for entry in src_pkg.dsc[field])
-            ubuntu_checksums = \
-                dict((entry['name'], (int(entry['size']), entry[key]))
-                     for entry in ubuntu_pkg.dsc[field])
-            for name, (size, checksum) in debian_checksums.iteritems():
-                if name not in ubuntu_checksums:
-                    # new file
-                    continue
-                if (size != ubuntu_checksums[name][0] or
-                    checksum != ubuntu_checksums[name][1]):
-                    Logger.error('The checksums of the Debian and Ubuntu '
-                                 'packages mismatch. A fake sync using '
-                                 '--no-lp is required.')
-                    sys.exit(1)
-            break # one checksum is good enough
+        if not src_pkg.dsc.compare_dsc(ubuntu_pkg.dsc):
+            Logger.error('The checksums of the Debian and Ubuntu packages '
+                         'mismatch. A fake sync using --no-lp is required.')
+            sys.exit(1)
     except udtexceptions.PackageNotFoundException:
         Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
                       src_pkg.source, ubuntu_series, ubuntu_pocket,

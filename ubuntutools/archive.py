@@ -95,6 +95,30 @@ class Dsc(debian.deb822.Dsc):
             return hash_func.hexdigest() == digest
         return False
 
+    def compare_dsc(self, other):
+        """Check whether any files in these two dscs that have the same name
+        also have the same checksum."""
+        for field, key in (('Checksums-Sha256', 'sha256'),
+                           ('Checksums-Sha1', 'sha1'),
+                           ('Files', 'md5sum')):
+            if field not in self or field not in other:
+                continue
+            our_checksums = \
+                dict((entry['name'], (int(entry['size']), entry[key]))
+                     for entry in self[field])
+            their_checksums = \
+                dict((entry['name'], (int(entry['size']), entry[key]))
+                     for entry in other[field])
+            for name, (size, checksum) in our_checksums.iteritems():
+                if name not in their_checksums:
+                    # file only in one dsc
+                    continue
+                if (size != their_checksums[name][0] or
+                    checksum != their_checksums[name][1]):
+                    return False
+            return True # one checksum is good enough
+        return True
+
 
 class SourcePackage(object):
     """Base class for source package downloading.
