@@ -309,7 +309,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     return DebianSourcePackage(package, version.full_version, component,
                                mirrors=mirrors)
 
-def copy(src_pkg, debian_dist, release, simulate=False, force=False):
+def copy(src_pkg, release, simulate=False, force=False):
     ubuntu = Distribution('ubuntu')
     debian_archive = Distribution('debian').getArchive()
     ubuntu_archive = ubuntu.getArchive()
@@ -519,8 +519,7 @@ def main():
         src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
                                    options.component, options.release, None)
 
-        copy(src_pkg, options.dist, options.release, options.simulate,
-             options.force)
+        copy(src_pkg, options.release, options.simulate, options.force)
     else:
         Launchpad.login_anonymously()
         if options.release is None:
