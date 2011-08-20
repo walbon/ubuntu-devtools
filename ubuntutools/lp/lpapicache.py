@@ -201,7 +201,7 @@ class Distribution(BaseWrapper):
             cached = Distribution(Launchpad.distributions[dist])
         return cached
 
-    def getArchive(self, archive = None):
+    def getArchive(self, archive=None):
         '''
         Returns an Archive object for the requested archive.
         Raises a ArchiveNotFoundException if the archive doesn't exist.
@@ -278,7 +278,7 @@ class Archive(BaseWrapper):
         if '_srcpkgs' not in self.__dict__:
             self._srcpkgs = dict()
 
-    def getSourcePackage(self, name, series = None, pocket = 'Release'):
+    def getSourcePackage(self, name, series=None, pocket='Release'):
         '''
         Returns a SourcePackagePublishingHistory object for the most
         recent source package in the distribution 'dist', series and
@@ -333,7 +333,7 @@ class Archive(BaseWrapper):
         return self._srcpkgs[(name, series.name, pocket)]
 
     def copyPackage(self, source_name, version, from_archive, to_pocket,
-                    to_series = None, include_binaries = False):
+                    to_series=None, include_binaries=False):
         '''Copy a single named source into this archive.
 
         Asynchronously copy a specific version of a named source to the
@@ -446,7 +446,7 @@ class MetaPersonTeam(MetaWrapper):
             except HTTPError, error:
                 if error.response.status == 401:
                     # Anonymous login
-                    cls._me  = None
+                    cls._me = None
                 else:
                     raise
         return cls._me
