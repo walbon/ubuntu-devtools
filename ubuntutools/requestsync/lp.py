@@ -34,11 +34,11 @@ def getDebianSrcPkg(name, release):
 
     return debian_archive.getSourcePackage(name, release)
 
-def getUbuntuSrcPkg(name, release):
+def getUbuntuSrcPkg(name, release, pocket='Release'):
     ubuntu = Distribution('ubuntu')
     ubuntu_archive = ubuntu.getArchive()
 
-    return ubuntu_archive.getSourcePackage(name, release)
+    return ubuntu_archive.getSourcePackage(name, release, pocket)
 
 def needSponsorship(name, component, release):
     '''

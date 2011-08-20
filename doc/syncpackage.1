@@ -1,12 +1,12 @@
 .TH SYNCPACKAGE "1" "June 2010" "ubuntu-dev-tools"
 .SH NAME
-syncpackage \- helper to prepare .changes file to upload synced packages
+syncpackage \- copy source packages from Debian to Ubuntu
 .SH SYNOPSIS
 .B syncpackage
 [\fIoptions\fR] \fI<.dsc URL/path or package name>\fR
 .SH DESCRIPTION
-\fBsyncpackage\fR generates a changes file to be directly uploaded to Ubuntu
-primary archive or PPA starting from a pristine Debian package.
+\fBsyncpackage\fR causes a source package to be copied from Debian to
+Ubuntu.
 .PP
 \fBsyncpackage\fR allows you to upload files with the same checksums of the
 Debian ones, as the common script used by Ubuntu archive administrators does,
@@ -15,14 +15,15 @@ this way you can preserve source files integrity between the two distributions.
 \fBsyncpackage\fR will detect source tarballs with mismatching checksums
 and will automatically create fake syncs instead.
 .SH WARNING
-The use of \fBsyncpackage\fR is discouraged by the Ubuntu Archive
-Administrators, as it introduces an unnecessary window for error.
-In future launchpad will offer the ability to directly perform sync
-requests, without a developer having to do an upload.
-Until then, it's advised to use \fBsyncpackage\fR with caution, and
-request syncs via bugs with
-.BR requestsync (1)
-where possible.
+The use of \fBsyncpackage \-\-no\-lp\fR, which generates a changes file to
+be directly uploaded to the Ubuntu primary archive or a PPA, is discouraged
+by the Ubuntu Archive Administrators, as it introduces an unnecessary window
+for error.
+This only exists for backward compatibility, for unusual corner cases, and
+for uploads to archives other than the Ubuntu primary archive.
+Omitting this option will cause Launchpad to perform the sync request
+directly, which is the preferred method for uploads to the Ubuntu primary
+archive.
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
@@ -43,13 +44,22 @@ Specify the component to sync from.
 \fB\-v\fR, \fB\-\-verbose\fR
 Display more progress information.
 .TP
+.B \-\-no\-lp
+Construct sync locally rather than letting Launchpad copy the package
+directly (not recommended).
+.TP
+\fB\-l\fI INSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
+Launchpad instance to connect to (default: production).
+.TP
 \fB\-n\fI UPLOADER_NAME\fR, \fB\-\-uploader\-name\fR=\fIUPLOADER_NAME\fR
 Use UPLOADER_NAME as the name of the maintainer for this upload instead
 of evaluating DEBFULLNAME and UBUMAIL.
+This option may only be used in \fB\-\-no\-lp\fR mode.
 .TP
 \fB\-e\fI UPLOADER_EMAIL\fR, \fB\-\-uploader\-email\fR=\fIUPLOADER_EMAIL\fR
 Use UPLOADER_EMAIL as the email address of the maintainer for this
 upload instead of evaluating DEBEMAIL and UBUMAIL.
+This option may only be used in \fB\-\-no\-lp\fR mode.
 .TP
 \fB\-k\fI KEYID\fR, \fB\-\-key\fR=\fIKEYID\fR
 Specify the key ID to be used for signing.
@@ -59,6 +69,9 @@ Do not sign the upload.
 .TP
 \fB\-b\fI BUG\fR, \fB\-\-bug\fR=\fIBUG\fR
 Mark a Launchpad bug as being fixed by this upload.
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+Force sync over the top of Ubuntu changes.
 .TP
 .B \-d \fIDEBIAN_MIRROR\fR, \fB\-\-debian\-mirror\fR=\fIDEBIAN_MIRROR\fR
 Use the specified mirror.
@@ -75,6 +88,9 @@ back to the default mirror.
 .B \-\-no\-conf
 Do not read any configuration files, or configuration from environment
 variables.
+.TP
+.B \-\-simulate
+Show what would be done, but don't actually do it.
 .SH ENVIRONMENT
 .TP
 .BR DEBFULLNAME ", " DEBEMAIL ", " UBUMAIL
