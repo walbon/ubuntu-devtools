@@ -11,7 +11,6 @@ Files: *
        doc/check-symbols.1
        doc/requestsync.1
        doc/ubuntu-iso.1
-       lp-shell
        requestsync
        setup.py
        ubuntu-iso
@@ -47,7 +46,6 @@ Files: 404main
        doc/404main.1
        doc/dgetlp.1
        doc/import-bug-from-debian.1
-       doc/lp-shell.1
        doc/pbuilder-dist-simple.1
        doc/pbuilder-dist.1
        doc/reverse-build-depends.1
