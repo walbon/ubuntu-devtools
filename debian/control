@@ -80,8 +80,6 @@ Description: useful tools for Ubuntu developers
     team.
   - get-build-deps - install the build dependencies needed for a package
     reading debian/control.
-  - grab-attachments - download all bug attachments from a Launchpad bug
-    report.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - grep-merges - search for pending merges from Debian.
   - harvest - grabs information about development opportunities from

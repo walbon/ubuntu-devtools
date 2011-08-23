@@ -84,7 +84,6 @@ License: GPL-2+
 Files: ack-sync
        doc/bitesize.1
        doc/get-branches.1
-       doc/grab-attachments.1
        doc/grab-merge.1
        doc/harvest.1
        doc/hugdaylist.1
@@ -94,7 +93,6 @@ Files: ack-sync
        doc/syncpackage.1
        bitesize
        get-branches
-       grab-attachments
        grab-merge
        harvest
        hugdaylist
