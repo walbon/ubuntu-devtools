@@ -36,11 +36,13 @@ from lazr.restfulclient.errors import HTTPError
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
+from ubuntutools.requestsync.common import getDebianChangelog
 from ubuntutools.requestsync.mail import (getDebianSrcPkg
                                           as requestsync_mail_getDebianSrcPkg)
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
-from ubuntutools.lp.lpapicache import Distribution, Launchpad
+from ubuntutools.lp.lpapicache import (Distribution, Launchpad,
+                                       SourcePackagePublishingHistory)
 from ubuntutools.misc import split_release_pocket
 from ubuntutools.question import YesNoQuestion
 from ubuntutools import subprocess
@@ -101,7 +103,7 @@ def add_fixed_bugs(changes, bugs):
 
     changes = [l for l in changes.split("\n") if l.strip() != ""]
     # Remove duplicates
-    bugs = set(bugs)
+    bugs = set(str(bug) for bug in bugs)
 
     for i in xrange(len(changes)):
         if changes[i].startswith("Launchpad-Bugs-Fixed:"):
@@ -309,7 +311,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     return DebianSourcePackage(package, version.full_version, component,
                                mirrors=mirrors)
 
-def copy(src_pkg, release, simulate=False, force=False):
+def copy(src_pkg, release, bugs, simulate=False, force=False):
     """Copy a source package from Debian to Ubuntu using the Launchpad API."""
     ubuntu = Distribution('ubuntu')
     debian_archive = Distribution('debian').getArchive()
@@ -322,10 +324,12 @@ def copy(src_pkg, release, simulate=False, force=False):
 
     # Ensure that the provided Debian version actually exists.
     try:
-        debian_archive.getPublishedSources(
-            source_name=src_pkg.source,
-            version=src_pkg.version.full_version,
-            exact_match=True)[0]
+        debian_spph = SourcePackagePublishingHistory(
+                debian_archive.getPublishedSources(
+                    source_name=src_pkg.source,
+                    version=src_pkg.version.full_version,
+                    exact_match=True)[0]
+                )
     except IndexError:
         Logger.error('Debian version %s does not exist!', src_pkg.version)
         sys.exit(1)
@@ -343,6 +347,7 @@ def copy(src_pkg, release, simulate=False, force=False):
                       ubuntu_pkg.version, src_pkg.version)
 
         ubuntu_version = Version(ubuntu_pkg.version.full_version)
+        base_version = ubuntu_version.get_related_debian_version()
         if not force and ubuntu_version.is_modified_in_ubuntu():
             Logger.error('--force is required to discard Ubuntu changes.')
             sys.exit(1)
@@ -355,9 +360,23 @@ def copy(src_pkg, release, simulate=False, force=False):
                          'mismatch. A fake sync using --no-lp is required.')
             sys.exit(1)
     except udtexceptions.PackageNotFoundException:
+        base_version = None
         Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
                       src_pkg.source, ubuntu_series, ubuntu_pocket,
                       src_pkg.version)
+
+    changes = getDebianChangelog(debian_spph, base_version).strip()
+    if changes:
+        Logger.normal("New Changes:\n%s", changes)
+        bugs += bugs_from_changes(changes)
+        bugs = sorted(set(bugs))
+    else:
+        Logger.error("Unable to determine changes, Launchpad bugs closed in "
+                     "the changelog will not be closed. ")
+        Logger.error("To close them manually, use the --bug option")
+    Logger.normal("LP Bugs to be closed: %s",
+                  ', '.join(str(bug) for bug in bugs))
+
     if simulate:
         return
 
@@ -406,6 +425,17 @@ def is_blacklisted(query):
             elif comment:
                 applicable_comments.append(comment)
     return False
+
+def bugs_from_changes(changes):
+    """Return a list of all LP bugs closed by changes"""
+    # From sync-source.py:
+    re_lp_closes = re.compile(r"lp:\s+\#\d+(?:,\s*\#\d+)*", re.I)
+    re_bug_numbers = re.compile(r"\#?\s?(\d+)")
+    closes = []
+    for match in re_lp_closes.finditer(changes):
+        bug_match = re_bug_numbers.findall(match.group(0))
+        closes.extend(map(int, bug_match))
+    return closes
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
@@ -483,10 +513,10 @@ def main():
         parser.error('Multiple .dsc URLs/paths or package names specified: '
                      + ', '.join(args))
 
-    invalid_bug_numbers = [bug for bug in options.bugs if not bug.isdigit()]
-    if len(invalid_bug_numbers) > 0:
-        parser.error('Invalid bug number(s) specified: '
-                     + ', '.join(invalid_bug_numbers))
+    try:
+        options.bugs = map(int, options.bugs)
+    except TypeError, e:
+        parser.error('Invalid bug number(s) specified')
 
     if options.component not in (None, "main", "contrib", "non-free"):
         parser.error('%s is not a valid Debian component. '
@@ -539,7 +569,8 @@ def main():
         sys.exit(1)
 
     if options.lp:
-        copy(src_pkg, options.release, options.simulate, options.force)
+        copy(src_pkg, options.release, options.bugs, options.simulate,
+             options.force)
     else:
         os.environ['DEB_VENDOR'] = 'Ubuntu'
         sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
