@@ -387,6 +387,18 @@ def is_blacklisted(query):
     Returns True or a string of all relevant comments if blacklisted,
             False if not
     """
+    # LP:
+    series = Launchpad.distributions['ubuntu'].current_series
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Needs attention')
+    if len(diffs) == 0:
+        comments = getDifferenceComments(source_package_name=query)
+        comment = '; '.join(c.body_text for c in comments)
+        if comment:
+            return comment
+        return True
+
+    # Old blacklist:
     url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
     with codecs.EncodedFile(urllib.urlopen(url), 'UTF-8') as f:
         applicable_comments = []
