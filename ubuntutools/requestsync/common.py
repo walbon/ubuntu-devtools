@@ -38,9 +38,11 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
         print '\nAbort requested. No sync request filed.'
         sys.exit(1)
 
+# TODO: Move this into requestsync.mail, and implement an LP version
+# when LP: #833384 is fixed
 def getDebianChangelog(srcpkg, version):
     '''
-    Return the new changelog entries upto 'version'.
+    Return the new changelog entries since 'version'.
     '''
     pkgname = srcpkg.getPackageName()
     pkgversion = srcpkg.getVersion()
