@@ -548,6 +548,9 @@ def main():
         Logger.error("Source package is blacklisted")
         if isinstance(blacklisted, basestring):
             Logger.error(u"Reason: %s", blacklisted)
+        Logger.error("If you think this package shouldn't be blacklisted, "
+                     "please file a bug explaining your reasoning and "
+                     "subscribe ~ubuntu-archive.")
         sys.exit(1)
 
     if options.lp:
