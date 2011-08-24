@@ -383,6 +383,10 @@ def copy(src_pkg, release, simulate=False, force=False):
                   'processed.')
 
 def is_blacklisted(query):
+    """"Determine if package "query" is in the sync blacklist
+    Returns True or a string of all relevant comments if blacklisted,
+            False if not
+    """
     url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
     with codecs.EncodedFile(urllib.urlopen(url), 'UTF-8') as f:
         applicable_comments = []
