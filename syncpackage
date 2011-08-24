@@ -360,7 +360,7 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
                          'mismatch. A fake sync using --no-lp is required.')
             sys.exit(1)
     except udtexceptions.PackageNotFoundException:
-        base_version = None
+        base_version = Version('~')
         Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
                       src_pkg.source, ubuntu_series, ubuntu_pocket,
                       src_pkg.version)
@@ -400,6 +400,11 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
 
     Logger.normal('Request succeeded; you should get an e-mail once it is '
                   'processed.')
+    Logger.normal('Please wait for the sync to be successuful before '
+                  'closing bugs')
+    answer = YesNoQuestion().ask("Close bugs?", "yes")
+    if answer == "yes":
+        close_bugs(bugs, src_pkg.source, src_pkg.version.full_version, changes)
 
 def is_blacklisted(query):
     """"Determine if package "query" is in the sync blacklist
@@ -436,6 +441,30 @@ def bugs_from_changes(changes):
         bug_match = re_bug_numbers.findall(match.group(0))
         closes.extend(map(int, bug_match))
     return closes
+
+def close_bugs(bugs, package, version, changes):
+    """Close the correct task on all bugs, with changes"""
+    ubuntu = Launchpad.distributions['ubuntu']
+    message = ("This bug was fixed in the package %s - %s"
+               "\n\n---------------\n%s" % (
+               package, version, changes))
+    for bug in bugs:
+        bug = Launchpad.bugs[bug]
+        if bug.duplicate_of is not None:
+            bug = bug.duplicate_of
+        for task in bug.bug_tasks:
+            target = task.target
+            if getattr(target, 'distribution', None) != ubuntu:
+                continue
+            if target == ubuntu or target.name == package:
+                if task.status != 'Fix Released':
+                    Logger.normal("Closed bug %s", task.web_link)
+                    task.status = 'Fix Released'
+                    task.lp_save()
+                    bug.newMessage(content=message)
+                break
+        else:
+            Logger.error(u"Cannot find any tasks on LP: #%i to close", bug.id)
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
@@ -515,7 +544,7 @@ def main():
 
     try:
         options.bugs = map(int, options.bugs)
-    except TypeError, e:
+    except TypeError:
         parser.error('Invalid bug number(s) specified')
 
     if options.component not in (None, "main", "contrib", "non-free"):
