@@ -72,6 +72,9 @@ Mark a Launchpad bug as being fixed by this upload.
 .TP
 \fB\-f\fR, \fB\-\-force\fR
 Force sync over the top of Ubuntu changes.
+If a sync is blacklisted because of an .orig.tar mismatch,
+\fB\-\-force\fR can be used to override the blacklist, when doing a
+local sync (\fB\-\-no\-lp\fR).
 .TP
 .B \-d \fIDEBIAN_MIRROR\fR, \fB\-\-debian\-mirror\fR=\fIDEBIAN_MIRROR\fR
 Use the specified mirror.
