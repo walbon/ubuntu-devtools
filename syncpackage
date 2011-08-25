@@ -393,7 +393,7 @@ def is_blacklisted(query):
     diffs = series.getDifferencesTo(source_package_name_filter=query,
                                     status='Needs attention')
     if len(diffs) == 0:
-        comments = getDifferenceComments(source_package_name=query)
+        comments = series.getDifferenceComments(source_package_name=query)
         comment = '; '.join(c.body_text for c in comments)
         if comment:
             return comment
