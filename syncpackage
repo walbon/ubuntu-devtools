@@ -454,9 +454,9 @@ def close_bugs(bugs, package, version, changes):
             bug = bug.duplicate_of
         for task in bug.bug_tasks:
             target = task.target
-            if getattr(target, 'distribution', None) != ubuntu:
-                continue
-            if target == ubuntu or target.name == package:
+            if (target.name == package
+                    and getattr(target, 'distribution', None) == ubuntu
+                    ) or target == ubuntu:
                 if task.status != 'Fix Released':
                     Logger.normal("Closed bug %s", task.web_link)
                     task.status = 'Fix Released'
