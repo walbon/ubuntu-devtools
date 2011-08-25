@@ -469,7 +469,8 @@ def main():
                            "upload.")
     parser.add_option("-f", "--force",
                       dest="force", action="store_true", default=False,
-                      help="Force sync over the top of Ubuntu changes.")
+                      help="Force sync over the top of Ubuntu changes "
+                           "or a fake-sync when blacklisted.")
     parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
@@ -552,7 +553,12 @@ def main():
         Logger.error("If you think this package shouldn't be blacklisted, "
                      "please file a bug explaining your reasoning and "
                      "subscribe ~ubuntu-archive.")
-        sys.exit(1)
+        if options.force and not options.lp:
+            Logger.warning(u"Forcing fake-sync, overriding blacklist")
+        else:
+            Logger.error("--force and --no-lp are required to override the "
+                         "blacklist, if this package needs a fakesync")
+            sys.exit(1)
 
     if options.lp:
         copy(src_pkg, options.release, options.simulate, options.force)
