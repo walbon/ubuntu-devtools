@@ -20,15 +20,16 @@
 #
 # ##################################################################
 
-import debian.deb822
-import debian.debian_support
+import codecs
 import optparse
 import os
+import re
 import shutil
 import sys
+import urllib
 
+import debian.debian_support
 from devscripts.logger import Logger
-
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
@@ -380,6 +381,44 @@ def copy(src_pkg, release, simulate=False, force=False):
     Logger.normal('Request succeeded; you should get an e-mail once it is '
                   'processed.')
 
+def is_blacklisted(query):
+    """"Determine if package "query" is in the sync blacklist
+    Returns True or a string of all relevant comments if blacklisted,
+            False if not
+    """
+    # LP:
+    # TODO: Refactor when LP: #833080 is fixed
+    series = Launchpad.distributions['ubuntu'].current_series
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Needs attention')
+    if len(diffs) == 0:
+        comments = series.getDifferenceComments(source_package_name=query)
+        comment = '; '.join(c.body_text for c in comments)
+        if comment:
+            return comment
+        return True
+
+    # Old blacklist:
+    url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
+    with codecs.EncodedFile(urllib.urlopen(url), 'UTF-8') as f:
+        applicable_comments = []
+        for line in f:
+            if not line.strip():
+                applicable_comments = []
+                continue
+            m = re.match(r'^\s*([a-z0-9.+-]+)?\s*(?:#\s*(.+)?)?$', line)
+            source, comment = m.groups()
+            if source and query == source:
+                if comment:
+                    applicable_comments.append(comment)
+                if applicable_comments:
+                    return u'; '.join(applicable_comments)
+                else:
+                    return True
+            elif comment:
+                applicable_comments.append(comment)
+    return False
+
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
     epilog = "See %s(1) for more info." % os.path.basename(sys.argv[0])
@@ -429,7 +468,8 @@ def main():
                            "upload.")
     parser.add_option("-f", "--force",
                       dest="force", action="store_true", default=False,
-                      help="Force sync over the top of Ubuntu changes.")
+                      help="Force sync over the top of Ubuntu changes "
+                           "or a fake-sync when blacklisted.")
     parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
@@ -489,30 +529,40 @@ def main():
         if args[0].endswith('.dsc'):
             parser.error('.dsc files can only be synced using --no-lp.')
 
-        if options.lpinstance is None:
-            options.lpinstance = config.get_value('LPINSTANCE')
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value('LPINSTANCE')
+    try:
+        Launchpad.login(service=options.lpinstance, api_version='devel')
+    except IOError:
+        sys.exit(1)
 
-        try:
-            Launchpad.login(service=options.lpinstance, api_version='devel')
-        except IOError:
+    if options.release is None:
+        ubuntu = Launchpad.distributions["ubuntu"]
+        options.release = ubuntu.current_series.name
+
+    src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
+                               options.component, options.release,
+                               options.debian_mirror)
+
+    blacklisted = is_blacklisted(src_pkg.source)
+    if blacklisted:
+        Logger.error("Source package is blacklisted")
+        if isinstance(blacklisted, basestring):
+            Logger.error(u"Reason: %s", blacklisted)
+        Logger.error("If you think this package shouldn't be blacklisted, "
+                     "please file a bug explaining your reasoning and "
+                     "subscribe ~ubuntu-archive.")
+        if options.force and not options.lp:
+            Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+        else:
+            Logger.error("--force and --no-lp are required to override the "
+                         "blacklist, if this package needs a fakesync.")
             sys.exit(1)
 
-        src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
-                                   options.component, options.release, None)
-
+    if options.lp:
         copy(src_pkg, options.release, options.simulate, options.force)
     else:
-        Launchpad.login_anonymously()
-        if options.release is None:
-            ubuntu = Launchpad.distributions["ubuntu"]
-            options.release = ubuntu.current_series.name
-
         os.environ['DEB_VENDOR'] = 'Ubuntu'
-
-        src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
-                                   options.component, options.release,
-                                   options.debian_mirror)
-
         sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
                  options.uploader_email, options.bugs, options.ubuntu_mirror,
                  options.keyid, options.simulate, options.force)
