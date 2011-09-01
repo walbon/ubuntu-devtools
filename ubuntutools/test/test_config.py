@@ -16,7 +16,6 @@
 
 import __builtin__
 import os
-import os.path
 import sys
 from StringIO import StringIO
 

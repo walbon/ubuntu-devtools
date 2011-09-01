@@ -1,9 +1,15 @@
 ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
 
-  * Remove get-branches, grab-attachments, lp-project-upload, lp-list-bugs,
-    lp-set-dup and lp-shell which are now included in lptools.
+  [ Colin Watson ]
+  * syncpackage: Convert to new LP API, with --no-lp available for the old
+    style of operation.
+  * syncpackage: Require -f/--force option to overwrite Ubuntu changes.
 
- -- Jelmer Vernooij <jelmer@ubuntu.com>  Wed, 17 Aug 2011 12:47:59 +0200
+  [ Jelmer Vernooij ]
+  * Remove get-branches, grab-attachments, lp-project-upload, lp-list-
+    bugs, lp-set-dup and lp-shell which are now included in lptools.
+
+ -- Jelmer Vernooij <jelmer@debian.org>  Thu, 01 Sep 2011 19:38:53 +0200
 
 ubuntu-dev-tools (0.128) unstable; urgency=low
 

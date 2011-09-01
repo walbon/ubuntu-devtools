@@ -20,14 +20,17 @@
 #
 # ##################################################################
 
-import debian.deb822
-import debian.debian_support
+import codecs
 import optparse
 import os
+import re
 import shutil
 import sys
+import urllib
 
+import debian.debian_support
 from devscripts.logger import Logger
+from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
@@ -36,7 +39,9 @@ from ubuntutools.requestsync.mail import (getDebianSrcPkg
                                           as requestsync_mail_getDebianSrcPkg)
 from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
 from ubuntutools.lp import udtexceptions
-from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools.lp.lpapicache import Distribution, Launchpad
+from ubuntutools.misc import split_release_pocket
+from ubuntutools.question import YesNoQuestion
 from ubuntutools import subprocess
 
 
@@ -110,7 +115,7 @@ def add_fixed_bugs(changes, bugs):
     return "\n".join(changes + [""])
 
 def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
-             keyid=None):
+             keyid=None, simulate=False, force=False):
     uploader = name + " <" + email + ">"
 
     src_pkg.pull_dsc()
@@ -136,9 +141,15 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
 
     cur_ver = ubuntu_ver.get_related_debian_version()
     if ubuntu_ver.is_modified_in_ubuntu():
+        if not force:
+            Logger.error('--force is required to discard Ubuntu changes.')
+            sys.exit(1)
+
         Logger.warn('Overwriting modified Ubuntu version %s, '
                     'setting current version to %s',
                     ubuntu_ver.full_version, cur_ver.full_version)
+    if simulate:
+        return
 
     try:
         src_pkg.pull()
@@ -248,8 +259,13 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     """Download the specified source package.
     dist, version, component, mirror can all be None.
     """
+    if mirror is None:
+        mirrors = []
+    else:
+        mirrors = [mirror]
+
     if package.endswith('.dsc'):
-        return DebianSourcePackage(dscfile=package, mirrors=[mirror])
+        return DebianSourcePackage(dscfile=package, mirrors=mirrors)
 
     if dist is None:
         dist = "unstable"
@@ -290,7 +306,118 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
     assert component in ('main', 'contrib', 'non-free')
 
     return DebianSourcePackage(package, version.full_version, component,
-                               mirrors=[mirror])
+                               mirrors=mirrors)
+
+def copy(src_pkg, release, simulate=False, force=False):
+    """Copy a source package from Debian to Ubuntu using the Launchpad API."""
+    ubuntu = Distribution('ubuntu')
+    debian_archive = Distribution('debian').getArchive()
+    ubuntu_archive = ubuntu.getArchive()
+    if release is None:
+        ubuntu_series = ubuntu.getDevelopmentSeries().name
+        ubuntu_pocket = 'Release'
+    else:
+        ubuntu_series, ubuntu_pocket = split_release_pocket(release)
+
+    # Ensure that the provided Debian version actually exists.
+    try:
+        debian_archive.getPublishedSources(
+            source_name=src_pkg.source,
+            version=src_pkg.version.full_version,
+            exact_match=True)[0]
+    except IndexError:
+        Logger.error('Debian version %s does not exist!', src_pkg.version)
+        sys.exit(1)
+
+    try:
+        ubuntu_spph = getUbuntuSrcPkg(src_pkg.source,
+                                      ubuntu_series, ubuntu_pocket)
+        ubuntu_pkg = UbuntuSourcePackage(src_pkg.source,
+                                         ubuntu_spph.getVersion(),
+                                         ubuntu_spph.getComponent(),
+                                         mirrors=[])
+
+        Logger.normal('Source %s -> %s/%s: current version %s, new version %s',
+                      src_pkg.source, ubuntu_series, ubuntu_pocket,
+                      ubuntu_pkg.version, src_pkg.version)
+
+        ubuntu_version = Version(ubuntu_pkg.version.full_version)
+        if not force and ubuntu_version.is_modified_in_ubuntu():
+            Logger.error('--force is required to discard Ubuntu changes.')
+            sys.exit(1)
+
+        # Check whether a fakesync would be required.
+        src_pkg.pull_dsc()
+        ubuntu_pkg.pull_dsc()
+        if not src_pkg.dsc.compare_dsc(ubuntu_pkg.dsc):
+            Logger.error('The checksums of the Debian and Ubuntu packages '
+                         'mismatch. A fake sync using --no-lp is required.')
+            sys.exit(1)
+    except udtexceptions.PackageNotFoundException:
+        Logger.normal('Source %s -> %s/%s: not in Ubuntu, new version %s',
+                      src_pkg.source, ubuntu_series, ubuntu_pocket,
+                      src_pkg.version)
+    if simulate:
+        return
+
+    answer = YesNoQuestion().ask("Sync this package", "no")
+    if answer != "yes":
+        return
+
+    try:
+        ubuntu_archive.copyPackage(
+            source_name=src_pkg.source,
+            version=src_pkg.version.full_version,
+            from_archive=debian_archive,
+            to_series=ubuntu_series,
+            to_pocket=ubuntu_pocket,
+            include_binaries=False)
+    except HTTPError, error:
+        Logger.error("HTTP Error %s: %s", error.response.status,
+                     error.response.reason)
+        Logger.error(error.content)
+        sys.exit(1)
+
+    Logger.normal('Request succeeded; you should get an e-mail once it is '
+                  'processed.')
+
+def is_blacklisted(query):
+    """"Determine if package "query" is in the sync blacklist
+    Returns True or a string of all relevant comments if blacklisted,
+            False if not
+    """
+    # LP:
+    # TODO: Refactor when LP: #833080 is fixed
+    series = Launchpad.distributions['ubuntu'].current_series
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Needs attention')
+    if len(diffs) == 0:
+        comments = series.getDifferenceComments(source_package_name=query)
+        comment = '; '.join(c.body_text for c in comments)
+        if comment:
+            return comment
+        return True
+
+    # Old blacklist:
+    url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
+    with codecs.EncodedFile(urllib.urlopen(url), 'UTF-8') as f:
+        applicable_comments = []
+        for line in f:
+            if not line.strip():
+                applicable_comments = []
+                continue
+            m = re.match(r'^\s*([a-z0-9.+-]+)?\s*(?:#\s*(.+)?)?$', line)
+            source, comment = m.groups()
+            if source and query == source:
+                if comment:
+                    applicable_comments.append(comment)
+                if applicable_comments:
+                    return u'; '.join(applicable_comments)
+                else:
+                    return True
+            elif comment:
+                applicable_comments.append(comment)
+    return False
 
 def main():
     usage = "%prog [options] <.dsc URL/path or package name>"
@@ -312,6 +439,15 @@ def main():
     parser.add_option("-v", "--verbose",
                       dest="verbose", action="store_true", default=False,
                       help="Display more progress information.")
+    parser.add_option("--no-lp",
+                      dest="lp", action="store_false", default=True,
+                      help="Construct sync locally rather than letting "
+                           "Launchpad copy the package directly (not "
+                           "recommended).")
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
+                      dest='lpinstance', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production).')
     parser.add_option("-n", "--uploader-name",
                       dest="uploader_name", default=None,
                       help="Use UPLOADER_NAME as the name of the maintainer "
@@ -330,6 +466,10 @@ def main():
                       dest="bugs", action="append", default=list(),
                       help="Mark Launchpad bug BUG as being fixed by this "
                            "upload.")
+    parser.add_option("-f", "--force",
+                      dest="force", action="store_true", default=False,
+                      help="Force sync over the top of Ubuntu changes "
+                           "or a fake-sync when blacklisted.")
     parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
@@ -343,6 +483,10 @@ def main():
     parser.add_option('--no-conf',
                       dest='no_conf', default=False, action='store_true',
                       help="Don't read config files or environment variables.")
+    parser.add_option('--simulate',
+                      dest='simulate', default=False, action='store_true',
+                      help="Show what would be done, but don't actually do "
+                           "it.")
 
     (options, args) = parser.parse_args()
 
@@ -362,6 +506,14 @@ def main():
                      'It should be one of main, contrib, or non-free.'
                      % options.component)
 
+    if options.lp and options.uploader_name:
+        parser.error('Uploader name can only be overridden using --no-lp.')
+    if options.lp and options.uploader_email:
+        parser.error('Uploader email address can only be overridden using '
+                     '--no-lp.')
+    # --key, --dont-sign, --debian-mirror, and --ubuntu-mirror are just
+    # ignored with options.lp, and do not require warnings.
+
     Logger.verbose = options.verbose
     config = UDTConfig(options.no_conf)
     if options.debian_mirror is None:
@@ -373,19 +525,47 @@ def main():
     if options.uploader_email is None:
         options.uploader_email = ubu_email(export=False)[1]
 
-    Launchpad.login_anonymously()
-    if options.release is None:
-        options.release = Launchpad.distributions["ubuntu"].current_series.name
+    if options.lp:
+        if args[0].endswith('.dsc'):
+            parser.error('.dsc files can only be synced using --no-lp.')
 
-    os.environ['DEB_VENDOR'] = 'Ubuntu'
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value('LPINSTANCE')
+    try:
+        Launchpad.login(service=options.lpinstance, api_version='devel')
+    except IOError:
+        sys.exit(1)
+
+    if options.release is None:
+        ubuntu = Launchpad.distributions["ubuntu"]
+        options.release = ubuntu.current_series.name
 
     src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
                                options.component, options.release,
                                options.debian_mirror)
 
-    sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
-             options.uploader_email, options.bugs, options.ubuntu_mirror,
-             options.keyid)
+    blacklisted = is_blacklisted(src_pkg.source)
+    if blacklisted:
+        Logger.error("Source package is blacklisted")
+        if isinstance(blacklisted, basestring):
+            Logger.error(u"Reason: %s", blacklisted)
+        Logger.error("If you think this package shouldn't be blacklisted, "
+                     "please file a bug explaining your reasoning and "
+                     "subscribe ~ubuntu-archive.")
+        if options.force and not options.lp:
+            Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+        else:
+            Logger.error("--force and --no-lp are required to override the "
+                         "blacklist, if this package needs a fakesync.")
+            sys.exit(1)
+
+    if options.lp:
+        copy(src_pkg, options.release, options.simulate, options.force)
+    else:
+        os.environ['DEB_VENDOR'] = 'Ubuntu'
+        sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
+                 options.uploader_email, options.bugs, options.ubuntu_mirror,
+                 options.keyid, options.simulate, options.force)
 
 if __name__ == "__main__":
     main()

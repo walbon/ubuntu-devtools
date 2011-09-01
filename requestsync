@@ -239,6 +239,10 @@ def main():
     if not sponsorship:
         sponsorship = needSponsorship(srcpkg, ubuntu_component, release)
 
+    if not sponsorship and not ffe:
+        print >> sys.stderr, ('Consider using syncpackage(1) for syncs that '
+                              'do not require feature freeze exceptions.')
+
     # Check for existing package reports
     if not newsource:
         checkExistingReports(srcpkg)

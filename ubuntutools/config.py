@@ -16,7 +16,6 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 import os
-import os.path
 import pwd
 import re
 import shlex

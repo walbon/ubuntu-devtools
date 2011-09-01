@@ -25,7 +25,6 @@
 # Modules.
 import locale
 import os
-import os.path
 import sys
 
 import distro_info
