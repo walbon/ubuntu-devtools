@@ -6,8 +6,14 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   * syncpackage: Require -f/--force option to overwrite Ubuntu changes.
 
   [ Jelmer Vernooij ]
-  * Remove get-branches, grab-attachments, lp-project-upload, lp-list-
-    bugs, lp-set-dup and lp-shell which are now included in lptools.
+  * Remove several tools not specific to Ubuntu that have been migrated to
+    lptools (LP: #708886):
+   - get-branches (renamed to lp-get-branches)
+   - grab-attachments (renamed to lp-grab-attachments)
+   - lp-project-upload
+   - lp-list-bugs
+   - lp-set-dup
+   - lp-shell
 
  -- Jelmer Vernooij <jelmer@debian.org>  Thu, 01 Sep 2011 19:38:53 +0200
 
