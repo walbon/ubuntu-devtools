@@ -21,7 +21,6 @@ Copyright: 2007,      Albert Damen <albrt@gmx.net>
            2010,      Benjamin Drung <bdrung@ubuntu.com>
            2007-2010, Canonical Ltd.
            2006-2007, Daniel Holbach <daniel.holbach@ubuntu.com>
-           2010,      Dustin Kirkland <kirkland@ubuntu.com>
            2010,      Evan Broder <evan@ebroder.net>
            2006-2007, Luke Yelavich <themuso@ubuntu.com>
            2009-2010, Michael Bienia <geser@ubuntu.com>
@@ -98,7 +97,6 @@ Files: ack-sync
        syncpackage
 Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
            2007-2011, Canonical Ltd.
-           2010,      Dustin Kirkland <kirkland@ubuntu.com>
            2008,      Jonathan Patrick Davies <jpds@ubuntu.com>
            2008-2010, Martin Pitt <martin.pitt@canonical.com>
            2009,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
