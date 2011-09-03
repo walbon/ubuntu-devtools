@@ -480,12 +480,6 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
         lintian_file.writelines(report)
         lintian_file.close()
 
-        # Run harvest
-        harvest = Harvest(task.package)
-        if harvest.data:
-            print ""
-            print harvest.report()
-
         # Upload package
         if upload:
             print "\nPlease check %s %s carefully:\nfile://%s\nfile://%s" % \
@@ -493,6 +487,11 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                    lintian_filename)
             if build_log:
                 print "file://%s" % build_log
+
+            harvest = Harvest(task.package)
+            if harvest.data:
+                print harvest.report()
+
             if upload == "ubuntu":
                 target = "the official Ubuntu archive"
             else:
