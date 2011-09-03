@@ -28,6 +28,7 @@ import launchpadlib.launchpad
 from devscripts.logger import Logger
 
 from ubuntutools import subprocess
+from ubuntutools.harvest import Harvest
 from ubuntutools.update_maintainer import update_maintainer
 from ubuntutools.question import Question, YesNoQuestion, input_number
 
@@ -478,6 +479,11 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
         lintian_file = open(lintian_filename, "w")
         lintian_file.writelines(report)
         lintian_file.close()
+
+        # Run harvest
+        harvest = Harvest(task.package)
+        if harvest.data:
+            print harvest.report()
 
         # Upload package
         if upload:
