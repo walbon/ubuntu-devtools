@@ -1,10 +1,16 @@
-ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.129) oneiric; urgency=low
 
+  [ Colin Watson ]
   * syncpackage: Convert to new LP API, with --no-lp available for the old
     style of operation.
   * syncpackage: Require -f/--force option to overwrite Ubuntu changes.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 16 Aug 2011 16:40:22 +0100
+  [ Stefano Rivera ]
+  * syncpackage: Show changes to be synced when performing native syncs.
+  * syncpackage: Support --bug (extra bugs to be closed by the sync) with
+    native syncs. (Bugs are closed one individually, via the API, post-sync)
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 03 Sep 2011 21:04:38 +0200
 
 ubuntu-dev-tools (0.128) unstable; urgency=low
 
