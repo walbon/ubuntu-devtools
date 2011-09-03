@@ -410,9 +410,11 @@ def is_blacklisted(query):
     # LP:
     # TODO: Refactor when LP: #833080 is fixed
     series = Launchpad.distributions['ubuntu'].current_series
-    diffs = series.getDifferencesTo(source_package_name_filter=query,
-                                    status='Needs attention')
-    if len(diffs) == 0:
+    diffs = (list(series.getDifferencesTo(source_package_name_filter=query,
+                                          status='Blacklisted current version'))
+             + list(series.getDifferencesTo(source_package_name_filter=query,
+                                            status='Blacklisted always')))
+    if len(diffs) > 0:
         comments = series.getDifferenceComments(source_package_name=query)
         comment = '; '.join(c.body_text for c in comments)
         if comment:
