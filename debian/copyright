@@ -95,6 +95,7 @@ Files: ack-sync
        merge-changelog
        setup-packaging-environment
        syncpackage
+       ubuntutools/harvest.py
 Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
            2007-2011, Canonical Ltd.
            2008,      Jonathan Patrick Davies <jpds@ubuntu.com>
