@@ -483,11 +483,12 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
         # Run harvest
         harvest = Harvest(task.package)
         if harvest.data:
+            print ""
             print harvest.report()
 
         # Upload package
         if upload:
-            print "Please check %s %s carefully:\nfile://%s\nfile://%s" % \
+            print "\nPlease check %s %s carefully:\nfile://%s\nfile://%s" % \
                   (task.package, new_version, debdiff_filename,
                    lintian_filename)
             if build_log:
