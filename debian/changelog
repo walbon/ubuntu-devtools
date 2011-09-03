@@ -5,12 +5,22 @@ ubuntu-dev-tools (0.129) oneiric; urgency=low
     style of operation.
   * syncpackage: Require -f/--force option to overwrite Ubuntu changes.
 
+  [ Jelmer Vernooij ]
+  * Remove several tools not specific to Ubuntu that have been migrated to
+    lptools (LP: #708886):
+   - get-branches (renamed to lp-get-branches)
+   - grab-attachments (renamed to lp-grab-attachments)
+   - lp-project-upload
+   - lp-list-bugs
+   - lp-set-dup
+   - lp-shell
+
   [ Stefano Rivera ]
   * syncpackage: Show changes to be synced when performing native syncs.
   * syncpackage: Support --bug (extra bugs to be closed by the sync) with
     native syncs. (Bugs are closed one individually, via the API, post-sync)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 03 Sep 2011 21:04:38 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 
 ubuntu-dev-tools (0.128) unstable; urgency=low
 

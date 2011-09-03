@@ -1,3 +1,21 @@
+ubuntu-dev-tools (0.129) unstable; urgency=low
+
+  Several tools that worked against Launchpad but were not specific to Ubuntu
+  have been migrated to the "lptools" project.
+
+  The following tools have moved:
+   - get-branches (renamed to lp-get-branches)
+   - grab-attachments (renamed to lp-grab-attachments)
+   - lp-project-upload
+   - lp-list-bugs
+   - lp-set-dup
+   - lp-shell
+
+  They can now be found in the lptools package (version 0.0.1~bzr28-1 or
+  later).
+
+ -- Jelmer Vernooij <jelmer@debian.org>  Fri, 02 Sep 2011 13:43:34 +0200
+
 ubuntu-dev-tools (0.119) unstable; urgency=low
 
   launchpadlib 1.9 will cause some issues, as it uses the GNOME Keyring / KDE

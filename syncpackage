@@ -28,7 +28,6 @@ import shutil
 import sys
 import urllib
 
-import debian.deb822
 import debian.debian_support
 from devscripts.logger import Logger
 from lazr.restfulclient.errors import HTTPError
@@ -407,6 +406,19 @@ def is_blacklisted(query):
     Returns True or a string of all relevant comments if blacklisted,
             False if not
     """
+    # LP:
+    # TODO: Refactor when LP: #833080 is fixed
+    series = Launchpad.distributions['ubuntu'].current_series
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Needs attention')
+    if len(diffs) == 0:
+        comments = series.getDifferenceComments(source_package_name=query)
+        comment = '; '.join(c.body_text for c in comments)
+        if comment:
+            return comment
+        return True
+
+    # Old blacklist:
     url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
     with codecs.EncodedFile(urllib.urlopen(url), 'UTF-8') as f:
         applicable_comments = []
@@ -500,7 +512,8 @@ def main():
                            "upload.")
     parser.add_option("-f", "--force",
                       dest="force", action="store_true", default=False,
-                      help="Force sync over the top of Ubuntu changes.")
+                      help="Force sync over the top of Ubuntu changes "
+                           "or a fake-sync when blacklisted.")
     parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
@@ -580,7 +593,15 @@ def main():
         Logger.error("Source package is blacklisted")
         if isinstance(blacklisted, basestring):
             Logger.error(u"Reason: %s", blacklisted)
-        sys.exit(1)
+        Logger.error("If you think this package shouldn't be blacklisted, "
+                     "please file a bug explaining your reasoning and "
+                     "subscribe ~ubuntu-archive.")
+        if options.force and not options.lp:
+            Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+        else:
+            Logger.error("--force and --no-lp are required to override the "
+                         "blacklist, if this package needs a fakesync.")
+            sys.exit(1)
 
     if options.lp:
         copy(src_pkg, options.release, options.bugs, options.simulate,
