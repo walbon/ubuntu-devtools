@@ -368,14 +368,6 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
     changes = getDebianChangelog(debian_spph, base_version).strip()
     if changes:
         Logger.normal("New Changes:\n%s", changes)
-        bugs += bugs_from_changes(changes)
-        bugs = sorted(set(bugs))
-    else:
-        Logger.error("Unable to determine changes, Launchpad bugs closed in "
-                     "the changelog will not be closed. ")
-        Logger.error("To close them manually, use the --bug option")
-    Logger.normal("LP Bugs to be closed: %s",
-                  ', '.join(str(bug) for bug in bugs))
 
     if simulate:
         return
@@ -400,11 +392,15 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
 
     Logger.normal('Request succeeded; you should get an e-mail once it is '
                   'processed.')
-    Logger.normal('Please wait for the sync to be successuful before '
-                  'closing bugs')
-    answer = YesNoQuestion().ask("Close bugs?", "yes")
-    if answer == "yes":
-        close_bugs(bugs, src_pkg.source, src_pkg.version.full_version, changes)
+    bugs = sorted(set(bugs))
+    if bugs:
+        Logger.normal("LP Bugs to be closed: %s",
+                      ', '.join(str(bug) for bug in bugs))
+        Logger.normal('Please wait for the sync to be successuful before '
+                      'closing bugs')
+        answer = YesNoQuestion().ask("Close bugs?", "yes")
+        if answer == "yes":
+            close_bugs(bugs, src_pkg.source, src_pkg.version.full_version, changes)
 
 def is_blacklisted(query):
     """"Determine if package "query" is in the sync blacklist
@@ -430,17 +426,6 @@ def is_blacklisted(query):
             elif comment:
                 applicable_comments.append(comment)
     return False
-
-def bugs_from_changes(changes):
-    """Return a list of all LP bugs closed by changes"""
-    # From sync-source.py:
-    re_lp_closes = re.compile(r"lp:\s+\#\d+(?:,\s*\#\d+)*", re.I)
-    re_bug_numbers = re.compile(r"\#?\s?(\d+)")
-    closes = []
-    for match in re_lp_closes.finditer(changes):
-        bug_match = re_bug_numbers.findall(match.group(0))
-        closes.extend(map(int, bug_match))
-    return closes
 
 def close_bugs(bugs, package, version, changes):
     """Close the correct task on all bugs, with changes"""
