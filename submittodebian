@@ -35,13 +35,13 @@ from ubuntutools.question import YesNoQuestion
 try:
     from debian.changelog import Changelog
 except ImportError:
-    print ('This utility requires modules from the «python-debian» package, '
-           'which isn\'t currently installed.')
+    print (u"This utility requires modules from the «python-debian» package, "
+           u"which isn't currently installed.")
     sys.exit(1)
 
 if not os.path.exists('/usr/bin/reportbug'):
-    print ('This utility requires the «reportbug» package, which isn\'t '
-           'currently installed.')
+    print (u"This utility requires the «reportbug» package, which isn't "
+           u"currently installed.")
     sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
@@ -104,7 +104,7 @@ def check_file(fname, critical = True):
     else:
         if not critical:
             return False
-        print "Couldn't find «%s».\n" % fname
+        print u"Couldn't find «%s».\n" % fname
         sys.exit(1)
 
 def edit_debdiff(debdiff):

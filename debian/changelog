@@ -19,6 +19,8 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   * syncpackage: Show changes to be synced when performing native syncs.
   * syncpackage: Support --bug (extra bugs to be closed by the sync) with
     native syncs. (Bugs are closed one individually, via the API, post-sync)
+  * dgetlp, submittodebian, 404main: Use unicode strings for literal strings
+    containing non-ASCII characters (LP: #836661)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 
