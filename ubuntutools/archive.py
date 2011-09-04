@@ -201,9 +201,8 @@ class SourcePackage(object):
     @property
     def dsc(self):
         "Return a the Dsc"
-        if not self._dsc:
-            if self._dsc_fetched:
-                self._dsc = Dsc(file(self.dsc_pathname, 'rb').read())
+        if self._dsc is None:
+            self.pull_dsc()
         return self._dsc
 
     def _mirror_url(self, mirror, filename):
@@ -238,33 +237,34 @@ class SourcePackage(object):
             if parsed.scheme == '':
                 self._dsc_source = 'file://' + os.path.abspath(self._dsc_source)
                 parsed = urlparse.urlparse(self._dsc_source)
-
-            source_is_workdir = (os.path.realpath(os.path.dirname(parsed.path))
-                                 == os.path.realpath(self.workdir))
-            if parsed.scheme == 'file' and source_is_workdir:
-                # Temporarily rename to the filename we are going to open
-                os.rename(parsed.path, self.dsc_pathname)
-            else:
-                if not self._download_file(self._dsc_source, self.dsc_name):
-                    raise DownloadError('dsc not found')
+            url = self._dsc_source
         else:
-            if not self._download_file(self._lp_url(self.dsc_name),
-                                       self.dsc_name):
-                raise DownloadError('dsc not found')
+            url = self._lp_url(self.dsc_name)
+        self._download_dsc(url)
+
         self._check_dsc()
+
+    def _download_dsc(self, url):
+        "Download specified dscfile and parse"
+        # Launchpad will try to redirect us to plain-http Launchpad Librarian,
+        # but we want SSL when fetching the dsc
+        if url.startswith('https') and url.endswith('.dsc'):
+            opener = urllib2.build_opener(ForceHTTPSRedirectHandler())
+        else:
+            opener = urllib2.build_opener()
+        try:
+            f = opener.open(url)
+            self._dsc = Dsc(f.read())
+            f.close()
+        except urllib2.URLError:
+            raise DownloadError('dsc not found')
+        self._dsc_fetched = True
 
     def _check_dsc(self, verify_signature=False):
         "Check that the dsc matches what we are expecting"
-        assert os.path.exists(self.dsc_pathname)
-        self._dsc_fetched = True
-        old_pathname = self.dsc_pathname
-
+        assert self._dsc is not None
         self.source = self.dsc['Source']
         self.version = debian.debian_support.Version(self.dsc['Version'])
-
-        # If source or version was previously unknown
-        if self.dsc_pathname != old_pathname:
-            os.rename(old_pathname, self.dsc_pathname)
 
         valid = False
         message = None
@@ -296,13 +296,20 @@ class SourcePackage(object):
         else:
             Logger.info(message)
 
+    def _write_dsc(self):
+        "Write dsc file to workdir"
+        if self._dsc is None:
+            self.pull_dsc()
+        with open(self.dsc_pathname, 'w') as f:
+            f.write(self.dsc.raw_text)
+
     def _download_file(self, url, filename):
         "Download url to filename in workdir."
         logurl = url
         if os.path.basename(url) != filename:
             logurl += ' -> ' + filename
         pathname = os.path.join(self.workdir, filename)
-        if self.dsc and not url.endswith('.dsc'):
+        if self.dsc:
             if self.dsc.verify_file(pathname):
                 Logger.debug('Using existing %s', filename)
                 return True
@@ -315,15 +322,8 @@ class SourcePackage(object):
         else:
             Logger.normal('Downloading %s', logurl)
 
-        # Launchpad will try to redirect us to plain-http Launchpad Librarian,
-        # but we want SSL when fetching the dsc
-        if url.startswith('https') and url.endswith('.dsc'):
-            opener = urllib2.build_opener(ForceHTTPSRedirectHandler())
-        else:
-            opener = urllib2.build_opener()
-
         try:
-            in_ = opener.open(url)
+            in_ = urllib2.build_opener().open(url)
         except urllib2.URLError:
             return False
 
@@ -338,7 +338,7 @@ class SourcePackage(object):
         in_.close()
         Logger.stdout.write(' done\n')
         Logger.stdout.flush()
-        if self.dsc and not url.endswith('.dsc'):
+        if self.dsc:
             if not self.dsc.verify_file(pathname):
                 Logger.error('Checksum does not match.')
                 return False
@@ -346,8 +346,7 @@ class SourcePackage(object):
 
     def pull(self):
         "Pull into workdir"
-        if self.dsc is None:
-            self.pull_dsc()
+        self._write_dsc()
         for entry in self.dsc['Files']:
             name = entry['name']
             for url in self._source_urls(name):
@@ -467,8 +466,11 @@ class DebianSourcePackage(SourcePackage):
         # Not all Debian Source packages get imported to LP
         # (or the importer could be lagging)
         for url in self._source_urls(self.dsc_name):
-            if self._download_file(url, self.dsc_name):
-                break
+            try:
+                self._download_dsc(url)
+            except DownloadError:
+                continue
+            break
         else:
             raise DownloadError('dsc could not be found anywhere')
         self._check_dsc(verify_signature=True)

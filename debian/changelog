@@ -21,6 +21,9 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
     native syncs. (Bugs are closed one individually, via the API, post-sync)
   * dgetlp, submittodebian, 404main: Use unicode strings for literal strings
     containing non-ASCII characters (LP: #836661)
+  * ubuntutools.archive: Don't write .dsc files until we pull the entire
+    source package, just hold it in memory. Avoids littering the current
+    directory (LP: #838361)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 
