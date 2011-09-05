@@ -404,22 +404,25 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
 
 def is_blacklisted(query):
     """"Determine if package "query" is in the sync blacklist
-    Returns True or a string of all relevant comments if blacklisted,
-            False if not
+    Returns tuple of (blacklisted, comments)
+    blacklisted is one of False, 'CURRENT', 'ALWAYS'
     """
     # LP:
     # TODO: Refactor when LP: #833080 is fixed
     series = Launchpad.distributions['ubuntu'].current_series
-    diffs = (list(series.getDifferencesTo(source_package_name_filter=query,
-                                          status='Blacklisted current version'))
-             + list(series.getDifferencesTo(source_package_name_filter=query,
-                                            status='Blacklisted always')))
+    lp_comments = series.getDifferenceComments(source_package_name=query)
+    blacklisted = False
+    comments = u'; '.join(c.body_text for c in lp_comments)
+
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Blacklisted current version')
     if len(diffs) > 0:
-        comments = series.getDifferenceComments(source_package_name=query)
-        comment = '; '.join(c.body_text for c in comments)
-        if comment:
-            return comment
-        return True
+        blacklisted = 'CURRENT'
+
+    diffs = series.getDifferencesTo(source_package_name_filter=query,
+                                    status='Blacklisted always')
+    if len(diffs) > 0:
+        blacklisted = 'ALWAYS'
 
     # Old blacklist:
     url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
@@ -434,13 +437,13 @@ def is_blacklisted(query):
             if source and query == source:
                 if comment:
                     applicable_comments.append(comment)
-                if applicable_comments:
-                    return u'; '.join(applicable_comments)
-                else:
-                    return True
+                comments = u'; '.join(applicable_comments)
+                blacklisted = 'ALWAYS'
+                break
             elif comment:
                 applicable_comments.append(comment)
-    return False
+
+    return (blacklisted, comments)
 
 def close_bugs(bugs, package, version, changes):
     """Close the correct task on all bugs, with changes"""
@@ -590,20 +593,30 @@ def main():
                                options.component, options.release,
                                options.debian_mirror)
 
-    blacklisted = is_blacklisted(src_pkg.source)
+    blacklisted, comments = is_blacklisted(src_pkg.source)
     if blacklisted:
         Logger.error("Source package is blacklisted")
-        if isinstance(blacklisted, basestring):
-            Logger.error(u"Reason: %s", blacklisted)
-        Logger.error("If you think this package shouldn't be blacklisted, "
-                     "please file a bug explaining your reasoning and "
-                     "subscribe ~ubuntu-archive.")
-        if options.force and not options.lp:
-            Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+        if comments:
+            Logger.error(u"Blacklist Comments: %s", comments)
+
+        if blacklisted == 'CURRENT':
+            if options.force:
+                Logger.warn(u"Forcing override of temporary blacklising.")
+            else:
+                Logger.error("The blacklisting only applies to the current "
+                             "versions in Debian and Ubuntu.")
+                Logger.error("--force is required to override the blacklist.")
+                sys.exit(1)
         else:
-            Logger.error("--force and --no-lp are required to override the "
-                         "blacklist, if this package needs a fakesync.")
-            sys.exit(1)
+            Logger.error("If you think this package shouldn't be blacklisted, "
+                         "please file a bug explaining your reasoning and "
+                         "subscribe ~ubuntu-archive.")
+            if options.force and not options.lp:
+                Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+            else:
+                Logger.error("--force and --no-lp are required to override the "
+                             "blacklist, if this package needs a fakesync.")
+                sys.exit(1)
 
     if options.lp:
         copy(src_pkg, options.release, options.bugs, options.simulate,
