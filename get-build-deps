@@ -67,7 +67,7 @@ to use this script."
 		sudo /usr/lib/pbuilder/pbuilder-satisfydepends
 	else
 		echo "Warning: «pbuilder» isn't installed, falling back to «dpkg-checkbuilddeps»."
-		sudo aptitude install $(echo $missing_dependencies | awk -F': ' '{ print $3 }' | sed 's/([^)]*)//g' | sed 's/|\s[^\s]*//g')
+		sudo aptitude --without-recommends install $(echo $missing_dependencies | awk -F': ' '{ print $3 }' | sed 's/([^)]*)//g' | sed 's/|\s[^\s]*//g')
 		#' <--- Fix to avoid Geanys markup breaking
 	fi
 	exit 0

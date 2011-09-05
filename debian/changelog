@@ -23,6 +23,7 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
     containing non-ASCII characters (LP: #836661)
   * Recommend pbuilder | aptitude for get-build-deps, and exit with an error
     if neither are installed (LP: #799368)
+  * get-build-deps: Tell aptitude not to follow Recommends (LP: #817500)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 
