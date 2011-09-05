@@ -69,7 +69,8 @@ def checkExistingReports(srcpkg):
 
     # Fetch the package's bug list from Launchpad
     pkg = Distribution('ubuntu').getSourcePackage(name = srcpkg)
-    pkgBugList = pkg.getBugTasks()
+    pkgBugList = pkg.searchTasks(status=["New", "Confirmed", "Triaged"],
+                                 omit_duplicates=True)
 
     # Search bug list for other sync requests.
     for bug in pkgBugList:
