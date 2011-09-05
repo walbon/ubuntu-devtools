@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
     native syncs. (Bugs are closed one individually, via the API, post-sync)
   * dgetlp, submittodebian, 404main: Use unicode strings for literal strings
     containing non-ASCII characters (LP: #836661)
+  * Recommend pbuilder | aptitude for get-build-deps, and exit with an error
+    if neither are installed (LP: #799368)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 

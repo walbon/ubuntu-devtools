@@ -32,8 +32,7 @@
 # argument is the name of a package, and install the dependencies for
 # all of them.
 
-if [ $# -eq 0 ]
-then
+if [ $# -eq 0 ]; then
 	#########################################################
 	# Install the dependencies for the source package the
 	# user is working on.
@@ -57,24 +56,26 @@ to use this script."
 		exit 0
 	fi
 
+	if [ ! -x /usr/lib/pbuilder/pbuilder-satisfydepends -a -z "$(which aptitude)" ]; then
+		echo "Please install either «pbuilder» or «aptitude» in order to use this utility"
+		exit 1
+	fi
+
 	echo "Installing the build dependencies described in «$filepath»..."
 
-	if [ -x /usr/lib/pbuilder/pbuilder-satisfydepends ]
-	then
+	if [ -x /usr/lib/pbuilder/pbuilder-satisfydepends ]; then
 		sudo /usr/lib/pbuilder/pbuilder-satisfydepends
 	else
-		echo "Warning: «pbuilder» isn\'t installed, falling back to «dpkg-checkbuilddeps»."
+		echo "Warning: «pbuilder» isn't installed, falling back to «dpkg-checkbuilddeps»."
 		sudo aptitude install $(echo $missing_dependencies | awk -F': ' '{ print $3 }' | sed 's/([^)]*)//g' | sed 's/|\s[^\s]*//g')
 		#' <--- Fix to avoid Geanys markup breaking
 	fi
 	exit 0
-elif [ $# -eq 1 ]
-then
+elif [ $# -eq 1 ]; then
 	#########################################################
 	# Check if the given argument is a file name, else
 	# continue after the if.
-	if [ -f $1 ]
-	then
+	if [ -f $1 ]; then
 		packages=''
 		echo "Installing the build dependencies for the following packages:"
 		while read line
