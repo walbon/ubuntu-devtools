@@ -67,6 +67,13 @@ Specifies that you require sponsorship.
 You need this option if you don't have upload permissions for that package.
 This disables the upload permissions check described above.
 .TP
+.B \-C
+Allow changelog to be manually filled in when missing.
+\fBrequestsync\fR gets Debian changelogs from packages.debian.org, which
+isn't in sync with the Debian archive.
+To request a sync before the changelog is available, pass this option,
+and provide the changelog entries yourself.
+.TP
 .B \-e
 Use this flag after FeatureFreeze for non-bug fix syncs. \fBrequestsync\fR will
 subscribe ubuntu-release team instead of sponsorship team.

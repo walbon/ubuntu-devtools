@@ -24,6 +24,7 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   * Recommend pbuilder | aptitude for get-build-deps, and exit with an error
     if neither are installed (LP: #799368)
   * get-build-deps: Tell aptitude not to follow Recommends (LP: #817500)
+  * doc/requestsync.1: Document the -C option (LP: #833408)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
 
