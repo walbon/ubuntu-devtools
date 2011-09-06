@@ -145,6 +145,10 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
         shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+
+        urllib2.build_opener().AndReturn(self.mock_opener)
+        self.mock_opener.open(mox.Regex('^file://.*\.dsc$')
+                             ).WithSideEffects(self.real_opener.open)
         self.mox.ReplayAll()
         pkg = self.SourcePackage(dscfile=os.path.join(self.workdir,
                                                       'example_1.0-1.dsc'),
@@ -156,6 +160,10 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
         shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+
+        urllib2.build_opener().AndReturn(self.mock_opener)
+        self.mock_opener.open(mox.Regex('^file://.*\.dsc$')
+                             ).WithSideEffects(self.real_opener.open)
         self.mox.ReplayAll()
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile=os.path.join(self.workdir,

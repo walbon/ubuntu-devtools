@@ -26,6 +26,9 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
     if neither are installed (LP: #799368)
   * get-build-deps: Tell aptitude not to follow Recommends (LP: #817500)
   * doc/requestsync.1: Document the -C option (LP: #833408)
+  * ubuntutools.archive: Don't write .dsc files until we pull the entire
+    source package, just hold it in memory. Avoids littering the current
+    directory (LP: #838361)
 
   [ Julian Taylor ]
   * requestsync: omit dups when checking for duplicate requests (LP: #842217)
