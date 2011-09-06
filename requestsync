@@ -329,4 +329,8 @@ def main():
                 mailserver_user, mailserver_pass)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print "\nUser abort."
+        sys.exit(2)

@@ -36,6 +36,7 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch: Default to not upload the package.
+  * requestsync: Do not crash on user abort (Closes: #637168).
 
  -- Benjamin Drung <bdrung@debian.org>  Tue, 06 Sep 2011 13:14:50 +0200
 
