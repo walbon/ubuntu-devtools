@@ -29,6 +29,7 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   * ubuntutools.archive: Don't write .dsc files until we pull the entire
     source package, just hold it in memory. Avoids littering the current
     directory (LP: #838361)
+  * Run harvest as part of sponsor-patch (LP: #833699)
 
   [ Julian Taylor ]
   * requestsync: omit dups when checking for duplicate requests (LP: #842217)

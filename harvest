@@ -26,52 +26,26 @@
 # (c) 2011 Canonical
 
 from optparse import OptionParser
-import urllib2
-import json
 import sys
 
-BASE_URL = "http://harvest.ubuntu.com/"
-URL_STUB = BASE_URL + "opportunities/json/"
+from devscripts.logger import Logger
 
-def opportunity_summary(data):
-    l = []
-    for key in filter(lambda a: a != "total", data.keys()):
-        l += ["%s (%s)" % (key, data[key])]
-    return ", ".join(l)
+from ubuntutools.harvest import Harvest
 
 def main():
     usage = "usage: %prog source-package-name"
     opt_parser = OptionParser(usage)
-    (options, args) = opt_parser.parse_args()
-    if not args:
+    args = opt_parser.parse_args()[1]
+    if len(args) != 1:
         opt_parser.print_help()
         sys.exit(1)
-    pkg = sys.argv[1]
-    url = URL_STUB + pkg.strip()
-    try:
-        sock = urllib2.urlopen(url)
-    except IOError, e:
-        try:
-            urllib2.urlopen(BASE_URL)
-        except urllib2.URLError, _e:
-            print >> sys.stderr, "Harvest is down."
-            sys.exit(1)
-        print "There is no information in Harvest about package '%s'." % pkg
-        sys.exit(1)
-    response = sock.read()
-    sock.close()
-    data = json.loads(response)
-    print >> sys.stdout, \
-"""%s has %s opportunities: %s
-Find out more: %sopportunities/package/%s""" % (pkg,
-                              data["total"],
-                              opportunity_summary(data),
-                              BASE_URL,
-                              pkg)
+    pkg = args[0].strip()
+
+    print Harvest(pkg).report()
 
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print >> sys.stderr, "Aborted."
+        Logger.error("Aborted.")
         sys.exit(1)
