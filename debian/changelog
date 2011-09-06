@@ -27,7 +27,10 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   * get-build-deps: Tell aptitude not to follow Recommends (LP: #817500)
   * doc/requestsync.1: Document the -C option (LP: #833408)
 
- -- Stefano Rivera <stefanor@debian.org>  Sat, 03 Sep 2011 21:04:38 +0200
+  [ Julian Taylor ]
+  * requestsync: omit dups when checking for duplicate requests (LP: #842217)
+
+ -- Julian Taylor <jtaylor.debian@googlemail.com>  Tue, 06 Sep 2011 01:11:35 +0200
 
 ubuntu-dev-tools (0.128) unstable; urgency=low
 
