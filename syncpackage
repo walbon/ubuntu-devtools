@@ -26,6 +26,7 @@ import os
 import re
 import shutil
 import sys
+import textwrap
 import urllib
 
 import debian.debian_support
@@ -410,7 +411,8 @@ def is_blacklisted(query):
     series = Launchpad.distributions['ubuntu'].current_series
     lp_comments = series.getDifferenceComments(source_package_name=query)
     blacklisted = False
-    comments = u'; '.join(c.body_text for c in lp_comments)
+    comments = [c.body_text + u' -- ' + c.comment_author.name
+                for c in lp_comments]
 
     diff = series.getDifferencesTo(source_package_name_filter=query)[0]
     if diff.status == 'Blacklisted current version':
@@ -431,7 +433,7 @@ def is_blacklisted(query):
             if source and query == source:
                 if comment:
                     applicable_comments.append(comment)
-                comments = u'; '.join(applicable_comments)
+                comments += applicable_comments
                 blacklisted = 'ALWAYS'
                 break
             elif comment:
@@ -590,26 +592,26 @@ def main():
     blacklisted, comments = is_blacklisted(src_pkg.source)
     if blacklisted:
         fail = False
-        message = ""
+        messages = []
 
         if blacklisted == 'CURRENT':
             if options.force:
-                message = "Forcing override of temporary blacklising."
+                messages += ["Forcing override of temporary blacklising."]
             else:
                 fail = True
-                message = ("The blacklisting only applies to the current "
-                           "versions in Debian and Ubuntu. --force is "
-                           "required to override the blacklist.")
+                messages += ["The blacklisting only applies to the current "
+                             "versions in Debian and Ubuntu.",
+                             "--force is required to override the blacklist."]
         else:
             if options.force and not options.lp:
-                message = "Forcing fake-sync, overriding blacklist."
+                messages += ["Forcing fake-sync, overriding blacklist."]
             else:
                 fail = True
-                message = ("--force and --no-lp are required to override the "
-                           "blacklist, if this package needs a fakesync.")
-            message += ("\nIf you think this package shouldn't be blacklisted, "
-                        "please file a bug explaining your reasoning and "
-                        "subscribe ~ubuntu-archive.")
+                messages += ["--force and --no-lp are required to override the "
+                             "blacklist, if this package needs a fakesync."]
+            messages += ["If you think this package shouldn't be blacklisted, "
+                         "please file a bug explaining your reasoning and "
+                         "subscribe ~ubuntu-archive."]
 
         if fail:
             Logger.error(u"Source package %s is blacklisted.", src_pkg.source)
@@ -617,9 +619,14 @@ def main():
             Logger.normal(u"Source package %s is blacklisted.", src_pkg.source)
 
         if comments:
-            Logger.normal(u"Blacklist Comments: %s", comments)
-        if message:
-            Logger.normal(message)
+            Logger.normal("Blacklist Comments:")
+            for comment in comments:
+                for line in textwrap.wrap(comment):
+                    Logger.normal(u"  " + line)
+        if messages:
+            for message in messages:
+                for line in textwrap.wrap(message):
+                    Logger.normal(line)
         if fail:
             sys.exit(1)
 
