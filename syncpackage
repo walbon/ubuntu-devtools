@@ -135,7 +135,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         ubuntu_ver = Version('~')
         ubu_pkg = None
         need_orig = True
-        Logger.info('%s does not exist in Ubuntu.', name)
+        Logger.normal('%s does not exist in Ubuntu.', name)
 
     Logger.debug('Source %s: current version %s, new version %s',
                  src_pkg.source, ubuntu_ver, new_ver)
@@ -589,28 +589,39 @@ def main():
 
     blacklisted, comments = is_blacklisted(src_pkg.source)
     if blacklisted:
-        Logger.error("Source package %s is blacklisted.", src_pkg.source)
-        if comments:
-            Logger.error(u"Blacklist Comments: %s", comments)
+        fail = False
+        message = ""
 
         if blacklisted == 'CURRENT':
             if options.force:
-                Logger.warn(u"Forcing override of temporary blacklising.")
+                message = "Forcing override of temporary blacklising."
             else:
-                Logger.error("The blacklisting only applies to the current "
-                             "versions in Debian and Ubuntu.")
-                Logger.error("--force is required to override the blacklist.")
-                sys.exit(1)
+                fail = True
+                message = ("The blacklisting only applies to the current "
+                           "versions in Debian and Ubuntu. --force is "
+                           "required to override the blacklist.")
         else:
-            Logger.error("If you think this package shouldn't be blacklisted, "
-                         "please file a bug explaining your reasoning and "
-                         "subscribe ~ubuntu-archive.")
             if options.force and not options.lp:
-                Logger.warn(u"Forcing fake-sync, overriding blacklist.")
+                message = "Forcing fake-sync, overriding blacklist."
             else:
-                Logger.error("--force and --no-lp are required to override the "
-                             "blacklist, if this package needs a fakesync.")
-                sys.exit(1)
+                fail = True
+                message = ("--force and --no-lp are required to override the "
+                           "blacklist, if this package needs a fakesync.")
+            message += ("\nIf you think this package shouldn't be blacklisted, "
+                        "please file a bug explaining your reasoning and "
+                        "subscribe ~ubuntu-archive.")
+
+        if fail:
+            Logger.error(u"Source package %s is blacklisted.", src_pkg.source)
+        else:
+            Logger.normal(u"Source package %s is blacklisted.", src_pkg.source)
+
+        if comments:
+            Logger.normal(u"Blacklist Comments: %s", comments)
+        if message:
+            Logger.normal(message)
+        if fail:
+            sys.exit(1)
 
     if options.lp:
         copy(src_pkg, options.release, options.bugs, options.simulate,
