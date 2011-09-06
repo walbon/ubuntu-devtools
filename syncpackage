@@ -366,7 +366,7 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
 
     changes = getDebianChangelog(debian_spph, base_version).strip()
     if changes:
-        Logger.normal("New Changes:\n%s", changes)
+        Logger.normal("New changes:\n%s", changes)
 
     if simulate:
         return
