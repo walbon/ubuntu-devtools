@@ -407,21 +407,15 @@ def is_blacklisted(query):
     Returns tuple of (blacklisted, comments)
     blacklisted is one of False, 'CURRENT', 'ALWAYS'
     """
-    # LP:
-    # TODO: Refactor when LP: #833080 is fixed
     series = Launchpad.distributions['ubuntu'].current_series
     lp_comments = series.getDifferenceComments(source_package_name=query)
     blacklisted = False
     comments = u'; '.join(c.body_text for c in lp_comments)
 
-    diffs = series.getDifferencesTo(source_package_name_filter=query,
-                                    status='Blacklisted current version')
-    if len(diffs) > 0:
+    diff = series.getDifferencesTo(source_package_name_filter=query)[0]
+    if diff.status == 'Blacklisted current version':
         blacklisted = 'CURRENT'
-
-    diffs = series.getDifferencesTo(source_package_name_filter=query,
-                                    status='Blacklisted always')
-    if len(diffs) > 0:
+    if diff.status == 'Blacklisted always':
         blacklisted = 'ALWAYS'
 
     # Old blacklist:
