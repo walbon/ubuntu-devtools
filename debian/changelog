@@ -34,7 +34,10 @@ ubuntu-dev-tools (0.129) UNRELEASED; urgency=low
   [ Julian Taylor ]
   * requestsync: omit dups when checking for duplicate requests (LP: #842217)
 
- -- Julian Taylor <jtaylor.debian@googlemail.com>  Tue, 06 Sep 2011 01:11:35 +0200
+  [ Benjamin Drung ]
+  * sponsor-patch: Default to not upload the package.
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 06 Sep 2011 13:14:50 +0200
 
 ubuntu-dev-tools (0.128) unstable; urgency=low
 

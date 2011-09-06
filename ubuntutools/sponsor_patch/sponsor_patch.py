@@ -498,7 +498,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                 target = upload
             question = Question(["yes", "edit", "no"])
             answer = question.ask("Do you want to upload the package to %s" % \
-                                  target, "yes")
+                                  target, "no")
             if answer == "edit":
                 continue
             elif answer == "no":
