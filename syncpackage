@@ -589,7 +589,7 @@ def main():
 
     blacklisted, comments = is_blacklisted(src_pkg.source)
     if blacklisted:
-        Logger.error("Source package is blacklisted")
+        Logger.error("Source package %s is blacklisted.", src_pkg.source)
         if comments:
             Logger.error(u"Blacklist Comments: %s", comments)
 
