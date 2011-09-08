@@ -172,7 +172,7 @@ def codename_to_distribution(codename):
     (i.e. looking at the current distribution and its parents), or
     print an error message and return None if it can't be found
     """
-    for distro in system_distribution_chain():
+    for distro in system_distribution_chain() + ["Ubuntu", "Debian"]:
         info = vendor_to_distroinfo(distro)
         if not info:
             continue
