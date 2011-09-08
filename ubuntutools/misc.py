@@ -136,7 +136,7 @@ def split_release_pocket(release):
         raise ValueError('No release name specified')
 
     if '-' in release:
-        (release, pocket) = release.split('-')
+        (release, pocket) = release.rsplit('-', 1)
         pocket = pocket.capitalize()
 
         if pocket not in ('Release', 'Security', 'Updates', 'Proposed',
