@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 # Copyright © 2009 James Westby <james.westby@ubuntu.com>,
-#             2010 Stefano Rivera <stefanor@ubuntu.com>
+#             2010, 2011 Stefano Rivera <stefanor@ubuntu.com>
 #
 # ##################################################################
 #
@@ -25,18 +25,18 @@
 from optparse import OptionParser, SUPPRESS_HELP
 import re
 import sys
+import webbrowser
 
+from devscripts.logger import Logger
 try:
     import SOAPpy
 except ImportError:
-    print >> sys.stderr, ("Please install 'python-soappy' in order to use "
-                          "this utility.")
+    Logger.error("Please install 'python-soappy' in order to use this utility.")
     sys.exit(1)
 
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools.config import UDTConfig
-from ubuntutools import subprocess
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")
@@ -73,12 +73,7 @@ def main():
     if options.lpinstance is None:
         options.lpinstance = config.get_value("LPINSTANCE")
 
-    try:
-        launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
-    except IOError, msg:
-        print msg
-        print "No credentials, can't continue"
-        sys.exit(1)
+    launchpad = Launchpad.login_with("ubuntu-dev-tools", options.lpinstance)
 
     debian = launchpad.distributions['debian']
     ubuntu = launchpad.distributions['ubuntu']
@@ -91,7 +86,8 @@ def main():
             # bug URL
             match = bug_re.search(bug_num)
             if match is None:
-                raise ValueError("Can't determine bug number from %s" % bug_num)
+                Logger.error("Can't determine bug number from %s", bug_num)
+                sys.exit(1)
             bug_num = match.groups()[0]
         bug_num = bug_num.lstrip("#")
         bug_num = int(bug_num)
@@ -102,11 +98,13 @@ def main():
     if len(bug_nums) > 1:
         bugs = bugs[0]
 
-    #import pdb; pdb.set_trace()
+    if not bugs:
+        Logger.error("Cannot find any of the listed bugs")
+        sys.exit(1)
+
     for bug in bugs:
         bug = bug.value
-        package = bug.package
-        ubupackage = package
+        ubupackage = package = bug.source
         if options.package:
             ubupackage = options.package
         bug_num = bug.bug_num
@@ -114,6 +112,12 @@ def main():
         log = debbugs.get_bug_log(bug_num)
         summary = log[0][0]
         target = ubuntu.getSourcePackage(name=ubupackage)
+        if target is None:
+            Logger.error("Source package '%s' is not in Ubuntu. Please specify "
+                         "the destination source package with --package",
+                         ubupackage)
+            sys.exit(1)
+
         u_bug = launchpad.bugs.createBug(target=target, title=subject,
                 description='Imported from Debian bug '
                             'http://bugs.debian.org/%d:\n\n%s'
@@ -125,74 +129,9 @@ def main():
         d_watch = u_bug.addWatch(remote_bug=bug_num, bug_tracker=lp_debbugs)
         d_task.bug_watch = d_watch
         d_task.lp_save()
-        print "Opened %s" % u_bug.web_link
+        Logger.normal("Opened %s", u_bug.web_link)
         if not options.browserless:
-            subprocess.call(["xdg-open", u_bug.web_link])
+            webbrowser.open(u_bug.web_link)
 
 if __name__ == '__main__':
     main()
-
-#def get_status(*args):
-#    result = server.get_status(*args)
-#    return result
-#
-#def get_bugs(*args):
-#    result = server.get_bugs(*args)
-#    return result
-#
-#def get_usertag(email, *tags):
-#    result = server.get_usertag(email, *tags)
-#    return result
-#
-#def get_bug_log(bugnumber):
-#    result = server.get_bug_log(bugnumber)
-#    return result
-#
-#def newest_bugs(amount):
-#    result = server.newest_bugs(amount)
-#    return result
-#
-#if __name__ == "__main__":
-#    # Demonstration
-#
-#    # some debug output
-#
-#    # All bugs from one package (returns a list of bugnumbers)
-#    print get_bugs("package", "gtk-qt-engine")
-#
-#    # All bugs of a maintainer
-#    print get_bugs("maint", "debian-qa@lists.debian.org")
-#
-#    # returns the status of those bugs
-#    print get_status(409909, 419920, 421581, 417044, 397993)
-#
-#    # get_status and get_bugs combined:
-#    print get_status(get_bugs("package", "gtk-qt-engine"))
-#
-#    # returns the full log for the given bug number
-#    print get_bug_log(202526)
-#
-#    # retrives the newest 20 bugs
-#    print newest_bugs(20)
-#
-#    # All bugs of a maintainer
-#    print get_bugs("maint", "debian-qa@lists.debian.org")
-#
-#    # returns the status of those bugs
-#    print get_status(409909, 419920, 421581, 417044, 397993)
-#
-#    # get_status and get_bugs combined:
-#    print get_status(get_bugs("package", "gtk-qt-engine"))
-#
-#    # returns the full log for the given bug number
-#    print get_bug_log(202526)
-#
-#    # retrives the newest 20 bugs
-#    print newest_bugs(20)
-#
-#    # returns bugs tagged by the given email
-#    print get_usertag("debian-qa@lists.debian.org")
-#
-#    # returns bugs tagged by the given email, with the given tag
-#    print get_usertag("debian-qa@lists.debian.org", "qa-ftbfs-20070708")
-#
