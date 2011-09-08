@@ -2,8 +2,10 @@ ubuntu-dev-tools (0.130) UNRELEASED; urgency=low
 
   * pull-lp-source: Support source packages with a bad version string
     (LP: #844682).
+  * backportpackage: Search for newer versions in -{updates,security} on Ubuntu
+    (LP: #823833).
 
- -- Benjamin Drung <bdrung@debian.org>  Thu, 08 Sep 2011 16:38:15 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 08 Sep 2011 17:25:21 +0200
 
 ubuntu-dev-tools (0.129) unstable; urgency=low
 

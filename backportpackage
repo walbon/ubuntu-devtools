@@ -150,13 +150,18 @@ def get_current_version(package, distribution, source_release):
 
     latest_version = None
 
-    for record in rmadison(distribution.lower(), package, suite=source_release):
-        if 'source' not in record:
-            continue
+    releases = [source_release]
+    if distribution.lower() == "ubuntu":
+        releases += [source_release + "-updates", source_release + "-security"]
 
-        if (not latest_version or
-            Version(latest_version) < Version(record['version'])):
-            latest_version = record['version']
+    for release in releases:
+        for record in rmadison(distribution.lower(), package, suite=release):
+            if 'source' not in record:
+                continue
+
+            if (not latest_version or
+                Version(latest_version) < Version(record['version'])):
+                latest_version = record['version']
 
     return latest_version
 
