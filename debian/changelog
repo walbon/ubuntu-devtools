@@ -11,6 +11,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     simple assertions (LP: #537288)
   * submittodebian: Don't parse the entire changelog, to avoid bumping into
     past illegal version numbers (LP: #727314)
+  * ubuntutools.update_maintainer: Don't use strict changelog parsing
+    (LP: #806633)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.

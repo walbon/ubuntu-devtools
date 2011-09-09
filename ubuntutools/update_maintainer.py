@@ -20,7 +20,6 @@ import os
 import re
 
 import debian.changelog
-
 from devscripts.logger import Logger
 
 # Prior May 2009 these Maintainers were used:
@@ -83,8 +82,11 @@ class Control(object):
 
 def _get_distribution(changelog_file):
     """get distribution of latest changelog entry"""
-    changelog = debian.changelog.Changelog(open(changelog_file))
-    return changelog.distributions
+    with open(changelog_file) as f:
+        changelog = debian.changelog.Changelog(f, strict=False, max_blocks=1)
+        distribution = changelog.distributions[0]
+        # Strip things like "-proposed-updates" or "-security" from distribution
+        return distribution.split("-", 1)[0]
 
 def update_maintainer(debian_directory, verbose=False):
     """updates the Maintainer field of an Ubuntu package
@@ -120,8 +122,7 @@ def update_maintainer(debian_directory, verbose=False):
             print "XSBC-Original is managed by 'rules' file. Doing nothing."
         return(0)
 
-    # Strip things like "-proposed-updates" or "-security" from distribution.
-    distribution = _get_distribution(changelog_file).split("-")[0]
+    distribution = _get_distribution(changelog_file)
 
     for control_file in control_files:
         control = Control(control_file)
