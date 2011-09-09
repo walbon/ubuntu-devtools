@@ -45,12 +45,13 @@ if not os.path.exists('/usr/bin/reportbug'):
     sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
-    for block in changelog._blocks:
+    for block in changelog:
         version = block.version.full_version
         if not re.search('(ubuntu|build)', version):
             return version
 
 def get_bug_body(changelog):
+    entry = next(iter(changelog))
     msg = """In Ubuntu, the attached patch was applied to achieve the following:
 
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
@@ -63,14 +64,15 @@ def get_bug_body(changelog):
 %s
 
 Thanks for considering the patch.
-""" % ("\n".join([a for a in changelog._blocks[0].changes()]))
+""" % ("\n".join([a for a in entry.changes()]))
     return msg
 
 def gen_debdiff(changelog):
     pkg = changelog.package
 
-    oldver = changelog._blocks[1].version
-    newver = changelog._blocks[0].version
+    changelog_it = iter(changelog)
+    newver = next(changelog_it).version
+    oldver = next(changelog_it).version
 
     (fd, debdiff) = mkstemp()
     os.close(fd)

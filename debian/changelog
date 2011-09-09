@@ -9,8 +9,11 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #845487)
   * requestsync: Add nice error messages to gpg-signing code, rather than
     simple assertions (LP: #537288)
-  * submittodebian: Don't parse the entire changelog, to avoid bumping into
-    past illegal version numbers (LP: #727314)
+  * submittodebian:
+    - Don't parse the entire changelog, to avoid bumping into past illegal
+      version numbers (LP: #727314)
+    - Iterate over changelog blocks rather than using Chancgelog's private
+      _blocks list.
   * ubuntutools.update_maintainer: Don't use strict changelog parsing
     (LP: #806633)
   * setup-packaging-environment: Software Sources isn't on the Administration
@@ -18,6 +21,9 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
+
+  [ Stefano Rivera ]
+  * 
 
  -- Stefano Rivera <stefanor@debian.org>  Thu, 08 Sep 2011 23:13:05 +0200
 
