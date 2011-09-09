@@ -315,8 +315,17 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
             Logger.error("update-maintainer script failed.")
             sys.exit(1)
 
+        # Check the changelog
+        changelog = debian.changelog.Changelog()
+        try:
+            changelog.parse_changelog(file("debian/changelog"), max_blocks=1,
+                                      strict=True)
+        except debian.changelog.ChangelogParseError, e:
+            Logger.error("The changelog entry doesn't validate: %s", str(e))
+            ask_for_manual_fixing()
+            continue
+
         # Get new version of package
-        changelog = debian.changelog.Changelog(file("debian/changelog"))
         try:
             new_version = changelog.get_version()
         except IndexError:

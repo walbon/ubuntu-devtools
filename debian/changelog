@@ -14,8 +14,9 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
       version numbers (LP: #727314)
     - Iterate over changelog blocks rather than using Changelog's private
       _blocks list.
-  * ubuntutools.update_maintainer: Don't use strict changelog parsing
-    (LP: #806633)
+  LP: #806633:
+    - ubuntutools.update_maintainer: Don't use strict changelog parsing
+    - sponsor-patch: Perform strict validation on the first changelog entry.
   * setup-packaging-environment:
     - Software Sources isn't on the Administration menu, post Gnome 2
       (LP: #841975)
