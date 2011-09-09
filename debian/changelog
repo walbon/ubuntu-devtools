@@ -13,6 +13,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     past illegal version numbers (LP: #727314)
   * ubuntutools.update_maintainer: Don't use strict changelog parsing
     (LP: #806633)
+  * setup-packaging-environment: Software Sources isn't on the Administration
+    menu, post Gnome 2 (LP: #841975)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
