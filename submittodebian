@@ -45,9 +45,10 @@ if not os.path.exists('/usr/bin/reportbug'):
     sys.exit(1)
 
 def get_most_recent_debian_version(changelog):
-    for version in changelog.get_versions():
-        if not re.search('(ubuntu|build)', version.full_version):
-            return version.full_version
+    for block in changelog._blocks:
+        version = block.version.full_version
+        if not re.search('(ubuntu|build)', version):
+            return version
 
 def get_bug_body(changelog):
     msg = """In Ubuntu, the attached patch was applied to achieve the following:

@@ -9,6 +9,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #845487)
   * requestsync: Add nice error messages to gpg-signing code, rather than
     simple assertions (LP: #537288)
+  * submittodebian: Don't parse the entire changelog, to avoid bumping into
+    past illegal version numbers (LP: #727314)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
