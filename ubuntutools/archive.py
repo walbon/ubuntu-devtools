@@ -128,7 +128,7 @@ class SourcePackage(object):
     distribution = None
 
     def __init__(self, package=None, version=None, component=None,
-                 dscfile=None, lp=None, mirrors=(), workdir='.'):
+                 dscfile=None, lp=None, mirrors=(), workdir='.', quiet=False):
         "Can be initialised either using package, version or dscfile"
         assert ((package is not None and version is not None)
                 or dscfile is not None)
@@ -136,6 +136,7 @@ class SourcePackage(object):
         self.source = package
         self._lp = lp
         self.workdir = workdir
+        self.quiet = quiet
 
         # Cached values:
         self._component = component
@@ -305,43 +306,46 @@ class SourcePackage(object):
 
     def _download_file(self, url, filename):
         "Download url to filename in workdir."
-        logurl = url
-        if os.path.basename(url) != filename:
-            logurl += ' -> ' + filename
         pathname = os.path.join(self.workdir, filename)
-        if self.dsc:
-            if self.dsc.verify_file(pathname):
-                Logger.debug('Using existing %s', filename)
-                return True
-            size = [entry['size'] for entry in self.dsc['Files']
-                    if entry['name'] == filename]
-            assert len(size) == 1
-            size = int(size[0])
-            Logger.normal('Downloading %s (%0.3f MiB)', logurl,
-                          size / 1024.0 / 1024)
-        else:
-            Logger.normal('Downloading %s', logurl)
+        if self.dsc.verify_file(pathname):
+            Logger.debug('Using existing %s', filename)
+            return True
+        size = [entry['size'] for entry in self.dsc['Files']
+                if entry['name'] == filename]
+        assert len(size) == 1
+        size = int(size[0])
+        host = urlparse.urlparse(url).hostname
+        if not self.quiet:
+            Logger.normal('Downloading %s from %s (%0.3f MiB)',
+                          filename, host, size / 1024.0 / 1024)
 
         try:
             in_ = urllib2.build_opener().open(url)
         except urllib2.URLError:
             return False
 
+        downloaded = 0
+        bar_width = 60
         with open(pathname, 'wb') as out:
             while True:
                 block = in_.read(10240)
                 if block == '':
                     break
+                downloaded += len(block)
                 out.write(block)
-                Logger.stdout.write('.')
-                Logger.stdout.flush()
+                if not self.quiet:
+                    percent = downloaded * 100 // size
+                    bar = '=' * int(round(downloaded * bar_width / size))
+                    bar = (bar + '>' + ' ' * bar_width)[:bar_width]
+                    Logger.stdout.write('[%s] %#3i%%\r' % (bar, percent))
+                    Logger.stdout.flush()
         in_.close()
-        Logger.stdout.write(' done\n')
-        Logger.stdout.flush()
-        if self.dsc:
-            if not self.dsc.verify_file(pathname):
-                Logger.error('Checksum does not match.')
-                return False
+        if not self.quiet:
+            Logger.stdout.write(' ' * (bar_width + 7) + '\r')
+            Logger.stdout.flush()
+        if not self.dsc.verify_file(pathname):
+            Logger.error('Checksum for %s does not match.', filename)
+            return False
         return True
 
     def pull(self):

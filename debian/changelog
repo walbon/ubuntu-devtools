@@ -13,6 +13,9 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     past illegal version numbers (LP: #727314)
   * ubuntutools.update_maintainer: Don't use strict changelog parsing
     (LP: #806633)
+  * ubuntutools.archive:
+    - Add quiet option to silence downloading.
+    - Use wget-style progress bar (fixed width) (LP: #845787)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
