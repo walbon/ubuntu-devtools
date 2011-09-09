@@ -27,7 +27,6 @@ from ubuntutools.test import unittest
 BLACKLIST = {
     'check-mir': 'No Help',
     'check-symbols': 'No Help',
-    'get-build-deps': 'No Help, runs sudo',
     'grep-merges': 'No Help',
     'pbuilder-dist-simple': 'No Help',
     'setup-packaging-environment': 'Throws Error',
