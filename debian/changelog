@@ -7,6 +7,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #844734)
   * Debian source publication records are all Published now, not pending
     (LP: #845487)
+  * requestsync: Add nice error messages to gpg-signing code, rather than
+    simple assertions (LP: #537288)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.

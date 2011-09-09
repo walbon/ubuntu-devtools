@@ -26,6 +26,7 @@ import smtplib
 import socket
 
 from debian.changelog import Version
+from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import rmadison, FakeSPPH
@@ -113,10 +114,14 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
 
     # prepare sign command
     gpg_command = None
-    for cmd in ('gpg', 'gpg2', 'gnome-gpg'):
+    for cmd in ('gnome-gpg', 'gpg2', 'gpg'):
         if os.access('/usr/bin/%s' % cmd, os.X_OK):
             gpg_command = [cmd]
-    assert gpg_command # TODO: catch exception and produce error message
+            break
+
+    if not gpg_command:
+        Logger.error("Cannot locate gpg, please install the 'gnupg' package")
+        sys.exit(1)
 
     gpg_command.append('--clearsign')
     if keyid:
@@ -126,7 +131,9 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
     gpg = subprocess.Popen(gpg_command, stdin=subprocess.PIPE,
                            stdout=subprocess.PIPE)
     signed_report = gpg.communicate(mailbody.encode('utf-8'))[0].decode('utf-8')
-    assert gpg.returncode == 0
+    if gpg.returncode != 0:
+        Logger.error("%s failed", gpg_command[0])
+        sys.exit(1)
 
     # generate email
     mail = u'''\
@@ -142,26 +149,26 @@ Content-Type: text/plain; charset=UTF-8
 
     # connect to the server
     try:
-        print 'Connecting to %s:%s ...' % (mailserver_host, mailserver_port)
+        Logger.info('Connecting to %s:%s ...', mailserver_host, mailserver_port)
         s = smtplib.SMTP(mailserver_host, mailserver_port)
     except socket.error, s:
-        print >> sys.stderr, 'E: Could not connect to %s:%s: %s (%i)' % \
-            (mailserver_host, mailserver_port, s[1], s[0])
+        Logger.error('Could not connect to %s:%s: %s (%i)',
+                     mailserver_host, mailserver_port, s[1], s[0])
         return
 
     if mailserver_user and mailserver_pass:
         try:
             s.login(mailserver_user, mailserver_pass)
         except smtplib.SMTPAuthenticationError:
-            print >> sys.stderr, ('E: Error authenticating to the server: '
-                                  'invalid username and password.')
+            Logger.error('Error authenticating to the server: '
+                         'invalid username and password.')
             s.quit()
             return
         except:
-            print >> sys.stderr, 'E: Unknown SMTP error.'
+            Logger.error('Unknown SMTP error.')
             s.quit()
             return
 
     s.sendmail(myemailaddr, to, mail.encode('utf-8'))
     s.quit()
-    print 'Sync request mailed.'
+    Logger.normal('Sync request mailed.')
