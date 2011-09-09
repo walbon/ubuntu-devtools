@@ -100,18 +100,17 @@ class BugTask(object):
                 series = distro_info.DebianDistroInfo().testing()
             else:
                 series = distro_info.DebianDistroInfo().devel()
-            status = "Pending"
         else:
             project = self.project
             series = self.get_series(latest_release)
-            status = "Published"
 
         dist = self.launchpad.distributions[project]
         archive = dist.getArchive(name="primary")
         distro_series = dist.getSeries(name_or_version=series)
         published = archive.getPublishedSources(source_name=self.package,
                                                 distro_series=distro_series,
-                                                status=status, exact_match=True)
+                                                status="Published",
+                                                exact_match=True)
 
         latest_source = None
         for source in published:

@@ -5,6 +5,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #844992)
   * import-bug-from-debian: Bugs are filed against source packages in Ubuntu.
     (LP: #844734)
+  * Debian source publication records are all Published now, not pending
+    (LP: #845487)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.

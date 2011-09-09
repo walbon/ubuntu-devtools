@@ -302,22 +302,12 @@ class Archive(BaseWrapper):
             else:
                 series = dist.getDevelopmentSeries()
 
-        # NOTE:
-        # For Debian all source publication are in the state 'Pending' so
-        # filter on this instead of 'Published'. As the result is sorted
-        # also by date the first result will be the most recent one
-        # (i.e. the one we are interested in).
-        if dist.name in ('debian',):
-            state = 'Pending'
-        else:
-            state = 'Published'
-
         if (name, series.name, pocket) not in self._srcpkgs:
             try:
                 srcpkg = self.getPublishedSources(source_name=name,
                                                   distro_series=series(),
                                                   pocket=pocket,
-                                                  status=state,
+                                                  status='Published',
                                                   exact_match=True)[0]
                 index = (name, series.name, pocket)
                 self._srcpkgs[index] = SourcePackagePublishingHistory(srcpkg)
