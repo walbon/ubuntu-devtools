@@ -120,7 +120,7 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
             break
 
     if not gpg_command:
-        Logger.error("Cannot locate gpg, please install the 'gnupg' package")
+        Logger.error("Cannot locate gpg, please install the 'gnupg' package!")
         sys.exit(1)
 
     gpg_command.append('--clearsign')
@@ -132,7 +132,7 @@ def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
                            stdout=subprocess.PIPE)
     signed_report = gpg.communicate(mailbody.encode('utf-8'))[0].decode('utf-8')
     if gpg.returncode != 0:
-        Logger.error("%s failed", gpg_command[0])
+        Logger.error("%s failed.", gpg_command[0])
         sys.exit(1)
 
     # generate email
