@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.131) unstable; urgency=low
+
+  get-build-deps was removed from ubuntu-dev-tools. The newer mk-build-deps in
+  devscripts is equivalent (with the -ir options).
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 10 Sep 2011 00:13:18 +0200
+
 ubuntu-dev-tools (0.129) unstable; urgency=low
 
   Several tools that worked against Launchpad but were not specific to Ubuntu

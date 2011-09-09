@@ -117,13 +117,11 @@ License: GPL-3
 
 Files: dch-repeat
        doc/dch-repeat.1
-       doc/get-build-deps.1
        doc/grep-merges.1
        doc/mk-sbuild.1
        doc/pull-lp-source.1
        doc/pull-revu-source.1
        doc/ubuntu-build.1
-       get-build-deps
        grep-merges
        mk-sbuild
        pull-lp-source

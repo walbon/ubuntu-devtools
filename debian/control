@@ -51,7 +51,6 @@ Recommends: bzr,
             debootstrap,
             genisoimage,
             libwww-perl,
-            pbulider | aptitude,
             pbuilder | cowdancer | sbuild,
             perl-modules,
             python-dns,
@@ -76,8 +75,6 @@ Description: useful tools for Ubuntu developers
   - debian-distro-info - provides information about Debian's distributions.
   - dgetlp - download a source package from the Launchpad library.
   - distro-info - provides information about the distributions' releases.
-  - get-build-deps - install the build dependencies needed for a package
-    reading debian/control.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - grep-merges - search for pending merges from Debian.
   - harvest - grabs information about development opportunities from

@@ -18,12 +18,10 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #806633)
   * setup-packaging-environment: Software Sources isn't on the Administration
     menu, post Gnome 2 (LP: #841975)
+  * Removed get-build-deps, mk-build-deps -ir is equivalent (LP: #158108)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
-
-  [ Stefano Rivera ]
-  * 
 
  -- Stefano Rivera <stefanor@debian.org>  Thu, 08 Sep 2011 23:13:05 +0200
 
