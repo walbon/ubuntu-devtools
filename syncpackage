@@ -596,7 +596,7 @@ def main():
 
         if blacklisted == 'CURRENT':
             if options.force:
-                messages += ["Forcing override of temporary blacklising."]
+                messages += ["Forcing override of temporary blacklisting."]
             else:
                 fail = True
                 messages += ["The blacklisting only applies to the current "

@@ -1,9 +1,13 @@
 ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * doc/requestsync.1: Correct default value for REQUESTSYNC_SMTP_SERVER
     (LP: #844992)
   * import-bug-from-debian: Bugs are filed against source packages in Ubuntu.
     (LP: #844734)
+
+  [ Colin Watson ]
+  * syncpackage: Fix typo.
 
  -- Stefano Rivera <stefanor@debian.org>  Thu, 08 Sep 2011 23:13:05 +0200
 
