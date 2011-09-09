@@ -22,6 +22,9 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
       (LP: #841975)
     - Use apt-get rather than aptitude.
   * Removed get-build-deps, mk-build-deps -ir is equivalent (LP: #158108)
+  * ubuntutools.archive:
+    - Add quiet option to silence downloading.
+    - Use wget-style progress bar (fixed width) (LP: #845787)
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
