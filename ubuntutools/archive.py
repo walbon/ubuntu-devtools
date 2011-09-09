@@ -326,23 +326,25 @@ class SourcePackage(object):
 
         downloaded = 0
         bar_width = 60
-        with open(pathname, 'wb') as out:
-            while True:
-                block = in_.read(10240)
-                if block == '':
-                    break
-                downloaded += len(block)
-                out.write(block)
-                if not self.quiet:
-                    percent = downloaded * 100 // size
-                    bar = '=' * int(round(downloaded * bar_width / size))
-                    bar = (bar + '>' + ' ' * bar_width)[:bar_width]
-                    Logger.stdout.write('[%s] %#3i%%\r' % (bar, percent))
-                    Logger.stdout.flush()
-        in_.close()
-        if not self.quiet:
-            Logger.stdout.write(' ' * (bar_width + 7) + '\r')
-            Logger.stdout.flush()
+        try:
+            with open(pathname, 'wb') as out:
+                while True:
+                    block = in_.read(10240)
+                    if block == '':
+                        break
+                    downloaded += len(block)
+                    out.write(block)
+                    if not self.quiet:
+                        percent = downloaded * 100 // size
+                        bar = '=' * int(round(downloaded * bar_width / size))
+                        bar = (bar + '>' + ' ' * bar_width)[:bar_width]
+                        Logger.stdout.write('[%s] %#3i%%\r' % (bar, percent))
+                        Logger.stdout.flush()
+            in_.close()
+        finally:
+            if not self.quiet:
+                Logger.stdout.write(' ' * (bar_width + 7) + '\r')
+                Logger.stdout.flush()
         if not self.dsc.verify_file(pathname):
             Logger.error('Checksum for %s does not match.', filename)
             return False
