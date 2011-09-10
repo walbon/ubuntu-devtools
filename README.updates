@@ -46,7 +46,7 @@ ubuntu-dev-tools package in Ubuntu.
 
     bzr bd -S
 
-9)  Upload the package to Ubuntu with dput as normal:
+9)  Upload the package to Debian with dput as normal:
 
     dput ftp-master ubuntu-dev-tools_X.YY_$arch.changes
 
