@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.131) unstable; urgency=low
 
   [ Stefano Rivera ]
   * doc/requestsync.1: Correct default value for REQUESTSYNC_SMTP_SERVER
@@ -17,7 +17,7 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
       version numbers (LP: #727314)
     - Iterate over changelog blocks rather than using Changelog's private
       _blocks list.
-  LP: #806633:
+  * LP: #806633:
     - ubuntutools.update_maintainer: Don't use strict changelog parsing
     - sponsor-patch: Perform strict validation on the first changelog entry.
   * setup-packaging-environment:
@@ -38,7 +38,7 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * ubuntutools/requestsync: Follow PEP 8 naming conventions.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 10 Sep 2011 15:41:16 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 10 Sep 2011 16:48:23 +0200
 
 ubuntu-dev-tools (0.130) unstable; urgency=low
 
