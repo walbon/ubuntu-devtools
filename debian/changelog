@@ -7,8 +7,11 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     (LP: #844734)
   * Debian source publication records are all Published now, not pending
     (LP: #845487)
-  * requestsync: Add nice error messages to gpg-signing code, rather than
-    simple assertions (LP: #537288)
+  * requestsync:
+    - Add nice error messages to gpg-signing code, rather than simple
+      assertions (LP: #537288)
+    - Extract current Ubuntu delta from changelog entries and provide for
+      editing (LP: #547925)
   * submittodebian:
     - Don't parse the entire changelog, to avoid bumping into past illegal
       version numbers (LP: #727314)
@@ -25,6 +28,8 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
   * ubuntutools.archive:
     - Add quiet option to silence downloading.
     - Use wget-style progress bar (fixed width) (LP: #845787)
+  * Bump python-debian B-D and Depends to 0.1.20 for unicode Changelog
+    reading.
 
   [ Colin Watson ]
   * syncpackage: Fix typo.

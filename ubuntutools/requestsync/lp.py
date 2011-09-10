@@ -20,6 +20,10 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
+import re
+import urllib2
+
+from debian.deb822 import Changes
 from distro_info import DebianDistroInfo
 
 from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
@@ -68,7 +72,7 @@ def checkExistingReports(srcpkg):
     '''
 
     # Fetch the package's bug list from Launchpad
-    pkg = Distribution('ubuntu').getSourcePackage(name = srcpkg)
+    pkg = Distribution('ubuntu').getSourcePackage(name=srcpkg)
     pkgBugList = pkg.searchTasks(status=["Incomplete", "New", "Confirmed",
                                          "Triaged", "In Progress", "Fix Committed"],
                                  omit_duplicates=True)
@@ -85,6 +89,40 @@ def checkExistingReports(srcpkg):
                    % (bug.title, bug.web_link))
             raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] '
                                     'to abort. ')
+
+def getUbuntuDeltaChangelog(srcpkg):
+    '''
+    Download the Ubuntu changelog and extract the entries since the last sync
+    from Debian.
+    '''
+    archive = Distribution('ubuntu').getArchive()
+    spph = archive.getPublishedSources(source_name=srcpkg.getPackageName(),
+                                       exact_match=True, pocket='Release')
+    debian_info = DebianDistroInfo()
+    topline = re.compile(r'^(\w%(name_chars)s*) \(([^\(\) \t]+)\)'
+                         r'((\s+%(name_chars)s+)+)\;'
+                         % {'name_chars': '[-+0-9a-z.]'},
+                         re.IGNORECASE)
+    delta = []
+    for record in spph:
+        changes_url = record.changesFileUrl()
+        if changes_url is None:
+            continue
+        changes = Changes(urllib2.urlopen(changes_url))
+        for line in changes['Changes'].splitlines():
+            line = line[1:]
+            m = topline.match(line)
+            if m:
+                distribution = m.group(3).split()[0].split('-')[0]
+                if debian_info.valid(distribution):
+                    break
+            if line.startswith(u'  '):
+                delta.append(line)
+        else:
+            continue
+        break
+
+    return '\n'.join(delta)
 
 def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
     '''

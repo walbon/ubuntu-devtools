@@ -30,7 +30,8 @@ from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import rmadison, FakeSPPH
-from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
+from ubuntutools.requestsync.common import (getChangelog,
+                                            raw_input_exit_on_ctrlc)
 from ubuntutools import subprocess
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
@@ -39,6 +40,7 @@ __all__ = [
     'getUbuntuSrcPkg',
     'needSponsorship',
     'checkExistingReports',
+    'getUbuntuDeltaChangelog',
     'mailBug',
 ]
 
@@ -89,6 +91,25 @@ def checkExistingReports(srcpkg):
            'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
            'for duplicate sync requests before continuing.' % srcpkg)
     raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+
+def getUbuntuDeltaChangelog(srcpkg):
+    '''
+    Download the Ubuntu changelog and extract the entries since the last sync
+    from Debian.
+    '''
+    changelog = getChangelog(srcpkg, 'ubuntu')
+    if changelog is None:
+        return u''
+    delta = []
+    debian_info = DebianDistroInfo()
+    for block in changelog:
+        distribution = block.distributions.split()[0].split('-')[0]
+        if debian_info.valid(distribution):
+            break
+        delta += [unicode(change) for change in block.changes()
+                  if change.strip()]
+
+    return u'\n'.join(delta)
 
 def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
             keyid, myemailaddr, mailserver_host, mailserver_port,

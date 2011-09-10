@@ -139,6 +139,7 @@ def main():
         from ubuntutools.requestsync.lp import (checkExistingReports,
                                                 getDebianSrcPkg,
                                                 getUbuntuSrcPkg,
+                                                getUbuntuDeltaChangelog,
                                                 needSponsorship, postBug)
         from ubuntutools.lp.lpapicache import Distribution, Launchpad
         # See if we have LP credentials and exit if we don't -
@@ -152,6 +153,7 @@ def main():
         from ubuntutools.requestsync.mail import (checkExistingReports,
                                                   getDebianSrcPkg,
                                                   getUbuntuSrcPkg,
+                                                  getUbuntuDeltaChangelog,
                                                   mailBug, needSponsorship)
         if not any(x in os.environ for x in ('UBUMAIL', 'DEBEMAIL', 'EMAIL')):
             print >> sys.stderr, (
@@ -262,8 +264,9 @@ def main():
         print ('Changes have been made to the package in Ubuntu.\n'
                'Please edit the report and give an explanation.\n'
                'Not saving the report file will abort the request.')
-        report += ('Explanation of the Ubuntu delta and why it can be '
-                   'dropped:\n>>> ENTER_EXPLANATION_HERE <<<\n\n')
+        report += (u'Explanation of the Ubuntu delta and why it can be '
+                   u'dropped:\n%s\n>>> ENTER_EXPLANATION_HERE <<<\n\n'
+                   % getUbuntuDeltaChangelog(ubuntu_srcpkg))
 
     if ffe:
         need_interaction = True

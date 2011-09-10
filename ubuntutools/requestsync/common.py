@@ -38,11 +38,10 @@ def raw_input_exit_on_ctrlc(*args, **kwargs):
         print '\nAbort requested. No sync request filed.'
         sys.exit(1)
 
-# TODO: Move this into requestsync.mail, and implement an LP version
-# when LP: #833384 is fixed
-def getDebianChangelog(srcpkg, version):
+def getChangelog(srcpkg, distro):
     '''
-    Return the new changelog entries since 'version'.
+    Download and return a parsed changelog for srcpackage, from
+    packages.debian.org or changelogs.ubuntu.com
     '''
     pkgname = srcpkg.getPackageName()
     pkgversion = srcpkg.getVersion()
@@ -54,26 +53,36 @@ def getDebianChangelog(srcpkg, version):
     # Strip epoch from version
     if ':' in pkgversion:
         pkgversion = pkgversion[pkgversion.find(':')+1:]
+    extension = ''
+    if distro == 'debian':
+        base = 'http://packages.debian.org/'
+        extension = '.txt'
+    elif distro == 'ubuntu':
+        base = 'http://changelogs.ubuntu.com/'
 
-    # Get the debian changelog file from packages.debian.org
+    url = os.path.join(base, 'changelogs', 'pool', component, subdir, pkgname,
+                       pkgname + '_' + pkgversion, 'changelog' + extension)
     try:
-        changelog = urllib2.urlopen('http://packages.debian.org/changelogs/pool'
-                                    '/%s/%s/%s/%s_%s/changelog.txt'
-                                    % (component, subdir, pkgname, pkgname,
-                                       pkgversion))
+        return Changelog(urllib2.urlopen(url))
     except urllib2.HTTPError, error:
-        print >> sys.stderr, ('Unable to connect to packages.debian.org: %s'
-                              % error)
+        print >> sys.stderr, ('Unable to connect to %s: %s' % (base, error))
         return None
 
-    new_entries = ''
-    changelog = Changelog(changelog.read())
+# TODO: Move this into requestsync.mail, and implement an LP version
+# when LP: #833384 is fixed
+def getDebianChangelog(srcpkg, version):
+    '''
+    Return the new changelog entries since 'version'.
+    '''
+    changelog = getChangelog(srcpkg, 'debian')
+    if changelog is None:
+        return None
+    new_entries = []
     for block in changelog:
-        if block.version > version:
-            # see also Debian #561805
-            new_entries += unicode(str(block).decode('utf-8'))
-
-    return new_entries
+        if block.version <= version:
+            break
+        new_entries.append(unicode(block))
+    return u''.join(new_entries)
 
 def edit_report(subject, body, changes_required = False):
     '''
