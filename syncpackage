@@ -36,10 +36,10 @@ from lazr.restfulclient.errors import HTTPError
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
-from ubuntutools.requestsync.common import getDebianChangelog
-from ubuntutools.requestsync.mail import (getDebianSrcPkg
-                                          as requestsync_mail_getDebianSrcPkg)
-from ubuntutools.requestsync.lp import getDebianSrcPkg, getUbuntuSrcPkg
+from ubuntutools.requestsync.common import get_debian_changelog
+from ubuntutools.requestsync.mail import (get_debian_srcpkg
+                                          as requestsync_mail_get_debian_srcpkg)
+from ubuntutools.requestsync.lp import get_debian_srcpkg, get_ubuntu_srcpkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import (Distribution, Launchpad,
                                        SourcePackagePublishingHistory)
@@ -125,7 +125,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     new_ver = Version(src_pkg.dsc["Version"])
 
     try:
-        ubuntu_source = getUbuntuSrcPkg(src_pkg.source, release)
+        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, release)
         ubuntu_ver = Version(ubuntu_source.getVersion())
         ubu_pkg = UbuntuSourcePackage(src_pkg.source, ubuntu_ver.full_version,
                                       ubuntu_source.getComponent(),
@@ -278,7 +278,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
 
     if version is None or component is None:
         try:
-            debian_srcpkg = getDebianSrcPkg(package, dist)
+            debian_srcpkg = get_debian_srcpkg(package, dist)
         except (udtexceptions.PackageNotFoundException,
                 udtexceptions.SeriesNotFoundException), e:
             Logger.error(str(e))
@@ -286,7 +286,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
         if version is None:
             version = Version(debian_srcpkg.getVersion())
         try:
-            ubuntu_srcpkg = getUbuntuSrcPkg(package, ubuntu_release)
+            ubuntu_srcpkg = get_ubuntu_srcpkg(package, ubuntu_release)
             ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         except udtexceptions.PackageNotFoundException:
             ubuntu_version = Version('~')
@@ -295,7 +295,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
             sys.exit(1)
         if ubuntu_version >= version:
             # The LP importer is maybe out of date
-            debian_srcpkg = requestsync_mail_getDebianSrcPkg(package, dist)
+            debian_srcpkg = requestsync_mail_get_debian_srcpkg(package, dist)
             if requested_version is None:
                 version = Version(debian_srcpkg.getVersion())
             if ubuntu_version >= version:
@@ -335,8 +335,8 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
         sys.exit(1)
 
     try:
-        ubuntu_spph = getUbuntuSrcPkg(src_pkg.source,
-                                      ubuntu_series, ubuntu_pocket)
+        ubuntu_spph = get_ubuntu_srcpkg(src_pkg.source,
+                                        ubuntu_series, ubuntu_pocket)
         ubuntu_pkg = UbuntuSourcePackage(src_pkg.source,
                                          ubuntu_spph.getVersion(),
                                          ubuntu_spph.getComponent(),
@@ -365,7 +365,7 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
                       src_pkg.source, ubuntu_series, ubuntu_pocket,
                       src_pkg.version)
 
-    changes = getDebianChangelog(debian_spph, base_version).strip()
+    changes = get_debian_changelog(debian_spph, base_version).strip()
     if changes:
         Logger.normal("New changes:\n%s", changes)
 
@@ -542,7 +542,7 @@ def main():
                      + ', '.join(args))
 
     try:
-        options.bugs = map(int, options.bugs)
+        options.bugs = [int(b) for b in options.bugs]
     except TypeError:
         parser.error('Invalid bug number(s) specified.')
 

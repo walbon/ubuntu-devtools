@@ -30,21 +30,21 @@ from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import rmadison, FakeSPPH
-from ubuntutools.requestsync.common import (getChangelog,
+from ubuntutools.requestsync.common import (get_changelog,
                                             raw_input_exit_on_ctrlc)
 from ubuntutools import subprocess
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
 __all__ = [
-    'getDebianSrcPkg',
-    'getUbuntuSrcPkg',
-    'needSponsorship',
-    'checkExistingReports',
-    'getUbuntuDeltaChangelog',
-    'mailBug',
+    'get_debian_srcpkg',
+    'get_ubuntu_srcpkg',
+    'need_sponsorship',
+    'check_existing_reports',
+    'get_ubuntu_delta_changelog',
+    'mail_bug',
 ]
 
-def getSrcPkg(distro, name, release):
+def _get_srcpkg(distro, name, release):
     if distro == 'debian':
         # Canonicalise release:
         debian_info = DebianDistroInfo()
@@ -59,13 +59,13 @@ def getSrcPkg(distro, name, release):
 
     return FakeSPPH(pkg['source'], pkg['version'], pkg['component'])
 
-def getDebianSrcPkg(name, release):
-    return getSrcPkg('debian', name, release)
+def get_debian_srcpkg(name, release):
+    return _get_srcpkg('debian', name, release)
 
-def getUbuntuSrcPkg(name, release):
-    return getSrcPkg('ubuntu', name, release)
+def get_ubuntu_srcpkg(name, release):
+    return _get_srcpkg('ubuntu', name, release)
 
-def needSponsorship(name, component, release):
+def need_sponsorship(name, component, release):
     '''
     Ask the user if he has upload permissions for the package or the
     component.
@@ -83,7 +83,7 @@ def needSponsorship(name, component, release):
         else:
             print 'Invalid answer'
 
-def checkExistingReports(srcpkg):
+def check_existing_reports(srcpkg):
     '''
     Point the user to the URL to manually check for duplicate bug reports.
     '''
@@ -92,12 +92,12 @@ def checkExistingReports(srcpkg):
            'for duplicate sync requests before continuing.' % srcpkg)
     raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
 
-def getUbuntuDeltaChangelog(srcpkg):
+def get_ubuntu_delta_changelog(srcpkg):
     '''
     Download the Ubuntu changelog and extract the entries since the last sync
     from Debian.
     '''
-    changelog = getChangelog(srcpkg, 'ubuntu')
+    changelog = get_changelog(srcpkg, 'ubuntu')
     if changelog is None:
         return u''
     delta = []
@@ -111,9 +111,9 @@ def getUbuntuDeltaChangelog(srcpkg):
 
     return u'\n'.join(delta)
 
-def mailBug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
-            keyid, myemailaddr, mailserver_host, mailserver_port,
-            mailserver_user, mailserver_pass):
+def mail_bug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
+             keyid, myemailaddr, mailserver_host, mailserver_port,
+             mailserver_user, mailserver_pass):
     '''
     Submit the sync request per email.
     '''

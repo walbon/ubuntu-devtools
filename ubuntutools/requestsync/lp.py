@@ -30,7 +30,7 @@ from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
 
-def getDebianSrcPkg(name, release):
+def get_debian_srcpkg(name, release):
     debian = Distribution('debian')
     debian_archive = debian.getArchive()
 
@@ -38,13 +38,13 @@ def getDebianSrcPkg(name, release):
 
     return debian_archive.getSourcePackage(name, release)
 
-def getUbuntuSrcPkg(name, release, pocket='Release'):
+def get_ubuntu_srcpkg(name, release, pocket='Release'):
     ubuntu = Distribution('ubuntu')
     ubuntu_archive = ubuntu.getArchive()
 
     return ubuntu_archive.getSourcePackage(name, release, pocket)
 
-def needSponsorship(name, component, release):
+def need_sponsorship(name, component, release):
     '''
     Check if the user has upload permissions for either the package
     itself or the component
@@ -64,7 +64,7 @@ team.'''
 
     return need_sponsor
 
-def checkExistingReports(srcpkg):
+def check_existing_reports(srcpkg):
     '''
     Check existing bug reports on Launchpad for a possible sync request.
 
@@ -73,13 +73,13 @@ def checkExistingReports(srcpkg):
 
     # Fetch the package's bug list from Launchpad
     pkg = Distribution('ubuntu').getSourcePackage(name=srcpkg)
-    pkgBugList = pkg.searchTasks(status=["Incomplete", "New", "Confirmed",
-                                         "Triaged", "In Progress",
-                                         "Fix Committed"],
-                                 omit_duplicates=True)
+    pkg_bug_list = pkg.searchTasks(status=["Incomplete", "New", "Confirmed",
+                                           "Triaged", "In Progress",
+                                           "Fix Committed"],
+                                   omit_duplicates=True)
 
     # Search bug list for other sync requests.
-    for bug in pkgBugList:
+    for bug in pkg_bug_list:
         # check for Sync or sync and the package name
         if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
             print ('The following bug could be a possible duplicate sync bug '
@@ -91,7 +91,7 @@ def checkExistingReports(srcpkg):
             raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] '
                                     'to abort. ')
 
-def getUbuntuDeltaChangelog(srcpkg):
+def get_ubuntu_delta_changelog(srcpkg):
     '''
     Download the Ubuntu changelog and extract the entries since the last sync
     from Debian.
@@ -125,7 +125,7 @@ def getUbuntuDeltaChangelog(srcpkg):
 
     return '\n'.join(delta)
 
-def postBug(srcpkg, subscribe, status, bugtitle, bugtext):
+def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
     '''
     Use the LP API to file the sync request.
     '''

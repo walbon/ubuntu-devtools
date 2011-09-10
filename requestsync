@@ -36,7 +36,7 @@ from distro_info import UbuntuDistroInfo
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
 from ubuntutools.misc import require_utf8
-from ubuntutools.requestsync.common import (edit_report, getDebianChangelog,
+from ubuntutools.requestsync.common import (edit_report, get_debian_changelog,
                                             raw_input_exit_on_ctrlc)
 
 #
@@ -119,7 +119,7 @@ def main():
             mxlist = DNS.mxlookup(bug_mail_domain)
             firstmx = mxlist[0]
             mailserver_host = firstmx[1]
-        except ImportError, x:
+        except ImportError:
             print >> sys.stderr, ('Please install python-dns to support '
                                   'Launchpad mail server lookup.')
             sys.exit(1)
@@ -136,11 +136,11 @@ def main():
 
     # import the needed requestsync module
     if options.lpapi:
-        from ubuntutools.requestsync.lp import (checkExistingReports,
-                                                getDebianSrcPkg,
-                                                getUbuntuSrcPkg,
-                                                getUbuntuDeltaChangelog,
-                                                needSponsorship, postBug)
+        from ubuntutools.requestsync.lp import (check_existing_reports,
+                                                get_debian_srcpkg,
+                                                get_ubuntu_srcpkg,
+                                                get_ubuntu_delta_changelog,
+                                                need_sponsorship, post_bug)
         from ubuntutools.lp.lpapicache import Distribution, Launchpad
         # See if we have LP credentials and exit if we don't -
         # cannot continue in this case
@@ -150,11 +150,11 @@ def main():
         except IOError:
             sys.exit(1)
     else:
-        from ubuntutools.requestsync.mail import (checkExistingReports,
-                                                  getDebianSrcPkg,
-                                                  getUbuntuSrcPkg,
-                                                  getUbuntuDeltaChangelog,
-                                                  mailBug, needSponsorship)
+        from ubuntutools.requestsync.mail import (check_existing_reports,
+                                                  get_debian_srcpkg,
+                                                  get_ubuntu_srcpkg,
+                                                  get_ubuntu_delta_changelog,
+                                                  mail_bug, need_sponsorship)
         if not any(x in os.environ for x in ('UBUMAIL', 'DEBEMAIL', 'EMAIL')):
             print >> sys.stderr, (
                 'E: The environment variable UBUMAIL, DEBEMAIL or EMAIL needs '
@@ -188,7 +188,7 @@ def main():
 
     # Get the current Ubuntu source package
     try:
-        ubuntu_srcpkg = getUbuntuSrcPkg(srcpkg, release)
+        ubuntu_srcpkg = get_ubuntu_srcpkg(srcpkg, release)
         ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         ubuntu_component = ubuntu_srcpkg.getComponent()
         newsource = False # override the -n flag
@@ -206,7 +206,7 @@ def main():
 
     # Get the requested Debian source package
     try:
-        debian_srcpkg = getDebianSrcPkg(srcpkg, distro)
+        debian_srcpkg = get_debian_srcpkg(srcpkg, distro)
         debian_version = Version(debian_srcpkg.getVersion())
         debian_component = debian_srcpkg.getComponent()
     except udtexceptions.PackageNotFoundException, error:
@@ -218,7 +218,7 @@ def main():
         # try rmadison
         import ubuntutools.requestsync.mail
         try:
-            debian_srcpkg = ubuntutools.requestsync.mail.getDebianSrcPkg(
+            debian_srcpkg = ubuntutools.requestsync.mail.get_debian_srcpkg(
                     srcpkg, distro)
             debian_version = Version(debian_srcpkg.getVersion())
             debian_component = debian_srcpkg.getComponent()
@@ -239,7 +239,7 @@ def main():
 
     # -s flag not specified - check if we do need sponsorship
     if not sponsorship:
-        sponsorship = needSponsorship(srcpkg, ubuntu_component, release)
+        sponsorship = need_sponsorship(srcpkg, ubuntu_component, release)
 
     if not sponsorship and not ffe:
         print >> sys.stderr, ('Consider using syncpackage(1) for syncs that '
@@ -247,7 +247,7 @@ def main():
 
     # Check for existing package reports
     if not newsource:
-        checkExistingReports(srcpkg)
+        check_existing_reports(srcpkg)
 
     # Generate bug report
     pkg_to_sync = ('%s %s (%s) from Debian %s (%s)'
@@ -266,7 +266,7 @@ def main():
                'Not saving the report file will abort the request.')
         report += (u'Explanation of the Ubuntu delta and why it can be '
                    u'dropped:\n%s\n>>> ENTER_EXPLANATION_HERE <<<\n\n'
-                   % getUbuntuDeltaChangelog(ubuntu_srcpkg))
+                   % get_ubuntu_delta_changelog(ubuntu_srcpkg))
 
     if ffe:
         need_interaction = True
@@ -288,7 +288,7 @@ def main():
     else:
         report += ('Changelog entries since current %s version %s:\n\n'
                    % (release, ubuntu_version))
-    changelog = getDebianChangelog(debian_srcpkg, base_version)
+    changelog = get_debian_changelog(debian_srcpkg, base_version)
     if not changelog:
         if not options.missing_changelog_ok:
             print >> sys.stderr, ("E: Did not retrieve any changelog entries. "
@@ -323,13 +323,13 @@ def main():
         # Map status to the values expected by LP API
         mapping = {'new': 'New', 'confirmed': 'Confirmed'}
         # Post sync request using LP API
-        postBug(srcpkg, subscribe, mapping[status], title, report)
+        post_bug(srcpkg, subscribe, mapping[status], title, report)
     else:
         email_from = ubu_email(export=False)[1]
         # Mail sync request
-        mailBug(srcpkg, subscribe, status, title, report, bug_mail_domain,
-                options.keyid, email_from, mailserver_host, mailserver_port,
-                mailserver_user, mailserver_pass)
+        mail_bug(srcpkg, subscribe, status, title, report, bug_mail_domain,
+                 options.keyid, email_from, mailserver_host, mailserver_port,
+                 mailserver_user, mailserver_pass)
 
 if __name__ == '__main__':
     try:
