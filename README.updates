@@ -1,50 +1,57 @@
-Updating the ubuntu-dev-tools package in Ubuntu
------------------------------------------------
+Updating the ubuntu-dev-tools package
+-------------------------------------
 
 Here are the steps that are recommended to take when updating the
 ubuntu-dev-tools package in Ubuntu.
 
-1) Make sure that there are no new revisions to the package's trunk in Bazaar:
+1)  Make sure that there are no new revisions to the package's trunk in Bazaar:
 
     bzr pull lp:ubuntu-dev-tools
 
-2) Check to make sure that all approved merges have been merged:
+2)  Check to make sure that all approved merges have been merged:
 
     https://code.launchpad.net/ubuntu-dev-tools/+activereviews
 
-3) Make sure that there is no low lying fruit that can be fixed at:
+3)  Make sure that there is no low lying fruit that can be fixed at:
 
     https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools
 
-4) Before uploading the package change the UNRELEASED field in the
-   debian/changelog file to the current development release.
+4)  Check that the test suite passes
 
-   If there is no UNRELEASED entry, make sure that the version for the current
-   one has not been uploaded by someone else already:
+    setup.py test
 
+5)  Before uploading the package change the UNRELEASED field in the
+    debian/changelog file to unstable. (ubuntu-dev-tools is maintained in Debian
+    and synced to Ubuntu)
+
+    If there is no UNRELEASED entry, make sure that the version for the current
+    one has not been uploaded by someone else already:
+
+    http://packages.qa.debian.org/u/ubuntu-dev-tools.html
     https://launchpad.net/ubuntu/+source/ubuntu-dev-tools/+publishinghistory
 
-   Using: dch -r UNRELEASED - will also set the release to the development
-   version.
-
-5) Once the target release has been changed, commit it to Bazaar (where X.YY is
-   the new package version):
+6)  Once the target release has been changed, commit it to Bazaar (where X.YY is
+    the new package version):
 
     bzr commit -m "Uploaded X.YY to RELEASE."
 
-6) Tag the new release in Bazaar:
+7)  Tag the new release in Bazaar:
 
-    bzr tag X.YY
+    bzr tag
 
-   For a full list of tags, please see: 'bzr tags'. This is so we can track
-   which Bazaar revision is in which release and makes bug triaging easier.
+    For a full list of tags, please see: 'bzr tags'. This is so we can track
+    which Bazaar revision is in which release and makes bug triaging easier.
 
-7) Create the new source package:
+8)  Create the new source package:
 
     bzr bd -S
 
-8) Upload the package to Ubuntu with dput as normal:
+9)  Upload the package to Ubuntu with dput as normal:
 
-    dput ubuntu ubuntu-dev-tools_X.YY_source.changes
+    dput ftp-master ubuntu-dev-tools_X.YY_$arch.changes
 
-9) Create a new blank entry with dch -i and mark it as UNRELEASED.
+10) Create a new blank entry with dch -i and mark it as UNRELEASED.
+
+11) After it's been dinstalled in Debian, sync to Ubuntu:
+
+    syncpackage ubuntu-dev-tools
