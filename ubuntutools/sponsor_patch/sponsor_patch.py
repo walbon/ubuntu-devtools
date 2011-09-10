@@ -67,15 +67,6 @@ process, exit the shell such that it returns an exit code other than zero.
         Logger.error("Shell exited with exit value %i." % (returncode))
         sys.exit(1)
 
-def get_fixed_lauchpad_bugs(changes_file):
-    assert os.path.isfile(changes_file), "%s does not exist." % (changes_file)
-    changes = debian.deb822.Changes(file(changes_file))
-    fixed_bugs = []
-    if "Launchpad-Bugs-Fixed" in changes:
-        fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
-    fixed_bugs = [int(bug) for bug in fixed_bugs]
-    return fixed_bugs
-
 def strip_epoch(version):
     """Removes the epoch from a Debian version string.
 
@@ -253,9 +244,9 @@ def get_open_ubuntu_bug_task(launchpad, bug):
     Logger.info("Selected Ubuntu task: %s" % (task.get_short_info()))
     return task
 
-def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
-                  upload, workdir, verbose=False):
-    workdir = os.path.realpath(os.path.expanduser(workdir))
+def _create_and_change_into(workdir):
+    """Create (if it does not exits) and change into given working directory."""
+
     if not os.path.isdir(workdir):
         try:
             os.makedirs(workdir)
@@ -266,6 +257,347 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
     if workdir != os.getcwd():
         Logger.command(["cd", workdir])
         os.chdir(workdir)
+
+def _get_series(launchpad):
+    """Returns a tuple with the development and list of supported series."""
+    #pylint: disable=E1101
+    ubuntu = launchpad.distributions['ubuntu']
+    #pylint: enable=E1101
+    devel_series = ubuntu.current_series.name
+    supported_series = [series.name for series in ubuntu.series
+                        if series.active and series.name != devel_series]
+    return (devel_series, supported_series)
+
+def _update_maintainer_field():
+    """Update the Maintainer field in debian/control."""
+    Logger.command(["update-maintainer"])
+    if update_maintainer("debian", Logger.verbose) != 0:
+        Logger.error("update-maintainer script failed.")
+        sys.exit(1)
+
+def _update_timestamp():
+    """Run dch to update the timestamp of debian/changelog."""
+    cmd = ["dch", "--maintmaint", "--release", ""]
+    Logger.command(cmd)
+    if subprocess.call(cmd) != 0:
+        Logger.info("Failed to update timestamp in debian/changelog.")
+
+
+class SourcePackage(object):
+    """This class represents a source package."""
+
+    def __init__(self, package, builder, workdir, branch):
+        self._package = package
+        self._builder = builder
+        self._workdir = workdir
+        self._branch = branch
+        self._changelog = None
+        self._version = None
+        self._build_log = None
+
+    def ask_and_upload(self, upload):
+        """Ask the user before uploading the source package.
+        
+        Returns true if the source package is uploaded successfully. Returns
+        false if the user wants to change something.
+        """
+
+        # Upload package
+        if upload:
+            lintian_filename = self._run_lintian()
+            print "\nPlease check %s %s carefully:\nfile://%s\nfile://%s" % \
+                  (self._package, self._version, self._debdiff_filename,
+                   lintian_filename)
+            if self._build_log:
+                print "file://%s" % self._build_log
+
+            harvest = Harvest(self._package)
+            if harvest.data:
+                print harvest.report()
+
+            if upload == "ubuntu":
+                target = "the official Ubuntu archive"
+            else:
+                target = upload
+            question = Question(["yes", "edit", "no"])
+            answer = question.ask("Do you want to upload the package to %s" % \
+                                  target, "no")
+            if answer == "edit":
+                return False
+            elif answer == "no":
+                user_abort()
+            cmd = ["dput", "--force", upload, self._changes_file]
+            Logger.command(cmd)
+            if subprocess.call(cmd) != 0:
+                Logger.error("Upload of %s to %s failed." % \
+                             (os.path.basename(self._changes_file), upload))
+                sys.exit(1)
+
+            # Push the branch if the package is uploaded to the Ubuntu archive.
+            if upload == "ubuntu" and self._branch:
+                cmd = ['debcommit']
+                Logger.command(cmd)
+                if subprocess.call(cmd) != 0:
+                    Logger.error('Bzr commit failed.')
+                    sys.exit(1)
+                cmd = ['bzr', 'mark-uploaded']
+                Logger.command(cmd)
+                if subprocess.call(cmd) != 0:
+                    Logger.error('Bzr tagging failed.')
+                    sys.exit(1)
+                cmd = ['bzr', 'push', ':parent']
+                Logger.command(cmd)
+                if subprocess.call(cmd) != 0:
+                    Logger.error('Bzr push failed.')
+                    sys.exit(1)
+        return True
+
+    def build(self, update):
+        """Tries to build the package.
+
+        Returns true if the package was built successfully. Returns false
+        if the user wants to change something.
+        """
+
+        dist = re.sub("-.*$", "", self._changelog.distributions)
+        build_name = self._package + "_" + strip_epoch(self._version) + \
+                     "_" + self._builder.get_architecture() + ".build"
+        self._build_log = os.path.join(self._buildresult, build_name)
+
+        successful_built = False
+        while not successful_built:
+            if update:
+                ret = self._builder.update(dist)
+                if ret != 0:
+                    ask_for_manual_fixing()
+                    break
+                # We want to update the build environment only once, but not
+                # after every manual fix.
+                update = False
+
+            # build package
+            result = self._builder.build(self._dsc_file, dist,
+                                         self._buildresult)
+            if result != 0:
+                question = Question(["yes", "update", "retry", "no"])
+                answer =  question.ask("Do you want to resolve this issue "
+                                       "manually", "yes")
+                if answer == "yes":
+                    break
+                elif answer == "update":
+                    update = True
+                    continue
+                elif answer == "retry":
+                    continue
+                else:
+                    user_abort()
+            successful_built = True
+        if not successful_built:
+            # We want to do a manual fix if the build failed.
+            return False
+        return True
+
+    @property
+    def _buildresult(self):
+        """Returns the directory for the build result."""
+        return os.path.join(self._workdir, "buildresult")
+
+    def build_source(self, keyid, upload, previous_version):
+        """Tries to build the source package.
+
+        Returns true if the source package was built successfully. Returns false
+        if the user wants to change something.
+        """
+
+        if self._branch:
+            cmd = ['bzr', 'builddeb', '-S', '--', '--no-lintian']
+        else:
+            cmd = ['debuild', '--no-lintian', '-S']
+        cmd.append("-v" + previous_version.full_version)
+        if previous_version.upstream_version == \
+           self._changelog.upstream_version and upload == "ubuntu":
+            # FIXME: Add proper check that catches cases like changed
+            # compression (.tar.gz -> tar.bz2) and multiple orig source tarballs
+            cmd.append("-sd")
+        else:
+            cmd.append("-sa")
+        if not keyid is None:
+            cmd += ["-k" + keyid]
+        env = os.environ
+        if upload == 'ubuntu':
+            env['DEB_VENDOR'] = 'Ubuntu'
+        Logger.command(cmd)
+        if subprocess.call(cmd, env=env) != 0:
+            Logger.error("Failed to build source tarball.")
+            # TODO: Add a "retry" option
+            ask_for_manual_fixing()
+            return False
+        return True
+
+    @property
+    def _changes_file(self):
+        """Returns the file name of the .changes file."""
+        return os.path.join(self._workdir, self._package + "_" +
+                                           strip_epoch(self._version) +
+                                           "_source.changes")
+
+    def check_target(self, upload, launchpad):
+        """Make sure that the target is correct.
+
+        Returns true if the target is correct. Returns false if the user
+        wants to change something.
+        """
+
+        (devel_series, supported_series) = _get_series(launchpad)
+
+        if upload == "ubuntu":
+            allowed = [s + "-proposed" for s in supported_series] + \
+                      [devel_series]
+            if self._changelog.distributions not in allowed:
+                Logger.error(("%s is not an allowed series. It needs to be one "
+                             "of %s.") % (self._changelog.distributions,
+                                          ", ".join(allowed)))
+                ask_for_manual_fixing()
+                return False
+        elif upload and upload.startswith("ppa/"):
+            allowed = supported_series + [devel_series]
+            if self._changelog.distributions not in allowed:
+                Logger.error(("%s is not an allowed series. It needs to be one "
+                             "of %s.") % (self._changelog.distributions,
+                                          ", ".join(allowed)))
+                ask_for_manual_fixing()
+                return False
+        return True
+
+    def check_version(self, previous_version):
+        """Check if the version of the package is greater than the given one.
+        
+        Return true if the version of the package is newer. Returns false
+        if the user wants to change something.
+        """
+
+        if self._version <= previous_version:
+            Logger.error("The version %s is not greater than the already "
+                         "available %s.", self._version, previous_version)
+            ask_for_manual_fixing()
+            return False
+        return True
+
+    @property
+    def _debdiff_filename(self):
+        """Returns the file name of the .debdiff file."""
+        debdiff_name = self._package + "_" + strip_epoch(self._version) + \
+                       ".debdiff"
+        return os.path.join(self._workdir, debdiff_name)
+
+    @property
+    def _dsc_file(self):
+        """Returns the file name of the .dsc file."""
+        return os.path.join(self._workdir, self._package + "_" +
+                                           strip_epoch(self._version) + ".dsc")
+
+    def generate_debdiff(self, dsc_file):
+        """Generates a debdiff between the given .dsc file and this source
+           package."""
+
+        assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
+        assert os.path.isfile(self._dsc_file), "%s does not exist." % \
+                                               (self._dsc_file)
+        cmd = ["debdiff", dsc_file, self._dsc_file]
+        if not Logger.verbose:
+            cmd.insert(1, "-q")
+        Logger.command(cmd + [">", self._debdiff_filename])
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        debdiff = process.communicate()[0]
+
+        # write debdiff file
+        debdiff_file = open(self._debdiff_filename, "w")
+        debdiff_file.writelines(debdiff)
+        debdiff_file.close()
+
+    def is_fixed(self, bug_number):
+        """Make sure that the given bug number is closed.
+
+        Returns true if the bug is closed. Returns false if the user wants to
+        change something.
+        """
+
+        assert os.path.isfile(self._changes_file), "%s does not exist." % \
+               (self._changes_file)
+        changes = debian.deb822.Changes(file(self._changes_file))
+        fixed_bugs = []
+        if "Launchpad-Bugs-Fixed" in changes:
+            fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
+        fixed_bugs = [int(bug) for bug in fixed_bugs]
+
+        if bug_number not in fixed_bugs:
+            Logger.error("Launchpad bug #%i is not closed by new version." % \
+                         (bug_number))
+            ask_for_manual_fixing()
+            return False
+        return True
+
+    def reload_changelog(self):
+        """Reloads debian/changelog and update version."""
+
+        # Check the changelog
+        self._changelog = debian.changelog.Changelog()
+        try:
+            self._changelog.parse_changelog(file("debian/changelog"),
+                                            max_blocks=1, strict=True)
+        except debian.changelog.ChangelogParseError, error:
+            Logger.error("The changelog entry doesn't validate: %s", str(error))
+            ask_for_manual_fixing()
+            return False
+
+        # Get new version of package
+        try:
+            self._version = self._changelog.get_version()
+        except IndexError:
+            Logger.error("Debian package version could not be determined. " \
+                         "debian/changelog is probably malformed.")
+            ask_for_manual_fixing()
+            return False
+
+        return True
+
+    def _run_lintian(self):
+        """Runs lintian on either the source or binary changes file.
+
+        Returns the filename of the created lintian output file.
+        """
+
+        # Determine whether to use the source or binary build for lintian
+        if self._build_log:
+            build_changes = self._package + "_" + strip_epoch(self._version) + \
+                           "_" + self._builder.get_architecture() + ".changes"
+            changes_for_lintian = os.path.join(self._buildresult, build_changes)
+        else:
+            changes_for_lintian = self._changes_file
+
+        # Check lintian
+        assert os.path.isfile(changes_for_lintian), "%s does not exist." % \
+                                                    (changes_for_lintian)
+        cmd = ["lintian", "-IE", "--pedantic", "-q", changes_for_lintian]
+        lintian_filename = os.path.join(self._workdir,
+                                        self._package + "_" +
+                                        strip_epoch(self._version) + ".lintian")
+        Logger.command(cmd + [">", lintian_filename])
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        report = process.communicate()[0]
+
+        # write lintian report file
+        lintian_file = open(lintian_filename, "w")
+        lintian_file.writelines(report)
+        lintian_file.close()
+
+        return lintian_filename
+
+
+def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
+                  upload, workdir):
+    workdir = os.path.realpath(os.path.expanduser(workdir))
+    _create_and_change_into(workdir)
 
     launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(
                                                    "sponsor-patch", lpinstance)
@@ -286,7 +618,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
         if task.is_merge():
             Logger.info("The task is a merge request.")
 
-        extract_source(dsc_file, verbose)
+        extract_source(dsc_file, Logger.verbose)
 
         # change directory
         directory = task.package + '-' + task.get_version().upstream_version
@@ -303,239 +635,44 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
 
         edit |= merge_branch(branch)
 
+    source_package = SourcePackage(task.package, builder, workdir, branch)
+
     while True:
         if edit:
             edit_source()
         # All following loop executions require manual editing.
         edit = True
 
-        # update the Maintainer field
-        Logger.command(["update-maintainer"])
-        if update_maintainer("debian", verbose) != 0:
-            Logger.error("update-maintainer script failed.")
-            sys.exit(1)
-
-        # Check the changelog
-        changelog = debian.changelog.Changelog()
-        try:
-            changelog.parse_changelog(file("debian/changelog"), max_blocks=1,
-                                      strict=True)
-        except debian.changelog.ChangelogParseError, e:
-            Logger.error("The changelog entry doesn't validate: %s", str(e))
-            ask_for_manual_fixing()
+        _update_maintainer_field()
+        if not source_package.reload_changelog():
             continue
 
-        # Get new version of package
-        try:
-            new_version = changelog.get_version()
-        except IndexError:
-            Logger.error("Debian package version could not be determined. " \
-                         "debian/changelog is probably malformed.")
-            ask_for_manual_fixing()
+        if not source_package.check_version(task.get_version()):
             continue
 
-        # Check if version of the new package is greater than the version in
-        # the archive.
-        if new_version <= task.get_version():
-            Logger.error("The version %s is not greater than the already " \
-                         "available %s." % (new_version, task.get_version()))
-            ask_for_manual_fixing()
+        _update_timestamp()
+
+        if not source_package.build_source(keyid, upload,
+                                           task.get_previous_version()):
             continue
 
-        cmd = ["dch", "--maintmaint", "--release", ""]
-        Logger.command(cmd)
-        if subprocess.call(cmd) != 0:
-            Logger.info("Failed to update timestamp in debian/changelog.")
-
-        # Build source package
-        if patch:
-            cmd = ['debuild', '--no-lintian', '-S']
-        elif branch:
-            cmd = ['bzr', 'builddeb', '-S', '--', '--no-lintian']
-        previous_version = task.get_previous_version()
-        cmd.append("-v" + previous_version.full_version)
-        if previous_version.upstream_version == changelog.upstream_version and \
-           upload == "ubuntu":
-            # FIXME: Add proper check that catches cases like changed
-            # compression (.tar.gz -> tar.bz2) and multiple orig source tarballs
-            cmd.append("-sd")
-        else:
-            cmd.append("-sa")
-        if not keyid is None:
-            cmd += ["-k" + keyid]
-        env = os.environ
-        if upload == 'ubuntu':
-            env['DEB_VENDOR'] = 'Ubuntu'
-        Logger.command(cmd)
-        if subprocess.call(cmd, env=env) != 0:
-            Logger.error("Failed to build source tarball.")
-            # TODO: Add a "retry" option
-            ask_for_manual_fixing()
-            continue
-
-        # Generate debdiff
-        new_dsc_file = os.path.join(workdir,
-                task.package + "_" + strip_epoch(new_version) + ".dsc")
-        assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
-        assert os.path.isfile(new_dsc_file), "%s does not exist." % \
-                                             (new_dsc_file)
-        cmd = ["debdiff", dsc_file, new_dsc_file]
-        debdiff_name = task.package + "_" + strip_epoch(new_version) + \
-                       ".debdiff"
-        debdiff_filename = os.path.join(workdir, debdiff_name)
-        if not verbose:
-            cmd.insert(1, "-q")
-        Logger.command(cmd + [">", debdiff_filename])
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        debdiff = process.communicate()[0]
-
-        # write debdiff file
-        debdiff_file = open(debdiff_filename, "w")
-        debdiff_file.writelines(debdiff)
-        debdiff_file.close()
+        source_package.generate_debdiff(dsc_file)
 
         # Make sure that the Launchpad bug will be closed
-        changes_file = new_dsc_file[:-4] + "_source.changes"
-        if bug_number not in get_fixed_lauchpad_bugs(changes_file):
-            Logger.error("Launchpad bug #%i is not closed by new version." % \
-                         (bug_number))
-            ask_for_manual_fixing()
+        if not source_package.is_fixed(bug_number):
             continue
 
-        #pylint: disable=E1101
-        ubuntu = launchpad.distributions['ubuntu']
-        #pylint: enable=E1101
-        devel_series = ubuntu.current_series.name
-        supported_series = [series.name for series in ubuntu.series
-                            if series.active and series.name != devel_series]
-        # Make sure that the target is correct
-        if upload == "ubuntu":
-            allowed = [s + "-proposed" for s in supported_series] + \
-                      [devel_series]
-            if changelog.distributions not in allowed:
-                Logger.error(("%s is not an allowed series. It needs to be one "
-                             "of %s.") % (changelog.distributions,
-                                          ", ".join(allowed)))
-                ask_for_manual_fixing()
-                continue
-        elif upload and upload.startswith("ppa/"):
-            allowed = supported_series + [devel_series]
-            if changelog.distributions not in allowed:
-                Logger.error(("%s is not an allowed series. It needs to be one "
-                             "of %s.") % (changelog.distributions,
-                                          ", ".join(allowed)))
-                ask_for_manual_fixing()
-                continue
+        if not source_package.check_target(upload, launchpad):
+            continue
 
-        build_log = None
         if build:
-            dist = re.sub("-.*$", "", changelog.distributions)
-            buildresult = os.path.join(workdir, "buildresult")
-            build_name = task.package + "_" + strip_epoch(new_version) + \
-                         "_" + builder.get_architecture() + ".build"
-            build_log = os.path.join(buildresult, build_name)
-
-            successful_built = False
-            while not successful_built:
-                if update:
-                    ret = builder.update(dist)
-                    if ret != 0:
-                        ask_for_manual_fixing()
-                        break
-                    # We want to update the build environment only once, but not
-                    # after every manual fix.
-                    update = False
-
-                # build package
-                result = builder.build(new_dsc_file, dist, buildresult)
-                if result != 0:
-                    question = Question(["yes", "update", "retry", "no"])
-                    answer =  question.ask("Do you want to resolve this issue "
-                                           "manually", "yes")
-                    if answer == "yes":
-                        break
-                    elif answer == "update":
-                        update = True
-                        continue
-                    elif answer == "retry":
-                        continue
-                    else:
-                        user_abort()
-                successful_built = True
+            successful_built = source_package.build(update)
+            update = False
             if not successful_built:
-                # We want to do a manual fix if the build failed.
                 continue
 
-        # Determine whether to use the source or binary build for lintian
-        if build_log:
-            build_changes = task.package + "_" + strip_epoch(new_version) + \
-                           "_" + builder.get_architecture() + ".changes"
-            changes_for_lintian = os.path.join(buildresult, build_changes)
-        else:
-            changes_for_lintian = changes_file
-
-        # Check lintian
-        assert os.path.isfile(changes_for_lintian), "%s does not exist." % \
-                                                    (changes_for_lintian)
-        cmd = ["lintian", "-IE", "--pedantic", "-q", changes_for_lintian]
-        lintian_filename = os.path.join(workdir,
-                task.package + "_" + strip_epoch(new_version) + ".lintian")
-        Logger.command(cmd + [">", lintian_filename])
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        report = process.communicate()[0]
-
-        # write lintian report file
-        lintian_file = open(lintian_filename, "w")
-        lintian_file.writelines(report)
-        lintian_file.close()
-
-        # Upload package
-        if upload:
-            print "\nPlease check %s %s carefully:\nfile://%s\nfile://%s" % \
-                  (task.package, new_version, debdiff_filename,
-                   lintian_filename)
-            if build_log:
-                print "file://%s" % build_log
-
-            harvest = Harvest(task.package)
-            if harvest.data:
-                print harvest.report()
-
-            if upload == "ubuntu":
-                target = "the official Ubuntu archive"
-            else:
-                target = upload
-            question = Question(["yes", "edit", "no"])
-            answer = question.ask("Do you want to upload the package to %s" % \
-                                  target, "no")
-            if answer == "edit":
-                continue
-            elif answer == "no":
-                user_abort()
-            cmd = ["dput", "--force", upload, changes_file]
-            Logger.command(cmd)
-            if subprocess.call(cmd) != 0:
-                Logger.error("Upload of %s to %s failed." % \
-                             (os.path.basename(changes_file), upload))
-                sys.exit(1)
-
-            # Push the branch if the package is uploaded to the Ubuntu archive.
-            if upload == "ubuntu" and branch:
-                cmd = ['debcommit']
-                Logger.command(cmd)
-                if subprocess.call(cmd) != 0:
-                    Logger.error('Bzr commit failed.')
-                    sys.exit(1)
-                cmd = ['bzr', 'mark-uploaded']
-                Logger.command(cmd)
-                if subprocess.call(cmd) != 0:
-                    Logger.error('Bzr tagging failed.')
-                    sys.exit(1)
-                cmd = ['bzr', 'push', ':parent']
-                Logger.command(cmd)
-                if subprocess.call(cmd) != 0:
-                    Logger.error('Bzr push failed.')
-                    sys.exit(1)
+        if not source_package.ask_and_upload(upload):
+            continue
 
         # Leave while loop if everything worked
         break

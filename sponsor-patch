@@ -111,7 +111,7 @@ def main():
     try:
         sponsor_patch(bug_number, options.build, builder, options.edit,
                       options.keyid, options.lpinstance, options.update,
-                      options.upload, workdir, options.verbose)
+                      options.upload, workdir)
     except KeyboardInterrupt:
         print "\nUser abort."
         sys.exit(2)
