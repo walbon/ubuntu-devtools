@@ -78,8 +78,7 @@ License: GPL-2+
  On Debian systems, the complete text of the GNU General Public License
  version 2 can be found in the /usr/share/common-licenses/GPL-2 file.
 
-Files: ack-sync
-       doc/bitesize.1
+Files: doc/bitesize.1
        doc/grab-merge.1
        doc/harvest.1
        doc/hugdaylist.1

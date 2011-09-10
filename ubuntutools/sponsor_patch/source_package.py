@@ -122,14 +122,15 @@ class SourcePackage(object):
                     sys.exit(1)
         return True
 
-    def build(self, update):
+    def build(self, update, dist=None):
         """Tries to build the package.
 
         Returns true if the package was built successfully. Returns false
         if the user wants to change something.
         """
 
-        dist = re.sub("-.*$", "", self._changelog.distributions)
+        if dist is None:
+            dist = re.sub("-.*$", "", self._changelog.distributions)
         build_name = self._package + "_" + strip_epoch(self._version) + \
                      "_" + self._builder.get_architecture() + ".build"
         self._build_log = os.path.join(self._buildresult, build_name)
@@ -362,3 +363,22 @@ class SourcePackage(object):
         lintian_file.close()
 
         return lintian_filename
+
+    def sync(self, upload, bug_number, keyid):
+        """Does a sync of the source package."""
+
+        if upload == "ubuntu":
+            cmd = ["syncpackage", self._package, "-b", str(bug_number),
+                   "-V", str(self._version)]
+            if keyid is not None:
+                cmd += ["-k", keyid]
+            Logger.command(cmd)
+            if subprocess.call(cmd) != 0:
+                Logger.error("Syncing of %s %s failed.", self._package,
+                             str(self._version))
+                sys.exit(1)
+        else:
+            # FIXME: Support this use case!
+            Logger.error("Uploading a synced package other than to ubuntu "
+                         "is not supported yet!")
+            sys.exit(1)

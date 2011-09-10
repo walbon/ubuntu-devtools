@@ -24,11 +24,13 @@ import launchpadlib.launchpad
 
 from devscripts.logger import Logger
 
+from distro_info import UbuntuDistroInfo
+
 from ubuntutools import subprocess
 from ubuntutools.update_maintainer import update_maintainer
 from ubuntutools.question import input_number
 
-from ubuntutools.sponsor_patch.bugtask import BugTask
+from ubuntutools.sponsor_patch.bugtask import BugTask, is_sync
 from ubuntutools.sponsor_patch.patch import Patch
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
 from ubuntutools.sponsor_patch.source_package import SourcePackage
@@ -98,24 +100,26 @@ def ask_for_patch_or_branch(bug, attached_patches, linked_branches):
 def get_patch_or_branch(bug):
     patch = None
     branch = None
-    attached_patches = [a for a in bug.attachments if a.type == "Patch"]
-    linked_branches = [b.branch for b in bug.linked_branches]
-    if len(attached_patches) == 0 and len(linked_branches) == 0:
-        if len(bug.attachments) == 0:
-            Logger.error(("No attachment and no linked branch found on "
-                          "bug #%i.") % bug.id)
+    if not is_sync(bug):
+        attached_patches = [a for a in bug.attachments if a.type == "Patch"]
+        linked_branches = [b.branch for b in bug.linked_branches]
+        if len(attached_patches) == 0 and len(linked_branches) == 0:
+            if len(bug.attachments) == 0:
+                Logger.error("No attachment and no linked branch found on "
+                             "bug #%i. Add the tag sync to the bug if it is "
+                             "a sync request.", bug.id)
+            else:
+                Logger.error("No attached patch and no linked branch found. "
+                             "Go to https://launchpad.net/bugs/%i and mark an "
+                             "attachment as patch.", bug.id)
+            sys.exit(1)
+        elif len(attached_patches) == 1 and len(linked_branches) == 0:
+            patch = Patch(attached_patches[0])
+        elif len(attached_patches) == 0 and len(linked_branches) == 1:
+            branch = linked_branches[0].bzr_identity
         else:
-            Logger.error(("No attached patch and no linked branch found. Go "
-                          "to https://launchpad.net/bugs/%i and mark an "
-                          "attachment as patch.") % bug.id)
-        sys.exit(1)
-    elif len(attached_patches) == 1 and len(linked_branches) == 0:
-        patch = Patch(attached_patches[0])
-    elif len(attached_patches) == 0 and len(linked_branches) == 1:
-        branch = linked_branches[0].bzr_identity
-    else:
-        patch, branch = ask_for_patch_or_branch(bug, attached_patches,
-                                                linked_branches)
+            patch, branch = ask_for_patch_or_branch(bug, attached_patches,
+                                                    linked_branches)
     return (patch, branch)
 
 def download_branch(branch):
@@ -212,12 +216,21 @@ def _update_timestamp():
 def _download_and_change_into(task, dsc_file, patch, branch):
     """Downloads the patch and branch and changes into the source directory."""
 
-    if patch:
-        patch.download()
+    if branch:
+        branch_dir = download_branch(task.get_branch_link())
+
+        # change directory
+        Logger.command(["cd", branch_dir])
+        os.chdir(branch_dir)
+    else:
+        if patch:
+            patch.download()
 
         Logger.info("Ubuntu package: %s" % (task.package))
         if task.is_merge():
             Logger.info("The task is a merge request.")
+        if task.is_sync():
+            Logger.info("The task is a sync request.")
 
         extract_source(dsc_file, Logger.verbose)
 
@@ -225,12 +238,6 @@ def _download_and_change_into(task, dsc_file, patch, branch):
         directory = task.package + '-' + task.get_version().upstream_version
         Logger.command(["cd", directory])
         os.chdir(directory)
-    elif branch:
-        branch_dir = download_branch(task.get_branch_link())
-
-        # change directory
-        Logger.command(["cd", branch_dir])
-        os.chdir(branch_dir)
 
 def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                   upload, workdir):
@@ -250,12 +257,26 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
 
     _download_and_change_into(task, dsc_file, patch, branch)
 
+    source_package = SourcePackage(task.package, builder, workdir, branch)
+
+    if is_sync(bug) and not edit:
+        successful = True
+        source_package.reload_changelog()
+        if build:
+            dist = UbuntuDistroInfo().devel()
+            successful = source_package.build(update, dist)
+            update = False
+
+        if successful:
+            source_package.sync(upload, bug_number, keyid)
+            return
+        else:
+            edit = True
+
     if patch:
         edit |= patch.apply(task)
     elif branch:
         edit |= merge_branch(branch)
-
-    source_package = SourcePackage(task.package, builder, workdir, branch)
 
     while True:
         if edit:
