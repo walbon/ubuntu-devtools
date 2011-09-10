@@ -108,7 +108,8 @@ def get_ubuntu_delta_changelog(srcpkg):
     for record in spph:
         changes_url = record.changesFileUrl()
         if changes_url is None:
-            continue
+            # Native sync
+            break
         changes = Changes(urllib2.urlopen(changes_url))
         for line in changes['Changes'].splitlines():
             line = line[1:]
