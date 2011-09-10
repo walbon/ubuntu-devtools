@@ -245,6 +245,8 @@ def do_build(workdir, dsc, release, builder, update):
         if 0 != builder.update(release):
             sys.exit(1)
 
+    # builder.build is going to chdir to buildresult:
+    workdir = os.path.realpath(workdir)
     return builder.build(os.path.join(workdir, dsc),
                          release,
                          os.path.join(workdir, "buildresult"))

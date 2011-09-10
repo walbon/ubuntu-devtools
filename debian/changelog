@@ -30,6 +30,7 @@ ubuntu-dev-tools (0.131) UNRELEASED; urgency=low
     - Use wget-style progress bar (fixed width) (LP: #845787)
   * Bump python-debian B-D and Depends to 0.1.20 for unicode Changelog
     reading.
+  * backportpackage: Use absolute path of workdir when test-building.
 
   [ Colin Watson ]
   * syncpackage: Fix typo.
