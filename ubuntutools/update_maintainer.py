@@ -82,11 +82,11 @@ class Control(object):
 
 def _get_distribution(changelog_file):
     """get distribution of latest changelog entry"""
-    with open(changelog_file) as f:
-        changelog = debian.changelog.Changelog(f, strict=False, max_blocks=1)
-        distribution = changelog.distributions[0]
-        # Strip things like "-proposed-updates" or "-security" from distribution
-        return distribution.split("-", 1)[0]
+    changelog = debian.changelog.Changelog(open(changelog_file), strict=False,
+                                           max_blocks=1)
+    distribution = changelog.distributions.split()[0]
+    # Strip things like "-proposed-updates" or "-security" from distribution
+    return distribution.split("-", 1)[0]
 
 def update_maintainer(debian_directory, verbose=False):
     """updates the Maintainer field of an Ubuntu package
