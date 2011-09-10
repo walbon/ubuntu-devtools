@@ -24,6 +24,14 @@ import distro_info
 
 from devscripts.logger import Logger
 
+def is_sync(bug):
+    """Checks if a Launchpad bug is a sync request.
+
+    Either the title contains the word sync or the bug contains the tag sync."""
+
+    return "sync" in bug.title.lower().split(" ") or "sync" in bug.tags
+
+
 class BugTask(object):
     def __init__(self, bug_task, launchpad):
         self.bug_task = bug_task
@@ -72,7 +80,7 @@ class BugTask(object):
         return result
 
     def get_previous_version(self):
-        if self.is_merge():
+        if self.is_derived_from_debian():
             previous_version = self.get_latest_released_version()
         else:
             previous_version = self.get_version()
@@ -91,7 +99,7 @@ class BugTask(object):
     def get_source(self, latest_release=False):
         assert self.package is not None
 
-        if self.is_merge() and not latest_release:
+        if self.is_derived_from_debian() and not latest_release:
             project = "debian"
             title = self.bug_task.title.lower().split()
             if "experimental" in title:
@@ -130,9 +138,16 @@ class BugTask(object):
     def is_complete(self):
         return self.bug_task.is_complete
 
+    def is_derived_from_debian(self):
+        """Checks if this task get's the source from Debian."""
+        return self.is_merge() or self.is_sync()
+
     def is_merge(self):
         bug = self.bug_task.bug
         return "merge" in bug.title.lower().split(" ") or "merge" in bug.tags
+
+    def is_sync(self):
+        return is_sync(self.bug_task.bug)
 
     def is_ubuntu_task(self):
         return self.project == "ubuntu"
