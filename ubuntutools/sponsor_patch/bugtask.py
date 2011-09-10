@@ -1,7 +1,7 @@
 #
 # bugtask.py - Internal helper class for sponsor-patch
 #
-# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (C) 2010-2011, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -54,14 +54,15 @@ class BugTask(object):
 
     def download_source(self):
         source_files = self.get_source().sourceFileUrls()
-        dsc_file = None
+        dsc_file = ""
         for url in source_files:
             filename = urllib.unquote(os.path.basename(url))
             Logger.info("Downloading %s..." % (filename))
             urllib.urlretrieve(url, filename)
             if url.endswith(".dsc"):
-                dsc_file = filename
-        return os.path.join(os.getcwd(), dsc_file)
+                dsc_file = os.path.join(os.getcwd(), filename)
+        assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
+        return dsc_file
 
     def get_branch_link(self):
         return "lp:" + self.project + "/" + self.get_series() + "/" + \

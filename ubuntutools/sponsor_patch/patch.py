@@ -1,7 +1,7 @@
 #
 # patch.py - Internal helper class for sponsor-patch
 #
-# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (C) 2010-2011, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,31 +16,79 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import os
+import re
+
+from devscripts.logger import Logger
 
 from ubuntutools import subprocess
+from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
 
 class Patch(object):
-    def __init__(self, patch_file):
-        self.patch_file = patch_file
-        self.full_path = os.path.realpath(self.patch_file)
-        assert os.path.isfile(self.full_path), "%s does not exist." % \
-                                               (self.full_path)
-        cmd = ["diffstat", "-l", "-p0", self.full_path]
+    """This object represents a patch that can be downloaded from Launchpad."""
+
+    def __init__(self, patch):
+        self._patch = patch
+        self._patch_file = re.sub(" ", "_", patch.title)
+        if not reduce(lambda r, x: r or self._patch.title.endswith(x),
+                      (".debdiff", ".diff", ".patch"), False):
+            Logger.info("Patch %s does not have a proper file extension." % \
+                        (self._patch.title))
+            self._patch_file += ".patch"
+        self._full_path = os.path.realpath(self._patch_file)
+        self._changed_files = None
+
+    def apply(self, task):
+        """Applies the patch in the current directory."""
+        assert self._changed_files is not None, \
+               "You forgot to download the patch."
+        edit = False
+        if self.is_debdiff():
+            cmd = ["patch", "--merge", "--force", "-p",
+                   str(self.get_strip_level()), "-i", self._full_path]
+            Logger.command(cmd)
+            if subprocess.call(cmd) != 0:
+                Logger.error("Failed to apply debdiff %s to %s %s.",
+                             self._patch_file, task.package, task.get_version())
+                if not edit:
+                    ask_for_manual_fixing()
+                    edit = True
+        else:
+            cmd = ["add-patch", self._full_path]
+            Logger.command(cmd)
+            if subprocess.call(cmd) != 0:
+                Logger.error("Failed to apply diff %s to %s %s.",
+                             self._patch_file, task.package, task.get_version())
+                if not edit:
+                    ask_for_manual_fixing()
+                    edit = True
+        return edit
+
+    def download(self):
+        """Downloads the patch from Launchpad."""
+        Logger.info("Downloading %s." % (self._patch_file))
+        patch_f = open(self._patch_file, "w")
+        patch_f.write(self._patch.data.open().read())
+        patch_f.close()
+
+        cmd = ["diffstat", "-l", "-p0", self._full_path]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         changed_files = process.communicate()[0]
-        self.changed_files = [l for l in changed_files.split("\n") if l != ""]
-
-    def get_name(self):
-        return self.patch_file
+        self._changed_files = [l for l in changed_files.split("\n") if l != ""]
 
     def get_strip_level(self):
+        """Returns the stript level for the patch."""
+        assert self._changed_files is not None, \
+               "You forgot to download the patch."
         strip_level = None
         if self.is_debdiff():
-            changelog = [f for f in self.changed_files
+            changelog = [f for f in self._changed_files
                          if f.endswith("debian/changelog")][0]
             strip_level = len(changelog.split(os.sep)) - 2
         return strip_level
 
     def is_debdiff(self):
-        return len([f for f in self.changed_files
+        """Checks if the patch is a debdiff (= modifies debian/changelog)."""
+        assert self._changed_files is not None, \
+               "You forgot to download the patch."
+        return len([f for f in self._changed_files
                     if f.endswith("debian/changelog")]) > 0

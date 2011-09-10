@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2010, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (C) 2010-2011, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -26,8 +26,8 @@ from ubuntutools.config import UDTConfig
 from ubuntutools.builder import get_builder
 from ubuntutools.sponsor_patch.sponsor_patch import sponsor_patch
 
-def main():
-    script_name = os.path.basename(sys.argv[0])
+def parse(script_name):
+    """Parse the command line parameters."""
     usage = ("%s [options] <bug number>\n" % (script_name)
              + "One of --upload, --workdir, or --sponsor must be specified.")
     epilog = "See %s(1) for more info." % (script_name)
@@ -90,13 +90,19 @@ def main():
     if options.workdir is None:
         options.workdir = config.get_value("WORKDIR")
 
-    builder = get_builder(options.builder)
-    if not builder:
-        sys.exit(1)
-
     if options.sponsoring:
         options.build = True
         options.upload = "ubuntu"
+
+    return (options, bug_number)
+
+def main():
+    script_name = os.path.basename(sys.argv[0])
+    (options, bug_number) = parse(script_name)
+
+    builder = get_builder(options.builder)
+    if not builder:
+        sys.exit(1)
 
     if not options.upload and not options.workdir:
         Logger.error("Please specify either a working directory or an upload "
