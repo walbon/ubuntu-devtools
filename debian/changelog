@@ -1,8 +1,13 @@
 ubuntu-dev-tools (0.132) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * sponsor-patch:
     - Refactor code.
     - Support sync requests and make ack-sync obsolete (LP: #764763).
+
+  [ Stefano Rivera ]
+  * syncpackage: Looks like we can't expect exactly one DSD record for every
+    source package (LP: #846890)
 
  -- Benjamin Drung <bdrung@debian.org>  Sat, 10 Sep 2011 19:58:38 +0200
 

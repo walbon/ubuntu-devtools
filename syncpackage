@@ -414,11 +414,12 @@ def is_blacklisted(query):
     comments = [c.body_text + u' -- ' + c.comment_author.name
                 for c in lp_comments]
 
-    diff = series.getDifferencesTo(source_package_name_filter=query)[0]
-    if diff.status == 'Blacklisted current version':
-        blacklisted = 'CURRENT'
-    if diff.status == 'Blacklisted always':
-        blacklisted = 'ALWAYS'
+    for diff in series.getDifferencesTo(source_package_name_filter=query):
+        if (diff.status == 'Blacklisted current version'
+                and blacklisted != 'ALWAYS'):
+            blacklisted = 'CURRENT'
+        if diff.status == 'Blacklisted always':
+            blacklisted = 'ALWAYS'
 
     # Old blacklist:
     url = 'http://people.canonical.com/~ubuntu-archive/sync-blacklist.txt'
