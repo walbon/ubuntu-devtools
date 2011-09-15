@@ -20,11 +20,11 @@ import pwd
 import shutil
 import sys
 
-import launchpadlib.launchpad
-
 from devscripts.logger import Logger
 
 from distro_info import UbuntuDistroInfo
+
+from launchpadlib.launchpad import Launchpad
 
 from ubuntutools import subprocess
 from ubuntutools.update_maintainer import update_maintainer
@@ -244,8 +244,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
     workdir = os.path.realpath(os.path.expanduser(workdir))
     _create_and_change_into(workdir)
 
-    launchpad = launchpadlib.launchpad.Launchpad.login_anonymously(
-                                                   "sponsor-patch", lpinstance)
+    launchpad = Launchpad.login_with("sponsor-patch", lpinstance)
     #pylint: disable=E1101
     bug = launchpad.bugs[bug_number]
     #pylint: enable=E1101
@@ -268,8 +267,11 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
             update = False
 
         if successful:
-            source_package.sync(upload, bug_number, keyid)
-            return
+            #if source_package.sync(upload, bug_number, keyid):
+            if source_package.ack_sync(upload, task.get_lp_task(), launchpad):
+                return
+            else:
+                edit = True
         else:
             edit = True
 

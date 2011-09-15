@@ -65,6 +65,51 @@ class SourcePackage(object):
         self._version = None
         self._build_log = None
 
+    def ack_sync(self, upload, task, launchpad):
+        """Acknowledge a sync request and subscribe ubuntu-archive."""
+
+        if upload == "ubuntu":
+            self._print_logs()
+            question = Question(["yes", "edit", "no"])
+            answer = question.ask("Do you want to acknowledge the sync request",
+                                  "no")
+            if answer == "edit":
+                return False
+            elif answer == "no":
+                user_abort()
+
+            bug = task.bug
+            task.status = "Confirmed"
+            if task.importance == "Undecided":
+                task.importance = "Wishlist"
+            task.lp_save()
+            Logger.info("Set bug #%i status to Confirmed.", bug.id)
+
+            msg = "Sync request ACK'd."
+            if self._build_log:
+                msg = ("%s %s builds on %s. " + msg) % \
+                      (self._package, self._version,
+                       self._builder.get_architecture())
+            bug.newMessage(content=msg, subject="sponsor-patch")
+            Logger.info("Acknowledged sync request bug #%i.", bug.id)
+
+            bug.subscribe(person=launchpad.people['ubuntu-archive'])
+            Logger.info("Subscribed ubuntu-archive to bug #%i.", bug.id)
+
+            bug.subscribe(person=launchpad.me)
+            Logger.info("Subscribed me to bug #%i.", bug.id)
+
+            bug.unsubscribe(person=launchpad.people['ubuntu-sponsors'])
+            Logger.info("Unsubscribed ubuntu-sponsors from bug #%i.", bug.id)
+
+            Logger.normal("Successfully acknowledged sync request bug #%i.",
+                          bug.id)
+        else:
+            Logger.error("Acknowledging a sync request other than to the "
+                         "official Ubuntu archive is not supported!")
+            sys.exit(1)
+        return True
+
     def ask_and_upload(self, upload):
         """Ask the user before uploading the source package.
         
@@ -74,17 +119,7 @@ class SourcePackage(object):
 
         # Upload package
         if upload:
-            lintian_filename = self._run_lintian()
-            print "\nPlease check %s %s carefully:\nfile://%s\nfile://%s" % \
-                  (self._package, self._version, self._debdiff_filename,
-                   lintian_filename)
-            if self._build_log:
-                print "file://%s" % self._build_log
-
-            harvest = Harvest(self._package)
-            if harvest.data:
-                print harvest.report()
-
+            self._print_logs()
             if upload == "ubuntu":
                 target = "the official Ubuntu archive"
             else:
@@ -308,6 +343,21 @@ class SourcePackage(object):
             return False
         return True
 
+    def _print_logs(self):
+        """Print things that should be checked before uploading a package."""
+
+        lintian_filename = self._run_lintian()
+        print "\nPlease check %s %s carefully:" % (self._package, self._version)
+        if os.path.isfile(self._debdiff_filename):
+            print "file://" + self._debdiff_filename
+        print "file://" + lintian_filename
+        if self._build_log:
+            print "file://" + self._build_log
+
+        harvest = Harvest(self._package)
+        if harvest.data:
+            print harvest.report()
+
     def reload_changelog(self):
         """Reloads debian/changelog and update version."""
 
@@ -382,3 +432,4 @@ class SourcePackage(object):
             Logger.error("Uploading a synced package other than to ubuntu "
                          "is not supported yet!")
             sys.exit(1)
+        return True

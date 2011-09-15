@@ -74,6 +74,10 @@ class BugTask(object):
                "Project: " + str(self.project) + "\n" + \
                "Series: " + str(self.series)
 
+    def get_lp_task(self):
+        """Returns the Launchpad bug task object."""
+        return self.bug_task
+
     def get_package_and_series(self):
         result = self.package
         if self.series:
