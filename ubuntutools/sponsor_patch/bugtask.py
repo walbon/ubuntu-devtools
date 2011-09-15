@@ -68,6 +68,10 @@ class BugTask(object):
         return "lp:" + self.project + "/" + self.get_series() + "/" + \
                self.package
 
+    def get_bug_title(self):
+        """Returns the title of the related bug."""
+        return self.bug_task.bug.title
+
     def get_long_info(self):
         return "Bug task: " + str(self.bug_task) + "\n" + \
                "Package: " + str(self.package) + "\n" + \
@@ -156,3 +160,7 @@ class BugTask(object):
 
     def is_ubuntu_task(self):
         return self.project == "ubuntu"
+
+    def title_contains(self, word):
+        """Checks if the bug title contains the given word."""
+        return word in self.bug_task.bug.title.split(" ")

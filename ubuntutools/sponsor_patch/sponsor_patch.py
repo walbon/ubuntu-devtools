@@ -261,6 +261,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
     if is_sync(bug) and not edit:
         successful = True
         source_package.reload_changelog()
+        source_package.check_sync_request_version(bug_number, task)
         if build:
             dist = UbuntuDistroInfo().devel()
             successful = source_package.build(update, dist)

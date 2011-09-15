@@ -26,7 +26,7 @@ from devscripts.logger import Logger
 
 from ubuntutools import subprocess
 from ubuntutools.harvest import Harvest
-from ubuntutools.question import Question
+from ubuntutools.question import Question, YesNoQuestion
 
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing, user_abort
 
@@ -288,6 +288,18 @@ class SourcePackage(object):
             ask_for_manual_fixing()
             return False
         return True
+
+    def check_sync_request_version(self, bug_number, task):
+        """Check if the downloaded version of the package is mentioned in the
+           bug title."""
+
+        if not task.title_contains(self._version):
+            print "Bug #%i title: %s" % (bug_number, task.get_bug_title())
+            msg = "Is %s %s the version that should be synced" % (self._package,
+                                                                  self._version)
+            answer =  YesNoQuestion().ask(msg, "no")
+            if answer == "no":
+                user_abort()
 
     @property
     def _debdiff_filename(self):
