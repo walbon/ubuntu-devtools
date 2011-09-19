@@ -371,7 +371,11 @@ class SourcePackage(object):
             print harvest.report()
 
     def reload_changelog(self):
-        """Reloads debian/changelog and update version."""
+        """Reloads debian/changelog and updates the version.
+
+        Returns true if the changelog was reloaded successfully. Returns false
+        if the user wants to correct a broken changelog.
+        """
 
         # Check the changelog
         self._changelog = debian.changelog.Changelog()
