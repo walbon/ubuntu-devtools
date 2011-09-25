@@ -555,18 +555,19 @@ if [ -r "${TYPED_TEMPLATE_SCHROOTCONF}" ]; then
 elif [ -r "${TEMPLATE_SCHROOT}" ]; then
     cat "$TEMPLATE_SCHROOTCONF" > "$TEMP_SCHROOTCONF"
 else
-        # Please do not remove the blank line above [CHROOT_NAME]
-        # it helps keep the schroot stanzas separated in the main
-        # /etc/schroot/schroot.conf file.
-        cat > "$TEMP_SCHROOTCONF" <<EOM
+    ADMIN_GROUPS="sbuild,root"
+    if getent group admin > /dev/null; then
+        ADMIN_GROUPS+=",admin"
+    fi
+    cat > "$TEMP_SCHROOTCONF" <<EOM
 [CHROOT_NAME]
 description=CHROOT_NAME
-groups=sbuild,root,admin
-root-groups=root,sbuild,admin
-# Uncomment these lines to allow "sbuild" and "admin" users to access
+groups=$ADMIN_GROUPS
+root-groups=$ADMIN_GROUPS
+# Uncomment these lines to allow members of these groups to access
 # the -source chroots directly (useful for automated updates, etc).
-#source-root-users=root,sbuild,admin
-#source-root-groups=root,sbuild,admin
+#source-root-users=$ADMIN_GROUPS
+#source-root-groups=$ADMIN_GROUPS
 type=SCHROOT_TYPE
 EOM
     case "$SCHROOT_TYPE" in
