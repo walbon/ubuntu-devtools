@@ -1,9 +1,13 @@
 ubuntu-dev-tools (0.133) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * mk-sbuild: Only grant access to the admin group when it exists
     (Closes: #642824)
 
- -- Stefano Rivera <stefanor@debian.org>  Sun, 25 Sep 2011 16:00:57 +0200
+  [ Benjamin Drung ]
+  * syncpackage: Allow syncing to -proposed with --no-lp.
+
+ -- Benjamin Drung <bdrung@debian.org>  Wed, 12 Oct 2011 00:51:06 +0200
 
 ubuntu-dev-tools (0.132) unstable; urgency=low
 

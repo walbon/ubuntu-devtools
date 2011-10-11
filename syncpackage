@@ -125,7 +125,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     new_ver = Version(src_pkg.dsc["Version"])
 
     try:
-        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, release)
+        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, release.split("-")[0])
         ubuntu_ver = Version(ubuntu_source.getVersion())
         ubu_pkg = UbuntuSourcePackage(src_pkg.source, ubuntu_ver.full_version,
                                       ubuntu_source.getComponent(),
@@ -587,7 +587,7 @@ def main():
         options.release = ubuntu.current_series.name
 
     src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
-                               options.component, options.release,
+                               options.component, options.release.split("-")[0],
                                options.debian_mirror)
 
     blacklisted, comments = is_blacklisted(src_pkg.source)
