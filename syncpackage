@@ -465,7 +465,9 @@ def close_bugs(bugs, package, version, changes):
         else:
             Logger.error(u"Cannot find any tasks on LP: #%i to close.", bug.id)
 
-def main():
+def parse():
+    """Parse given command-line parameters."""
+
     usage = "%prog [options] <.dsc URL/path or package name>"
     epilog = "See %s(1) for more info." % os.path.basename(sys.argv[0])
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
@@ -560,6 +562,16 @@ def main():
     # --key, --dont-sign, --debian-mirror, and --ubuntu-mirror are just
     # ignored with options.lp, and do not require warnings.
 
+    if options.lp:
+        if args[0].endswith('.dsc'):
+            parser.error('.dsc files can only be synced using --no-lp.')
+
+    return (options, args[0])
+
+
+def main():
+    (options, package) = parse()
+
     Logger.verbose = options.verbose
     config = UDTConfig(options.no_conf)
     if options.debian_mirror is None:
@@ -570,10 +582,6 @@ def main():
         options.uploader_name = ubu_email(export=False)[0]
     if options.uploader_email is None:
         options.uploader_email = ubu_email(export=False)[1]
-
-    if options.lp:
-        if args[0].endswith('.dsc'):
-            parser.error('.dsc files can only be synced using --no-lp.')
 
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
@@ -586,7 +594,7 @@ def main():
         ubuntu = Launchpad.distributions["ubuntu"]
         options.release = ubuntu.current_series.name
 
-    src_pkg = fetch_source_pkg(args[0], options.dist, options.debversion,
+    src_pkg = fetch_source_pkg(package, options.dist, options.debversion,
                                options.component, options.release.split("-")[0],
                                options.debian_mirror)
 
