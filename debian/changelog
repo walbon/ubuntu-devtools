@@ -3,6 +3,8 @@ ubuntu-dev-tools (0.133) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * mk-sbuild: Only grant access to the admin group when it exists
     (Closes: #642824)
+  * Add Depends and Build-Depends for python-distro-info, which has split out
+    of distro-info.
 
   [ Benjamin Drung ]
   * syncpackage: Allow syncing to -proposed with --no-lp.
