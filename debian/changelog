@@ -5,6 +5,8 @@ ubuntu-dev-tools (0.133) UNRELEASED; urgency=low
     (Closes: #642824)
   * Add Depends and Build-Depends for python-distro-info, which has split out
     of distro-info.
+  * syncpackge: Gracefully deal with no available changelog from Debian (PTS
+    changelogs aren't available immediately)
 
   [ Benjamin Drung ]
   * syncpackage: Allow syncing to -proposed with --no-lp.

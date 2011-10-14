@@ -365,8 +365,9 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
                       src_pkg.source, ubuntu_series, ubuntu_pocket,
                       src_pkg.version)
 
-    changes = get_debian_changelog(debian_spph, base_version).strip()
+    changes = get_debian_changelog(debian_spph, base_version)
     if changes:
+        changes = changes.strip()
         Logger.normal("New changes:\n%s", changes)
 
     if simulate:
@@ -446,8 +447,9 @@ def close_bugs(bugs, package, version, changes):
     """Close the correct task on all bugs, with changes"""
     ubuntu = Launchpad.distributions['ubuntu']
     message = ("This bug was fixed in the package %s - %s"
-               "\n\n---------------\n%s" % (
-               package, version, changes))
+               % (package, version))
+    if changes:
+        message += "\n\n---------------\n" + changes
     for bug in bugs:
         bug = Launchpad.bugs[bug]
         if bug.duplicate_of is not None:
