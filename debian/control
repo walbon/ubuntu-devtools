@@ -74,9 +74,7 @@ Description: useful tools for Ubuntu developers
   - check-symbols - will compare and give you a diff of the exported symbols of
     all .so files in a binary package.
   - dch-repeat - used to repeat a change log into an older release.
-  - debian-distro-info - provides information about Debian's distributions.
   - dgetlp - download a source package from the Launchpad library.
-  - distro-info - provides information about the distributions' releases.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - grep-merges - search for pending merges from Debian.
   - harvest - grabs information about development opportunities from
@@ -107,6 +105,5 @@ Description: useful tools for Ubuntu developers
   - syncpackage - helper to prepare .changes file to upload synced packages
   - ubuntu-build - give commands to the Launchpad build daemons from the
     command line.
-  - ubuntu-distro-info - provides information about Ubuntu's distributions.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - update-maintainer - script to update maintainer field in ubuntu packages.
