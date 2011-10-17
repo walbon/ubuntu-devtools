@@ -31,6 +31,7 @@ import urllib
 
 import debian.debian_support
 from devscripts.logger import Logger
+from distro_info import UbuntuDistroInfo
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
@@ -271,7 +272,8 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release, mirror):
         return DebianSourcePackage(dscfile=package, mirrors=mirrors)
 
     if dist is None:
-        dist = "unstable"
+        ubu_info = UbuntuDistroInfo()
+        dist = 'testing' if ubu_info.is_lts(ubu_info.devel()) else 'unstable'
     requested_version = version
     if type(version) == str:
         version = Version(version)

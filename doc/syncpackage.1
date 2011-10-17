@@ -30,10 +30,11 @@ archive.
 Show help message and exit
 .TP
 \fB\-d\fI DIST\fR, \fB\-\-distribution\fR=\fIDIST\fR
-Debian distribution to sync from.
+Debian distribution to sync from. Default is \fItesting\fR during LTS
+cycles, and \fIunstable\fR otherwise.
 .TP
 \fB\-r\fI RELEASE\fR, \fB\-\-release\fR=\fIRELEASE\fR
-Specify target Ubuntu release.
+Specify target Ubuntu release. Default: current development release.
 .TP
 \fB\-V\fI DEBVERSION\fR, \fB\-\-debian\-version\fR=\fIDEBVERSION\fR
 Specify the version to sync from.
