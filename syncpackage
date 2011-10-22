@@ -651,4 +651,7 @@ def main():
                  options.keyid, options.simulate, options.force)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        Logger.normal('User abort.')
