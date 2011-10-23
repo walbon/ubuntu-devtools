@@ -82,7 +82,6 @@ Files: doc/bitesize.1
        doc/grab-merge.1
        doc/harvest.1
        doc/hugdaylist.1
-       doc/massfile.1
        doc/merge-changelog.1
        doc/setup-packaging-environment.1
        doc/syncpackage.1
@@ -90,7 +89,6 @@ Files: doc/bitesize.1
        grab-merge
        harvest
        hugdaylist
-       massfile
        merge-changelog
        setup-packaging-environment
        syncpackage

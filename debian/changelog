@@ -3,6 +3,7 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * mk-sbuild: Correct typo in variable name. Thanks Laurent Declercq.
     (Closes: #645917)
+  * Remove massfile. Neglected and unused (LP: #145598)
 
   [ Benjamin Drung ]
   * syncpackage: Catch user abort.

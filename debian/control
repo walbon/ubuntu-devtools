@@ -81,7 +81,6 @@ Description: useful tools for Ubuntu developers
     http://harvest.ubuntu.com
   - hugdaylist - compile HugDay lists from bug list URLs.
   - import-bug-from-debian - copy a bug from the Debian BTS to Launchpad
-  - massfile - fill multiple bugs using a template.
   - merge-changelog - manually merges two Debian changelogs with the same base
     version.
   - mk-sbuild - script to create LVM snapshot chroots via schroot and
