@@ -65,7 +65,7 @@ def get_changelog(srcpkg, distro):
     try:
         return Changelog(urllib2.urlopen(url))
     except urllib2.HTTPError, error:
-        print >> sys.stderr, ('Unable to connect to %s: %s' % (base, error))
+        print >> sys.stderr, ('%s: %s' % (url, error))
         return None
 
 # TODO: Move this into requestsync.mail, and implement an LP version
