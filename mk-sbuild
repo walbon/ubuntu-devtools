@@ -650,7 +650,7 @@ if [ -n "$proxy" ]; then
    mkdir -p /etc/apt/apt.conf.d/
    cat > /etc/apt/apt.conf.d/99mk-sbuild-proxy <<EOF
 ## proxy settings copied from mk-sbuild
-Acquire { Retries "0"; HTTP { Proxy "$proxy"; }; };
+Acquire { HTTP { Proxy "$proxy"; }; };
 EOF
 fi
 # Reload package lists
