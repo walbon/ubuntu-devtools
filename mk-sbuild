@@ -669,6 +669,7 @@ if [ ! -r /dev/stdin ];  then ln -s /proc/self/fd/0 /dev/stdin;  fi
 if [ ! -r /dev/stdout ]; then ln -s /proc/self/fd/1 /dev/stdout; fi
 if [ ! -r /dev/stderr ]; then ln -s /proc/self/fd/2 /dev/stderr; fi
 # Clean up
+rm /finish.sh
 apt-get clean
 EOM
 sudo chmod a+x "$MNT"/finish.sh
