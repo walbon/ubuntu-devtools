@@ -44,13 +44,18 @@ from ubuntutools.requestsync.common import (edit_report, get_debian_changelog,
 #
 
 def main():
+    ubu_info = UbuntuDistroInfo()
+    DEFAULT_SOURCE = 'unstable'
+    if ubu_info.is_lts(ubu_info.devel()):
+        DEFAULT_SOURCE = 'testing'
+
     # Our usage options.
     usage = ('Usage: %prog [options] '
              '<source package> [<target release> [base version]]')
     parser = OptionParser(usage)
 
     parser.add_option('-d', type='string',
-                      dest='dist', default='unstable',
+                      dest='dist', default=DEFAULT_SOURCE,
                       help='Debian distribution to sync from.')
     parser.add_option('-k', type='string',
                       dest='keyid', default=None,
@@ -174,7 +179,7 @@ def main():
         if lpapi:
             release = Distribution('ubuntu').getDevelopmentSeries().name
         else:
-            release = UbuntuDistroInfo().devel()
+            release = ubu_info.devel()
         print >> sys.stderr, 'W: Target release missing - assuming %s' % release
     elif len(args) == 2:
         release = args[1]

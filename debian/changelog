@@ -19,6 +19,7 @@ ubuntu-dev-tools (0.133) unstable; urgency=low
     of distro-info.
   * syncpackge: Gracefully deal with no available changelog from Debian (PTS
     changelogs aren't available immediately)
+  * syncpackage, requestsync: Sync from testing for LTSs (LP: #876400)
 
   [ Benjamin Drung ]
   * syncpackage: Allow syncing to -proposed with --no-lp.
