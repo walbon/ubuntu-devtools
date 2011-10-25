@@ -463,9 +463,9 @@ fi
     proxy=${DEBOOTSTRAP_PROXY}
 [ "$proxy" = "_unset_" -a "${http_proxy-xx}" = "xx" ] && proxy=${http_proxy}
 if [ "$proxy" = "_unset_" ]; then
-   _out=$(apt-config shell x Acquire::HTTP::Proxy) &&
-      _out=$(sh -c 'eval $1 && echo $x' -- "$_out") && [ -n "$_out" ] &&
-      proxy="$_out"
+    _out=$(apt-config shell x Acquire::HTTP::Proxy) &&
+        _out=$(sh -c 'eval $1 && echo $x' -- "$_out") && [ -n "$_out" ] &&
+        proxy="$_out"
 fi
 [ "$proxy" = "_unset_" ] && proxy=""
 
