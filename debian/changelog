@@ -4,6 +4,11 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
   * mk-sbuild: Correct typo in variable name. Thanks Laurent Declercq.
     (Closes: #645917)
   * Remove massfile. Neglected and unused (LP: #145598)
+  * syncpackage:
+    - Ignore CURRENT blacklisting: it's buggy, and we don't have a good use
+      for it.
+    - Always display blacklist comments, if they exist.
+    - Display timestamps for DSD blacklist comments.
 
   [ Benjamin Drung ]
   * syncpackage: Catch user abort.
