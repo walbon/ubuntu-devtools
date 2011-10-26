@@ -8,7 +8,10 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * syncpackage: Catch user abort.
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 22 Oct 2011 23:09:56 +0200
+  [ Scott Moser ]
+  * mk-sbuild: better support apt http proxy (LP: #881654)
+
+ -- Scott Moser <smoser@brickies.net>  Tue, 25 Oct 2011 16:10:00 -0400
 
 ubuntu-dev-tools (0.133) unstable; urgency=low
 
