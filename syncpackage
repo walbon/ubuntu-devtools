@@ -119,7 +119,7 @@ def add_fixed_bugs(changes, bugs):
     return "\n".join(changes + [""])
 
 def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
-             keyid=None, simulate=False, force=False):
+             keyid=None, simulate=False, force=False, fakesync=False):
     uploader = name + " <" + email + ">"
 
     src_pkg.pull_dsc()
@@ -162,11 +162,19 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         sys.exit(1)
     src_pkg.unpack()
 
-    fakesync = not (need_orig or ubu_pkg.verify_orig())
+    needs_fakesync = not (need_orig or ubu_pkg.verify_orig())
+
+    if needs_fakesync and fakesync:
+        Logger.warn('Performing a fakesync')
+    elif not needs_fakesync and fakesync:
+        Logger.error('Fakesync not required, aborting.')
+        sys.exit(1)
+    elif needs_fakesync and not fakesync:
+        Logger.error('The checksums of the Debian and Ubuntu packages '
+                     'mismatch. A fake sync using --fakesync is required.')
+        sys.exit(1)
 
     if fakesync:
-        Logger.warn('The checksums of the Debian and Ubuntu packages mismatch. '
-                    'A fake sync is required.')
         # Download Ubuntu files (override Debian source tarballs)
         try:
             ubu_pkg.pull()
@@ -359,7 +367,7 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
         ubuntu_pkg.pull_dsc()
         if not src_pkg.dsc.compare_dsc(ubuntu_pkg.dsc):
             Logger.error('The checksums of the Debian and Ubuntu packages '
-                         'mismatch. A fake sync using --no-lp is required.')
+                         'mismatch. A fake sync using --fakesync is required.')
             sys.exit(1)
     except udtexceptions.PackageNotFoundException:
         base_version = Version('~')
@@ -490,6 +498,10 @@ def parse():
     parser.add_option("-v", "--verbose",
                       dest="verbose", action="store_true", default=False,
                       help="Display more progress information.")
+    parser.add_option("-F", "--fakesync",
+                      dest="fakesync", action="store_true", default=False,
+                      help="Perform a fakesync (a sync where Debian and Ubuntu "
+                           "have a .orig.tar mismatch).")
     parser.add_option("--no-lp",
                       dest="lp", action="store_false", default=True,
                       help="Construct sync locally rather than letting "
@@ -519,8 +531,7 @@ def parse():
                            "upload.")
     parser.add_option("-f", "--force",
                       dest="force", action="store_true", default=False,
-                      help="Force sync over the top of Ubuntu changes "
-                           "or a fake-sync when blacklisted.")
+                      help="Force sync over the top of Ubuntu changes.")
     parser.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
@@ -540,6 +551,9 @@ def parse():
                            "it.")
 
     (options, args) = parser.parse_args()
+
+    if options.fakesync:
+        options.lp = False
 
     if len(args) == 0:
         parser.error('No .dsc URL/path or package name specified.')
@@ -611,15 +625,14 @@ def main():
                          "(blacklisted_current). Ubuntu ignores these for now. "
                          "See also LP: #841372", src_pkg.source)
         else:
-            if options.force and not options.lp:
-                messages += ["Forcing fake-sync, overriding blacklist."]
+            if options.fakesync:
+                messages += ["Doing a fakesync, overriding blacklist."]
             else:
                 blacklist_fail = True
-                messages += ["--force and --no-lp are required to override the "
-                             "blacklist, if this package needs a fakesync."]
-            messages += ["If you think this package shouldn't be blacklisted, "
-                         "please file a bug explaining your reasoning and "
-                         "subscribe ~ubuntu-archive."]
+                messages += ["If this package needs a fakesync, use --fakesync",
+                             "If you think this package shouldn't be "
+                             "blacklisted, please file a bug explaining your "
+                             "reasoning and subscribe ~ubuntu-archive."]
 
         if blacklist_fail:
             Logger.error(u"Source package %s is blacklisted.", src_pkg.source)
@@ -646,7 +659,8 @@ def main():
         os.environ['DEB_VENDOR'] = 'Ubuntu'
         sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
                  options.uploader_email, options.bugs, options.ubuntu_mirror,
-                 options.keyid, options.simulate, options.force)
+                 options.keyid, options.simulate, options.force,
+                 options.fakesync)
 
 if __name__ == "__main__":
     try:
