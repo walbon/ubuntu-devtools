@@ -4,6 +4,7 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
   * mk-sbuild: Correct typo in variable name. Thanks Laurent Declercq.
     (Closes: #645917)
   * Remove massfile. Neglected and unused (LP: #145598)
+  * syncpackage, requestsync: Sync from testing for LTSs (LP: #876400)
   * syncpackage:
     - Ignore CURRENT blacklisting: it's buggy, and we don't have a good use
       for it.
@@ -30,7 +31,6 @@ ubuntu-dev-tools (0.133) unstable; urgency=low
     of distro-info.
   * syncpackge: Gracefully deal with no available changelog from Debian (PTS
     changelogs aren't available immediately)
-  * syncpackage, requestsync: Sync from testing for LTSs (LP: #876400)
 
   [ Benjamin Drung ]
   * syncpackage: Allow syncing to -proposed with --no-lp.
