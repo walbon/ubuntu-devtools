@@ -10,6 +10,8 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
     - Always display blacklist comments, if they exist.
     - Display timestamps for DSD blacklist comments.
     - Add --fakesync option, relegating --no-lp to really crazy corner cases.
+  * sponsor-patch: Compare new sync version to the current Ubuntu version,
+    rather than itself (LP: #878499)
 
   [ Benjamin Drung ]
   * syncpackage: Catch user abort.
