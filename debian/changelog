@@ -13,6 +13,7 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
     - Add --fakesync option, relegating --no-lp to really crazy corner cases.
   * sponsor-patch: Compare new sync version to the current Ubuntu version,
     rather than itself (LP: #878499)
+  * sponsor-patch.1: Mention syncs (LP: #882085)
 
   [ Benjamin Drung ]
   * syncpackage: Catch user abort.
