@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.134) unstable; urgency=low
 
   [ Stefano Rivera ]
   * mk-sbuild: Correct typo in variable name. Thanks Laurent Declercq.
@@ -21,7 +21,7 @@ ubuntu-dev-tools (0.134) UNRELEASED; urgency=low
   [ Scott Moser ]
   * mk-sbuild: better support apt http proxy (LP: #881654)
 
- -- Scott Moser <smoser@brickies.net>  Tue, 25 Oct 2011 16:10:00 -0400
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 28 Oct 2011 10:16:15 +0200
 
 ubuntu-dev-tools (0.133) unstable; urgency=low
 
