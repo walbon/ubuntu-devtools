@@ -53,8 +53,11 @@ def determine_destinations(source, destination):
         if release == source:
             break
         if found:
-            if support_gap and not ubuntu_info.is_lts(release):
-                continue
+            if support_gap:
+                if ubuntu_info.is_lts(release):
+                    support_gap = False
+                else:
+                    continue
             if release not in ubuntu_info.supported():
                 support_gap = True
                 continue
