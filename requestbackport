@@ -1,0 +1,150 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2011, Stefano Rivera <stefanor@debian.org>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import optparse
+import sys
+
+from distro_info import UbuntuDistroInfo
+
+from ubuntutools.lp.lpapicache import Launchpad, Archive, Distribution
+from ubuntutools.lp.udtexceptions import PackageNotFoundException
+from ubuntutools.config import UDTConfig
+from ubuntutools.requestsync.common import edit_report
+from ubuntutools.question import YesNoQuestion
+
+class DestinationException(Exception):
+    pass
+
+def determine_destinations(source, destination):
+    ubuntu_info = UbuntuDistroInfo()
+    if destination is None:
+        destination = ubuntu_info.stable()
+
+    if source not in ubuntu_info.all:
+        raise DestinationException("Source release %s does not exist" % source)
+    if destination not in ubuntu_info.all:
+        raise DestinationException("Destination release %s does not exist"
+                                   % destination)
+    if destination not in ubuntu_info.supported():
+        raise DestinationException("Destination release %s is not supported"
+                                   % destination)
+
+    found = False
+    destinations = []
+    support_gap = False
+    for release in ubuntu_info.all:
+        if release == destination:
+            found = True
+        if release == source:
+            break
+        if found:
+            if support_gap and not ubuntu_info.is_lts(release):
+                continue
+            if release not in ubuntu_info.supported():
+                support_gap = True
+                continue
+            destinations.append(release)
+
+    assert found
+    assert len(destinations) > 0
+
+    return destinations
+
+
+def main():
+    parser = optparse.OptionParser('%progname [options] package')
+    parser.add_option('-d', '--destination', metavar='DEST',
+                      help='Backport to DEST release and necessary '
+                           'intermediate releases '
+                           '(default: current stable release)')
+    parser.add_option('-s', '--source', metavar='SOURCE',
+                      help='Backport from SOURCE release '
+                           '(default: current devel release)')
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production).')
+    parser.add_option('--no-conf', action='store_true',
+                      dest='no_conf', default=False,
+                      help="Don't read config files or environment variables")
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("One (and only one) package must be specified")
+    package = args[0]
+
+    config = UDTConfig(options.no_conf)
+
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value('LPINSTANCE')
+    Launchpad.login(options.lpinstance)
+
+    if options.source is None:
+        options.source = Distribution('ubuntu').getDevelopmentSeries().name
+
+    try:
+        destinations = determine_destinations(options.source,
+                                              options.destination)
+    except DestinationException, e:
+        print str(e)
+        sys.exit(1)
+
+    request_backport(package, options.source, destinations)
+
+
+def request_backport(package, source, destinations):
+    archive = Distribution('ubuntu').getArchive()
+    try:
+        package_spph = archive.getSourcePackage(package, source)
+    except PackageNotFoundException, e:
+        print str(e)
+        sys.exit(1)
+
+    subst = {
+        'package': package_spph.getPackageName(),
+        'version': package_spph.getVersion(),
+        'component': package_spph.getComponent(),
+        'source': source,
+        'destinations': ', '.join(destinations),
+    }
+    subject = ("Please backport %(package)s %(version)s (%(component)s) "
+               "from %(source)s" % subst)
+    body = ("Please backport %(package)s %(version)s (%(component)s) "
+            "from %(source)s to %(destinations)s.\n\n"
+            "Reason for the backport:\n"
+            "<<< Enter your reasoning here >>>\n\n"
+            "Testing performed:\n"
+            "<<< Mention any build & install tests you've done >>>\n"
+            "<<< List the reverse dependencies that you've tested >>>\n"
+            % subst)
+
+    subject, body = edit_report(subject, body, changes_required=True)
+
+    print ('The final report is:\nSummary: %s\nDescription:\n%s\n'
+           % (subject, body))
+    if YesNoQuestion().ask("Request this backport", "yes") == "no":
+        sys.exit(1)
+
+    targets = [Launchpad.projects['%s-backports' % destination]
+               for destination in destinations]
+    bug = Launchpad.bugs.createBug(title=subject, description=body,
+                                   target=targets[0])
+    for target in targets[1:]:
+        bug.addTask(target=target)
+
+    print "Backport request filed as %s" % bug.web_link
+
+if __name__ == '__main__':
+    main()
