@@ -19,14 +19,16 @@ import sys
 
 from distro_info import UbuntuDistroInfo
 
-from ubuntutools.lp.lpapicache import Launchpad, Archive, Distribution
+from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 from ubuntutools.config import UDTConfig
 from ubuntutools.requestsync.common import edit_report
 from ubuntutools.question import YesNoQuestion
 
+
 class DestinationException(Exception):
     pass
+
 
 def determine_destinations(source, destination):
     ubuntu_info = UbuntuDistroInfo()
