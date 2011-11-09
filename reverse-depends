@@ -1,0 +1,65 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2011, Stefano Rivera <stefanor@debian.org>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import optparse
+
+from distro_info import UbuntuDistroInfo
+
+from ubuntutools.rdepends import rdepends
+
+def main():
+    parser = optparse.OptionParser('%progname [options] package')
+    parser.add_option('-r', '--release', metavar='RELEASE',
+                      default=UbuntuDistroInfo().devel(),
+                      help='Query dependencies in RELEASE. Default: devel')
+    parser.add_option('-R', '--without-recommends',
+                      action='store_false', dest='recommends', default=True,
+                      help='Only examine Depends relationships, '
+                           'not Recommends.')
+    parser.add_option('-s', '--with-suggests',
+                      action='store_true', dest='suggests', default=False,
+                      help='Also consider Suggests relationships.')
+    parser.add_option('-b', '--build-depends',
+                      action='store_const', dest='arch', const='source',
+                      help='Query build dependencies (synonym for '
+                            '--arch=source')
+    parser.add_option('-a', '--arch', metavar='ARCH', default='i386',
+                      help='Query dependencies in ARCH'
+                           '(default: i386)')
+    parser.add_option('-u', '--service-url', metavar='URL',
+                      dest='server', default=None,
+                      help='Reverse Depedencies webservice URL'
+                           '(default: UbuntuWire)')
+
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("One (and only one) package must be specified")
+    package = args[0]
+
+    opts = {
+        'recommends': options.recommends,
+        'suggests': options.suggests,
+    }
+    if options.server is not None:
+        opts['server'] = options.server
+
+    result = rdepends(package, options.release, options.arch, **opts)
+    result.sort()
+    print u'\n'.join(result)
+
+if __name__ == '__main__':
+    main()
