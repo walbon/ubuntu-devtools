@@ -17,29 +17,15 @@ import os
 import urllib2
 
 
-def rdepends(package, release, arch, recommends=True, suggests=False,
+def rdepends(package, release, arch,
              server='http://qa.ubuntuwire.org/rdepends'):
     """Look up a packages reverse-dependencies on the Ubuntuwire
     Reverse- webservice
     """
     url = os.path.join(server, 'v1', release, arch, package)
     try:
-        data = json.load(urllib2.urlopen(url))
+        return json.load(urllib2.urlopen(url))
     except urllib2.HTTPError, e:
         if e.code == 404:
-            return []
+            return {}
         raise
-
-    if arch == 'source':
-        fields = ('Build-Depends', 'Build-Depends-Indep')
-    else:
-        fields = ['Depends']
-        if recommends:
-            fields.append('Recommends')
-        if suggests:
-            fields.append('Suggests')
-
-    result = set()
-    for field in fields:
-        result.update(data.get(field, []))
-    return list(result)

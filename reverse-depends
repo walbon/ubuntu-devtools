@@ -20,6 +20,7 @@ from distro_info import UbuntuDistroInfo
 
 from ubuntutools.rdepends import rdepends
 
+
 def main():
     parser = optparse.OptionParser('%progname [options] package')
     parser.add_option('-r', '--release', metavar='RELEASE',
@@ -50,16 +51,26 @@ def main():
         parser.error("One (and only one) package must be specified")
     package = args[0]
 
-    opts = {
-        'recommends': options.recommends,
-        'suggests': options.suggests,
-    }
+    opts = {}
     if options.server is not None:
         opts['server'] = options.server
 
-    result = rdepends(package, options.release, options.arch, **opts)
-    result.sort()
-    print u'\n'.join(result)
+    data = rdepends(package, options.release, options.arch, **opts)
+
+    if options.arch == 'source':
+        fields = ('Build-Depends', 'Build-Depends-Indep')
+    else:
+        fields = ['Depends']
+    if options.recommends:
+        fields.append('Recommends')
+    if options.suggests:
+        fields.append('Suggests')
+
+    result = set()
+    for field in fields:
+        result.update(data.get(field, []))
+
+    print u'\n'.join(sorted(list(result)))
 
 if __name__ == '__main__':
     main()
