@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import collections
+from collections import defaultdict
 import optparse
 import sys
 
@@ -116,8 +116,12 @@ def find_rdepends(package, releases):
     for bpph in package._lpobject.getPublishedBinaries():
         published_binaries.add(bpph.binary_package_name)
 
-    intermediate = dict((binpkg, collections.defaultdict(list))
-                        for binpkg in published_binaries)
+    intermediate = defaultdict(lambda: defaultdict(list))
+
+    # We want to display every pubilshed binary, even if it has no rdepends
+    for binpkg in published_binaries:
+        intermediate[binpkg]
+
     for arch in ('any', 'source'):
         for release in releases:
             try:
