@@ -24,7 +24,11 @@ from ubuntutools.rdepends import query_rdepends, RDependsException
 
 
 def main():
-    parser = optparse.OptionParser('%progname [options] package')
+    parser = optparse.OptionParser('%progname [options] package',
+        description="List reverse-dependancies of package. "
+                    "If the package name is prefixed with src: then the "
+                    "reverse-depndencies of all the binary packages that "
+                    "the specified source package builds will be listed.")
     parser.add_option('-r', '--release', metavar='RELEASE',
                       default=UbuntuDistroInfo().devel(),
                       help='Query dependencies in RELEASE. Default: devel')
