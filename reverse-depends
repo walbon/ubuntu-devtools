@@ -18,7 +18,7 @@ import optparse
 
 from distro_info import UbuntuDistroInfo
 
-from ubuntutools.rdepends import rdepends
+from ubuntutools.rdepends import query_rdepends
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
                       help='Query dependencies in RELEASE. Default: devel')
     parser.add_option('-R', '--without-recommends',
                       action='store_false', dest='recommends', default=True,
-                      help='Only examine Depends relationships, '
+                      help='Only consider Depends relationships, '
                            'not Recommends.')
     parser.add_option('-s', '--with-suggests',
                       action='store_true', dest='suggests', default=False,
@@ -37,9 +37,16 @@ def main():
                       action='store_const', dest='arch', const='source',
                       help='Query build dependencies (synonym for '
                             '--arch=source')
-    parser.add_option('-a', '--arch', metavar='ARCH', default='i386',
-                      help='Query dependencies in ARCH'
-                           '(default: i386)')
+    parser.add_option('-a', '--arch', metavar='ARCH', default='any',
+                      help='Query dependencies in ARCH '
+                           '(default: any)')
+    parser.add_option('-c', '--component', metavar='COMPONENT',
+                      action='append',
+                      help='Only consider reverse-dependencies in COMPONENT. '
+                           'Can be specified multiple times. (default: all)')
+    parser.add_option('-l', '--list',
+                      action='store_true', default=False,
+                      help='Display a simple, machine-readable list')
     parser.add_option('-u', '--service-url', metavar='URL',
                       dest='server', default=None,
                       help='Reverse Depedencies webservice URL'
@@ -55,22 +62,73 @@ def main():
     if options.server is not None:
         opts['server'] = options.server
 
-    data = rdepends(package, options.release, options.arch, **opts)
+    data = query_rdepends(package, options.release, options.arch, **opts)
 
     if options.arch == 'source':
-        fields = ('Build-Depends', 'Build-Depends-Indep')
+        fields = ('Reverse-Build-Depends', 'Reverse-Build-Depends-Indep')
     else:
-        fields = ['Depends']
+        fields = ['Reverse-Depends']
     if options.recommends:
-        fields.append('Recommends')
+        fields.append('Reverse-Recommends')
     if options.suggests:
-        fields.append('Suggests')
+        fields.append('Reverse-Suggests')
 
+    for field in data.keys():
+        if field not in fields:
+            del data[field]
+
+    if options.component:
+        for field, rdeps in data.items():
+            filtered = [rdep for rdep in rdeps
+                        if rdep['Component'] in options.component]
+            if not filtered:
+                del data[field]
+            else:
+                data[field] = filtered
+
+    if options.list:
+        display_consise(data)
+    else:
+        display_verbose(data)
+
+
+def display_verbose(data):
+    if not data:
+        print "No reverse dependencies found"
+        return
+
+    all_archs = set()
+    # This isn't accurate, but we make up for it by displaying what we found
+    for rdeps in data.itervalues():
+        for rdep in rdeps:
+            if 'Architectures' in rdep:
+                all_archs.update(rdep['Architectures'])
+
+    for field, rdeps in data.iteritems():
+        print field
+        print '=' * len(field)
+        for rdep in rdeps:
+            if all_archs and set(rdep['Architectures']) != all_archs:
+                print '* %s [%s]' % (rdep['Package'],
+                                     ', '.join(sorted(rdep['Architectures'])))
+            else:
+                print '* %s' % rdep['Package']
+        print
+
+    if all_archs:
+        print ("Packages without architectures listed are "
+               "reverse-dependencies in: %s"
+               % ', '.join(sorted(list(all_archs))))
+
+
+def display_consise(data):
     result = set()
-    for field in fields:
-        result.update(data.get(field, []))
+    for rdeps in data.itervalues():
+        for rdep in rdeps:
+            result.add(rdep['Package'])
 
     print u'\n'.join(sorted(list(result)))
+
 
 if __name__ == '__main__':
     main()

@@ -17,8 +17,8 @@ import os
 import urllib2
 
 
-def rdepends(package, release, arch,
-             server='http://qa.ubuntuwire.org/rdepends'):
+def query_rdepends(package, release, arch,
+                   server='http://qa.ubuntuwire.org/rdepends'):
     """Look up a packages reverse-dependencies on the Ubuntuwire
     Reverse- webservice
     """
