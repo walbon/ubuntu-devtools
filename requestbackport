@@ -124,18 +124,18 @@ def find_rdepends(package, releases):
 
     for arch in ('any', 'source'):
         for release in releases:
-            try:
-                raw_rdeps = query_rdepends('src:' + package.getPackageName(),
-                                           release, arch)
-            except RDependsException:
-                # Not published? TODO: Check
-                continue
-            for relationship, rdeps in raw_rdeps.iteritems():
-                for rdep in rdeps:
-                    if rdep['Package'] in published_binaries:
-                        continue
-                    intermediate[rdep['Dependency']][rdep['Package']] \
-                            .append((release, relationship))
+            for binpkg in published_binaries:
+                try:
+                    raw_rdeps = query_rdepends(binpkg, release, arch)
+                except RDependsException:
+                    # Not published? TODO: Check
+                    continue
+                for relationship, rdeps in raw_rdeps.iteritems():
+                    for rdep in rdeps:
+                        if rdep['Package'] in published_binaries:
+                            continue
+                        intermediate[binpkg][rdep['Package']] \
+                                .append((release, relationship))
 
     output = []
     for binpkg, rdeps in intermediate.iteritems():
