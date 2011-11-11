@@ -15,7 +15,10 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import optparse
+import urllib2
+import sys
 
+from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo
 
 from ubuntutools.rdepends import query_rdepends
@@ -62,7 +65,13 @@ def main():
     if options.server is not None:
         opts['server'] = options.server
 
-    data = query_rdepends(package, options.release, options.arch, **opts)
+    try:
+        data = query_rdepends(package, options.release, options.arch, **opts)
+    except urllib2.HTTPError, e:
+        if e.code == 404:
+            # TODO: Get a real error message through the HTTP response's status
+            Logger.error("Unable to determine rdepends")
+            sys.exit(1)
 
     if options.arch == 'source':
         fields = ['Reverse-Build-Depends', 'Reverse-Build-Depends-Indep']
