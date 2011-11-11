@@ -22,5 +22,7 @@ def query_rdepends(package, release, arch,
     """Look up a packages reverse-dependencies on the Ubuntuwire
     Reverse- webservice
     """
+    if arch == 'source' and not package.startswith('src:'):
+        package = 'src:' + package
     url = os.path.join(server, 'v1', release, arch, package)
     return json.load(urllib2.urlopen(url))
