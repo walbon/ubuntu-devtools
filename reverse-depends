@@ -119,11 +119,14 @@ def display_verbose(data):
         print '=' * len(field)
         rdeps.sort(key=lambda x: x['Package'])
         for rdep in rdeps:
+            line = '* %s' % rdep['Package']
             if all_archs and set(rdep['Architectures']) != all_archs:
-                print '* %s [%s]' % (rdep['Package'],
-                                     ', '.join(sorted(rdep['Architectures'])))
-            else:
-                print '* %s' % rdep['Package']
+                line += ' [%s]' % ' '.join(sorted(rdep['Architectures']))
+            if 'Dependency' in rdep:
+                if len(line) < 30:
+                    line += ' ' * (30 - len(line))
+                line += '  (for %s)' % rdep['Dependency']
+            print line
         print
 
     if all_archs:
