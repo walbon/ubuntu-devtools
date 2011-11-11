@@ -65,13 +65,13 @@ def main():
     data = query_rdepends(package, options.release, options.arch, **opts)
 
     if options.arch == 'source':
-        fields = ('Reverse-Build-Depends', 'Reverse-Build-Depends-Indep')
+        fields = ['Reverse-Build-Depends', 'Reverse-Build-Depends-Indep']
     else:
         fields = ['Reverse-Depends']
-    if options.recommends:
-        fields.append('Reverse-Recommends')
-    if options.suggests:
-        fields.append('Reverse-Suggests')
+        if options.recommends:
+            fields.append('Reverse-Recommends')
+        if options.suggests:
+            fields.append('Reverse-Suggests')
 
     for field in data.keys():
         if field not in fields:
