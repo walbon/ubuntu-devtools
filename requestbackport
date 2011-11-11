@@ -23,7 +23,7 @@ from distro_info import UbuntuDistroInfo
 from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 from ubuntutools.config import UDTConfig
-from ubuntutools.rdepends import query_rdepends
+from ubuntutools.rdepends import query_rdepends, RDependsException
 from ubuntutools.requestsync.common import edit_report
 from ubuntutools.question import YesNoQuestion
 
@@ -111,28 +111,35 @@ def main():
     request_backport(package, options.source, destinations)
 
 
-def find_rdepends(package, release, releases):
+def find_rdepends(package, releases):
     published_binaries = set()
     for bpph in package._lpobject.getPublishedBinaries():
         published_binaries.add(bpph.binary_package_name)
 
-    intermediate = collections.defaultdict(list)
+    intermediate = dict((binpkg, collections.defaultdict(list))
+                        for binpkg in published_binaries)
     for arch in ('any', 'source'):
-        raw_rdeps = query_rdepends('src:' + package.getPackageName(),
-                                   release, 'any')
-        for relationship, rdeps in raw_rdeps.iteritems():
-            for rdep in rdeps:
-                if rdep['Package'] in published_binaries:
-                    continue
-                intermediate[rdep['Dependency']].append((rdep['Package'],
-                                                         relationship))
+        for release in releases:
+            try:
+                raw_rdeps = query_rdepends('src:' + package.getPackageName(),
+                                           release, arch)
+            except RDependsException:
+                # Not published? TODO: Check
+                continue
+            for relationship, rdeps in raw_rdeps.iteritems():
+                for rdep in rdeps:
+                    if rdep['Package'] in published_binaries:
+                        continue
+                    intermediate[rdep['Dependency']][rdep['Package']] \
+                            .append((release, relationship))
 
     output = []
     for binpkg, rdeps in intermediate.iteritems():
         output += ['', binpkg, '=' * len(binpkg)]
-        for pkg, relationship in rdeps:
-            output += ['* %s (%s)' % (pkg, relationship)]
-            output += ['  [ ] %s' % release for release in releases]
+        for pkg, appearences in rdeps.iteritems():
+            output += ['* %s' % pkg]
+            for release, relationship in appearences:
+                output += ['  [ ] %s (%s)' % (release, relationship)]
 
     return '\n'.join(output)
 
@@ -149,7 +156,7 @@ def request_backport(package, source, destinations):
         'package': package_spph.getPackageName(),
         'version': package_spph.getVersion(),
         'component': package_spph.getComponent(),
-        'rdepends': find_rdepends(package_spph, source, destinations),
+        'rdepends': find_rdepends(package_spph, destinations),
         'source': source,
         'destinations': ', '.join(destinations),
     }
