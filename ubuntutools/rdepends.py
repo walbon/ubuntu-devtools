@@ -23,9 +23,4 @@ def query_rdepends(package, release, arch,
     Reverse- webservice
     """
     url = os.path.join(server, 'v1', release, arch, package)
-    try:
-        return json.load(urllib2.urlopen(url))
-    except urllib2.HTTPError, e:
-        if e.code == 404:
-            return {}
-        raise
+    return json.load(urllib2.urlopen(url))
