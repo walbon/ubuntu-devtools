@@ -116,6 +116,7 @@ def display_verbose(data):
     for field, rdeps in data.iteritems():
         print field
         print '=' * len(field)
+        rdeps.sort(key=lambda x: x['Package'])
         for rdep in rdeps:
             if all_archs and set(rdep['Architectures']) != all_archs:
                 print '* %s [%s]' % (rdep['Package'],
