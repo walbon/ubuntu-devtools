@@ -17,6 +17,10 @@ import os
 import urllib2
 
 
+class RDependsException(Exception):
+    pass
+
+
 def query_rdepends(package, release, arch,
                    server='http://qa.ubuntuwire.org/rdepends'):
     """Look up a packages reverse-dependencies on the Ubuntuwire
@@ -24,5 +28,10 @@ def query_rdepends(package, release, arch,
     """
     if arch == 'source' and not package.startswith('src:'):
         package = 'src:' + package
+
     url = os.path.join(server, 'v1', release, arch, package)
-    return json.load(urllib2.urlopen(url))
+
+    try:
+        return json.load(urllib2.urlopen(url))
+    except urllib2.HTTPError, e:
+        raise RDependsException(e.read().strip())
