@@ -14,6 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import collections
 import optparse
 import sys
 
@@ -22,6 +23,7 @@ from distro_info import UbuntuDistroInfo
 from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 from ubuntutools.config import UDTConfig
+from ubuntutools.rdepends import query_rdepends
 from ubuntutools.requestsync.common import edit_report
 from ubuntutools.question import YesNoQuestion
 
@@ -109,6 +111,32 @@ def main():
     request_backport(package, options.source, destinations)
 
 
+def find_rdepends(package, release, releases):
+    published_binaries = set()
+    for bpph in package._lpobject.getPublishedBinaries():
+        published_binaries.add(bpph.binary_package_name)
+
+    intermediate = collections.defaultdict(list)
+    for arch in ('any', 'source'):
+        raw_rdeps = query_rdepends('src:' + package.getPackageName(),
+                                   release, 'any')
+        for relationship, rdeps in raw_rdeps.iteritems():
+            for rdep in rdeps:
+                if rdep['Package'] in published_binaries:
+                    continue
+                intermediate[rdep['Dependency']].append((rdep['Package'],
+                                                         relationship))
+
+    output = []
+    for binpkg, rdeps in intermediate.iteritems():
+        output += ['', binpkg, '=' * len(binpkg)]
+        for pkg, relationship in rdeps:
+            output += ['* %s (%s)' % (pkg, relationship)]
+            output += ['  [ ] %s' % release for release in releases]
+
+    return '\n'.join(output)
+
+
 def request_backport(package, source, destinations):
     archive = Distribution('ubuntu').getArchive()
     try:
@@ -121,6 +149,7 @@ def request_backport(package, source, destinations):
         'package': package_spph.getPackageName(),
         'version': package_spph.getVersion(),
         'component': package_spph.getComponent(),
+        'rdepends': find_rdepends(package_spph, source, destinations),
         'source': source,
         'destinations': ', '.join(destinations),
     }
@@ -131,8 +160,19 @@ def request_backport(package, source, destinations):
             "Reason for the backport:\n"
             "<<< Enter your reasoning here >>>\n\n"
             "Testing performed:\n"
-            "<<< Mention any build & install tests you've done >>>\n"
-            "<<< List the reverse dependencies that you've tested >>>\n"
+            "<<< Mention any build & install tests you've done >>>\n\n"
+            "Reverse dependencies:\n"
+            "The following reverse-dependencies need to be tested against the "
+            "new version of %(package)s. "
+            "For reverse-build-dependencies, please test that the package "
+            "still builds against the new %(package)s. "
+            "For reverse-dependencies, please test that the version of the "
+            "package currently in the release still works with the new "
+            "libgdata installed. "
+            "Mark off items in the checklist [X] as you test them, "
+            "but please leave the checklist so that backporters can quickly "
+            "evaluate the state of testing.\n"
+            "%(rdepends)s\n"
             % subst)
 
     subject, body = edit_report(subject, body, changes_required=True)
