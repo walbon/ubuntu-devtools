@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
+
+  * grab-merge: Use wget -nv rather than -q, so that we see error messages
+    (LP: #881967)
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 23:04:35 +0200
+
 ubuntu-dev-tools (0.134) unstable; urgency=low
 
   [ Stefano Rivera ]

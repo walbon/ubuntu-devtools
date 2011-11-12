@@ -59,10 +59,10 @@ fi
 if [ "$RSYNC" = "y" ]; then
     URL="merges.ubuntu.com:/srv/patches.ubuntu.com/merges/$HASH/$MERGE/"
     rsync --verbose --archive --progress --compress --delete \
-	"$URL" . || { echo "Error while rsyncing $URL"; exit 1; }
+        "$URL" . || { echo "Error while rsyncing $URL"; exit 1; }
 else
     rm -rf  --one-file-system *
-    wget -q https://merges.ubuntu.com/$HASH/$MERGE/REPORT || {
+    wget -nv https://merges.ubuntu.com/$HASH/$MERGE/REPORT || {
             echo "Package not found on merges.ubuntu.com."
             [ "$CREATED_DIR" != "1" ] || { cd ..; rmdir $MERGE; }
             exit 1
