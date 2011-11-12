@@ -18,6 +18,7 @@ from collections import defaultdict
 import optparse
 import sys
 
+import apt
 from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo
 
@@ -72,46 +73,6 @@ def determine_destinations(source, destination):
     return destinations
 
 
-def main():
-    parser = optparse.OptionParser('%progname [options] package')
-    parser.add_option('-d', '--destination', metavar='DEST',
-                      help='Backport to DEST release and necessary '
-                           'intermediate releases '
-                           '(default: current stable release)')
-    parser.add_option('-s', '--source', metavar='SOURCE',
-                      help='Backport from SOURCE release '
-                           '(default: current devel release)')
-    parser.add_option('-l', '--lpinstance', metavar='INSTANCE', default=None,
-                      help='Launchpad instance to connect to '
-                           '(default: production).')
-    parser.add_option('--no-conf', action='store_true',
-                      dest='no_conf', default=False,
-                      help="Don't read config files or environment variables")
-    options, args = parser.parse_args()
-
-    if len(args) != 1:
-        parser.error("One (and only one) package must be specified")
-    package = args[0]
-
-    config = UDTConfig(options.no_conf)
-
-    if options.lpinstance is None:
-        options.lpinstance = config.get_value('LPINSTANCE')
-    Launchpad.login(options.lpinstance)
-
-    if options.source is None:
-        options.source = Distribution('ubuntu').getDevelopmentSeries().name
-
-    try:
-        destinations = determine_destinations(options.source,
-                                              options.destination)
-    except DestinationException, e:
-        Logger.error(str(e))
-        sys.exit(1)
-
-    request_backport(package, options.source, destinations)
-
-
 def find_rdepends(package, releases):
     published_binaries = set()
     for bpph in package._lpobject.getPublishedBinaries():
@@ -149,14 +110,27 @@ def find_rdepends(package, releases):
     return '\n'.join(output)
 
 
-def request_backport(package, source, destinations):
+def locate_package(package, distribution):
     archive = Distribution('ubuntu').getArchive()
-    try:
-        package_spph = archive.getSourcePackage(package, source)
-    except PackageNotFoundException, e:
-        Logger.error(str(e))
-        sys.exit(1)
+    for pass_ in ('source', 'binary'):
+        try:
+            package_spph = archive.getSourcePackage(package, distribution)
+            return package_spph
+        except PackageNotFoundException, e:
+            if pass_ == 'binary':
+                Logger.error(str(e))
+                sys.exit(1)
 
+        try:
+            apt_pkg = apt.Cache()[package]
+        except KeyError:
+            continue
+        package = apt_pkg.candidate.source_name
+        Logger.normal("Binary package specified, considering its source "
+                      "package instead: %s", package)
+
+
+def request_backport(package_spph, source, destinations):
     subst = {
         'package': package_spph.getPackageName(),
         'version': package_spph.getVersion(),
@@ -202,6 +176,48 @@ def request_backport(package, source, destinations):
         bug.addTask(target=target)
 
     Logger.normal("Backport request filed as %s", bug.web_link)
+
+
+def main():
+    parser = optparse.OptionParser('%progname [options] package')
+    parser.add_option('-d', '--destination', metavar='DEST',
+                      help='Backport to DEST release and necessary '
+                           'intermediate releases '
+                           '(default: current stable release)')
+    parser.add_option('-s', '--source', metavar='SOURCE',
+                      help='Backport from SOURCE release '
+                           '(default: current devel release)')
+    parser.add_option('-l', '--lpinstance', metavar='INSTANCE', default=None,
+                      help='Launchpad instance to connect to '
+                           '(default: production).')
+    parser.add_option('--no-conf', action='store_true',
+                      dest='no_conf', default=False,
+                      help="Don't read config files or environment variables")
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("One (and only one) package must be specified")
+    package = args[0]
+
+    config = UDTConfig(options.no_conf)
+
+    if options.lpinstance is None:
+        options.lpinstance = config.get_value('LPINSTANCE')
+    Launchpad.login(options.lpinstance)
+
+    if options.source is None:
+        options.source = Distribution('ubuntu').getDevelopmentSeries().name
+
+    try:
+        destinations = determine_destinations(options.source,
+                                              options.destination)
+    except DestinationException, e:
+        Logger.error(str(e))
+        sys.exit(1)
+
+    package_spph = locate_package(package, options.source)
+    request_backport(package_spph, options.source, destinations)
+
 
 if __name__ == '__main__':
     main()
