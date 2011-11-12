@@ -3,7 +3,7 @@ ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
   * New scripts:
     - reverse-depends: Replaces reverse-build-depends. Uses an UbuntuWire
       webservice for determining all reverse(-build)-dependencies for a
-      package.
+      package. (LP: #696373)
     - requestbackport: Files a backport request bug report, including a full
       testing checklist.
 
