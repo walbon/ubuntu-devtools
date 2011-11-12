@@ -26,7 +26,7 @@
 #
 # ##################################################################
 
-from optparse import OptionParser
+import optparse
 import os
 import sys
 
@@ -52,7 +52,7 @@ def main():
     # Our usage options.
     usage = ('Usage: %prog [options] '
              '<source package> [<target release> [base version]]')
-    parser = OptionParser(usage)
+    parser = optparse.OptionParser(usage)
 
     parser.add_option('-d', type='string',
                       dest='dist', default=DEFAULT_SOURCE,
@@ -65,10 +65,12 @@ def main():
                       dest='newpkg', default=False,
                       help='Whether package to sync is a new package in '
                            'Ubuntu.')
-    parser.add_option('--lp', action='store_true',
-                      dest='lpapi', default=False,
-                      help='Specify whether to use the LP API for filing '
-                           'the sync request (recommended).')
+    parser.add_option('--email', action='store_true', default=False,
+                      help='Use a PGP-signed email for filing the sync '
+                           'request, rather than the LP API.')
+    parser.add_option('--lp', dest='deprecated_lp_flag',
+                      action='store_true', default=False,
+                      help=optparse.SUPPRESS_HELP)
     parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
                       dest='lpinstance', default=None,
                       help='Launchpad instance to connect to '
@@ -98,8 +100,13 @@ def main():
     require_utf8()
 
     config = UDTConfig(options.no_conf)
-    if not options.lpapi:
-        options.lpapi = config.get_value('USE_LPAPI', default=False,
+
+    if options.deprecated_lp_flag:
+        print "The --lp flag is now default, ignored."
+    if options.email:
+        options.lpapi = False
+    else:
+        options.lpapi = config.get_value('USE_LPAPI', default=True,
                                          boolean=True)
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')

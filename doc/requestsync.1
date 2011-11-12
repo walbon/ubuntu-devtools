@@ -11,14 +11,10 @@ requestsync \- helper to file sync requests for Ubuntu
 \fBrequestsync\fR looks at the versions of <source package> in Debian and
 Ubuntu and prompts for an explanation of why the Ubuntu changes (if there
 are any) should be dropped.
-The changelog entry is then downloaded from packages.debian.org.
-If the sync request is being filed per email (default), a prompt for your
-GPG passphrase follows so that it can sign the mail and send it off to
-Launchpad.
-Alternatively a sync request can be filed directly using the launchpadlib
-Python module (option \fB\-\-lp\fR).
-\fBrequestsync\fR falls back to mail the sync request if submitting using
-the launchpadlib module fails.
+The changelog entry is then downloaded from packages.debian.org, and the
+sync request bug is filed in launchpad.
+Alternatively, the sync request can be filed by GPG\-signed email (option
+\fB\-\-email\fR).
 
 .PP
 \fBrequestsync\fR checks if you have the permissions to request the sync from
@@ -28,7 +24,7 @@ you don't have upload permissions, the script will subscribe the necessary
 team with approval rights to the bug report for you.
 
 This check is only performed if \fBrequestsync\fR is allowed to use the LP API
-(option \fB\-\-lp\fR). In the other case \fBrequestsync\fR relies on that you
+(not email submission). In the other case \fBrequestsync\fR relies on that you
 answer the question about upload permissions honestly to determine if a team
 with approval rights is to be subscribed to the bug.
 
@@ -58,9 +54,8 @@ attempt to look it up in Ubuntu since it will not exist.
 Specifies your GPG key.
 This is only used if the sync request is mailed to Launchpad.
 .TP
-.B \-\-lp
-Use the launchpadlib Python module (packaged as python\-launchpadlib) to
-file the sync request in Launchpad.
+.B \-\-email
+Use GPG\-signed email to file the bug, rather than launchpadlib.
 .TP
 .B \-s
 Specifies that you require sponsorship.
@@ -126,7 +121,7 @@ Sets which port of the SMTP server to use. Default is 25.
 Sets the username and password to use when authenticating to the SMTP server.
 .TP
 .BR REQUESTSYNC_USE_LPAPI
-Setting this to \fIyes\fR is equivalent to running with \fB--lp\fR.
+Setting this to \fIno\fR is equivalent to running with \fB--email\fR.
 .TP
 .BR REQUESTSYNC_LPINSTANCE ", " UBUNTUTOOLS_LPINSTANCE
 The default value for \fB--lpinstance\fR.
