@@ -25,9 +25,9 @@ from ubuntutools.rdepends import query_rdepends, RDependsException
 
 def main():
     parser = optparse.OptionParser('%progname [options] package',
-        description="List reverse-dependancies of package. "
+        description="List reverse-dependencies of package. "
                     "If the package name is prefixed with src: then the "
-                    "reverse-depndencies of all the binary packages that "
+                    "reverse-dependencies of all the binary packages that "
                     "the specified source package builds will be listed.")
     parser.add_option('-r', '--release', metavar='RELEASE',
                       default=UbuntuDistroInfo().devel(),
@@ -35,28 +35,28 @@ def main():
     parser.add_option('-R', '--without-recommends',
                       action='store_false', dest='recommends', default=True,
                       help='Only consider Depends relationships, '
-                           'not Recommends.')
+                           'not Recommends')
     parser.add_option('-s', '--with-suggests',
                       action='store_true', dest='suggests', default=False,
-                      help='Also consider Suggests relationships.')
+                      help='Also consider Suggests relationships')
     parser.add_option('-b', '--build-depends',
                       action='store_const', dest='arch', const='source',
                       help='Query build dependencies (synonym for '
-                            '--arch=source')
+                            '--arch=source)')
     parser.add_option('-a', '--arch', metavar='ARCH', default='any',
-                      help='Query dependencies in ARCH '
-                           '(default: any)')
+                      help='Query dependencies in ARCH. '
+                           'Default: any')
     parser.add_option('-c', '--component', metavar='COMPONENT',
                       action='append',
                       help='Only consider reverse-dependencies in COMPONENT. '
-                           'Can be specified multiple times. (default: all)')
+                           'Can be specified multiple times. Default: all')
     parser.add_option('-l', '--list',
                       action='store_true', default=False,
                       help='Display a simple, machine-readable list')
     parser.add_option('-u', '--service-url', metavar='URL',
                       dest='server', default=None,
-                      help='Reverse Depedencies webservice URL'
-                           '(default: UbuntuWire)')
+                      help='Reverse Dependencies webservice URL. '
+                           'Default: UbuntuWire')
 
     options, args = parser.parse_args()
 
