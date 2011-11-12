@@ -18,6 +18,7 @@ from collections import defaultdict
 import optparse
 import sys
 
+from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo
 
 from ubuntutools.lp.lpapicache import Launchpad, Distribution
@@ -105,7 +106,7 @@ def main():
         destinations = determine_destinations(options.source,
                                               options.destination)
     except DestinationException, e:
-        print str(e)
+        Logger.error(str(e))
         sys.exit(1)
 
     request_backport(package, options.source, destinations)
@@ -153,7 +154,7 @@ def request_backport(package, source, destinations):
     try:
         package_spph = archive.getSourcePackage(package, source)
     except PackageNotFoundException, e:
-        print str(e)
+        Logger.error(str(e))
         sys.exit(1)
 
     subst = {
@@ -188,8 +189,8 @@ def request_backport(package, source, destinations):
 
     subject, body = edit_report(subject, body, changes_required=True)
 
-    print ('The final report is:\nSummary: %s\nDescription:\n%s\n'
-           % (subject, body))
+    Logger.normal('The final report is:\nSummary: %s\nDescription:\n%s\n',
+                  subject, body)
     if YesNoQuestion().ask("Request this backport", "yes") == "no":
         sys.exit(1)
 
@@ -200,7 +201,7 @@ def request_backport(package, source, destinations):
     for target in targets[1:]:
         bug.addTask(target=target)
 
-    print "Backport request filed as %s" % bug.web_link
+    Logger.normal("Backport request filed as %s", bug.web_link)
 
 if __name__ == '__main__':
     main()
