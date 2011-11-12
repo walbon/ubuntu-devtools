@@ -101,7 +101,7 @@ def find_rdepends(package, releases):
 
     output = []
     for binpkg, rdeps in intermediate.iteritems():
-        output += ['', binpkg, '=' * len(binpkg)]
+        output += ['', binpkg, '-' * len(binpkg)]
         for pkg, appearences in rdeps.iteritems():
             output += ['* %s' % pkg]
             for release, relationship in appearences:
@@ -131,33 +131,57 @@ def locate_package(package, distribution):
 
 
 def request_backport(package_spph, source, destinations):
+    testing = []
+    testing += ["You can test-build the backport in your PPA with "
+                "backportpackage:"]
+    lp_user = Launchpad.me.name
+    testing += ["$ backportpackage -u ppa:%s/ppa -s %s -d %s"
+                % (lp_user, source, dest)
+                for dest in destinations]
+    testing += [""]
+    testing += ["* Package builds without modification on"]
+    testing += ["[ ] %s" % dest for dest in destinations]
+    testing += ["* Package installs and removes cleanly on"]
+    testing += ["[ ] %s" % dest for dest in destinations]
+
     subst = {
         'package': package_spph.getPackageName(),
         'version': package_spph.getVersion(),
         'component': package_spph.getComponent(),
-        'rdepends': find_rdepends(package_spph, destinations),
         'source': source,
         'destinations': ', '.join(destinations),
+        'testing': '\n'.join(testing),
+        'rdepends': find_rdepends(package_spph, destinations),
     }
     subject = ("Please backport %(package)s %(version)s (%(component)s) "
                "from %(source)s" % subst)
     body = ("Please backport %(package)s %(version)s (%(component)s) "
-            "from %(source)s to %(destinations)s.\n\n"
+            "from %(source)s to %(destinations)s.\n"
+            "\n"
             "Reason for the backport:\n"
-            "<<< Enter your reasoning here >>>\n\n"
-            "Testing performed:\n"
-            "<<< Mention any build & install tests you've done >>>\n\n"
-            "Reverse dependencies:\n"
-            "The following reverse-dependencies need to be tested against the "
-            "new version of %(package)s. "
-            "For reverse-build-dependencies, please test that the package "
-            "still builds against the new %(package)s. "
-            "For reverse-dependencies, please test that the version of the "
-            "package currently in the release still works with the new "
-            "libgdata installed. "
+            "========================\n"
+            "<<< Enter your reasoning here >>>\n"
+            "\n"
+            "Testing:\n"
+            "========\n"
             "Mark off items in the checklist [X] as you test them, "
             "but please leave the checklist so that backporters can quickly "
             "evaluate the state of testing.\n"
+            "\n"
+            "%(testing)s\n"
+            "\n"
+            "Reverse dependencies:\n"
+            "=====================\n"
+            "The following reverse-dependencies need to be tested against the "
+            "new version of %(package)s. "
+            "For reverse-build-dependencies (-Indep), please test that the "
+            "package still builds against the new %(package)s. "
+            "For reverse-dependencies, please test that the version of the "
+            "package currently in the release still works with the new "
+            "%(package)s installed. "
+            "Reverse- Recommends, Suggests, and Enhances don't need to be "
+            "tested, and are listed for completeness-sake."
+            "\n"
             "%(rdepends)s\n"
             % subst)
 
