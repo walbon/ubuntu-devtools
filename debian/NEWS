@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.135) unstable; urgency=low
+
+  reverse-build-depends was removed from ubuntu-dev-tools. reverse-depends -b
+  is equivalent.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 13:11:21 +0200
+
 ubuntu-dev-tools (0.131) unstable; urgency=low
 
   get-build-deps was removed from ubuntu-dev-tools. The newer mk-build-deps in
