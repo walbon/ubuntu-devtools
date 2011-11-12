@@ -236,7 +236,12 @@ fi
 # Determine distribution and possible synonyms
 synonym=""
 EXPERIMENTAL=0
-if debian-distro-info --all | grep -Fqx "$RELEASE"; then
+if [ "$RELEASE" = "experimental" ]; then
+    DISTRO="${DISTRO:-debian}"
+    EXPERIMENTAL=1
+    name="${name:-experimental}"
+    RELEASE=$(debian-distro-info --devel)
+elif debian-distro-info --all | grep -Fqx "$RELEASE"; then
     DISTRO="${DISTRO:-debian}"
     if [ "$RELEASE" = $(debian-distro-info --devel) ]; then
         synonym=unstable
@@ -265,11 +270,6 @@ elif [ "$RELEASE" = "oldstable" ]; then
     DISTRO="${DISTRO:-debian}"
     synonym="$RELEASE"
     RELEASE=$(debian-distro-info --old)
-elif [ "$RELEASE" = "experimental" ]; then
-    DISTRO="${DISTRO:-debian}"
-    EXPERIMENTAL=1
-    name="${name:-experimental}"
-    RELEASE=$(debian-distro-info --devel)
 elif [ -z "$DISTRO" ]; then
     echo "Unable to determine distribution, please provide --distro" >&2
     exit 1
