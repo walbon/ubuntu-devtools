@@ -53,6 +53,7 @@ function usage()
     echo "  --debootstrap-include=list Comma separated list of packages to include"
     echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
     echo "  --debootstrap-proxy=URL    Use PROXY as apt proxy"
+    echo "  --eatmydata                Install and use eatmydata"
     echo "  --distro=DISTRO            Install specific distro:"
     echo "                                 'ubuntu' or 'debian' "
     echo "                                 (defaults to determining from release name)"
@@ -72,6 +73,7 @@ function usage()
     echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
     echo "  DEBOOTSTRAP_PROXY          Apt proxy (same as --debootstrap-proxy)"
+    echo "  EATMYDATA                  Enable --eatmydata"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
     echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
     if [ -z "$1" ]; then
@@ -91,6 +93,7 @@ VG=""
 DISTRO=""
 name=""
 proxy="_unset_"
+EATMYDATA=0
 
 while :; do
     case "$1" in
@@ -141,6 +144,10 @@ while :; do
         --debootstrap-proxy)
             proxy="$2"
             shift 2
+            ;;
+        --eatmydata)
+            EATMYDATA=1
+            shift
             ;;
         --distro)
             DISTRO="$2"
@@ -300,6 +307,19 @@ fi
 # Load customizations
 if [ -r ~/.mk-sbuild.rc ]; then
     . ~/.mk-sbuild.rc
+fi
+
+# Will eatmydata be available?
+if [ $EATMYDATA -eq 1 ]; then
+    case "$RELEASE" in
+        hardy|lucid|maverick|lenny|squeeze)
+            echo "eatmydata is known not to be available in $RELEASE, ignoring --eatmydata"
+            EATMYDATA=0
+            ;;
+        *)
+            DEBOOTSTRAP_INCLUDE="${DEBOOTSTRAP_INCLUDE:+$DEBOOTSTRAP_INCLUDE,}eatmydata"
+            ;;
+    esac
 fi
 
 if [ -z "$SCHROOT_TYPE" ]; then
@@ -584,6 +604,11 @@ root-groups=$ADMIN_GROUPS
 #source-root-groups=$ADMIN_GROUPS
 type=SCHROOT_TYPE
 EOM
+    if [ $EATMYDATA -eq 1 ]; then
+    cat >> "$TEMP_SCHROOTCONF" <<EOM
+command-prefix=eatmydata
+EOM
+    fi
     case "$SCHROOT_TYPE" in
     "lvm-snapshot")
         cat >> "$TEMP_SCHROOTCONF" <<EOM
