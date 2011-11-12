@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
   * requestsync: Make --lp the default.
   * submittodebian: Use prettier patch filenames (LP: #887333)
   * mk-sbuild: Allow creating experimental chroots again (LP: #885499)
+  * experimental shouldn't be the default in experimental chroots.
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 23:28:05 +0200
 

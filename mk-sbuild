@@ -557,11 +557,6 @@ cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
     sudo bash -c "cat > $MNT/etc/apt/sources.list"
 rm -f "$TEMP_SOURCES"
 
-if [ "$EXPERIMENTAL" -eq 1 ]; then
-    echo 'APT::Default-Release "experimental";' \
-        | sudo tee "$MNT"/etc/apt/apt.conf.d/15sbuild > /dev/null
-fi
-
 # Copy the timezone (comment this out if you want to leave the chroot at UTC)
 sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
 # Create a schroot entry for this chroot
