@@ -14,7 +14,6 @@ Files: *
        requestsync
        setup.py
        ubuntu-iso
-       ubuntutools/requestsync/common.py
        ubuntutools/requestsync/lp.py
        ubuntutools/requestsync/mail.py
 Copyright: 2007,      Albert Damen <albrt@gmx.net>

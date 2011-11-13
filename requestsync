@@ -37,7 +37,6 @@ from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
 from ubuntutools.misc import require_utf8
 from ubuntutools.question import confirmation_prompt, EditBugReport
-from ubuntutools.requestsync.common import get_debian_changelog
 
 #
 # entry point
@@ -158,7 +157,8 @@ def main():
         # cannot continue in this case
 
         try:
-            Launchpad.login(service=options.lpinstance)
+            # devel for changelogUrl()
+            Launchpad.login(service=options.lpinstance, api_version='devel')
         except IOError:
             sys.exit(1)
     else:
@@ -298,7 +298,7 @@ def main():
     else:
         report += ('Changelog entries since current %s version %s:\n\n'
                    % (release, ubuntu_version))
-    changelog = get_debian_changelog(debian_srcpkg, base_version)
+    changelog = debian_srcpkg.getChangelog(since_version=base_version)
     if not changelog:
         if not options.missing_changelog_ok:
             print >> sys.stderr, ("E: Did not retrieve any changelog entries. "

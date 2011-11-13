@@ -36,6 +36,7 @@ import urlparse
 import re
 import sys
 
+from debian.changelog import Changelog, Version
 import debian.deb822
 import debian.debian_support
 
@@ -443,11 +444,12 @@ class DebianSourcePackage(SourcePackage):
                 comp = record['component']
                 if record['version'] == self.version.full_version:
                     self._spph = FakeSPPH(record['source'], record['version'],
-                                          comp)
+                                          comp, 'debian')
                     return self._spph
 
             Logger.normal('Guessing component from most recent upload')
-            self._spph = FakeSPPH(self.source, self.version.full_version, comp)
+            self._spph = FakeSPPH(self.source, self.version.full_version, comp,
+                                  'debian')
         return self._spph
 
     def _source_urls(self, name):
@@ -527,10 +529,12 @@ class FakeSPPH(object):
     """Provide the same interface as
     ubuntutools.lpapicache.SourcePackagePublishingHistory
     """
-    def __init__(self, name, version, component):
+    def __init__(self, name, version, component, distribution):
         self.name = name
         self.version = version
         self.component = component
+        self.distribution = distribution
+        self._changelog = None
 
     def getPackageName(self):
         return self.name
@@ -540,6 +544,48 @@ class FakeSPPH(object):
 
     def getComponent(self):
         return self.component
+
+    def getChangelog(self, since_version=None):
+        '''
+        Return the changelog, optionally since a particular version
+        May return None if the changelog isn't available
+        '''
+        if self._changelog is None:
+            if self.name.startswith('lib'):
+                subdir = 'lib%s' % self.name[3]
+            else:
+                subdir = self.name[0]
+            # Strip epoch from version
+            pkgversion = self.version.split(':', 1)[-1]
+            extension = ''
+            if self.distribution == 'debian':
+                base = 'http://packages.debian.org/'
+                extension = '.txt'
+            elif self.distribution == 'ubuntu':
+                base = 'http://changelogs.ubuntu.com/'
+
+            url = os.path.join(base, 'changelogs', 'pool',
+                               self.component, subdir, self.name,
+                               self.name + '_' + pkgversion,
+                               'changelog' + extension)
+            try:
+                self._changelog = urllib2.urlopen(url).read()
+            except urllib2.HTTPError, error:
+                print >> sys.stderr, ('%s: %s' % (url, error))
+                return None
+
+        if since_version is None:
+            return self._changelog
+
+        if isinstance(since_version, basestring):
+            since_version = Version(since_version)
+
+        new_entries = []
+        for block in Changelog(self._changelog):
+            if block.version <= since_version:
+                break
+            new_entries.append(unicode(block))
+        return u''.join(new_entries)
 
 
 def rmadison(url, package, suite=None, arch=None):

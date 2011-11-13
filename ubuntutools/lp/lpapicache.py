@@ -25,7 +25,9 @@
 #httplib2.debuglevel = 1
 
 import sys
+import urllib2
 
+from debian.changelog import Changelog, Version
 from launchpadlib.launchpad import Launchpad as LP
 from launchpadlib.errors import HTTPError
 from lazr.restfulclient.resource import Entry
@@ -349,6 +351,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
     resource_type = 'source_package_publishing_history'
 
     def __init__(self, *args):
+        self._changelog = None
         # Don't share _builds between different
         # SourcePackagePublishingHistory objects
         if '_builds' not in self.__dict__:
@@ -371,6 +374,39 @@ class SourcePackagePublishingHistory(BaseWrapper):
         Returns the component of the source package.
         '''
         return self._lpobject.component_name
+
+    def getChangelog(self, since_version=None):
+        '''
+        Return the changelog, optionally since a particular version
+        May return None if the changelog isn't available
+        Only available in the devel API, not 1.0
+        '''
+        if self._changelog is None:
+            url = self._lpobject.changelogUrl()
+            if url is None:
+                print >> sys.stderr, ('E: No changelog available for %s %s',
+                                      (self.getPackageName(),
+                                       self.getVersion()))
+                return None
+
+            try:
+                self._changelog = urllib2.urlopen(url).read()
+            except urllib2.HTTPError, error:
+                print >> sys.stderr, ('%s: %s' % (url, error))
+                return None
+
+        if since_version is None:
+            return self._changelog
+
+        if isinstance(since_version, basestring):
+            since_version = Version(since_version)
+
+        new_entries = []
+        for block in Changelog(self._changelog):
+            if block.version <= since_version:
+                break
+            new_entries.append(unicode(block))
+        return u''.join(new_entries)
 
     def _fetch_builds(self):
         '''Populate self._builds with the build records.'''

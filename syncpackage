@@ -37,7 +37,6 @@ from lazr.restfulclient.errors import HTTPError
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
-from ubuntutools.requestsync.common import get_debian_changelog
 from ubuntutools.requestsync.mail import (get_debian_srcpkg
                                           as requestsync_mail_get_debian_srcpkg)
 from ubuntutools.requestsync.lp import get_debian_srcpkg, get_ubuntu_srcpkg
@@ -375,7 +374,7 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
                       src_pkg.source, ubuntu_series, ubuntu_pocket,
                       src_pkg.version)
 
-    changes = get_debian_changelog(debian_spph, base_version)
+    changes = debian_spph.getChangelog(since_version=base_version)
     if changes:
         changes = changes.strip()
         Logger.normal("New changes:\n%s", changes)
@@ -603,6 +602,7 @@ def main():
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
     try:
+        # devel for copyPackage and changelogUrl
         Launchpad.login(service=options.lpinstance, api_version='devel')
     except IOError:
         sys.exit(1)

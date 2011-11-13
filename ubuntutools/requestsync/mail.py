@@ -25,12 +25,11 @@ import sys
 import smtplib
 import socket
 
-from debian.changelog import Version
+from debian.changelog import Changelog, Version
 from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import rmadison, FakeSPPH
-from ubuntutools.requestsync.common import get_changelog
 from ubuntutools.question import confirmation_prompt, YesNoQuestion
 from ubuntutools import subprocess
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
@@ -57,7 +56,7 @@ def _get_srcpkg(distro, name, release):
                                        % (name, distro.capitalize(), release))
     pkg = max(lines, key=lambda x: Version(x['version']))
 
-    return FakeSPPH(pkg['source'], pkg['version'], pkg['component'])
+    return FakeSPPH(pkg['source'], pkg['version'], pkg['component'], distro)
 
 def get_debian_srcpkg(name, release):
     return _get_srcpkg('debian', name, release)
@@ -92,7 +91,7 @@ def get_ubuntu_delta_changelog(srcpkg):
     Download the Ubuntu changelog and extract the entries since the last sync
     from Debian.
     '''
-    changelog = get_changelog(srcpkg, 'ubuntu')
+    changelog = Changelog(srcpkg.getChangelog())
     if changelog is None:
         return u''
     delta = []

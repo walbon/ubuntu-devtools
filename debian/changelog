@@ -18,6 +18,9 @@ ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
       testing checklist.
   * Don't allow boilerplate prompts through in submittodebian and requestsync
     (LP: #887336)
+  * Add changelog retrieval to lpapicache, and use this in syncpackage and
+    requestsync. The changelogs should be available in Launchpad sooner than
+    Debian PTS.
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 13:09:05 +0200
 
