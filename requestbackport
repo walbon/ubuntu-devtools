@@ -152,9 +152,8 @@ def request_backport(package_spph, source, destinations):
     testing = []
     testing += ["You can test-build the backport in your PPA with "
                 "backportpackage:"]
-    lp_user = Launchpad.me.name
-    testing += ["$ backportpackage -u ppa:%s/ppa -s %s -d %s"
-                % (lp_user, source, dest)
+    testing += ["$ backportpackage -u ppa:<lp username>/<ppa name> -s %s -d %s"
+                % (source, dest)
                 for dest in destinations]
     testing += [""]
     for dest in destinations:
