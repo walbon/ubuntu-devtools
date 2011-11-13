@@ -143,7 +143,7 @@ def request_backport(package_spph, source, destinations):
     for dest in destinations:
         testing += ['* %s:' % dest]
         testing += ["[ ] Package builds without modification"]
-        testing += ["[ ] %s installs and removes cleanly" % binary
+        testing += ["[ ] %s installs cleanly and runs" % binary
                     for binary in published_binaries]
 
     subst = {
