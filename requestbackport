@@ -26,8 +26,7 @@ from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 from ubuntutools.config import UDTConfig
 from ubuntutools.rdepends import query_rdepends, RDependsException
-from ubuntutools.requestsync.common import edit_report
-from ubuntutools.question import YesNoQuestion
+from ubuntutools.question import YesNoQuestion, EditBugReport
 
 
 class DestinationException(Exception):
@@ -195,7 +194,9 @@ def request_backport(package_spph, source, destinations):
             + [""]
         ) % subst)
 
-    subject, body = edit_report(subject, body, changes_required=True)
+    editor = EditBugReport(subject, body)
+    editor.edit()
+    subject, body = editor.get_report()
 
     Logger.normal('The final report is:\nSummary: %s\nDescription:\n%s\n',
                   subject, body)

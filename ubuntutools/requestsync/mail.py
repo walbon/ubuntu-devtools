@@ -30,8 +30,8 @@ from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import rmadison, FakeSPPH
-from ubuntutools.requestsync.common import (get_changelog,
-                                            raw_input_exit_on_ctrlc)
+from ubuntutools.requestsync.common import get_changelog
+from ubuntutools.question import confirmation_prompt, YesNoQuestion
 from ubuntutools import subprocess
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
@@ -71,17 +71,12 @@ def need_sponsorship(name, component, release):
     component.
     '''
 
-    while True:
-        print ("Do you have upload permissions for the '%s' component "
-               "or the package '%s' in Ubuntu %s?"
-               % (component, name, release))
-        val = raw_input_exit_on_ctrlc("If in doubt answer 'n'. [y/N]? ")
-        if val.lower() in ('y', 'yes'):
-            return False
-        elif val.lower() in ('n', 'no', ''):
-            return True
-        else:
-            print 'Invalid answer'
+    val = YesNoQuestion().ask("Do you have upload permissions for the "
+                              "'%s' component or the package '%s' in "
+                              "Ubuntu %s?\n"
+                              "If in doubt answer 'n'."
+                               % (component, name, release), 'no')
+    return val == 'no'
 
 def check_existing_reports(srcpkg):
     '''
@@ -90,7 +85,7 @@ def check_existing_reports(srcpkg):
     print ('Please check on '
            'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
            'for duplicate sync requests before continuing.' % srcpkg)
-    raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+    confirmation_prompt()
 
 def get_ubuntu_delta_changelog(srcpkg):
     '''
@@ -166,7 +161,7 @@ Content-Type: text/plain; charset=UTF-8
 %s''' % (myemailaddr, to, bugtitle, signed_report)
 
     print 'The final report is:\n%s' % mail
-    raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+    confirmation_prompt()
 
     # connect to the server
     try:
