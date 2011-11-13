@@ -38,6 +38,7 @@ class UDTConfig(object):
         'LPINSTANCE': 'production',
         'MIRROR_FALLBACK': True,
         'UBUNTU_MIRROR': 'http://archive.ubuntu.com/ubuntu',
+        'UBUNTU_PORTS_MIRROR': 'http://ports.ubuntu.com',
         'UPDATE_BUILDER': False,
         'WORKDIR': None,
     }

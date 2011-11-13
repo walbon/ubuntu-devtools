@@ -104,6 +104,15 @@ saved in the results subdirectory of each build environment.
 The default authentication method is \fBsudo\fP. You can change this by
 setting the \fBPBUILDAUTH\fP variable.
 .PP
+By default, \fBpbuilder\-dist\fP use the master Debian and Ubuntu mirrors.
+The pbuilder \fBMIRRORSITE\fP and \fBOTHERMIRROR\fP variables are
+supported, as are the standard ubuntu\-dev\-tools variables:
+\fBUBUNTUTOOLS_DEBIAN_MIRROR\fP, \fBPBUILDER_DIST_DEBIAN_MIRROR\fP,
+\fBUBUNTUTOOLS_UBUNTU_MIRROR\fP, \fBPBUILDER_DIST_UBUNTU\fP,
+\fBUBUNTUTOOLS_UBUNTU_PORTS_MIRROR\fP, and
+\fBPBUILDER_DIST_UBUNTU_PORTS_MIRROR\fP.
+See \fBubuntu\-dev\-tools\fP (5) for details.
+.PP
 You may also want to know that \fBpbuilder\-dist\fP exports \fBDIST\fP and
 \fBARCH\fP environment variables to the invoked process, containing the name
 of the distribution and the architecture targeted by the current build. You
@@ -117,7 +126,10 @@ Please ensure first that the problem is really this script and not an issue
 with \fBpbuilder\fP or \fBcowbuilder\fP themselves.
 
 .SH SEE ALSO
-\fBpbuilder\fR, \fBpbuilderrc\fR, \fBcowbuilder\fR
+.BR pbuilder (1),
+.BR pbuilderrc (5),
+.BR cowbuilder (1),
+.BR ubuntu\-dev\-tools (5).
 
 .SH AUTHORS
 \fBpbuilder\-dist\fP and this manual page were written by Siegfried-A. Gevatter

@@ -36,6 +36,7 @@ from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 import ubuntutools.misc
+from ubuntutools.config import UDTConfig
 from ubuntutools import subprocess
 
 class PbuilderDist:
@@ -232,23 +233,32 @@ class PbuilderDist:
                     'deb file:///var/cache/archive/ %s/' % self.target_distro,
             ]
 
+        config = UDTConfig()
         if self.target_distro in self._debian_distros:
-            arguments += ['--mirror', 'http://ftp.debian.org/debian']
+            mirror = os.environ.get('MIRRORSITE',
+                    config.get_value('DEBIAN_MIRROR'))
+            arguments += ['--mirror', mirror]
             components = 'main'
             if self.extra_components:
                 components += ' contrib non-free'
         else:
+            mirror = os.environ.get('MIRRORSITE',
+                    config.get_value('UBUNTU_MIRROR'))
+            ports_mirror = os.environ.get('MIRRORSITE',
+                    config.get_value('UBUNTU_PORTS_MIRROR'))
             if self.build_architecture in ('amd64', 'i386'):
-                arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
+                arguments += ['--mirror', mirror]
             elif (self.build_architecture == 'powerpc'
                     and self.target_distro == 'dapper'):
-                arguments += ['--mirror', 'http://archive.ubuntu.com/ubuntu/']
+                arguments += ['--mirror', mirror]
             else:
-                arguments += ['--mirror',
-                              'http://ports.ubuntu.com/ubuntu-ports/']
+                arguments += ['--mirror', ports_mirror]
             components = 'main restricted'
             if self.extra_components:
                 components += ' universe multiverse'
+
+        if 'OTHERMIRROR' in os.environ:
+            arguments += ['--othermirror', os.environ['OTHERMIRROR']]
 
         # Work around LP:#599695
         if (ubuntutools.misc.system_distribution() == 'Debian'
