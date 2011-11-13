@@ -37,6 +37,8 @@ from distro_info import DebianDistroInfo
 
 import ubuntutools.misc
 from ubuntutools import subprocess
+from ubuntutools.question import YesNoQuestion
+
 
 class PbuilderDist:
     def __init__(self, builder):
@@ -135,9 +137,10 @@ class PbuilderDist:
                 # Debian experimental doesn't have a debootstrap file but
                 # should work nevertheless.
                 if distro not in self._debian_distros:
-                    answer = ask(('Warning: Unknown distribution "%s". Do you '
-                                  'want to continue [y/N]? ') % distro)
-                    if answer not in ('y', 'Y'):
+                    answer = YesNoQuestion().ask(
+                            'Warning: Unknown distribution "%s". '
+                            'Do you want to continue' % distro, 'no')
+                    if answer == 'yes':
                         sys.exit(0)
             else:
                 Logger.error('Please install package "debootstrap".')
@@ -296,22 +299,6 @@ class PbuilderDist:
             'DIST=' + self.target_distro,
             self.builder,
         ] + arguments
-
-
-def ask(question):
-    """ ask(question) -> string
-
-    Ask the given question and return the answer. Also catch
-    KeyboardInterrupt (Ctrl+C) and EOFError (Ctrl+D) exceptions and
-    immediately return None if one of those is found.
-    """
-    try:
-        answer = raw_input(question)
-    except (KeyboardInterrupt, EOFError):
-        print
-        answer = None
-
-    return answer
 
 def show_help(exit_code = 0):
     """ help() -> None
