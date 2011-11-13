@@ -152,8 +152,9 @@ def request_backport(package_spph, source, destinations):
     testing = []
     testing += ["You can test-build the backport in your PPA with "
                 "backportpackage:"]
-    testing += ["$ backportpackage -u ppa:<lp username>/<ppa name> -s %s -d %s"
-                % (source, dest)
+    testing += ["$ backportpackage -u ppa:<lp username>/<ppa name> "
+                "-s %s -d %s %s"
+                % (source, dest, package_spph.getPackageName())
                 for dest in destinations]
     testing += [""]
     for dest in destinations:
