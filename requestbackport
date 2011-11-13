@@ -179,7 +179,7 @@ def request_backport(package_spph, source, destinations):
              "",
              "Reason for the backport:",
              "========================",
-             "<<< Enter your reasoning here >>>",
+             ">>> Enter your reasoning here <<<",
              "",
              "Testing:",
              "========",

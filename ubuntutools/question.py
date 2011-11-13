@@ -116,7 +116,7 @@ class EditFile(object):
         self.filename = filename
         self.description = description
         if placeholders is None:
-            placeholders = (re.compile(r'^<<<.*>>>$', re.UNICODE),)
+            placeholders = (re.compile(r'^>>>.*<<<$', re.UNICODE),)
         self.placeholders = placeholders
 
     def edit(self, optional=False):
