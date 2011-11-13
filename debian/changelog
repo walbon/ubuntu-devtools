@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
       package. (LP: #696373)
     - requestbackport: Files a backport request bug report, including a full
       testing checklist.
+  * Don't allow boilerplate prompts through in submittodebian and requestsync
+    (LP: #887336)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 13:09:05 +0200
 
