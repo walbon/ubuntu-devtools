@@ -26,9 +26,9 @@ import urllib2
 from debian.deb822 import Changes
 from distro_info import DebianDistroInfo
 
-from ubuntutools.requestsync.common import raw_input_exit_on_ctrlc
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
+from ubuntutools.question import confirmation_prompt
 
 def get_debian_srcpkg(name, release):
     debian = Distribution('debian')
@@ -60,7 +60,7 @@ Your sync request shall require an approval by a member of the appropriate
 sponsorship team, who shall be subscribed to this bug report.
 This must be done before it can be processed by a member of the Ubuntu Archive
 team.'''
-        raw_input_exit_on_ctrlc('If the above is correct please press [Enter] ')
+        confirmation_prompt()
 
     return need_sponsor
 
@@ -88,8 +88,7 @@ def check_existing_reports(srcpkg):
                    'Please check the above URL to verify this before '
                    'continuing.'
                    % (bug.title, bug.web_link))
-            raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] '
-                                    'to abort. ')
+            confirmation_prompt()
 
 def get_ubuntu_delta_changelog(srcpkg):
     '''
@@ -133,7 +132,7 @@ def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
 
     print ('The final report is:\nSummary: %s\nDescription:\n%s\n'
            % (bugtitle, bugtext))
-    raw_input_exit_on_ctrlc('Press [Enter] to continue or [Ctrl-C] to abort. ')
+    confirmation_prompt()
 
     if srcpkg:
         bug_target = DistributionSourcePackage(

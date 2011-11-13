@@ -1,0 +1,81 @@
+.\" Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH reverse\-depends 1 "November 2011" ubuntu\-dev\-tools
+
+.SH NAME
+reverse\-depends \- List the reverse\-dependencies (or
+build\-dependencies) of a package
+
+.SH SYNOPSIS
+.B reverse\-depends \fR[\fIoptions\fR] \fIpackage
+
+.SH DESCRIPTION
+List reverse\-dependencies (or build\-dependencies) of \fIpackage\fR.
+If the package name is prefixed with \fBsrc:\fR then the
+reverse\-dependencies of all the binary packages that the specified
+source package builds will be listed.
+
+.SH OPTIONS
+.TP
+\fB\-r\fR \fIRELEASE\fR, \fB\-\-release\fR=\fIRELEASE\fR
+Query dependencies in \fIRELEASE\fR.
+Default: current development release.
+.TP
+\fB\-R\fR, \fB\-\-without\-recommends\fR
+Only consider Depends relationships, not Recommends.
+.TP
+\fB\-s\fR, \fB\-\-with\-suggests\fR
+Also consider Suggests relationships.
+.TP
+\fB\-b\fR, \fB\-\-build\-depends\fR
+Query build dependencies.
+Synonym for \fB\-\-arch\fR=\fIsource\fR.
+.TP
+\fB\-a\fR \fIARCH\fR, \fB\-\-arch\fR=\fIARCH\fR
+Query dependencies in \fIARCH\fR.
+Besides valid architecture names, the special values \fBany\fR and
+\fBsource\fR may be used.
+\fBany\fR displays all reverse dependencies, the union across all
+architecture.
+\fBsource\fR displays build dependencies.
+Default: \fBany\fR.
+.TP
+\fB\-c\fR \fICOMPONENT\fR, \fB\-\-component\fR=\fICOMPONENT\fR
+Only consider reverse\-dependencies in \fICOMPONENT\fR. Can
+be specified multiple times.
+Default: all components.
+.TP
+\fB\-l\fR, \fB\-\-list\fR
+Display a simple, machine\-readable list.
+.TP
+\fB\-u\fR \fIURL\fR, \fB\-\-service\-url\fR=\fIURL\fR
+Reverse Dependencies web\-service \fIURL\fR.
+Default: UbuntuWire's service at
+\fBhttp://qa.ubuntuwire.org/rdepends/\fR.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display a help message and exit
+
+.SH EXAMPLES
+All reverse dependencies of source package bash:
+.IP
+.nf
+.B reverse\-depends src:bash
+.fi
+
+.SH AUTHORS
+\fBreverse\-depends\fR and this manpage were written by Stefano Rivera
+<stefanor@ubuntu.com>.
+.PP
+Both are released under the terms of the ISC License.

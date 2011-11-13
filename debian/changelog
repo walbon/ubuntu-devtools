@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
 
   * grab-merge: Use wget -nv rather than -q, so that we see error messages
     (LP: #881967)
@@ -10,8 +10,16 @@ ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
     - Add --eatmydata flag (LP: #888440)
   * pbuilder-dist: Support using non-master mirrors. Thanks Mathieu Parent.
     (LP: #824285)
+  * New scripts:
+    - reverse-depends: Replaces reverse-build-depends. Uses an UbuntuWire
+      webservice for determining all reverse(-build)-dependencies for a
+      package. (LP: #696373)
+    - requestbackport: Files a backport request bug report, including a full
+      testing checklist.
+  * Don't allow boilerplate prompts through in submittodebian and requestsync
+    (LP: #887336)
 
- -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 23:28:05 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 12 Nov 2011 13:09:05 +0200
 
 ubuntu-dev-tools (0.134) unstable; urgency=low
 

@@ -1,0 +1,148 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import optparse
+import sys
+
+from devscripts.logger import Logger
+from distro_info import UbuntuDistroInfo
+
+from ubuntutools.rdepends import query_rdepends, RDependsException
+
+
+def main():
+    parser = optparse.OptionParser('%progname [options] package',
+        description="List reverse-dependencies of package. "
+                    "If the package name is prefixed with src: then the "
+                    "reverse-dependencies of all the binary packages that "
+                    "the specified source package builds will be listed.")
+    parser.add_option('-r', '--release', metavar='RELEASE',
+                      default=UbuntuDistroInfo().devel(),
+                      help='Query dependencies in RELEASE. Default: devel')
+    parser.add_option('-R', '--without-recommends',
+                      action='store_false', dest='recommends', default=True,
+                      help='Only consider Depends relationships, '
+                           'not Recommends')
+    parser.add_option('-s', '--with-suggests',
+                      action='store_true', dest='suggests', default=False,
+                      help='Also consider Suggests relationships')
+    parser.add_option('-b', '--build-depends',
+                      action='store_const', dest='arch', const='source',
+                      help='Query build dependencies (synonym for '
+                            '--arch=source)')
+    parser.add_option('-a', '--arch', metavar='ARCH', default='any',
+                      help='Query dependencies in ARCH. '
+                           'Default: any')
+    parser.add_option('-c', '--component', metavar='COMPONENT',
+                      action='append',
+                      help='Only consider reverse-dependencies in COMPONENT. '
+                           'Can be specified multiple times. Default: all')
+    parser.add_option('-l', '--list',
+                      action='store_true', default=False,
+                      help='Display a simple, machine-readable list')
+    parser.add_option('-u', '--service-url', metavar='URL',
+                      dest='server', default=None,
+                      help='Reverse Dependencies webservice URL. '
+                           'Default: UbuntuWire')
+
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("One (and only one) package must be specified")
+    package = args[0]
+
+    opts = {}
+    if options.server is not None:
+        opts['server'] = options.server
+
+    try:
+        data = query_rdepends(package, options.release, options.arch, **opts)
+    except RDependsException, e:
+        Logger.error(str(e))
+        sys.exit(1)
+
+    if options.arch == 'source':
+        fields = ['Reverse-Build-Depends', 'Reverse-Build-Depends-Indep']
+    else:
+        fields = ['Reverse-Depends']
+        if options.recommends:
+            fields.append('Reverse-Recommends')
+        if options.suggests:
+            fields.append('Reverse-Suggests')
+
+    for field in data.keys():
+        if field not in fields:
+            del data[field]
+
+    if options.component:
+        for field, rdeps in data.items():
+            filtered = [rdep for rdep in rdeps
+                        if rdep['Component'] in options.component]
+            if not filtered:
+                del data[field]
+            else:
+                data[field] = filtered
+
+    if options.list:
+        display_consise(data)
+    else:
+        display_verbose(data)
+
+
+def display_verbose(data):
+    if not data:
+        print "No reverse dependencies found"
+        return
+
+    all_archs = set()
+    # This isn't accurate, but we make up for it by displaying what we found
+    for rdeps in data.itervalues():
+        for rdep in rdeps:
+            if 'Architectures' in rdep:
+                all_archs.update(rdep['Architectures'])
+
+    for field, rdeps in data.iteritems():
+        print field
+        print '=' * len(field)
+        rdeps.sort(key=lambda x: x['Package'])
+        for rdep in rdeps:
+            line = '* %s' % rdep['Package']
+            if all_archs and set(rdep['Architectures']) != all_archs:
+                line += ' [%s]' % ' '.join(sorted(rdep['Architectures']))
+            if 'Dependency' in rdep:
+                if len(line) < 30:
+                    line += ' ' * (30 - len(line))
+                line += '  (for %s)' % rdep['Dependency']
+            print line
+        print
+
+    if all_archs:
+        print ("Packages without architectures listed are "
+               "reverse-dependencies in: %s"
+               % ', '.join(sorted(list(all_archs))))
+
+
+def display_consise(data):
+    result = set()
+    for rdeps in data.itervalues():
+        for rdep in rdeps:
+            result.add(rdep['Package'])
+
+    print u'\n'.join(sorted(list(result)))
+
+
+if __name__ == '__main__':
+    main()

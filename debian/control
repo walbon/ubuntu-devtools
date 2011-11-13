@@ -93,9 +93,10 @@ Description: useful tools for Ubuntu developers
     Debian of a package.
   - pull-lp-source - downloads lastest source package from Launchpad.
   - pull-revu-source - downloads the latest source package from REVU
+  - requestbackport - file a backporting request.
   - requestsync - files a sync request with Debian changelog and rationale.
-  - reverse-build-depends - find the reverse build dependencies that a package
-    has.
+  - reverse-depends - find the reverse dependencies (or build dependencies) of
+    a package.
   - setup-packaging-environment - assistant to get an Ubuntu installation
     ready for packaging work.
   - sponsor-patch - Downloads a patch from a Launchpad bug, patches the source

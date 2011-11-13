@@ -30,7 +30,8 @@ from tempfile import mkdtemp
 from distro_info import UbuntuDistroInfo
 
 from ubuntutools.config import ubu_email
-from ubuntutools.question import YesNoQuestion
+from ubuntutools.question import YesNoQuestion, EditFile
+from ubuntutools.subprocess import call, check_call, Popen, PIPE
 
 try:
     from debian.changelog import Changelog
@@ -76,11 +77,10 @@ def gen_debdiff(tmpdir, changelog):
 
     debdiff = os.path.join(tmpdir, '%s_%s.debdiff' % (pkg, newver))
 
-    if os.system('bzr diff -r tag:%s > /dev/null 2>&1' % oldver) == 256:
+    devnull = open('/dev/null', 'w')
+    diff_cmd = ['bzr', 'diff', '-r', 'tag:' + str(oldver)]
+    if call(diff_cmd, stdout=devnull, stderr=devnull) == 1:
         print "Extracting bzr diff between %s and %s" % (oldver, newver)
-        cmd = 'bzr diff -r tag:%s | filterdiff -x "*changelog*" > %s' % \
-              (oldver, debdiff)
-        run_cmd(cmd)
     else:
         if oldver.epoch is not None:
             oldver = str(oldver)[str(oldver).index(":")+1:]
@@ -94,9 +94,16 @@ def gen_debdiff(tmpdir, changelog):
         check_file(newdsc)
 
         print "Generating debdiff between %s and %s" % (oldver, newver)
-        cmd = 'debdiff %s %s | filterdiff -x "*changelog*" > %s' % \
-              (olddsc, newdsc, debdiff)
-        run_cmd(cmd)
+        diff_cmd = ['debdiff', olddsc, newdsc]
+
+    diff = Popen(diff_cmd, stdout=PIPE)
+    debdiff_f = open(debdiff, 'w')
+    filterdiff = Popen(['filterdiff', '-x', '*changelog*'],
+                       stdin=diff.stdout, stdout=debdiff_f)
+    diff.stdout.close()
+    filterdiff.wait()
+    debdiff_f.close()
+    devnull.close()
 
     return debdiff
 
@@ -109,22 +116,13 @@ def check_file(fname, critical = True):
         print u"Couldn't find «%s».\n" % fname
         sys.exit(1)
 
-def edit_debdiff(debdiff):
-    cmd = 'sensible-editor %s' % (debdiff)
-    run_cmd(cmd)
-
 def submit_bugreport(body, debdiff, deb_version, changelog):
-    cmd = ('reportbug -P "User: ubuntu-devel@lists.ubuntu.com" '
-           '-P "Usertags: origin-ubuntu %s ubuntu-patch" -T patch -A %s '
-           '-B debian -i %s -V %s %s') % \
-           (UbuntuDistroInfo().devel(), debdiff, body, deb_version,
-            changelog.package)
-    run_cmd(cmd)
-
-def run_cmd(cmd):
-    if os.getenv('DEBUG'):
-        print "%s\n" % cmd
-    os.system(cmd)
+    devel = UbuntuDistroInfo().devel()
+    cmd = ('reportbug', '-P', 'User: ubuntu-devel@lists.ubuntu.com',
+           '-P', 'Usertags: origin-ubuntu %s ubuntu-patch' % devel,
+           '-T', 'patch', '-A', debdiff, '-B', 'debian', '-i', body,
+           '-V', deb_version, changelog.package)
+    check_call(cmd)
 
 def check_reportbug_config():
     fn = os.path.expanduser('~/.reportbugrc')
@@ -182,7 +180,12 @@ def main():
     fp.close()
 
     debdiff = gen_debdiff(tmpdir, changelog)
-    edit_debdiff(debdiff)
+
+    EditFile(debdiff, 'debdiff').edit(optional=True)
+    EditFile(body, 'bug report', [
+            re.compile('.*REPLACE THIS WITH ACTUAL INFORMATION.*')
+        ]).edit()
+
     submit_bugreport(body, debdiff, deb_version, changelog)
     os.unlink(body)
     os.unlink(debdiff)

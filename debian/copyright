@@ -47,18 +47,15 @@ Files: 404main
        doc/import-bug-from-debian.1
        doc/pbuilder-dist-simple.1
        doc/pbuilder-dist.1
-       doc/reverse-build-depends.1
        doc/submittodebian.1
        import-bug-from-debian
        pbuilder-dist
        pbuilder-dist-simple
-       reverse-build-depends
        submittodebian
 Copyright: 2007-2010, Canonical Ltd.
            2009,      James Westby <james.westby@ubuntu.com>
            2008,      Jamin W. Collins <jcollins@asgardsrealm.net>
            2008,      Jordan Mantha <mantha@ubuntu.com>
-           2008-2009, Patrick Schoenfeld <schoenfeld@in-medias-res.com>
            2006-2007, Pete Savage <petesavage@ubuntu.com>
            2009,      Ryan Kavanagh <ryanakca@kubuntu.org>
            2007,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
@@ -152,17 +149,22 @@ License: GPL-3+
 
 Files: doc/pull-debian-debdiff.1
        doc/pull-debian-source.1
+       doc/requestbackport.1
+       doc/reverse-depends.1
        doc/sponsor-patch.1
        doc/ubuntu-dev-tools.5
        doc/update-maintainer.1
        pull-debian-debdiff
        pull-debian-source
+       requestbackport
+       reverse-depends
        sponsor-patch
        test-data/*
        ubuntutools/archive.py
        ubuntutools/builder.py
        ubuntutools/config.py
        ubuntutools/question.py
+       ubuntutools/rdepends.py
        ubuntutools/sponsor_patch/*
        ubuntutools/test/*
        ubuntutools/update_maintainer.py

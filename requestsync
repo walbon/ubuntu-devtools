@@ -36,8 +36,8 @@ from distro_info import UbuntuDistroInfo
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
 from ubuntutools.misc import require_utf8
-from ubuntutools.requestsync.common import (edit_report, get_debian_changelog,
-                                            raw_input_exit_on_ctrlc)
+from ubuntutools.question import confirmation_prompt, EditBugReport
+from ubuntutools.requestsync.common import get_debian_changelog
 
 #
 # entry point
@@ -212,8 +212,7 @@ def main():
             print ("'%s' doesn't exist in 'Ubuntu %s'.\n"
                    "Do you want to sync a new package?"
                    % (srcpkg, release))
-            raw_input_exit_on_ctrlc('Press [Enter] to continue '
-                                    'or [Ctrl-C] to abort. ')
+            confirmation_prompt()
             newsource = True
 
     # Get the requested Debian source package
@@ -290,8 +289,7 @@ def main():
                    '>>> ENTER_EXPLANATION_HERE <<<\n\n')
 
     if need_interaction:
-        raw_input_exit_on_ctrlc('Press [Enter] to continue.'
-                                'Press [Ctrl-C] to abort now. ')
+        confirmation_prompt()
 
     base_version = force_base_version or ubuntu_version
 
@@ -313,8 +311,10 @@ def main():
             changelog = "XXX FIXME: add changelog here XXX"
     report += changelog
 
-    (title, report) = edit_report(title, report,
-                                  changes_required=need_interaction)
+    editor = EditBugReport(title, report)
+    editor.edit(optional=not need_interaction)
+    title, report = editor.get_report()
+
     if 'XXX FIXME' in report:
         print >> sys.stderr, ("E: changelog boilerplate found in report, "
                               "please manually add changelog when using '-C'")
