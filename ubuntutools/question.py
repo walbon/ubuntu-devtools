@@ -119,15 +119,14 @@ class EditFile(object):
             placeholders = (re.compile(r'^<<<.*>>>$', re.UNICODE),)
         self.placeholders = placeholders
 
-    def optional_edit(self):
-        '''Prompt the user to decide if the file needs editing'''
-        print "Currently the %s looks like:" % self.description
-        with open(self.filename, 'r') as f:
-            print f.read()
-        if YesNoQuestion().ask("Edit", "no") == "yes":
-            self.edit()
+    def edit(self, optional=False):
+        if optional:
+            print "Currently the %s looks like:" % self.description
+            with open(self.filename, 'r') as f:
+                print f.read()
+            if YesNoQuestion().ask("Edit", "no") == "no":
+                return
 
-    def edit(self):
         done = False
         while not done:
             old_mtime = os.stat(self.filename).st_mtime
@@ -146,7 +145,7 @@ class EditFile(object):
                 print ("Placeholders still present in the %s. "
                        "Please replace them with useful information."
                        % self.description)
-                confirmation_prompt('edit again')
+                confirmation_prompt(action='edit again')
             elif not modified:
                 print "The %s was not modified" % self.description
                 if YesNoQuestion().ask("Edit again", "yes") == "no":

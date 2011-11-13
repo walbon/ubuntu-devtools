@@ -305,10 +305,7 @@ def main():
     report += changelog
 
     editor = EditBugReport(title, report)
-    if need_interaction:
-        editor.edit()
-    else:
-        editor.optional_edit()
+    editor.edit(optional=not need_interaction)
     title, report = editor.get_report()
 
     if 'XXX FIXME' in report:
