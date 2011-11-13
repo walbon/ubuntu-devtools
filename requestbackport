@@ -103,7 +103,25 @@ def find_rdepends(package, releases, published_binaries):
             for release, relationship in appearences:
                 output += ['  [ ] %s (%s)' % (release, relationship)]
 
-    return '\n'.join(output)
+    found_any = sum(len(rdeps) for rdeps in intermediate.itervalues())
+    if found_any:
+        output = [
+            "Reverse dependencies:",
+            "=====================",
+            "The following reverse-dependencies need to be tested against the "
+            "new version of %(package)s. "
+            "For reverse-build-dependencies (-Indep), please test that the "
+            "package still builds against the new %(package)s. "
+            "For reverse-dependencies, please test that the version of the "
+            "package currently in the release still works with the new "
+            "%(package)s installed. "
+            "Reverse- Recommends, Suggests, and Enhances don't need to be "
+            "tested, and are listed for completeness-sake."
+           ] + output
+    else:
+        output = ["No reverse dependencies"]
+
+    return output
 
 
 def locate_package(package, distribution):
@@ -152,41 +170,30 @@ def request_backport(package_spph, source, destinations):
         'component': package_spph.getComponent(),
         'source': source,
         'destinations': ', '.join(destinations),
-        'testing': '\n'.join(testing),
-        'rdepends': find_rdepends(package_spph, destinations,
-                                  published_binaries),
     }
     subject = ("Please backport %(package)s %(version)s (%(component)s) "
                "from %(source)s" % subst)
-    body = ("Please backport %(package)s %(version)s (%(component)s) "
-            "from %(source)s to %(destinations)s.\n"
-            "\n"
-            "Reason for the backport:\n"
-            "========================\n"
-            "<<< Enter your reasoning here >>>\n"
-            "\n"
-            "Testing:\n"
-            "========\n"
-            "Mark off items in the checklist [X] as you test them, "
-            "but please leave the checklist so that backporters can quickly "
-            "evaluate the state of testing.\n"
-            "\n"
-            "%(testing)s\n"
-            "\n"
-            "Reverse dependencies:\n"
-            "=====================\n"
-            "The following reverse-dependencies need to be tested against the "
-            "new version of %(package)s. "
-            "For reverse-build-dependencies (-Indep), please test that the "
-            "package still builds against the new %(package)s. "
-            "For reverse-dependencies, please test that the version of the "
-            "package currently in the release still works with the new "
-            "%(package)s installed. "
-            "Reverse- Recommends, Suggests, and Enhances don't need to be "
-            "tested, and are listed for completeness-sake."
-            "\n"
-            "%(rdepends)s\n"
-            % subst)
+    body = ('\n'.join(
+            [
+             "Please backport %(package)s %(version)s (%(component)s) "
+             "from %(source)s to %(destinations)s.",
+             "",
+             "Reason for the backport:",
+             "========================",
+             "<<< Enter your reasoning here >>>",
+             "",
+             "Testing:",
+             "========",
+             "Mark off items in the checklist [X] as you test them, "
+             "but please leave the checklist so that backporters can quickly "
+             "evaluate the state of testing.",
+             ""
+            ]
+            + testing
+            + [""]
+            + find_rdepends(package_spph, destinations, published_binaries)
+            + [""]
+        ) % subst)
 
     subject, body = edit_report(subject, body, changes_required=True)
 
