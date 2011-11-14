@@ -262,9 +262,9 @@ class PbuilderDist:
 
         othermirrors = []
         if self.target_distro in self._debian_distros:
-            di = DebianDistroInfo()
-            if (di.codename(self.target_distro) or self.target_distro
-                    in (di.devel(), 'experimental')):
+            debian_info = DebianDistroInfo()
+            if (debian_info.codename(self.target_distro) or self.target_distro
+                    in (debian_info.devel(), 'experimental')):
                 self.enable_security = False
                 self.enable_updates = False
                 self.enable_proposed = False
