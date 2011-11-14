@@ -72,7 +72,7 @@ def determine_destinations(source, destination):
     return destinations
 
 
-def find_rdepends(package, releases, published_binaries):
+def find_rdepends(releases, published_binaries):
     intermediate = defaultdict(lambda: defaultdict(list))
 
     # We want to display every pubilshed binary, even if it has no rdepends
@@ -190,7 +190,7 @@ def request_backport(package_spph, source, destinations):
             ]
             + testing
             + [""]
-            + find_rdepends(package_spph, destinations, published_binaries)
+            + find_rdepends(destinations, published_binaries)
             + [""]
         ) % subst)
 
