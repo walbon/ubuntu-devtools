@@ -146,8 +146,8 @@ def locate_package(package, distribution):
 def request_backport(package_spph, source, destinations):
 
     published_binaries = set()
-    for bpph in package_spph._lpobject.getPublishedBinaries():
-        published_binaries.add(bpph.binary_package_name)
+    for bpph in package_spph.getBinaries():
+        published_binaries.add(bpph.getPackageName())
 
     testing = []
     testing += ["You can test-build the backport in your PPA with "

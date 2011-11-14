@@ -352,6 +352,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
 
     def __init__(self, *args):
         self._changelog = None
+        self._binaries = None
         # Don't share _builds between different
         # SourcePackagePublishingHistory objects
         if '_builds' not in self.__dict__:
@@ -408,6 +409,16 @@ class SourcePackagePublishingHistory(BaseWrapper):
             new_entries.append(unicode(block))
         return u''.join(new_entries)
 
+    def getBinaries(self):
+        '''
+        Returns the resulting BinaryPackagePublishingHistorys
+        '''
+        if self._binaries is None:
+            self._binaries = [BinaryPackagePublishingHistory(bpph)
+                              for bpph in
+                              self._lpobject.getPublishedBinaries()]
+        return self._binaries
+
     def _fetch_builds(self):
         '''Populate self._builds with the build records.'''
         builds = self.getBuilds()
@@ -458,6 +469,31 @@ class SourcePackagePublishingHistory(BaseWrapper):
                     res.append('  %s: failed' % arch)
         return "Retrying builds of '%s':\n%s" % (
             self.getPackageName(), '\n'.join(res))
+
+
+class BinaryPackagePublishingHistory(BaseWrapper):
+    '''
+    Wrapper class around a LP binary package object.
+    '''
+    resource_type = 'binary_package_publishing_history'
+
+    def getPackageName(self):
+        '''
+        Returns the binary package name.
+        '''
+        return self._lpobject.binary_package_name
+
+    def getVersion(self):
+        '''
+        Returns the version of the binary package.
+        '''
+        return self._lpobject.binary_package_version
+
+    def getComponent(self):
+        '''
+        Returns the component of the binary package.
+        '''
+        return self._lpobject.component_name
 
 
 class MetaPersonTeam(MetaWrapper):
