@@ -191,7 +191,7 @@ class EditBugReport(EditFile):
         with open(self.filename, 'r') as f:
             report = f.read().decode('utf-8')
 
-        m = self.split_re.match(report)
-        report = (m.group(1), m.group(2))
+        match = self.split_re.match(report)
+        report = (match.group(1), match.group(2))
         os.unlink(self.filename)
         return report
