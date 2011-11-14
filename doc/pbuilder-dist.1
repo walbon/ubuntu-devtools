@@ -37,7 +37,7 @@ Replace this with the codename of the version of Ubuntu or Debian you want to us
 This optional parameter will attempt to construct a chroot in a foreign
 architecture.  For some architecture pairs (e.g. i386 on an amd64 install),
 the chroot will be created natively.  For others (e.g. armel on an i386
-install), qemu-static and binfmt-misc will be used.  Note that some
+install), qemu\-static and binfmt\-misc will be used.  Note that some
 combinations (e.g. amd64 on an i386 install) require special separate
 kernel handling, and may break in unexpected ways.
 .TP
@@ -58,26 +58,38 @@ building is the action you want to do.
 
 .SH OPTIONS
 .TP
-\fB--main-only\fP (deprecated: \fBmainonly\fP)
+\fB\-\-main\-only\fP (deprecated: \fBmainonly\fP)
 If you specify this option, only packages from the \fImain\fP (in Debian) or
 \fImain\fP and \fIrestricted\fP (in Ubuntu) components will be used. By
 default, all official components are enabled. This only has effect when
 creating a new environment.
 .TP
-\fB--debug-echo\fP
+\fB\-\-debug\-echo\fP
 The generated \fBpbuilder\fP/\fBcowbuilder\fP command will be printed to the
 standard output instead of being executed. This is useful for debugging.
 .TP
-\fB--buildresult\fP \fBDIRECTORY\fP (pbuilder-dist only)
+\fB\-\-buildresult\fP \fBDIRECTORY\fP (pbuilder\-dist only)
 If this option is specified, the resultant files of the \fBpbuilder\fP build
 are placed in \fBDIRECTORY\fP.
+.TP
+\fB\-\-release\-only\fP
+Only use the release pocket.
+Default for development releases.
+.TP
+\fB\-\-security\-only\fP
+Only use the release and security pockets.
+Suitable environment for preparing security updates.
+.TP
+\fB\-\-updates\-only\fP
+Only use the release, security, and updates pocket.
+Not the proposed\-updates pocket.
 
 .SH EXAMPLES
 .TP
 pbuilder\-dist gutsy create
 Creates a \fBpbuilder\fP environment for Ubuntu Gutsy, with all components enabled.
 .TP
-pbuilder\-sid mainonly create
+pbuilder\-sid \-\-main\-only create
 Creates a \fBpbuilder\fP environment for Debian Sid, with only the main component.
 .TP
 pbuilder\-feisty build ./sample_1.0\-0ubuntu1.dsc
@@ -108,6 +120,7 @@ By default, \fBpbuilder\-dist\fP use the master Debian and Ubuntu mirrors.
 The pbuilder \fBMIRRORSITE\fP and \fBOTHERMIRROR\fP variables are
 supported, as are the standard ubuntu\-dev\-tools variables:
 \fBUBUNTUTOOLS_DEBIAN_MIRROR\fP, \fBPBUILDER_DIST_DEBIAN_MIRROR\fP,
+\fBUBUNTUTOOLS_DEBSEC_MIRROR\fP, \fBPBUILDER_DIST_DEBSEC_MIRROR\fP,
 \fBUBUNTUTOOLS_UBUNTU_MIRROR\fP, \fBPBUILDER_DIST_UBUNTU\fP,
 \fBUBUNTUTOOLS_UBUNTU_PORTS_MIRROR\fP, and
 \fBPBUILDER_DIST_UBUNTU_PORTS_MIRROR\fP.
@@ -120,7 +133,7 @@ can make use of them, for example, in \fBpbuilderrc\fP.
 
 .SH BUGS
 If you experience any problem with this script contact me on rainct@ubuntu.com
-or file a bug at https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools.
+or file a bug at https://bugs.launchpad.net/ubuntu/+source/ubuntu\-dev\-tools.
 .PP
 Please ensure first that the problem is really this script and not an issue
 with \fBpbuilder\fP or \fBcowbuilder\fP themselves.

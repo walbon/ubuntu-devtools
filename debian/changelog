@@ -8,8 +8,9 @@ ubuntu-dev-tools (0.135) UNRELEASED; urgency=low
     -Allow creating experimental chroots again (LP: #885499)
     - experimental shouldn't be the default in experimental chroots.
     - Add --eatmydata flag (LP: #888440)
-  * pbuilder-dist: Support using non-master mirrors. Thanks Mathieu Parent.
-    (LP: #824285)
+  * pbuilder-dist:
+    - Support using non-master mirrors. Thanks Mathieu Parent. (LP: #824285)
+    - Enable non-release pockets by default (LP: #781003)
   * New scripts:
     - reverse-depends: Replaces reverse-build-depends. Uses an UbuntuWire
       webservice for determining all reverse(-build)-dependencies for a

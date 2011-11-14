@@ -33,7 +33,7 @@ import os
 import sys
 
 from devscripts.logger import Logger
-from distro_info import DebianDistroInfo
+from distro_info import DebianDistroInfo, UbuntuDistroInfo
 
 import ubuntutools.misc
 from ubuntutools.config import UDTConfig
@@ -53,6 +53,11 @@ class PbuilderDist:
         # 'universe' and 'multiverse' for Ubuntu chroots and 'contrib'
         # and 'non-free' for Debian.
         self.extra_components = True
+
+        # Extra pockets, useful on stable releases
+        self.enable_security = True
+        self.enable_updates = True
+        self.enable_proposed = True
 
         # File where the log of the last operation will be saved.
         self.logfile = None
@@ -240,28 +245,61 @@ class PbuilderDist:
         if self.target_distro in self._debian_distros:
             mirror = os.environ.get('MIRRORSITE',
                     config.get_value('DEBIAN_MIRROR'))
-            arguments += ['--mirror', mirror]
             components = 'main'
             if self.extra_components:
                 components += ' contrib non-free'
         else:
             mirror = os.environ.get('MIRRORSITE',
                     config.get_value('UBUNTU_MIRROR'))
-            ports_mirror = os.environ.get('MIRRORSITE',
+            if self.build_architecture not in ('amd64', 'i386'):
+                mirror = os.environ.get('MIRRORSITE',
                     config.get_value('UBUNTU_PORTS_MIRROR'))
-            if self.build_architecture in ('amd64', 'i386'):
-                arguments += ['--mirror', mirror]
-            elif (self.build_architecture == 'powerpc'
-                    and self.target_distro == 'dapper'):
-                arguments += ['--mirror', mirror]
-            else:
-                arguments += ['--mirror', ports_mirror]
             components = 'main restricted'
             if self.extra_components:
                 components += ' universe multiverse'
 
+        arguments += ['--mirror', mirror]
+
+        othermirrors = []
+        if self.target_distro in self._debian_distros:
+            di = DebianDistroInfo()
+            if (di.codename(self.target_distro) or self.target_distro
+                    in (di.devel(), 'experimental')):
+                self.enable_security = False
+                self.enable_updates = False
+                self.enable_proposed = False
+
+            if self.enable_security:
+                othermirrors.append('deb %s %s/updates %s'
+                                    % (config.get_value('DEBSEC_MIRROR'),
+                                       self.target_distro, components))
+            if self.enable_updates:
+                othermirrors.append('deb %s %s-updates %s'
+                                    % (mirror, self.target_distro, components))
+            if self.enable_proposed:
+                othermirrors.append('deb %s %s-proposed-updates %s'
+                                    % (mirror, self.target_distro, components))
+        else:
+            if self.target_distro == UbuntuDistroInfo().devel():
+                self.enable_security = False
+                self.enable_updates = False
+                self.enable_proposed = False
+
+            if self.enable_security:
+                othermirrors.append('deb %s %s-security %s'
+                                    % (mirror, self.target_distro, components))
+            if self.enable_updates:
+                othermirrors.append('deb %s %s-updates %s'
+                                    % (mirror, self.target_distro, components))
+            if self.enable_proposed:
+                othermirrors.append('deb %s %s-proposed %s'
+                                    % (mirror, self.target_distro, components))
+
         if 'OTHERMIRROR' in os.environ:
-            arguments += ['--othermirror', os.environ['OTHERMIRROR']]
+            othermirrors += os.environ['OTHERMIRROR'].split('|')
+
+        if othermirrors:
+            arguments += ['--othermirror', '|'.join(othermirrors)]
 
         # Work around LP:#599695
         if (ubuntutools.misc.system_distribution() == 'Debian'
@@ -380,6 +418,19 @@ def main():
             args.remove('mainonly')
         else:
             args.remove('--main-only')
+
+    if '--release-only' in sys.argv:
+        args.remove('--release-only')
+        app.enable_security = False
+        app.enable_updates = False
+        app.enable_proposed = False
+    elif '--security-only' in sys.argv:
+        args.remove('--security-only')
+        app.enable_updates = False
+        app.enable_proposed = False
+    elif '--updates-only' in sys.argv:
+        args.remove('--updates-only')
+        app.enable_proposed = False
 
     if len(args) < 1:
         Logger.error('Insufficient number of arguments.')
