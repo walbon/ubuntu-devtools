@@ -24,7 +24,7 @@
 # ##################################################################
 #
 # This script creates chroots designed to be used in a snapshot mode
-# (either with LVM or aufs) with schroot and sbuild.
+# (either with LVM or overlayfs) with schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
@@ -619,7 +619,7 @@ EOM
     ;;
     directory|file)
         cat >> "${TEMP_SCHROOTCONF}" <<EOM
-union-type=aufs
+union-type=overlayfs
 ${SCHROOT_TYPE}=CHROOT_PATH
 EOM
     ;;

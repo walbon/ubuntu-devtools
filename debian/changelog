@@ -1,8 +1,9 @@
 ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
 
-  * 
+  * mk-sbuild,doc/mk-sbuild.1: switch from aufs to overlayfs, as aufs is no
+    longer in the Precise kernel.
 
- -- Stefano Rivera <stefanor@debian.org>  Tue, 15 Nov 2011 02:01:22 +0200
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 15 Nov 2011 16:01:32 -0500
 
 ubuntu-dev-tools (0.135) unstable; urgency=low
 
