@@ -214,7 +214,7 @@ def request_backport(package_spph, source, destinations):
 
 
 def main():
-    parser = optparse.OptionParser('%progname [options] package')
+    parser = optparse.OptionParser('%prog [options] package')
     parser.add_option('-d', '--destination', metavar='DEST',
                       help='Backport to DEST release and necessary '
                            'intermediate releases '

@@ -24,7 +24,7 @@ from ubuntutools.rdepends import query_rdepends, RDependsException
 
 
 def main():
-    parser = optparse.OptionParser('%progname [options] package',
+    parser = optparse.OptionParser('%prog [options] package',
         description="List reverse-dependencies of package. "
                     "If the package name is prefixed with src: then the "
                     "reverse-dependencies of all the binary packages that "
