@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.136) unstable; urgency=low
 
   [ Marc Deslauriers ]
   * mk-sbuild,doc/mk-sbuild.1: switch from aufs to overlayfs, as aufs is no
@@ -12,7 +12,7 @@ ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
   * EditFile: Don't try and store temporary files in /usr/bin.
   * EditBugReport: Don't include a newline in the bug title.
 
- -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 15 Nov 2011 16:01:32 -0500
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Wed, 16 Nov 2011 14:31:43 +0200
 
 ubuntu-dev-tools (0.135) unstable; urgency=low
 
