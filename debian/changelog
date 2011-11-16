@@ -12,7 +12,7 @@ ubuntu-dev-tools (0.136) unstable; urgency=low
   * EditFile: Don't try and store temporary files in /usr/bin.
   * EditBugReport: Don't include a newline in the bug title.
 
- -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Wed, 16 Nov 2011 14:31:43 +0200
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 16 Nov 2011 14:33:04 +0200
 
 ubuntu-dev-tools (0.135) unstable; urgency=low
 
