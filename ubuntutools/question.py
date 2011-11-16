@@ -167,8 +167,8 @@ class EditBugReport(EditFile):
                           re.DOTALL | re.UNICODE)
 
     def __init__(self, subject, body, placeholders=None):
-        tmpfile = tempfile.NamedTemporaryFile(prefix=sys.argv[0] + '_',
-                                              suffix='.txt',
+        prefix = os.path.basename(sys.argv[0]) + '_'
+        tmpfile = tempfile.NamedTemporaryFile(prefix=prefix, suffix='.txt',
                                               delete=False)
         tmpfile.write((u'Summary (one line):\n%s\n\nDescription:\n%s'
                        % (subject, body)).encode('utf-8'))
