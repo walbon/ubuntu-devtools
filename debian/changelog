@@ -10,6 +10,7 @@ ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
   * mk-sbuild: debootstrap with all components, so that eatmydata can be
     installed.
   * EditFile: Don't try and store temporary files in /usr/bin.
+  * EditBugReport: Don't include a newline in the bug title.
 
  -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 15 Nov 2011 16:01:32 -0500
 

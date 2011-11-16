@@ -162,7 +162,7 @@ class EditFile(object):
 
 
 class EditBugReport(EditFile):
-    split_re = re.compile(r'^Summary.*?:\s+(.*)\s+'
+    split_re = re.compile(r'^Summary.*?:\s+(.*?)\s+'
                           r'Description:\s+(.*)$',
                           re.DOTALL | re.UNICODE)
 
