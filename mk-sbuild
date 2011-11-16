@@ -470,8 +470,9 @@ debian)
     ;;
 esac
 
+debootstrap_opts="--components=$(echo $COMPONENTS | tr ' ' ,)"
 if [ -n "$DEBOOTSTRAP_INCLUDE" ] ; then
-    debootstrap_opts="--include=$DEBOOTSTRAP_INCLUDE"
+    debootstrap_opts="$debootstrap_opts --include=$DEBOOTSTRAP_INCLUDE"
 fi
 
 if [ -n "$DEBOOTSTRAP_EXCLUDE" ] ; then
