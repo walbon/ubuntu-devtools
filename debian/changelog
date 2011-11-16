@@ -1,7 +1,12 @@
 ubuntu-dev-tools (0.136) UNRELEASED; urgency=low
 
+  [ Marc Deslauriers ]
   * mk-sbuild,doc/mk-sbuild.1: switch from aufs to overlayfs, as aufs is no
     longer in the Precise kernel.
+
+  [ Stefano Rivera ]
+  * mk-sbuild,doc/mk-sbuild.1: aufs may still be used if overlayfs isn't
+    available (as is the case on Debian).
 
  -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 15 Nov 2011 16:01:32 -0500
 
