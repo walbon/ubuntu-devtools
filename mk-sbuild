@@ -86,7 +86,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
