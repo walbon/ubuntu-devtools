@@ -16,6 +16,7 @@
 
 from collections import defaultdict
 import optparse
+import re
 import sys
 
 import apt
@@ -26,7 +27,8 @@ from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
 from ubuntutools.config import UDTConfig
 from ubuntutools.rdepends import query_rdepends, RDependsException
-from ubuntutools.question import YesNoQuestion, EditBugReport
+from ubuntutools.question import (YesNoQuestion, EditBugReport,
+                                  confirmation_prompt)
 
 
 class DestinationException(Exception):
@@ -70,6 +72,30 @@ def determine_destinations(source, destination):
     assert len(destinations) > 0
 
     return destinations
+
+
+def check_existing(package, destinations):
+    """Search for possible existing bug reports"""
+    # The LP bug search is indexed, not substring:
+    query = re.findall(r'[a-z]+', package)
+    bugs = []
+    for release in destinations:
+        project = Launchpad.projects[release + '-backports']
+        bugs += project.searchTasks(omit_duplicates=True,
+                                    search_text=query,
+                                    status=["Incomplete", "New", "Confirmed",
+                                            "Triaged", "In Progress",
+                                            "Fix Committed"])
+    if not bugs:
+        return
+
+    Logger.normal("There are existing bug reports that look similar to your "
+                  "request. Please check before continuing:")
+
+    for bug in sorted(set(bug_task.bug for bug_task in bugs)):
+        Logger.normal(" * LP: #%-7i: %s  %s", bug.id, bug.title, bug.web_link)
+
+    confirmation_prompt()
 
 
 def find_rdepends(releases, published_binaries):
@@ -249,6 +275,8 @@ def main():
     except DestinationException, e:
         Logger.error(str(e))
         sys.exit(1)
+
+    check_existing(package, destinations)
 
     package_spph = locate_package(package, options.source)
     request_backport(package_spph, options.source, destinations)
