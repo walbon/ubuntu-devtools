@@ -1,6 +1,7 @@
 ubuntu-dev-tools (0.136ubuntu1) UNRELEASED; urgency=low
 
   * mk-sbuild: Make --eatmydata command line flag actually work.
+  * Remove dgetlp. No longer needed.
 
  -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Nov 2011 09:47:00 +0200
 
