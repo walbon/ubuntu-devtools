@@ -76,10 +76,10 @@ def main():
     release = None
     pocket = None
     try:
-        (release, pocket) = split_release_pocket(version)
+        (release, pocket) = split_release_pocket(version, default=None)
     except PocketDoesNotExistError, e:
         pass
-    if release in ubuntu_info.all and pocket is not None:
+    if release in ubuntu_info.all:
         try:
             spph = Distribution('ubuntu').getArchive().getSourcePackage(package,
                                                                         release,

@@ -24,7 +24,6 @@ import shutil
 import sys
 import tempfile
 
-from launchpadlib.launchpad import Launchpad
 import lsb_release
 
 from debian.debian_support import Version
@@ -35,6 +34,9 @@ from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
                                  UbuntuSourcePackage, DownloadError, rmadison)
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
+from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
+                                       SeriesNotFoundException,
+                                       PackageNotFoundException)
 from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
                               codename_to_distribution)
 from ubuntutools.question import YesNoQuestion
@@ -144,29 +146,9 @@ def parse(args):
 
     return opts, args, config
 
-def get_current_version(package, distribution, source_release):
-    info = vendor_to_distroinfo(distribution)
-    source_release = info().codename(source_release, default=source_release)
 
-    latest_version = None
-
-    releases = [source_release]
-    if distribution.lower() == "ubuntu":
-        releases += [source_release + "-updates", source_release + "-security"]
-
-    for release in releases:
-        for record in rmadison(distribution.lower(), package, suite=release):
-            if 'source' not in record:
-                continue
-
-            if (not latest_version or
-                Version(latest_version) < Version(record['version'])):
-                latest_version = record['version']
-
-    return latest_version
-
-def find_release_package(launchpad, mirror, workdir, package, version,
-                         source_release, config):
+def find_release_package(mirror, workdir, package, version, source_release,
+                         config):
     srcpkg = None
 
     if source_release:
@@ -181,40 +163,37 @@ def find_release_package(launchpad, mirror, workdir, package, version,
     mirrors.append(config.get_value('%s_MIRROR' % distribution.upper()))
 
     if not version:
-        version = get_current_version(package, distribution, source_release)
-
-    if not version:
-        error('Unable to find package %s in release %s.' %
-              (package, source_release))
+        archive = Distribution(distribution.lower()).getArchive()
+        try:
+            spph = archive.getSourcePackage(package, source_release)
+        except (SeriesNotFoundException, PackageNotFoundException), e:
+            error(str(e))
+        version = spph.getVersion()
 
     if distribution == 'Debian':
         srcpkg = DebianSourcePackage(package,
                                      version,
                                      workdir=workdir,
-                                     lp=launchpad,
                                      mirrors=mirrors)
     elif distribution == 'Ubuntu':
         srcpkg = UbuntuSourcePackage(package,
                                      version,
                                      workdir=workdir,
-                                     lp=launchpad,
                                      mirrors=mirrors)
 
     return srcpkg
 
-def find_package(launchpad, mirror, workdir, package, version, source_release,
-                 config):
+def find_package(mirror, workdir, package, version, source_release, config):
     "Returns the SourcePackage"
     if package.endswith('.dsc'):
         return SourcePackage(version=version, dscfile=package,
-                             workdir=workdir, lp=launchpad,
-                             mirrors=(mirror,))
+                             workdir=workdir, mirrors=(mirror,))
 
     if not source_release and not version:
         info = vendor_to_distroinfo(system_distribution())
         source_release = info().devel()
 
-    srcpkg = find_release_package(launchpad, mirror, workdir, package, version,
+    srcpkg = find_release_package(mirror, workdir, package, version,
                                   source_release, config)
     if version and srcpkg.version != version:
         error('Requested backport of version %s but version of %s in %s is %s'
@@ -298,8 +277,7 @@ def main(args):
 
     opts, (package_or_dsc,), config = parse(args[1:])
 
-    script_name = os.path.basename(sys.argv[0])
-    launchpad = Launchpad.login_anonymously(script_name, opts.lpinstance)
+    Launchpad.login_anonymously(service=opts.lpinstance)
 
     if not opts.dest_releases:
         distinfo = lsb_release.get_distro_information()
@@ -317,8 +295,7 @@ def main(args):
         os.makedirs(workdir)
 
     try:
-        pkg = find_package(launchpad,
-                           opts.mirror,
+        pkg = find_package(opts.mirror,
                            workdir,
                            package_or_dsc,
                            opts.version,

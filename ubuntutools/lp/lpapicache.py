@@ -281,7 +281,7 @@ class Archive(BaseWrapper):
         if '_srcpkgs' not in self.__dict__:
             self._srcpkgs = dict()
 
-    def getSourcePackage(self, name, series=None, pocket='Release'):
+    def getSourcePackage(self, name, series=None, pocket=None):
         '''
         Returns a SourcePackagePublishingHistory object for the most
         recent source package in the distribution 'dist', series and
@@ -289,13 +289,23 @@ class Archive(BaseWrapper):
 
         series defaults to the current development series if not specified.
 
+        pocket may be a list, if so, the highest version will be returned.
+        It defaults to all pockets except backports.
+
         If the requested source package doesn't exist a
         PackageNotFoundException is raised.
         '''
-        # Check if pocket has a valid value
-        if pocket not in _POCKETS:
-            raise PocketDoesNotExistError("Pocket '%s' does not exist." %
-                                          pocket)
+        if pocket is None:
+            pockets = frozenset(('Proposed', 'Updates', 'Security', 'Release'))
+        elif isinstance(pocket, basestring):
+            pockets = frozenset((pocket,))
+        else:
+            pockets = frozenset(pocket)
+
+        for pocket in pockets:
+            if pocket not in _POCKETS:
+                raise PocketDoesNotExistError("Pocket '%s' does not exist." %
+                                              pocket)
 
         dist = Distribution(self.distribution_link)
         # Check if series is already a DistoSeries object or not
@@ -305,25 +315,40 @@ class Archive(BaseWrapper):
             else:
                 series = dist.getDevelopmentSeries()
 
-        if (name, series.name, pocket) not in self._srcpkgs:
-            try:
-                srcpkg = self.getPublishedSources(source_name=name,
-                                                  distro_series=series(),
-                                                  pocket=pocket,
-                                                  status='Published',
-                                                  exact_match=True)[0]
-                index = (name, series.name, pocket)
-                self._srcpkgs[index] = SourcePackagePublishingHistory(srcpkg)
-            except IndexError:
+        index = (name, series.name, pockets)
+        if index not in self._srcpkgs:
+            params = {
+                'source_name': name,
+                'distro_series': series(),
+                'status': 'Published',
+                'exact_match': True,
+            }
+            if len(pockets) == 1:
+                params['pocket'] = list(pockets)[0]
+
+            records = self.getPublishedSources(**params)
+
+            latest = None
+            for record in records:
+                if record.pocket not in pockets:
+                    continue
+                if latest is None or (Version(latest.source_package_version)
+                                      < Version(record.source_package_version)):
+                    latest = record
+
+            if latest is None:
                 msg = "The package '%s' does not exist in the %s %s archive" % \
                       (name, dist.display_name, self.name)
-                if pocket == 'Release':
-                    msg += " in '%s'" % series.name
-                else:
-                    msg += " in '%s-%s'" % (series.name, pocket.lower())
+                pockets = [series.name if pocket == 'Release'
+                           else '%s-%s' % (series.name, pocket.lower())
+                           for pocket in pockets]
+                if len(pockets) > 1:
+                    pockets[-2:] = [' or '.join(pockets[-2:])]
+                msg += " in " + ', '.join(pockets)
                 raise PackageNotFoundException(msg)
 
-        return self._srcpkgs[(name, series.name, pocket)]
+            self._srcpkgs[index] = SourcePackagePublishingHistory(latest)
+        return self._srcpkgs[index]
 
     def copyPackage(self, source_name, version, from_archive, to_pocket,
                     to_series=None, include_binaries=False):
@@ -376,6 +401,16 @@ class SourcePackagePublishingHistory(BaseWrapper):
         Returns the component of the source package.
         '''
         return self._lpobject.component_name
+
+    def getSeriesAndPocket(self):
+        '''
+        Returns a human-readable release-pocket
+        '''
+        series = DistroSeries(self._lpobject.distro_series_link)
+        release = series.name
+        if self._lpobject.pocket != 'Release':
+            release += '-' + self._lpobject.pocket.lower()
+        return release
 
     def getChangelog(self, since_version=None):
         '''

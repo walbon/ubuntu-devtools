@@ -122,7 +122,7 @@ def readlist(filename, uniq=True):
 
     return items
 
-def split_release_pocket(release):
+def split_release_pocket(release, default='Release'):
     '''Splits the release and pocket name.
 
     If the argument doesn't contain a pocket name then the 'Release' pocket
@@ -130,7 +130,7 @@ def split_release_pocket(release):
 
     Returns the release and pocket name.
     '''
-    pocket = 'Release'
+    pocket = default
 
     if release is None:
         raise ValueError('No release name specified')

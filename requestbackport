@@ -193,7 +193,7 @@ def request_backport(package_spph, source, destinations):
         'package': package_spph.getPackageName(),
         'version': package_spph.getVersion(),
         'component': package_spph.getComponent(),
-        'source': source,
+        'source': package_spph.getSeriesAndPocket(),
         'destinations': ', '.join(destinations),
     }
     subject = ("Please backport %(package)s %(version)s (%(component)s) "

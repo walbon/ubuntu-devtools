@@ -5,6 +5,9 @@ ubuntu-dev-tools (0.136ubuntu1) UNRELEASED; urgency=low
   * Use httplib2 everywhere that we do https. The python stdlib doesn't do
     certificate verification.
   * requestbackport: Check for existing backport bugs first.
+  * pull-lp-source, requestbackport: Take the latest version from any
+    non-backports pocket. Implemented by making lpapicache's getSourcePackage
+    smarter.
 
  -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Nov 2011 09:47:00 +0200
 
