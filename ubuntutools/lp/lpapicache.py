@@ -26,9 +26,9 @@
 #httplib2.debuglevel = 1
 
 import sys
-import urllib2
 
 from debian.changelog import Changelog, Version
+from httplib2 import Http, HttpLib2Error
 from launchpadlib.launchpad import Launchpad as LP
 from launchpadlib.errors import HTTPError
 from lazr.restfulclient.resource import Entry
@@ -392,10 +392,15 @@ class SourcePackagePublishingHistory(BaseWrapper):
                 return None
 
             try:
-                self._changelog = urllib2.urlopen(url).read()
-            except urllib2.HTTPError, error:
-                print >> sys.stderr, ('%s: %s' % (url, error))
+                response, changelog = Http().request(url)
+            except HttpLib2Error, e:
+                print >> sys.stderr, str(e)
                 return None
+            if response.status != 200:
+                print >> sys.stderr, ('%s: %s %s' % (url, response.status,
+                                                     response.reason))
+                return None
+            self._changelog = changelog
 
         if since_version is None:
             return self._changelog

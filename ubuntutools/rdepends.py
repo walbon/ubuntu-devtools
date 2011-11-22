@@ -14,7 +14,8 @@
 
 import json
 import os
-import urllib2
+
+import httplib2
 
 
 class RDependsException(Exception):
@@ -29,7 +30,7 @@ def query_rdepends(package, release, arch,
 
     url = os.path.join(server, 'v1', release, arch, package)
 
-    try:
-        return json.load(urllib2.urlopen(url))
-    except urllib2.HTTPError, e:
-        raise RDependsException(e.read().strip())
+    response, data = httplib2.Http().request(url)
+    if response.status != 200:
+        raise RDependsException(data.strip())
+    return json.loads(data)

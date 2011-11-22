@@ -39,6 +39,7 @@ import sys
 from debian.changelog import Changelog, Version
 import debian.deb822
 import debian.debian_support
+import httplib2
 
 from devscripts.logger import Logger
 
@@ -47,18 +48,10 @@ from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
 from ubuntutools import subprocess
 
+
 class DownloadError(Exception):
     "Unable to pull a source package"
     pass
-
-
-class ForceHTTPSRedirectHandler(urllib2.HTTPRedirectHandler):
-    "Force redirects from http to https"
-    def redirect_request(self, req, fp, code, msg, hdrs, newurl):
-        if newurl.startswith('http://'):
-            newurl = newurl.replace('http://', 'https://')
-        return urllib2.HTTPRedirectHandler.redirect_request(self, req, fp, code,
-                                                            msg, hdrs, newurl)
 
 
 class Dsc(debian.deb822.Dsc):
@@ -248,18 +241,19 @@ class SourcePackage(object):
 
     def _download_dsc(self, url):
         "Download specified dscfile and parse"
-        # Launchpad will try to redirect us to plain-http Launchpad Librarian,
-        # but we want SSL when fetching the dsc
-        if url.startswith('https') and url.endswith('.dsc'):
-            opener = urllib2.build_opener(ForceHTTPSRedirectHandler())
+        parsed = urlparse.urlparse(url)
+        if parsed.scheme == 'file':
+            with open(parsed.path, 'r') as f:
+                body = f.read()
         else:
-            opener = urllib2.build_opener()
-        try:
-            f = opener.open(url)
-            self._dsc = Dsc(f.read())
-            f.close()
-        except urllib2.URLError:
-            raise DownloadError('dsc not found')
+            try:
+                response, body = httplib2.Http().request(url)
+            except httplib2.HttpLib2Error, e:
+                raise DownloadError(e)
+            if response.status != 200:
+                raise DownloadError("%s: %s %s" % (url, response.status,
+                                                   response.reason))
+        self._dsc = Dsc(body)
         self._dsc_fetched = True
 
     def _check_dsc(self, verify_signature=False):
@@ -315,15 +309,18 @@ class SourcePackage(object):
                 if entry['name'] == filename]
         assert len(size) == 1
         size = int(size[0])
-        host = urlparse.urlparse(url).hostname
+        parsed = urlparse.urlparse(url)
         if not self.quiet:
             Logger.normal('Downloading %s from %s (%0.3f MiB)',
-                          filename, host, size / 1024.0 / 1024)
+                          filename, parsed.hostname, size / 1024.0 / 1024)
 
-        try:
-            in_ = urllib2.build_opener().open(url)
-        except urllib2.URLError:
-            return False
+        if parsed.scheme == 'file':
+            in_ = open(parsed.path, 'r')
+        else:
+            try:
+                in_ = urllib2.urlopen(url)
+            except urllib2.URLError:
+                return False
 
         downloaded = 0
         bar_width = 60

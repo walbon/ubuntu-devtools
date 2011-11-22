@@ -21,10 +21,11 @@
 #   of the GNU General Public License license.
 
 import re
-import urllib2
 
 from debian.deb822 import Changes
+from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
+from httplib2 import Http, HttpLib2Error
 
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
@@ -109,7 +110,17 @@ def get_ubuntu_delta_changelog(srcpkg):
         if changes_url is None:
             # Native sync
             break
-        changes = Changes(urllib2.urlopen(changes_url))
+        try:
+            response, body = Http().request(changes_url)
+        except HttpLib2Error, e:
+            Logger.error(str(e))
+            break
+        if response.status != 200:
+            Logger.error("%s: %s %s", changes_url, response.status,
+                         response.reason)
+            break
+
+        changes = Changes(Http().request(changes_url)[1])
         for line in changes['Changes'].splitlines():
             line = line[1:]
             m = topline.match(line)
