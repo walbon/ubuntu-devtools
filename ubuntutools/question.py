@@ -192,7 +192,7 @@ class EditBugReport(EditFile):
             report = f.read().decode('utf-8')
 
         match = self.split_re.match(report)
-        title = u' '.join(match.group(1).spit(u'\n'))
+        title = match.group(1).replace(u'\n', u' ')
         report = (title, match.group(2))
         os.unlink(self.filename)
         return report
