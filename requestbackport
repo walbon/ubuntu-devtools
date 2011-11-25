@@ -175,6 +175,14 @@ def request_backport(package_spph, source, destinations):
     for bpph in package_spph.getBinaries():
         published_binaries.add(bpph.getPackageName())
 
+    if not published_binaries:
+        Logger.error("%s (%s) has no published binaries in %s. ",
+                     package_spph.getPackageName(), package_spph.getVersion(),
+                     source)
+        Logger.normal("Is it stuck in bin-NEW? It can't be backported until "
+                      "the binaries have been accepted.")
+        sys.exit(1)
+
     testing = []
     testing += ["You can test-build the backport in your PPA with "
                 "backportpackage:"]

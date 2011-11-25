@@ -4,7 +4,9 @@ ubuntu-dev-tools (0.136ubuntu1) UNRELEASED; urgency=low
   * Remove dgetlp. No longer needed.
   * Use httplib2 everywhere that we do https. The python stdlib doesn't do
     certificate verification.
-  * requestbackport: Check for existing backport bugs first.
+  * requestbackport:
+    - Check for existing backport bugs first.
+    - Check that there are published binaries (i.e. not stuck in bin-NEW).
   * pull-lp-source, requestbackport: Take the latest version from any
     non-backports pocket. Implemented by making lpapicache's getSourcePackage
     smarter.
