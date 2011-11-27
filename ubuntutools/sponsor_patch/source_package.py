@@ -99,7 +99,7 @@ class SourcePackage(object):
             bug.subscribe(person=launchpad.me)
             Logger.info("Subscribed me to bug #%i.", bug.id)
 
-            if launchpad.load('https://api.launchpad.net/1.0/bugs/'+str(bug.id)+'/+subscription/ubuntu-sponsors').canBeUnsubscribedByUser()
+            if launchpad.load('https://api.launchpad.net/1.0/bugs/'+str(bug.id)+'/+subscription/ubuntu-sponsors').canBeUnsubscribedByUser():
                 bug.unsubscribe(person=launchpad.people['ubuntu-sponsors'])
                 Logger.info("Unsubscribed ubuntu-sponsors from bug #%i.", bug.id)
             else:
