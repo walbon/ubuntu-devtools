@@ -18,8 +18,9 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
+  * requestsync: Give user option to retry in case of temporary error (LP: #850360)
 
- -- Andreas Moog <amoog@ubuntu.com>  Sun, 27 Nov 2011 16:47:05 +0100
+ -- Andreas Moog <amoog@ubuntu.com>  Sun, 27 Nov 2011 22:13:22 +0100
 
 ubuntu-dev-tools (0.136) unstable; urgency=low
 

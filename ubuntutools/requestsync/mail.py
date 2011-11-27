@@ -163,13 +163,20 @@ Content-Type: text/plain; charset=UTF-8
     confirmation_prompt()
 
     # connect to the server
-    try:
-        Logger.info('Connecting to %s:%s ...', mailserver_host, mailserver_port)
-        s = smtplib.SMTP(mailserver_host, mailserver_port)
-    except socket.error, s:
-        Logger.error('Could not connect to %s:%s: %s (%i)',
-                     mailserver_host, mailserver_port, s[1], s[0])
-        return
+    while True:
+        try:
+            Logger.info('Connecting to %s:%s ...', mailserver_host, mailserver_port)
+            s = smtplib.SMTP(mailserver_host, mailserver_port)
+            break
+        except socket.error, s:
+            Logger.error('Could not connect to %s:%s: %s (%i)',
+                         mailserver_host, mailserver_port, s[1], s[0])
+            return
+        except smtplib.SMTPConnectError, s:
+            Logger.error('Could not connect to %s:%s: %s (%i)',
+                         mailserver_host, mailserver_port, s[1], s[0])
+            if s[0] == 421:
+                confirmation_prompt(message="This is a temporary error, press [Enter] to retry. Press [Ctrl-C] to abort now.")
 
     if mailserver_user and mailserver_pass:
         try:
