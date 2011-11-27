@@ -112,7 +112,7 @@ class SourcePackage(object):
 
     def ask_and_upload(self, upload):
         """Ask the user before uploading the source package.
-        
+
         Returns true if the source package is uploaded successfully. Returns
         false if the user wants to change something.
         """
