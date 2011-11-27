@@ -28,6 +28,8 @@ from ubuntutools import subprocess
 from ubuntutools.harvest import Harvest
 from ubuntutools.question import Question, YesNoQuestion
 
+from ubuntutools.lp.lpapicache import (PersonTeam)
+
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing, user_abort
 
 def _get_series(launchpad):
@@ -100,8 +102,8 @@ class SourcePackage(object):
             Logger.info("Subscribed me to bug #%i.", bug.id)
 
             for sub in bug.subscriptions:
-                if sub.person == launchpad.people('ubuntu-sponsors') and sub.canBeUnsubscribedByUser():
-                    bug.unsubscribe(person=launchpad.people['ubuntu-sponsors'])
+                if sub.person == PersonTeam('ubuntu-sponsors') and sub.canBeUnsubscribedByUser():
+                    bug.unsubscribe(person=PersonTeam['ubuntu-sponsors'])
                     Logger.info("Unsubscribed ubuntu-sponsors from bug #%i.", bug.id)
                 else:
                     Logger.info("Couldn't unsubscribe ubuntu-sponsors from bug #%i.", bug.id)
