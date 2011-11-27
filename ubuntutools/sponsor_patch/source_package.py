@@ -105,8 +105,8 @@ class SourcePackage(object):
             Logger.normal("Successfully acknowledged sync request bug #%i.",
                           bug.id)
         else:
-            Logger.error("Acknowledging a sync request other than to the "
-                         "official Ubuntu archive is not supported!")
+            Logger.error("Sync requests can only be acknowledged when the "
+                         "upload target is Ubuntu.")
             sys.exit(1)
         return True
 
