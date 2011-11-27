@@ -1,6 +1,5 @@
 ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
 
-  [ Stefano Rivera ]
   * mk-sbuild: Make --eatmydata command line flag actually work.
   * Remove dgetlp. No longer needed.
   * Use httplib2 everywhere that we do https. The python stdlib doesn't do
@@ -11,11 +10,12 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * pull-lp-source, requestbackport: Take the latest version from any
     non-backports pocket. Implemented by making lpapicache's getSourcePackage
     smarter.
+  * sponsor-patch: Build a source package for lintian to run on, when not
+    test-building syncs.
+  * sponsor-patch: Check the bug's title, not the task, when determining
+    source series for syncs.
 
-  [ Andreas Moog ]
-  * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
-
- -- Andreas Moog <amoog@ubuntu.com>  Sun, 27 Nov 2011 15:54:10 +0100
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Nov 2011 09:47:00 +0200
 
 ubuntu-dev-tools (0.136) unstable; urgency=low
 
