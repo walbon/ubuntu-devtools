@@ -119,7 +119,7 @@ class BugTask(object):
 
         if self.is_derived_from_debian() and not latest_release:
             project = "debian"
-            title = self.bug_task.title.lower().split()
+            title = self.bug_task.bug.title.lower().split()
             if "experimental" in title:
                 series = "experimental"
             elif "testing" in title:

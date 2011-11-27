@@ -12,6 +12,8 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
     smarter.
   * sponsor-patch: Build a source package for lintian to run on, when not
     test-building syncs.
+  * sponsor-patch: Check the bug's title, not the task, when determining
+    source series for syncs.
 
  -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Nov 2011 09:47:00 +0200
 
