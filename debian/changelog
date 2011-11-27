@@ -10,6 +10,8 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * pull-lp-source, requestbackport: Take the latest version from any
     non-backports pocket. Implemented by making lpapicache's getSourcePackage
     smarter.
+  * sponsor-patch: Build a source package for lintian to run on, when not
+    test-building syncs.
 
  -- Stefano Rivera <stefanor@debian.org>  Mon, 21 Nov 2011 09:47:00 +0200
 

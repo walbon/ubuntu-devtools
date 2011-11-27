@@ -266,10 +266,15 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
             previous_version = task.get_previous_version()
             successful = source_package.check_version(previous_version)
 
-        if successful and build:
-            dist = UbuntuDistroInfo().devel()
-            successful = source_package.build(update, dist)
-            update = False
+        if successful:
+            if build:
+                dist = UbuntuDistroInfo().devel()
+                successful = source_package.build(update, dist)
+                update = False
+            else:
+                # We are going to run lintian, so we need a source package
+                successful = source_package.build_source(None, upload,
+                                                         previous_version)
 
         if successful:
             #if source_package.sync(upload, bug_number, keyid):
