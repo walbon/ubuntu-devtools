@@ -99,8 +99,15 @@ class SourcePackage(object):
             bug.subscribe(person=launchpad.me)
             Logger.info("Subscribed me to bug #%i.", bug.id)
 
-            bug.unsubscribe(person=launchpad.people['ubuntu-sponsors'])
-            Logger.info("Unsubscribed ubuntu-sponsors from bug #%i.", bug.id)
+            sponsorsteam = launchpad.people['ubuntu-sponsors']
+            for sub in bug.subscriptions:
+                if sub.person == sponsorsteam and sub.canBeUnsubscribedByUser():
+                    bug.unsubscribe(person=launchpad.people['ubuntu-sponsors'])
+                    Logger.info("Unsubscribed ubuntu-sponsors from bug #%i.",
+                                bug.id)
+                elif sub.person == sponsorsteam:
+                    Logger.info("Couldn't unsubscribe ubuntu-sponsors from "
+                                "bug #%i.", bug.id)
 
             Logger.normal("Successfully acknowledged sync request bug #%i.",
                           bug.id)
