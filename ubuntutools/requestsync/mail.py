@@ -162,6 +162,16 @@ Content-Type: text/plain; charset=UTF-8
     print 'The final report is:\n%s' % mail
     confirmation_prompt()
 
+    # save mail in temporary file
+    f=open("/tmp/requestsync-" + srcpkg,"w")
+    f.write(mail)
+    f.close()
+
+    print '''
+The e-mail has been saved in %s and will be deleted 
+after succesful transmission
+''' % f.name
+
     # connect to the server
     while True:
         try:
@@ -176,8 +186,8 @@ Content-Type: text/plain; charset=UTF-8
             Logger.error('Could not connect to %s:%s: %s (%i)',
                          mailserver_host, mailserver_port, s[1], s[0])
             if s.smtp_code == 421:
-                confirmation_prompt(message='This is a temporary error, press'
-                                   '[Enter] to retry. Press [Ctrl-C] to abort now.')
+                confirmation_prompt(message='This is a temporary error, press '
+                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
 
     if mailserver_user and mailserver_pass:
         try:
@@ -192,6 +202,10 @@ Content-Type: text/plain; charset=UTF-8
             s.quit()
             return
 
-    s.sendmail(myemailaddr, to, mail.encode('utf-8'))
-    s.quit()
-    Logger.normal('Sync request mailed.')
+    try:
+        s.sendmail(myemailaddr, to, mail.encode('utf-8'))
+        s.quit()
+        os.remove(f.name)
+        Logger.normal('Sync request mailed.')
+    except:
+        Logger.error('Unknown error while sending the mail.')
