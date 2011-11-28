@@ -175,8 +175,9 @@ Content-Type: text/plain; charset=UTF-8
         except smtplib.SMTPConnectError, s:
             Logger.error('Could not connect to %s:%s: %s (%i)',
                          mailserver_host, mailserver_port, s[1], s[0])
-            if s[0] == 421:
-                confirmation_prompt(message="This is a temporary error, press [Enter] to retry. Press [Ctrl-C] to abort now.")
+            if s.smtp_code == 421:
+                confirmation_prompt(message='This is a temporary error, press'
+                                   '[Enter] to retry. Press [Ctrl-C] to abort now.')
 
     if mailserver_user and mailserver_pass:
         try:
