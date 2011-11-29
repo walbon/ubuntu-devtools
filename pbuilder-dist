@@ -394,9 +394,9 @@ def main():
     if len(parts) > 2:
         requested_arch = parts[2]
     elif len(args) > 0 and args[0] in (
-            'alpha', 'amd64', 'arm', 'armeb', 'armel', 'i386', 'lpia', 'm68k',
-            'mips', 'mipsel', 'powerpc', 'ppc64', 'sh4', 'sh4eb', 'sparc',
-            'sparc64'):
+            'alpha', 'amd64', 'arm', 'armeb', 'armel', 'armhf', 'i386', 'lpia',
+            'm68k', 'mips', 'mipsel', 'powerpc', 'ppc64', 'sh4', 'sh4eb',
+            'sparc', 'sparc64'):
         requested_arch = args.pop(0)
     else:
         requested_arch = None
@@ -407,9 +407,10 @@ def main():
         if (requested_arch != app.system_architecture
                 and (app.system_architecture, requested_arch) not in [
                     ('amd64', 'i386'), ('amd64', 'lpia'), ('arm', 'armel'),
-                    ('armel', 'arm'), ('i386', 'lpia'), ('lpia', 'i386'),
-                    ('powerpc', 'ppc64'), ('ppc64', 'powerpc'),
-                    ('sparc', 'sparc64'), ('sparc64', 'sparc')]):
+                    ('armel', 'arm'), ('armel', 'armhf'), ('armhf', 'armel'),
+                    ('i386', 'lpia'), ('lpia', 'i386'), ('powerpc', 'ppc64'),
+                    ('ppc64', 'powerpc'), ('sparc', 'sparc64'),
+                    ('sparc64', 'sparc')]):
             args += ['--debootstrap', 'qemu-debootstrap']
 
     if 'mainonly' in sys.argv or '--main-only' in sys.argv:
