@@ -399,7 +399,7 @@ ubuntu)
         amd64 | i386)
             DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
             ;;
-        armel | hppa | ia64 | lpia | sparc)
+        armhf | armel | hppa | ia64 | lpia | sparc)
             DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
             ;;
         powerpc)
@@ -422,7 +422,7 @@ ubuntu)
         amd64 | i386)
             SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
             ;;
-        armel | hppa | ia64 | lpia | sparc)
+        armhf | armel | hppa | ia64 | lpia | sparc)
             SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
             ;;
         powerpc)
@@ -495,7 +495,7 @@ DEBOOTSTRAP_COMMAND=debootstrap
 if [ "$CHROOT_ARCH" != "$HOST_ARCH" ] ; then
     case "$CHROOT_ARCH-$HOST_ARCH" in
     # Sometimes we don't need qemu
-    amd64-i386|amd64-lpia|arm-armel|armel-arm|i386-amd64|i386-lpia|lpia-i386|powerpc-ppc64|ppc64-powerpc|sparc-sparc64|sparc64-sparc)
+    amd64-i386|amd64-lpia|arm-armel|armel-arm|armel-armhf|armhf-armel|i386-amd64|i386-lpia|lpia-i386|powerpc-ppc64|ppc64-powerpc|sparc-sparc64|sparc64-sparc)
         ;;
     # Sometimes we do
     *)
