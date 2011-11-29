@@ -167,10 +167,8 @@ Content-Type: text/plain; charset=UTF-8
     f.write(mail)
     f.close()
 
-    print '''
-The e-mail has been saved in %s and will be deleted 
-after succesful transmission
-''' % f.name
+    Logger.normal('The e-mail has been saved in %s and will be deleted '
+                  'after succesful transmission', f.name)
 
     # connect to the server
     while True:
