@@ -60,7 +60,7 @@ def main():
             pretty_uploader = ' '.join((author, uploader)).strip()
             if (match is None or
                 match in package or match in author or match in uploader):
-                print '%s\t%s' % (package, pretty_uploader)
+                print '%s\t%s' % (package.encode("utf-8"), pretty_uploader.encode("utf-8"))
 
 if __name__ == '__main__':
     main()
