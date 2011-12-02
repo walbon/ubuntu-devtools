@@ -16,6 +16,8 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * sponsor-patch: Check the bug's title, not the task, when determining
     source series for syncs.
   * mk-sbuild, pbuilder-dist, ubuntu-build: Add armhf.
+  * pull-debian-source, pull-lp-source: Resolve the source package (via DDE),
+    if a binary package was requested (LP: #617349)
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)

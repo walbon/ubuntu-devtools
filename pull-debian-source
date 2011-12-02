@@ -16,14 +16,17 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+import json
 import optparse
 import sys
+import urllib2
 
 from devscripts.logger import Logger
 from distro_info import DebianDistroInfo
 
 from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
+
 
 def is_suite(version):
     """If version could be considered to be a Debian suite, return the
@@ -45,6 +48,23 @@ def is_suite(version):
         if release in debian_releases:
             return release
     return None
+
+
+def source_package_for(binary, release):
+    """Query DDE to find the source package for a particular binary"""
+    release = DebianDistroInfo().codename(release, default=release)
+    url = ('http://dde.debian.net/dde/q/udd/dist/d:debian/r:%s/p:%s/?t=json'
+           % (release, binary))
+    try:
+        data = json.load(urllib2.urlopen(url))['r']
+    except urllib2.URLError, e:
+        Logger.error('Unable to retrieve package information from DDE: '
+                     '%s (%s)', url, str(e))
+        return None
+    if not data:
+        return None
+    return data[0]['source']
+
 
 def main():
     usage = 'Usage: %prog <package> [release|version]'
@@ -85,9 +105,14 @@ def main():
     if suite is not None:
         line = list(rmadison('debian', package, suite, 'source'))
         if not line:
-            Logger.error('Unable to find %s in Debian suite "%s".', package,
-                         suite)
-            sys.exit(1)
+            source_package = source_package_for(package, suite)
+            if source_package != None and package != source_package:
+                package = source_package
+                line = list(rmadison('debian', package, suite, 'source'))
+            if not line:
+                Logger.error('Unable to find %s in Debian suite "%s".', package,
+                             suite)
+                sys.exit(1)
         line = line[-1]
         version = line['version']
         component = line['component']
