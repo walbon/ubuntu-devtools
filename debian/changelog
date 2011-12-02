@@ -18,6 +18,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * mk-sbuild, pbuilder-dist, ubuntu-build: Add armhf.
   * pull-debian-source, pull-lp-source: Resolve the source package (via DDE),
     if a binary package was requested (LP: #617349)
+  * submittodebian: Check existing bug reports before editing anything.
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
