@@ -16,12 +16,16 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * sponsor-patch: Check the bug's title, not the task, when determining
     source series for syncs.
   * mk-sbuild, pbuilder-dist, ubuntu-build: Add armhf.
+  * pull-debian-source, pull-lp-source: Resolve the source package (via DDE),
+    if a binary package was requested (LP: #617349)
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
+  * grep-merges: We already require a UTF-8 enabled terminal, so encode 
+    package and uploader name in UTF-8 (LP: #694388)
   * requestsync: Give user option to retry in case of temporary error (LP: #850360)
 
- -- Andreas Moog <amoog@ubuntu.com>  Sun, 27 Nov 2011 22:13:22 +0100
+ -- Andreas Moog <amoog@ubuntu.com>  Wed, 30 Nov 2011 21:04:39 +0100
 
 ubuntu-dev-tools (0.136) unstable; urgency=low
 
