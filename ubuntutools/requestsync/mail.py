@@ -163,7 +163,7 @@ Content-Type: text/plain; charset=UTF-8
     confirmation_prompt()
 
     # save mail in temporary file
-    f=open("/tmp/requestsync-" + srcpkg,"w")
+    f=open("/tmp/requestsync-" + srcpkg, "w")
     f.write(mail)
     f.close()
 
