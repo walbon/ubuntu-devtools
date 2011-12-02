@@ -18,6 +18,7 @@
 # Wraps sensisible-editor in checks for remaining boilerplate.
 # Configured through environment variables:
 # UDT_EDIT_WRAPPER_EDITOR: The user's usual $EDITOR
+# UDT_EDIT_WRAPPER_VISUAL: The user's usual $VISUAL
 # UDT_EDIT_WRAPPER_TEMPLATE_RE: An extra boilerplate-detecting regex.
 # UDT_EDIT_WRAPPER_FILE_DESCRIPTION: The type of file being edited.
 
@@ -42,6 +43,11 @@ def main():
         os.environ['EDITOR'] = os.environ['UDT_EDIT_WRAPPER_EDITOR']
     else:
         del os.environ['EDITOR']
+
+    if 'UDT_EDIT_WRAPPER_VISUAL' in os.environ:
+        os.environ['VISUAL'] = os.environ['UDT_EDIT_WRAPPER_VISUAL']
+    else:
+        del os.environ['VISUAL']
 
     placeholders = []
     if 'UDT_EDIT_WRAPPER_TEMPLATE_RE' in os.environ:

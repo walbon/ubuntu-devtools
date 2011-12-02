@@ -126,7 +126,10 @@ def submit_bugreport(body, debdiff, deb_version, changelog):
     env = dict(os.environ.items())
     if 'EDITOR' in env:
         env['UDT_EDIT_WRAPPER_EDITOR'] = env['EDITOR']
+    if 'VISUAL' in env:
+        env['UDT_EDIT_WRAPPER_VISUAL'] = env['VISUAL']
     env['EDITOR'] = os.path.join(editor_path, 'enforced-editing-wrapper')
+    env['VISUAL'] = os.path.join(editor_path, 'enforced-editing-wrapper')
     env['UDT_EDIT_WRAPPER_TEMPLATE_RE'] = (
             '.*REPLACE THIS WITH ACTUAL INFORMATION.*')
     env['UDT_EDIT_WRAPPER_FILE_DESCRIPTION'] = 'bug report'
