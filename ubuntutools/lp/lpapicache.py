@@ -278,11 +278,11 @@ class Archive(BaseWrapper):
     resource_type = 'archive'
 
     def __init__(self, *args):
-        # Don't share between different Archives
-        if '_binpkgs' not in self.__dict__:
-            self._binpkgs = dict()
-        if '_srcpkgs' not in self.__dict__:
-            self._srcpkgs = dict()
+        self._binpkgs = {}
+        self._srcpkgs = {}
+        self._pkg_uploaders = {}
+        self._pkgset_uploaders = {}
+        self._component_uploaders = {}
 
     def getSourcePackage(self, name, series=None, pocket=None):
         '''
@@ -399,6 +399,40 @@ class Archive(BaseWrapper):
             to_series=to_series,
             include_binaries=include_binaries
             )
+
+    def getUploadersForComponent(self, component_name):
+        '''Get the list of PersonTeams who can upload packages in the
+        specified component.
+        '''
+        if component_name not in self._component_uploaders:
+            self._component_uploaders[component_name] = sorted(set(
+                    PersonTeam(permission.person_link)
+                    for permission in self._lpobject.getUploadersForComponent(
+                        component_name=component_name
+                    )))
+        return self._component_uploaders[component_name]
+
+    def getUploadersForPackage(self, source_package_name):
+        '''Get the list of PersonTeams who can upload source_package_name)'''
+        if source_package_name not in self._pkg_uploaders:
+            self._pkg_uploaders[source_package_name] = sorted(set(
+                    PersonTeam(permission.person_link)
+                    for permission in self._lpobject.getUploadersForPackage(
+                        source_package_name=source_package_name
+                    )))
+        return self._pkg_uploaders[source_package_name]
+
+    def getUploadersForPackageset(self, packageset, direct_permissions=False):
+        '''Get the list of PersonTeams who can upload packages in packageset'''
+        key = (packageset, direct_permissions)
+        if key not in self._pkgset_uploaders:
+            self._pkgset_uploaders[key] = sorted(set(
+                    PersonTeam(permission.person_link)
+                    for permission in self._lpobject.getUploadersForPackageset(
+                        packageset=packageset._lpobject,
+                        direct_permissions=direct_permissions,
+                    )))
+        return self._pkgset_uploaders[key]
 
 
 class SourcePackagePublishingHistory(BaseWrapper):
@@ -703,3 +737,36 @@ class DistributionSourcePackage(BaseWrapper):
     Caching class for distribution_source_package objects.
     '''
     resource_type = 'distribution_source_package'
+
+
+class Packageset(BaseWrapper):
+    '''
+    Caching class for packageset objects.
+    '''
+    resource_type = 'packageset'
+    _lp_packagesets = None
+    _source_sets = {}
+
+    @classmethod
+    def setsIncludingSource(cls, sourcepackagename, distroseries=None,
+                            direct_inclusion=False):
+        '''Get the package sets including sourcepackagename'''
+
+        if cls._lp_packagesets is None:
+            cls._lp_packagesets = Launchpad.packagesets
+
+        key = (sourcepackagename, distroseries, direct_inclusion)
+        if key not in cls._source_sets:
+            params = {
+                'sourcepackagename': sourcepackagename,
+                'direct_inclusion': direct_inclusion,
+            }
+            if distroseries is not None:
+                params['distroseries'] = distroseries._lpobject
+
+            cls._source_sets[key] = [
+                    Packageset(packageset) for packageset
+                    in cls._lp_packagesets.setsIncludingSource(**params)
+            ]
+
+        return cls._source_sets[key]

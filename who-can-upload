@@ -1,0 +1,97 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import optparse
+
+from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
+                                       Packageset,
+                                       SeriesNotFoundException)
+
+
+def main():
+    parser = optparse.OptionParser('%prog [options] package')
+    parser.add_option('-r', '--release', default=None, metavar='RELEASE',
+                      help='Use RELEASE, rather than the current development '
+                           'release')
+    parser.add_option('-t', '--list-team-members',
+                      default=False, action='store_true',
+                      help='List all team members of teams with upload rights')
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("One (and only one) package must be specified")
+    package = args[0]
+
+    # Need to be logged in to see uploaders:
+    Launchpad.login()
+
+    ubuntu = Distribution('ubuntu')
+    archive = ubuntu.getArchive()
+    if options.release is None:
+        series = ubuntu.getDevelopmentSeries()
+    else:
+        try:
+            series = ubuntu.getSeries(options.release)
+        except SeriesNotFoundException, e:
+            parser.error(str(e))
+
+    spph = archive.getSourcePackage(package)
+    component = spph.getComponent()
+    component_uploader = archive.getUploadersForComponent(
+            component_name=component)[0]
+    print "Component (%s)" % component
+    print "============" + ("=" * len(component))
+    print_uploaders([component_uploader], options.list_team_members)
+
+    packagesets = sorted(Packageset.setsIncludingSource(distroseries=series,
+                                                    sourcepackagename=package))
+    if packagesets:
+        print
+        print "Packagesets"
+        print "==========="
+        for packageset in packagesets:
+            print
+            print "%s:" % packageset.name
+            print_uploaders(archive.getUploadersForPackageset(
+                packageset=packageset), options.list_team_members)
+
+    ppu_uploaders = archive.getUploadersForPackage(source_package_name=package)
+    if ppu_uploaders:
+        print
+        print "Per-Package-Uploaders"
+        print "====================="
+        print
+        print_uploaders(ppu_uploaders, options.list_team_members)
+
+    print
+    if PersonTeam.me.canUploadPackage(archive, series, package, component):
+        print "You can upload this package"
+    else:
+        print "You can not upload this package, yourself."
+        print ("But you can still contribute to it via the sponsorship "
+               "process: https://wiki.ubuntu.com/SponsorshipProcess")
+
+
+def print_uploaders(uploaders, expand_teams=False, prefix=''):
+    for uploader in sorted(uploaders, key=lambda p: p.display_name):
+        print ("%s* %s (%s)%s"
+               % (prefix, uploader.display_name, uploader.name,
+                  ' [team]' if uploader.is_team else ''))
+        if expand_teams and uploader.is_team:
+            print_uploaders(uploader.participants, True, prefix=prefix + '  ')
+
+if __name__ == '__main__':
+    main()
