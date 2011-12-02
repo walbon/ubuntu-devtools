@@ -42,6 +42,7 @@ from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
 
 __all__ = [
     'Archive',
+    'BinaryPackagePublishingHistory',
     'Build',
     'Distribution',
     'DistributionSourcePackage',
@@ -277,7 +278,9 @@ class Archive(BaseWrapper):
     resource_type = 'archive'
 
     def __init__(self, *args):
-        # Don't share _srcpkgs between different Archives
+        # Don't share between different Archives
+        if '_binpkgs' not in self.__dict__:
+            self._binpkgs = dict()
         if '_srcpkgs' not in self.__dict__:
             self._srcpkgs = dict()
 
@@ -294,6 +297,34 @@ class Archive(BaseWrapper):
 
         If the requested source package doesn't exist a
         PackageNotFoundException is raised.
+        '''
+        return self._getPublishedItem(name, series, pocket, cache=self._srcpkgs,
+                                      function='getPublishedSources',
+                                      name_key='source_name',
+                                      wrapper=SourcePackagePublishingHistory)
+
+    def getBinaryPackage(self, name, series=None, pocket=None):
+        '''
+        Returns a BinaryPackagePublishingHistory object for the most
+        recent source package in the distribution 'dist', series and
+        pocket.
+
+        series defaults to the current development series if not specified.
+
+        pocket may be a list, if so, the highest version will be returned.
+        It defaults to all pockets except backports.
+
+        If the requested binary package doesn't exist a
+        PackageNotFoundException is raised.
+        '''
+        return self._getPublishedItem(name, series, pocket, cache=self._binpkgs,
+                                      function='getPublishedBinaries',
+                                      name_key='binary_name',
+                                      wrapper=BinaryPackagePublishingHistory)
+
+    def _getPublishedItem(self, name, series, pocket, cache, function, name_key,
+                          wrapper):
+        '''Common code between getSourcePackage and getBinaryPackage
         '''
         if pocket is None:
             pockets = frozenset(('Proposed', 'Updates', 'Security', 'Release'))
@@ -316,9 +347,9 @@ class Archive(BaseWrapper):
                 series = dist.getDevelopmentSeries()
 
         index = (name, series.name, pockets)
-        if index not in self._srcpkgs:
+        if index not in cache:
             params = {
-                'source_name': name,
+                name_key: name,
                 'distro_series': series(),
                 'status': 'Published',
                 'exact_match': True,
@@ -326,7 +357,7 @@ class Archive(BaseWrapper):
             if len(pockets) == 1:
                 params['pocket'] = list(pockets)[0]
 
-            records = self.getPublishedSources(**params)
+            records = getattr(self, function)(**params)
 
             latest = None
             for record in records:
@@ -347,8 +378,8 @@ class Archive(BaseWrapper):
                 msg += " in " + ', '.join(pockets)
                 raise PackageNotFoundException(msg)
 
-            self._srcpkgs[index] = SourcePackagePublishingHistory(latest)
-        return self._srcpkgs[index]
+            cache[index] = wrapper(latest)
+        return cache[index]
 
     def copyPackage(self, source_name, version, from_archive, to_pocket,
                     to_series=None, include_binaries=False):
