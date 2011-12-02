@@ -30,7 +30,7 @@ from tempfile import mkdtemp
 from distro_info import UbuntuDistroInfo
 
 from ubuntutools.config import ubu_email
-from ubuntutools.question import YesNoQuestion, EditFile, confirmation_prompt
+from ubuntutools.question import YesNoQuestion, EditFile
 from ubuntutools.subprocess import call, check_call, Popen, PIPE
 
 try:
@@ -118,10 +118,22 @@ def check_file(fname, critical = True):
 
 def submit_bugreport(body, debdiff, deb_version, changelog):
     devel = UbuntuDistroInfo().devel()
+
+    if os.path.dirname(sys.argv[0]).startswith('/usr/bin'):
+        editor_path = '/usr/share/ubuntu-dev-tools'
+    else:
+        editor_path = os.path.dirname(sys.argv[0])
+    env = dict(os.environ.items())
+    if 'EDITOR' in env:
+        env['UDT_EDIT_WRAPPER_EDITOR'] = env['EDITOR']
+    env['EDITOR'] = os.path.join(editor_path, 'enforced-editing-wrapper')
+    env['UDT_EDIT_WRAPPER_TEMPLATE_RE'] = (
+            '.*REPLACE THIS WITH ACTUAL INFORMATION.*')
+    env['UDT_EDIT_WRAPPER_FILE_DESCRIPTION'] = 'bug report'
+
     cmd = ('reportbug',
            '--no-check-available',
            '--no-check-installed',
-           '--no-query-bts',
            '--pseudo-header', 'User: ubuntu-devel@lists.ubuntu.com',
            '--pseudo-header', 'Usertags: origin-ubuntu %s ubuntu-patch' % devel,
            '--tag', 'patch',
@@ -130,19 +142,8 @@ def submit_bugreport(body, debdiff, deb_version, changelog):
            '--include', body,
            '--package-version', deb_version,
            changelog.package)
-    check_call(cmd)
+    check_call(cmd, env=env)
 
-def check_existing_bugreports(package, deb_version):
-    print "Checking existing bug reports first."
-    print
-    cmd = ('reportbug',
-           '--no-check-available',
-           '--no-check-installed',
-           '--query-only',
-           '--bts', 'debian',
-           '--package-version', deb_version, package)
-    check_call(cmd)
-    confirmation_prompt(action='continue filing this bug')
 
 def check_reportbug_config():
     fn = os.path.expanduser('~/.reportbugrc')
@@ -193,8 +194,6 @@ def main():
     deb_version = get_most_recent_debian_version(changelog)
     bug_body = get_bug_body(changelog)
 
-    check_existing_bugreports(changelog.package, deb_version)
-
     tmpdir = mkdtemp()
     body = os.path.join(tmpdir, 'bug_body')
     fp = open(body, 'w')
@@ -204,9 +203,6 @@ def main():
     debdiff = gen_debdiff(tmpdir, changelog)
 
     EditFile(debdiff, 'debdiff').edit(optional=True)
-    EditFile(body, 'bug report', [
-            re.compile('.*REPLACE THIS WITH ACTUAL INFORMATION.*')
-        ]).edit()
 
     submit_bugreport(body, debdiff, deb_version, changelog)
     os.unlink(body)
