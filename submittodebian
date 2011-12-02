@@ -24,6 +24,7 @@
 
 import os
 import re
+import shutil
 import sys
 from tempfile import mkdtemp
 
@@ -210,7 +211,7 @@ def main():
     submit_bugreport(body, debdiff, deb_version, changelog)
     os.unlink(body)
     os.unlink(debdiff)
-    os.rmdir(tmpdir)
+    shutil.rmtree(tmpdir)
 
 if __name__ == '__main__':
     main()
