@@ -21,6 +21,7 @@
 #   of the GNU General Public License license.
 
 import os
+import re
 import sys
 import smtplib
 import socket
@@ -163,7 +164,7 @@ Content-Type: text/plain; charset=UTF-8
     confirmation_prompt()
 
     # save mail in temporary file
-    f=open("/tmp/requestsync-" + bugtitle.replace(" ","_"), "w")
+    f=open("/tmp/requestsync-" + re.sub("[^a-zA-Z0-9_\-]","",bugtitle.replace(" ","_")), "w")
     f.write(mail)
     f.close()
 
