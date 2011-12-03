@@ -21,9 +21,11 @@
 #   of the GNU General Public License license.
 
 import os
+import re
 import sys
 import smtplib
 import socket
+import tempfile
 
 from debian.changelog import Changelog, Version
 from devscripts.logger import Logger
@@ -162,14 +164,33 @@ Content-Type: text/plain; charset=UTF-8
     print 'The final report is:\n%s' % mail
     confirmation_prompt()
 
+    # save mail in temporary file
+    backup = tempfile.NamedTemporaryFile(mode='w', delete=False,
+            prefix='requestsync-' + re.sub(r'[^a-zA-Z0-9_-]', '',
+                                           bugtitle.replace(' ', '_')))
+    with backup:
+        backup.write(mail)
+
+    Logger.normal('The e-mail has been saved in %s and will be deleted '
+                  'after succesful transmission', backup.name)
+
     # connect to the server
-    try:
-        Logger.info('Connecting to %s:%s ...', mailserver_host, mailserver_port)
-        s = smtplib.SMTP(mailserver_host, mailserver_port)
-    except socket.error, s:
-        Logger.error('Could not connect to %s:%s: %s (%i)',
-                     mailserver_host, mailserver_port, s[1], s[0])
-        return
+    while True:
+        try:
+            Logger.normal('Connecting to %s:%s ...', mailserver_host,
+                          mailserver_port)
+            s = smtplib.SMTP(mailserver_host, mailserver_port)
+            break
+        except socket.error, s:
+            Logger.error('Could not connect to %s:%s: %s (%i)',
+                         mailserver_host, mailserver_port, s[1], s[0])
+            return
+        except smtplib.SMTPConnectError, s:
+            Logger.error('Could not connect to %s:%s: %s (%i)',
+                         mailserver_host, mailserver_port, s[1], s[0])
+            if s.smtp_code == 421:
+                confirmation_prompt(message='This is a temporary error, press '
+                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
 
     if mailserver_user and mailserver_pass:
         try:
@@ -184,6 +205,25 @@ Content-Type: text/plain; charset=UTF-8
             s.quit()
             return
 
-    s.sendmail(myemailaddr, to, mail.encode('utf-8'))
-    s.quit()
-    Logger.normal('Sync request mailed.')
+    while True:
+        try:
+            s.sendmail(myemailaddr, to, mail.encode('utf-8'))
+            s.quit()
+            os.remove(backup.name)
+            Logger.normal('Sync request mailed.')
+            break
+        except smtplib.SMTPRecipientsRefused, smtperror:
+            smtp_code, smtp_message = smtperror.recipients[to]
+            Logger.error('Error while sending: %i, %s', smtp_code, smtp_message)
+            if smtp_code == 450:
+                confirmation_prompt(message='This is a temporary error, press '
+                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
+            else:
+                return
+        except smtplib.SMTPResponseException, e:
+            Logger.error('Error while sending: %i, %s',
+                         e.smtp_code, e.smtp_error)
+            return
+        except smtplib.SMTPServerDisconnected:
+            Logger.error('Server disconnected while sending the mail.')
+            return

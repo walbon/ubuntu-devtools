@@ -27,6 +27,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
   * grep-merges: We already require a UTF-8 enabled terminal, so encode 
     package and uploader name in UTF-8 (LP: #694388)
+  * requestsync: Give user option to retry in case of temporary error (LP: #850360)
 
  -- Andreas Moog <amoog@ubuntu.com>  Wed, 30 Nov 2011 21:04:39 +0100
 
