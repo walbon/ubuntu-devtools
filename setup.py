@@ -41,6 +41,7 @@ scripts = ['404main',
            'syncpackage',
            'ubuntu-build',
            'ubuntu-iso',
+           'ubuntu-upload-permission',
            'update-maintainer',
           ]
 

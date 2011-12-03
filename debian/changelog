@@ -22,10 +22,11 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
     - Do the report boiler-plate checking in a script that wraps an editor, so
       that we only edit the report once, after checking for duplicates.
     - rm the tmpdir with a little more force (shutil.rmtree) (LP: #899399)
+  * New Tool: ubuntu-upload-permission: Query upload permissions (LP: #876554)
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
-  * grep-merges: We already require a UTF-8 enabled terminal, so encode 
+  * grep-merges: We already require a UTF-8 enabled terminal, so encode
     package and uploader name in UTF-8 (LP: #694388)
   * requestsync: Give user option to retry in case of temporary error (LP: #850360)
 

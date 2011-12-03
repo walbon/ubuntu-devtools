@@ -68,6 +68,7 @@ Description: useful tools for Ubuntu developers
  .
   - 404main - used to check what components a package's deps are in, for
     doing a main inclusion report for example.
+  - backportpackage - helper to test package backports
   - bitesize - add the 'bitesize' tag to a bug and comment that you are
     willing to help fix it.
   - check-mir - check support status of build/binary dependencies
@@ -105,4 +106,6 @@ Description: useful tools for Ubuntu developers
   - ubuntu-build - give commands to the Launchpad build daemons from the
     command line.
   - ubuntu-iso - output information of an Ubuntu ISO image.
+  - ubuntu-upload-permission - query / list the upload permissions for a
+    package.
   - update-maintainer - script to update maintainer field in ubuntu packages.
