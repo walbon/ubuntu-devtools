@@ -22,6 +22,7 @@ from devscripts.logger import Logger
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        Packageset, PackageNotFoundException,
                                        SeriesNotFoundException)
+from ubuntutools.misc import split_release_pocket
 
 
 def parse_arguments():
@@ -59,9 +60,11 @@ def main():
     archive = ubuntu.getArchive()
     if options.release is None:
         series = ubuntu.getDevelopmentSeries()
+        pocket = 'Release'
     else:
         try:
-            series = ubuntu.getSeries(options.release)
+            release, pocket = split_release_pocket(options.release)
+            series = ubuntu.getSeries(release)
         except SeriesNotFoundException, e:
             Logger.error(str(e))
             sys.exit(2)
@@ -104,15 +107,21 @@ def main():
             print_uploaders(ppu_uploaders, options.list_team_members)
         print
 
-    if PersonTeam.me.canUploadPackage(archive, series, package, component):
-        print "You can upload this package."
+    if PersonTeam.me.canUploadPackage(archive, series, package, component,
+                                      pocket):
+        print "You can upload %s." % package
     else:
-        print "You can not upload this package, yourself."
+        print "You can not upload %s, yourself." % package
         print ("But you can still contribute to it via the sponsorship "
                "process: https://wiki.ubuntu.com/SponsorshipProcess")
         if not options.list_uploaders:
             print ("To see who has the necessary upload rights, "
                    "use the --list-uploaders option.")
+        if (series.status in ('Current Stable Release', 'Supported', 'Obsolete')
+                and pocket == 'Release'):
+            print ("%s is in the '%s' state. "
+                   "You may want to query the %s-proposed pocket."
+                   % (release, series.status, release))
         sys.exit(1)
 
 
