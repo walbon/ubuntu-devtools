@@ -200,10 +200,18 @@ Content-Type: text/plain; charset=UTF-8
             s.quit()
             return
 
-    try:
-        s.sendmail(myemailaddr, to, mail.encode('utf-8'))
-        s.quit()
-        os.remove(f.name)
-        Logger.normal('Sync request mailed.')
-    except:
-        Logger.error('Unknown error while sending the mail.')
+    while True:
+        try:
+            s.sendmail(myemailaddr, to, mail.encode('utf-8'))
+            s.quit()
+            os.remove(f.name)
+            Logger.normal('Sync request mailed.')
+            break
+        except smtplib.SMTPRecipientsRefused, smtperror:
+            smtp_code, smtp_message = smtperror.recipients[to]
+            Logger.error('Error while sending: %i, %s', smtp_code, smtp_message)
+            if smtp_code == 450:
+                confirmation_prompt(message='This is a temporary error, press '
+                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
+            else:
+                return
