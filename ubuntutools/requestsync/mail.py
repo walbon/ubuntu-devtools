@@ -25,6 +25,7 @@ import re
 import sys
 import smtplib
 import socket
+import tempfile
 
 from debian.changelog import Changelog, Version
 from devscripts.logger import Logger
@@ -164,12 +165,14 @@ Content-Type: text/plain; charset=UTF-8
     confirmation_prompt()
 
     # save mail in temporary file
-    f=open("/tmp/requestsync-" + re.sub("[^a-zA-Z0-9_\-]","",bugtitle.replace(" ","_")), "w")
-    f.write(mail)
-    f.close()
+    backup = tempfile.NamedTemporaryFile(mode='w', delete=False,
+            prefix='requestsync-' + re.sub(r'[^a-zA-Z0-9_-]', '',
+                                           bugtitle.replace(' ', '_')))
+    with backup:
+        backup.write(mail)
 
     Logger.normal('The e-mail has been saved in %s and will be deleted '
-                  'after succesful transmission', f.name)
+                  'after succesful transmission', backup.name)
 
     # connect to the server
     while True:
@@ -205,7 +208,7 @@ Content-Type: text/plain; charset=UTF-8
         try:
             s.sendmail(myemailaddr, to, mail.encode('utf-8'))
             s.quit()
-            os.remove(f.name)
+            os.remove(backup.name)
             Logger.normal('Sync request mailed.')
             break
         except smtplib.SMTPRecipientsRefused, smtperror:
