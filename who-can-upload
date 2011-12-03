@@ -52,6 +52,8 @@ def main():
     component = spph.getComponent()
     component_uploader = archive.getUploadersForComponent(
             component_name=component)[0]
+    print "All upload permissions for %s:" % package
+    print
     print "Component (%s)" % component
     print "============" + ("=" * len(component))
     print_uploaders([component_uploader], options.list_team_members)
@@ -86,12 +88,18 @@ def main():
 
 
 def print_uploaders(uploaders, expand_teams=False, prefix=''):
+    """Given a list of uploaders, pretty-print them all
+    Each line is prefixed with prefix.
+    If expand_teams is set, recurse, adding more spaces to prefix on each
+    recursion.
+    """
     for uploader in sorted(uploaders, key=lambda p: p.display_name):
         print ("%s* %s (%s)%s"
                % (prefix, uploader.display_name, uploader.name,
                   ' [team]' if uploader.is_team else ''))
         if expand_teams and uploader.is_team:
             print_uploaders(uploader.participants, True, prefix=prefix + '  ')
+
 
 if __name__ == '__main__':
     main()
