@@ -20,7 +20,7 @@ import sys
 from devscripts.logger import Logger
 
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
-                                       Packageset,
+                                       Packageset, PackageNotFoundException,
                                        SeriesNotFoundException)
 
 
@@ -66,7 +66,11 @@ def main():
             Logger.error(str(e))
             sys.exit(2)
 
-    spph = archive.getSourcePackage(package)
+    try:
+        spph = archive.getSourcePackage(package)
+    except PackageNotFoundException, e:
+        Logger.error(str(e))
+        sys.exit(2)
     component = spph.getComponent()
     if options.list_uploaders:
         component_uploader = archive.getUploadersForComponent(
