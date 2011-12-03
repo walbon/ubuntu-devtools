@@ -109,19 +109,21 @@ def main():
 
     if PersonTeam.me.canUploadPackage(archive, series, package, component,
                                       pocket):
-        print "You can upload %s." % package
+        print "You can upload %s to %s." % (package, options.release)
     else:
-        print "You can not upload %s, yourself." % package
-        print ("But you can still contribute to it via the sponsorship "
-               "process: https://wiki.ubuntu.com/SponsorshipProcess")
-        if not options.list_uploaders:
-            print ("To see who has the necessary upload rights, "
-                   "use the --list-uploaders option.")
+        print ("You can not upload %s to %s, yourself."
+               % (package, options.release))
         if (series.status in ('Current Stable Release', 'Supported', 'Obsolete')
                 and pocket == 'Release'):
             print ("%s is in the '%s' state. "
                    "You may want to query the %s-proposed pocket."
                    % (release, series.status, release))
+        else:
+            print ("But you can still contribute to it via the sponsorship "
+                   "process: https://wiki.ubuntu.com/SponsorshipProcess")
+        if not options.list_uploaders:
+            print ("To see who has the necessary upload rights, "
+                   "use the --list-uploaders option.")
         sys.exit(1)
 
 
