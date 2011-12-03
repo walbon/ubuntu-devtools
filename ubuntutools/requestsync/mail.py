@@ -219,6 +219,10 @@ Content-Type: text/plain; charset=UTF-8
                           '[Enter] to retry. Press [Ctrl-C] to abort now.')
             else:
                 return
+        except smtplib.SMTPResponseException, e:
+            Logger.error('Error while sending: %i, %s',
+                         e.smtp_code, e.smtp_error)
+            return
         except smtplib.SMTPServerDisconnected:
             Logger.error('Server disconnected while sending the mail.')
             return
