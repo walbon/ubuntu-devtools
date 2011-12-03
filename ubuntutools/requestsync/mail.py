@@ -177,7 +177,8 @@ Content-Type: text/plain; charset=UTF-8
     # connect to the server
     while True:
         try:
-            Logger.info('Connecting to %s:%s ...', mailserver_host, mailserver_port)
+            Logger.normal('Connecting to %s:%s ...', mailserver_host,
+                          mailserver_port)
             s = smtplib.SMTP(mailserver_host, mailserver_port)
             break
         except socket.error, s:
