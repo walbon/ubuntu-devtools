@@ -59,15 +59,13 @@ def main():
     ubuntu = Distribution('ubuntu')
     archive = ubuntu.getArchive()
     if options.release is None:
-        series = ubuntu.getDevelopmentSeries()
-        pocket = 'Release'
-    else:
-        try:
-            release, pocket = split_release_pocket(options.release)
-            series = ubuntu.getSeries(release)
-        except SeriesNotFoundException, e:
-            Logger.error(str(e))
-            sys.exit(2)
+        options.release = ubuntu.getDevelopmentSeries().name
+    try:
+        release, pocket = split_release_pocket(options.release)
+        series = ubuntu.getSeries(release)
+    except SeriesNotFoundException, e:
+        Logger.error(str(e))
+        sys.exit(2)
 
     try:
         spph = archive.getSourcePackage(package)
@@ -123,9 +121,9 @@ def main():
         else:
             print ("But you can still contribute to it via the sponsorship "
                    "process: https://wiki.ubuntu.com/SponsorshipProcess")
-        if not options.list_uploaders:
-            print ("To see who has the necessary upload rights, "
-                   "use the --list-uploaders option.")
+            if not options.list_uploaders:
+                print ("To see who has the necessary upload rights, "
+                       "use the --list-uploaders option.")
         sys.exit(1)
 
 
