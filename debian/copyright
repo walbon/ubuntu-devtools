@@ -151,6 +151,7 @@ Files: doc/pull-debian-debdiff.1
        doc/sponsor-patch.1
        doc/ubuntu-dev-tools.5
        doc/update-maintainer.1
+       enforced-editing-wrapper
        pull-debian-debdiff
        pull-debian-source
        requestbackport

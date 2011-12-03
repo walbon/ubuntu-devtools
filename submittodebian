@@ -24,6 +24,7 @@
 
 import os
 import re
+import shutil
 import sys
 from tempfile import mkdtemp
 
@@ -118,11 +119,35 @@ def check_file(fname, critical = True):
 
 def submit_bugreport(body, debdiff, deb_version, changelog):
     devel = UbuntuDistroInfo().devel()
-    cmd = ('reportbug', '-P', 'User: ubuntu-devel@lists.ubuntu.com',
-           '-P', 'Usertags: origin-ubuntu %s ubuntu-patch' % devel,
-           '-T', 'patch', '-A', debdiff, '-B', 'debian', '-i', body,
-           '-V', deb_version, changelog.package)
-    check_call(cmd)
+
+    if os.path.dirname(sys.argv[0]).startswith('/usr/bin'):
+        editor_path = '/usr/share/ubuntu-dev-tools'
+    else:
+        editor_path = os.path.dirname(sys.argv[0])
+    env = dict(os.environ.items())
+    if 'EDITOR' in env:
+        env['UDT_EDIT_WRAPPER_EDITOR'] = env['EDITOR']
+    if 'VISUAL' in env:
+        env['UDT_EDIT_WRAPPER_VISUAL'] = env['VISUAL']
+    env['EDITOR'] = os.path.join(editor_path, 'enforced-editing-wrapper')
+    env['VISUAL'] = os.path.join(editor_path, 'enforced-editing-wrapper')
+    env['UDT_EDIT_WRAPPER_TEMPLATE_RE'] = (
+            '.*REPLACE THIS WITH ACTUAL INFORMATION.*')
+    env['UDT_EDIT_WRAPPER_FILE_DESCRIPTION'] = 'bug report'
+
+    cmd = ('reportbug',
+           '--no-check-available',
+           '--no-check-installed',
+           '--pseudo-header', 'User: ubuntu-devel@lists.ubuntu.com',
+           '--pseudo-header', 'Usertags: origin-ubuntu %s ubuntu-patch' % devel,
+           '--tag', 'patch',
+           '--attach', debdiff,
+           '--bts', 'debian',
+           '--include', body,
+           '--package-version', deb_version,
+           changelog.package)
+    check_call(cmd, env=env)
+
 
 def check_reportbug_config():
     fn = os.path.expanduser('~/.reportbugrc')
@@ -182,14 +207,11 @@ def main():
     debdiff = gen_debdiff(tmpdir, changelog)
 
     EditFile(debdiff, 'debdiff').edit(optional=True)
-    EditFile(body, 'bug report', [
-            re.compile('.*REPLACE THIS WITH ACTUAL INFORMATION.*')
-        ]).edit()
 
     submit_bugreport(body, debdiff, deb_version, changelog)
     os.unlink(body)
     os.unlink(debdiff)
-    os.rmdir(tmpdir)
+    shutil.rmtree(tmpdir)
 
 if __name__ == '__main__':
     main()

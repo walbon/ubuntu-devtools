@@ -58,6 +58,7 @@ if __name__ == '__main__':
                        glob.glob("bash_completion/*")),
                       ('share/man/man1', glob.glob("doc/*.1")),
                       ('share/man/man5', glob.glob("doc/*.5")),
+                      ('share/ubuntu-dev-tools', ['enforced-editing-wrapper']),
                      ],
           test_suite='ubuntutools.test.discover',
     )
