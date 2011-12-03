@@ -21,13 +21,18 @@ import os
 import time
 import urllib
 
-from ubuntutools.lp.lpapicache import Distribution
+from devscripts.logger import Logger
+
+from ubuntutools.lp.lpapicache import Distribution, PackageNotFoundException
 
 DATA_URL = ('http://people.ubuntuwire.org/~stefanor/ubuntu-image-contents/'
             'image_contents.json.gz')
 
 
 def load_index():
+    '''Download a new copy of the image contents index, if necessary,
+    and read it.
+    '''
     cachedir = os.path.expanduser('~/.cache/ubuntu-dev-tools')
     fn = os.path.join(cachedir, 'image_contents.json.gz')
 
@@ -42,6 +47,7 @@ def load_index():
 
 
 def main():
+    '''Query which images the specified packages are on'''
     parser = optparse.OptionParser('%prog [options] package...')
     parser.add_option('-b', '--binary',
                       default=False, action='store_true',
@@ -63,7 +69,11 @@ def main():
     else:
         archive = Distribution('ubuntu').getArchive()
         for source in args:
-            spph = archive.getSourcePackage(source)
+            try:
+                spph = archive.getSourcePackage(source)
+            except PackageNotFoundException, e:
+                Logger.error(str(e))
+                continue
             binaries = frozenset(bpph.getPackageName()
                                  for bpph in spph.getBinaries())
             present = False
@@ -71,7 +81,7 @@ def main():
                 if binary in index:
                     present = True
                     for flavor, type_ in index[binary]:
-                        print ("%s: %s is present on %s %s"
+                        print ("src:%s: %s is present on %s %s"
                                % (source, binary, flavor, type_))
             if not present:
                 print ("No binaries from %s are present on any current images"
