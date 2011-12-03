@@ -106,4 +106,6 @@ Description: useful tools for Ubuntu developers
     command line.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - update-maintainer - script to update maintainer field in ubuntu packages.
-  - upload-permission - query / list the upload permissions for a package.
+  - ubuntu-upload-permission - query / list the upload permissions for a
+    package.
+  - update-maintainer - Set the Ubuntu-policy Maintainer in debian/control.

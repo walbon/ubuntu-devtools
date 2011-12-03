@@ -41,8 +41,8 @@ scripts = ['404main',
            'syncpackage',
            'ubuntu-build',
            'ubuntu-iso',
+           'ubuntu-upload-permission',
            'update-maintainer',
-           'upload-permission',
           ]
 
 if __name__ == '__main__':
