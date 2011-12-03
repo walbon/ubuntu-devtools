@@ -73,8 +73,8 @@ def main():
         Logger.error(str(e))
         sys.exit(2)
     component = spph.getComponent()
-    if (options.list_uploaders and series.status in
-            ('Experimental', 'Active Development', 'Pre-release Freeze')):
+    if (options.list_uploaders and (pocket != 'Release' or series.status in
+            ('Experimental', 'Active Development', 'Pre-release Freeze'))):
 
         component_uploader = archive.getUploadersForComponent(
                 component_name=component)[0]
