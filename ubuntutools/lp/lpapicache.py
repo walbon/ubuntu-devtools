@@ -54,6 +54,7 @@ __all__ = [
 
 _POCKETS = ('Release', 'Security', 'Updates', 'Proposed', 'Backports')
 
+
 class _Launchpad(object):
     '''Singleton for LP API access.'''
 
@@ -116,7 +117,7 @@ class BaseWrapper(object):
     A base class from which other wrapper classes are derived.
     '''
     __metaclass__ = MetaWrapper
-    resource_type = None # it's a base class after all
+    resource_type = None  # it's a base class after all
 
     def __new__(cls, data):
         if (isinstance(data, basestring) and
@@ -403,6 +404,7 @@ class Archive(BaseWrapper):
     def getUploadersForComponent(self, component_name):
         '''Get the list of PersonTeams who can upload packages in the
         specified component.
+        [Note: the permission records, themselves, aren't exposed]
         '''
         if component_name not in self._component_uploaders:
             self._component_uploaders[component_name] = sorted(set(
@@ -413,7 +415,9 @@ class Archive(BaseWrapper):
         return self._component_uploaders[component_name]
 
     def getUploadersForPackage(self, source_package_name):
-        '''Get the list of PersonTeams who can upload source_package_name)'''
+        '''Get the list of PersonTeams who can upload source_package_name)
+        [Note: the permission records, themselves, aren't exposed]
+        '''
         if source_package_name not in self._pkg_uploaders:
             self._pkg_uploaders[source_package_name] = sorted(set(
                     PersonTeam(permission.person_link)
@@ -423,7 +427,9 @@ class Archive(BaseWrapper):
         return self._pkg_uploaders[source_package_name]
 
     def getUploadersForPackageset(self, packageset, direct_permissions=False):
-        '''Get the list of PersonTeams who can upload packages in packageset'''
+        '''Get the list of PersonTeams who can upload packages in packageset
+        [Note: the permission records, themselves, aren't exposed]
+        '''
         key = (packageset, direct_permissions)
         if key not in self._pkgset_uploaders:
             self._pkgset_uploaders[key] = sorted(set(
@@ -619,6 +625,7 @@ class MetaPersonTeam(MetaWrapper):
                     raise
         return cls._me
 
+
 class PersonTeam(BaseWrapper):
     '''
     Wrapper class around a LP person or team object.
@@ -721,7 +728,7 @@ class Build(BaseWrapper):
 
     def rescore(self, score):
         if self.can_be_rescored:
-            self().rescore(score = score)
+            self().rescore(score=score)
             return True
         return False
 
