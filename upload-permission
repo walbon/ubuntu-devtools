@@ -76,13 +76,15 @@ def main():
         sys.exit(2)
     component = spph.getComponent()
     if options.list_uploaders:
-        component_uploader = archive.getUploadersForComponent(
-                component_name=component)[0]
-        print "All upload permissions for %s:" % package
-        print
-        print "Component (%s)" % component
-        print "============" + ("=" * len(component))
-        print_uploaders([component_uploader], options.list_team_members)
+        if series.status in ('Experimental', 'Active Development',
+                             'Pre-release Freeze'):
+            component_uploader = archive.getUploadersForComponent(
+                    component_name=component)[0]
+            print "All upload permissions for %s:" % package
+            print
+            print "Component (%s)" % component
+            print "============" + ("=" * len(component))
+            print_uploaders([component_uploader], options.list_team_members)
 
         packagesets = sorted(Packageset.setsIncludingSource(
                 distroseries=series,
