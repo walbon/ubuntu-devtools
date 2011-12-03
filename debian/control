@@ -86,6 +86,7 @@ Description: useful tools for Ubuntu developers
     sbuild.
   - pbuilder-dist, cowbuilder-dist - wrapper script for managing several build
     chroots (for different Ubuntu and Debian releases) on the same system.
+  - pkg-on-images - query if a package is included in daily images.
   - pull-debian-debdiff - attempts to find and download a specific version of
     a Debian package and its immediate parent to generate a debdiff.
   - pull-debian-source - downloads the lastest source package available in

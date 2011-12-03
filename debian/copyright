@@ -144,7 +144,8 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in the /usr/share/common-licenses/GPL-3 file.
 
-Files: doc/pull-debian-debdiff.1
+Files: doc/pkg-on-images.1
+       doc/pull-debian-debdiff.1
        doc/pull-debian-source.1
        doc/requestbackport.1
        doc/reverse-depends.1
@@ -152,6 +153,7 @@ Files: doc/pull-debian-debdiff.1
        doc/ubuntu-dev-tools.5
        doc/update-maintainer.1
        enforced-editing-wrapper
+       pkg-on-images
        pull-debian-debdiff
        pull-debian-source
        requestbackport
