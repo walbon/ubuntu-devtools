@@ -17,12 +17,15 @@
 import optparse
 import sys
 
+from devscripts.logger import Logger
+
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        Packageset,
                                        SeriesNotFoundException)
 
 
-def main():
+def parse_arguments():
+    '''Parse arguments and return (options, package)'''
     parser = optparse.OptionParser('%prog [options] package')
     parser.add_option('-r', '--release', default=None, metavar='RELEASE',
                       help='Use RELEASE, rather than the current development '
@@ -43,6 +46,12 @@ def main():
     if options.list_team_members:
         options.list_uploaders = True
 
+    return (options, package)
+
+
+def main():
+    '''Query upload permissions'''
+    options, package = parse_arguments()
     # Need to be logged in to see uploaders:
     Launchpad.login()
 
@@ -54,7 +63,8 @@ def main():
         try:
             series = ubuntu.getSeries(options.release)
         except SeriesNotFoundException, e:
-            parser.error(str(e))
+            Logger.error(str(e))
+            sys.exit(2)
 
     spph = archive.getSourcePackage(package)
     component = spph.getComponent()
