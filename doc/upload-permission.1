@@ -1,0 +1,60 @@
+.\" Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH upload\-permission 1 "November 2011" ubuntu\-dev\-tools
+
+.SH NAME
+upload\-permission \- Query upload rights and (optionally) list the
+people and teams with upload rights for a package
+
+.SH SYNOPSIS
+.B upload\-permission \fR[\fIoptions\fR] \fIpackage
+
+.SH DESCRIPTION
+\fBupload\-permission\fR checks if the user has upload permissions for
+\fIpackage\fR.
+If the \fB\-\-list\-uploaders\fR option is provided, all the people and
+teams that do have upload rights for \fIpackage\fR will be listed.
+
+.SH OPTIONS
+.TP
+\fB\-r\fR \fIRELEASE\fR, \fB\-\-release\fR=\fIRELEASE\fR
+Query permissions in \fIRELEASE\fR.
+Default: current development release.
+.TP
+\fB\-a\fR, \fB\-\-list\-uploaders\fR
+List all the people and teams who have upload rights for \fIpackage\fR.
+.TP
+\fB\-t\fR, \fB\-\-list\-team\-members\fR
+List all the members of every team with rights. (Implies
+\fB\-\-list\-uploaders\fR)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display a help message and exit
+
+.SH EXIT STATUS
+.TP
+.B 0
+You have the necessary upload rights.
+.TP
+.B 1
+You don't have the necessary upload rights.
+.TP
+.B 2
+There was an error.
+
+.SH AUTHORS
+\fBupload\-permission\fR and this manpage were written by Stefano Rivera
+<stefanor@ubuntu.com>.
+.PP
+Both are released under the terms of the ISC License.

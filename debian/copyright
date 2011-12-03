@@ -151,6 +151,7 @@ Files: doc/pull-debian-debdiff.1
        doc/sponsor-patch.1
        doc/ubuntu-dev-tools.5
        doc/update-maintainer.1
+       doc/upload-permission.1
        pull-debian-debdiff
        pull-debian-source
        requestbackport
@@ -166,6 +167,7 @@ Files: doc/pull-debian-debdiff.1
        ubuntutools/test/*
        ubuntutools/update_maintainer.py
        update-maintainer
+       upload-permission
 Copyright: 2009-2011, Benjamin Drung <bdrung@ubuntu.com>
            2010,      Evan Broder <evan@ebroder.net>
            2008,      Siegfried-Angel Gevatter Pujals <rainct@ubuntu.com>
