@@ -11,17 +11,23 @@
 .\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 .\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 .\" PERFORMANCE OF THIS SOFTWARE.
-.TH pkg\-on\-images 1 "December 2011" ubuntu\-dev\-tools
+.TH ubuntu\-safe\-to\-upload 1 "December 2011" ubuntu\-dev\-tools
 
 .SH NAME
-pkg\-on\-images \- List the all the daily images containing the
-specified packages
+ubuntu\-safe\-to\-upload \- Determine whether a package is safe to
+upload during a freeze
 
 .SH SYNOPSIS
-.B pkg\-on\-images \fR[\fIoptions\fR] \fIpackage\fR...
+.B ubuntu\-safe\-to\-upload \fR[\fIoptions\fR] \fIpackage\fR...
 
 .SH DESCRIPTION
 Lists all the current daily images containing the specified packages.
+Or whether the package is part of the supported seed.
+.PP
+If it isn't on an image, it should be safe to upload.
+During the final freeze, one should avoid packages in the supported seed
+too.
+.PP
 An index of the current manifests is downloaded from UbuntuWire.
 
 .SH OPTIONS
@@ -39,11 +45,11 @@ Display a help message and exit
 All the images that contain unity:
 .IP
 .nf
-.B pkg\-on\-images -b unity
+.B ubuntu\-safe\-to\-upload -b unity
 .fi
 
 .SH AUTHORS
-\fBpkg\-on\-images\fR and this manpage were written by Stefano Rivera
-<stefanor@ubuntu.com>.
+\fBubuntu\-safe\-to\-upload\fR and this manpage were written by Stefano
+Rivera <stefanor@ubuntu.com>.
 .PP
 Both are released under the terms of the ISC License.
