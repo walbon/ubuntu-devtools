@@ -107,9 +107,9 @@ def main():
                       default=False, action='store_true',
                       help="Binary packages are being specified, "
                            "not source packages (fast)")
-    parser.add_option('-u', '--service-url', metavar='URL',
+    parser.add_option('-u', '--data-url', metavar='URL',
                       default=DATA_URL,
-                      help='Reverse Dependencies webservice URL. '
+                      help='URL for the seeded packages index. '
                            'Default: UbuntuWire')
     options, args = parser.parse_args()
 
