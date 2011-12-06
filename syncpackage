@@ -634,6 +634,12 @@ def main():
         ubuntu = Launchpad.distributions["ubuntu"]
         options.release = ubuntu.current_series.name
 
+    if not options.fakesync and not options.lp:
+        Logger.warn("The use of --no-lp is not recommended for uploads "
+                    "targeted at Ubuntu. "
+                    "The archive-admins discourage its use, except for "
+                    "fakesyncs.")
+
     sponsoree = None
     if options.sponsoree:
         try:
