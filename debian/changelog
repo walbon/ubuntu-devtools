@@ -23,6 +23,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
       that we only edit the report once, after checking for duplicates.
     - rm the tmpdir with a little more force (shutil.rmtree) (LP: #899399)
   * New Tool: ubuntu-upload-permission: Query upload permissions (LP: #876554)
+  * syncpackage: Support sponsorship for native-syncs, now that LP does.
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)
