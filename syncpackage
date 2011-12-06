@@ -652,12 +652,11 @@ def main():
         try:
             options.uploader_email = sponsoree.preferred_email_address.email
         except ValueError:
-            if options.lp:
-                # Not needed
-                pass
-            Logger.error("%s doesn't have a publicly visible e-mail address "
-                         "in LP, please provide one --uploader-email option",
-                         sponsoree.display_name)
+            if not options.lp:
+                Logger.error("%s doesn't have a publicly visible e-mail "
+                             "address in LP, please provide one "
+                             "--uploader-email option", sponsoree.display_name)
+                sys.exit(1)
     elif options.uploader_email is None:
         options.uploader_email = ubu_email(export=False)[1]
 
