@@ -73,7 +73,7 @@ class Version(debian.debian_support.Version):
         return Version(related_debian_version)
 
     def is_modified_in_ubuntu(self):
-        '''Did Ubuntu modify this (and mark the version appropriately?'''
+        '''Did Ubuntu modify this (and mark the version appropriately)?'''
         return 'ubuntu' in self.full_version
 
 
@@ -134,8 +134,8 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     new_ver = Version(src_pkg.dsc["Version"])
 
     try:
-        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source,
-                                          release.split("-")[0])
+        series = release.split("-")[0]
+        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, series)
         ubuntu_ver = Version(ubuntu_source.getVersion())
         ubu_pkg = UbuntuSourcePackage(src_pkg.source, ubuntu_ver.full_version,
                                       ubuntu_source.getComponent(),
@@ -216,8 +216,8 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         if not Logger.verbose:
             cmd += ["-q"]
         Logger.command(cmd + ['>', '../' + changes_filename])
-        changes = subprocess.Popen(cmd, stdout=subprocess.PIPE) \
-                  .communicate()[0]
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        changes = process.communicate.communicate()[0]
 
         # Add additional bug numbers
         if len(bugs) > 0:
