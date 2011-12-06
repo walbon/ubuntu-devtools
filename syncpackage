@@ -217,7 +217,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
             cmd += ["-q"]
         Logger.command(cmd + ['>', '../' + changes_filename])
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        changes = process.communicate.communicate()[0]
+        changes = process.communicate()[0]
 
         # Add additional bug numbers
         if len(bugs) > 0:
