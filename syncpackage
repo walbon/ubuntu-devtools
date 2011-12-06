@@ -549,8 +549,10 @@ def parse():
             "The archive-admins discourage its use, except for fakesyncs.")
     no_lp.add_option("--no-lp",
                      dest="lp", action="store_false", default=True,
-                     help="Construct sync locally rather than letting "
-                          "Launchpad copy the package directly")
+                     help="Construct sync locally, rather than letting "
+                          "Launchpad copy the package directly. "
+                          "It will leave a signed .changes file for you to "
+                          "upload.")
     no_lp.add_option("-n", "--uploader-name",
                      help="Use UPLOADER_NAME as the name of the maintainer "
                           "for this upload.")
