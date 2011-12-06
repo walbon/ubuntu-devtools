@@ -383,7 +383,7 @@ class Archive(BaseWrapper):
         return cache[index]
 
     def copyPackage(self, source_name, version, from_archive, to_pocket,
-                    to_series=None, include_binaries=False):
+                    to_series=None, sponsored=None, include_binaries=False):
         '''Copy a single named source into this archive.
 
         Asynchronously copy a specific version of a named source to the
@@ -398,6 +398,7 @@ class Archive(BaseWrapper):
             from_archive=from_archive._lpobject,
             to_pocket=to_pocket,
             to_series=to_series,
+            sponsored=sponsored,
             include_binaries=include_binaries
             )
 

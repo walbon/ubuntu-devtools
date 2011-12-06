@@ -41,7 +41,7 @@ from ubuntutools.requestsync.mail import (
         get_debian_srcpkg as requestsync_mail_get_debian_srcpkg)
 from ubuntutools.requestsync.lp import get_debian_srcpkg, get_ubuntu_srcpkg
 from ubuntutools.lp import udtexceptions
-from ubuntutools.lp.lpapicache import (Distribution, Launchpad,
+from ubuntutools.lp.lpapicache import (Distribution, Launchpad, PersonTeam,
                                        SourcePackagePublishingHistory)
 from ubuntutools.misc import split_release_pocket
 from ubuntutools.question import YesNoQuestion
@@ -334,7 +334,7 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release,
                                mirrors=mirrors)
 
 
-def copy(src_pkg, release, bugs, simulate=False, force=False):
+def copy(src_pkg, release, bugs, sponsoree=None, simulate=False, force=False):
     """Copy a source package from Debian to Ubuntu using the Launchpad API."""
     ubuntu = Distribution('ubuntu')
     debian_archive = Distribution('debian').getArchive()
@@ -396,6 +396,9 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
     if simulate:
         return
 
+    if sponsoree:
+        Logger.normal("Sponsoring this sync for %s (%s)",
+                      sponsoree.display_name, sponsoree.name)
     answer = YesNoQuestion().ask("Sync this package", "no")
     if answer != "yes":
         return
@@ -407,7 +410,8 @@ def copy(src_pkg, release, bugs, simulate=False, force=False):
             from_archive=debian_archive,
             to_series=ubuntu_series,
             to_pocket=ubuntu_pocket,
-            include_binaries=False)
+            include_binaries=False,
+            sponsoree=sponsoree)
     except HTTPError, error:
         Logger.error("HTTP Error %s: %s", error.response.status,
                      error.response.reason)
@@ -511,6 +515,10 @@ def parse():
                       dest="bugs", action="append", default=list(),
                       help="Mark Launchpad bug BUG as being fixed by this "
                            "upload.")
+    parser.add_option("-s", "--sponsor", metavar="USERNAME",
+                      dest="sponsoree", default=None,
+                      help="Sponsor the sync for USERNAME (a launchpad "
+                           "username).")
     parser.add_option("-v", "--verbose",
                       action="store_true", default=False,
                       help="Display more progress information.")
@@ -608,10 +616,6 @@ def main():
         options.debian_mirror = config.get_value('DEBIAN_MIRROR')
     if options.ubuntu_mirror is None:
         options.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
-    if options.uploader_name is None:
-        options.uploader_name = ubu_email(export=False)[0]
-    if options.uploader_email is None:
-        options.uploader_email = ubu_email(export=False)[1]
 
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
@@ -624,6 +628,33 @@ def main():
     if options.release is None:
         ubuntu = Launchpad.distributions["ubuntu"]
         options.release = ubuntu.current_series.name
+
+    sponsoree = None
+    if options.sponsoree:
+        try:
+            sponsoree = PersonTeam(options.sponsoree)
+        except KeyError:
+            Logger.error('Cannot find the username "%s" in Launchpad.',
+                         options.sponsoree)
+            sys.exit(1)
+
+    if sponsoree and options.uploader_name is None:
+        options.uploader_name = sponsoree.display_name
+    elif options.uploader_name is None:
+        options.uploader_name = ubu_email(export=False)[0]
+
+    if sponsoree and options.uploader_email is None:
+        try:
+            options.uploader_email = sponsoree.preferred_email_address.email
+        except ValueError:
+            if options.lp:
+                # Not needed
+                pass
+            Logger.error("%s doesn't have a publicly visible e-mail address "
+                         "in LP, please provide one --uploader-email option",
+                         sponsoree.display_name)
+    elif options.uploader_email is None:
+        options.uploader_email = ubu_email(export=False)[1]
 
     src_pkg = fetch_source_pkg(package, options.distribution,
                                options.debian_version,
@@ -671,8 +702,8 @@ def main():
         sys.exit(1)
 
     if options.lp:
-        copy(src_pkg, options.release, options.bugs, options.simulate,
-             options.force)
+        copy(src_pkg, options.release, options.bugs, sponsoree,
+             options.simulate, options.force)
     else:
         os.environ['DEB_VENDOR'] = 'Ubuntu'
         sync_dsc(src_pkg, options.distribution, options.release,
