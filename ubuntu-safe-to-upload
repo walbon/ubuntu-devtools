@@ -116,7 +116,7 @@ def main():
     if len(args) < 1:
         parser.error("At least one package must be specified")
 
-    index = load_index(options.service_url)
+    index = load_index(options.data_url)
     if options.binary:
         output_binaries(index, args)
     else:
