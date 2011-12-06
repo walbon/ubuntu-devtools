@@ -483,40 +483,35 @@ def parse():
     parser = optparse.OptionParser(usage=usage, epilog=epilog)
 
     parser.add_option("-d", "--distribution",
-                      dest="dist", default=None,
                       help="Debian distribution to sync from.")
     parser.add_option("-r", "--release",
-                      dest="release", default=None,
                       help="Specify target Ubuntu release.")
     parser.add_option("-V", "--debian-version",
-                      dest="debversion", default=None,
                       help="Specify the version to sync from.")
     parser.add_option("-c", "--component",
-                      dest="component", default=None,
                       help="Specify the Debian component to sync from.")
     parser.add_option("-b", "--bug", metavar="BUG",
                       dest="bugs", action="append", default=list(),
                       help="Mark Launchpad bug BUG as being fixed by this "
                            "upload.")
     parser.add_option("-v", "--verbose",
-                      dest="verbose", action="store_true", default=False,
+                      action="store_true", default=False,
                       help="Display more progress information.")
     parser.add_option("-F", "--fakesync",
-                      dest="fakesync", action="store_true", default=False,
+                      action="store_true", default=False,
                       help="Perform a fakesync (a sync where Debian and Ubuntu "
                            "have a .orig.tar mismatch).")
     parser.add_option("-f", "--force",
-                      dest="force", action="store_true", default=False,
+                      action="store_true", default=False,
                       help="Force sync over the top of Ubuntu changes.")
     parser.add_option('--no-conf',
-                      dest='no_conf', default=False, action='store_true',
+                      default=False, action='store_true',
                       help="Don't read config files or environment variables.")
     parser.add_option('-l', '--lpinstance', metavar='INSTANCE',
-                      dest='lpinstance', default=None,
                       help='Launchpad instance to connect to '
                            '(default: production).')
     parser.add_option('--simulate',
-                      dest='simulate', default=False, action='store_true',
+                      default=False, action='store_true',
                       help="Show what would be done, but don't actually do "
                            "it.")
 
@@ -529,26 +524,22 @@ def parse():
                      help="Construct sync locally rather than letting "
                           "Launchpad copy the package directly")
     no_lp.add_option("-n", "--uploader-name",
-                     dest="uploader_name", default=None,
                      help="Use UPLOADER_NAME as the name of the maintainer "
                           "for this upload.")
     no_lp.add_option("-e", "--uploader-email",
-                     dest="uploader_email", default=None,
                      help="Use UPLOADER_EMAIL as email address of the "
                           "maintainer for this upload.")
     no_lp.add_option("-k", "--key",
-                     dest="keyid", default=None,
+                     dest="keyid",
                      help="Specify the key ID to be used for signing.")
     no_lp.add_option('--dont-sign',
                      dest='keyid', action='store_false',
                      help='Do not sign the upload.')
     no_lp.add_option('-D', '--debian-mirror', metavar='DEBIAN_MIRROR',
-                     dest='debian_mirror',
                      help='Preferred Debian mirror '
                           '(default: %s)'
                           % UDTConfig.defaults['DEBIAN_MIRROR'])
     no_lp.add_option('-U', '--ubuntu-mirror', metavar='UBUNTU_MIRROR',
-                     dest='ubuntu_mirror',
                      help='Preferred Ubuntu mirror '
                           '(default: %s)'
                           % UDTConfig.defaults['UBUNTU_MIRROR'])
@@ -616,7 +607,8 @@ def main():
         ubuntu = Launchpad.distributions["ubuntu"]
         options.release = ubuntu.current_series.name
 
-    src_pkg = fetch_source_pkg(package, options.dist, options.debversion,
+    src_pkg = fetch_source_pkg(package, options.distribution,
+                               options.debian_version,
                                options.component, options.release.split("-")[0],
                                options.debian_mirror)
 
@@ -662,7 +654,7 @@ def main():
              options.force)
     else:
         os.environ['DEB_VENDOR'] = 'Ubuntu'
-        sync_dsc(src_pkg, options.dist, options.release, options.uploader_name,
+        sync_dsc(src_pkg, options.distribution, options.release, options.uploader_name,
                  options.uploader_email, options.bugs, options.ubuntu_mirror,
                  options.keyid, options.simulate, options.force,
                  options.fakesync)
