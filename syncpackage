@@ -525,7 +525,9 @@ def parse():
     parser.add_option("-F", "--fakesync",
                       action="store_true", default=False,
                       help="Perform a fakesync (a sync where Debian and "
-                           "Ubuntu have a .orig.tar mismatch).")
+                           "Ubuntu have a .orig.tar mismatch). "
+                           "This implies --no-lp and will leave a signed "
+                           ".changes file for you to upload.")
     parser.add_option("-f", "--force",
                       action="store_true", default=False,
                       help="Force sync over the top of Ubuntu changes.")
@@ -543,7 +545,8 @@ def parse():
     no_lp = optparse.OptionGroup(parser, "Local sync preperation options",
             "Options that only apply when using --no-lp.  "
             "WARNING: The use of --no-lp is not recommended for uploads "
-            "targetted at Ubuntu. The archive-admins discourage its use.")
+            "targetted at Ubuntu. "
+            "The archive-admins discourage its use, except for fakesyncs.")
     no_lp.add_option("--no-lp",
                      dest="lp", action="store_false", default=True,
                      help="Construct sync locally rather than letting "
