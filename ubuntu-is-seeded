@@ -26,8 +26,7 @@ from devscripts.logger import Logger
 
 from ubuntutools.lp.lpapicache import Distribution, PackageNotFoundException
 
-DATA_URL = ('http://people.ubuntuwire.org/~stefanor/ubuntu-seeded-packages/'
-            'seeded.json.gz')
+DATA_URL = 'http://qa.ubuntuwire.org/ubuntu-seeded-packages/seeded.json.gz'
 
 
 def load_index(url):
