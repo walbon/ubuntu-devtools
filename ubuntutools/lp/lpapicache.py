@@ -392,6 +392,9 @@ class Archive(BaseWrapper):
         will happen sometime later with full checking.
         '''
 
+        if isinstance(sponsored, PersonTeam):
+            sponsored = sponsored._lpobject
+
         self._lpobject.copyPackage(
             source_name=source_name,
             version=version,
