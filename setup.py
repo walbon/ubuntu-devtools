@@ -42,6 +42,7 @@ scripts = ['404main',
            'ubuntu-build',
            'ubuntu-is-seeded',
            'ubuntu-iso',
+           'ubuntu-upload-permission',
            'update-maintainer',
           ]
 
