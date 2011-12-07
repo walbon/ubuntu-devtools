@@ -150,8 +150,8 @@ Files: doc/pull-debian-debdiff.1
        doc/reverse-depends.1
        doc/sponsor-patch.1
        doc/ubuntu-dev-tools.5
+       doc/ubuntu-is-seeded.1
        doc/update-maintainer.1
-       doc/ubuntu-safe-to-upload.1
        enforced-editing-wrapper
        pull-debian-debdiff
        pull-debian-source
@@ -159,7 +159,7 @@ Files: doc/pull-debian-debdiff.1
        reverse-depends
        sponsor-patch
        test-data/*
-       ubuntu-safe-to-upload
+       ubuntu-is-seeded
        ubuntutools/archive.py
        ubuntutools/builder.py
        ubuntutools/config.py

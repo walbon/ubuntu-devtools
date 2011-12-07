@@ -40,8 +40,8 @@ scripts = ['404main',
            'submittodebian',
            'syncpackage',
            'ubuntu-build',
+           'ubuntu-is-seeded',
            'ubuntu-iso',
-           'ubuntu-safe-to-upload',
            'update-maintainer',
           ]
 
