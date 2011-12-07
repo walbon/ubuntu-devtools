@@ -95,7 +95,7 @@ def output_by_source(index, by_source):
         for binary in binaries:
             if binary in index:
                 seen = True
-                print "%s: %s is seeded in:" % (source, binary)
+                print "%s (from %s) is seeded in:" % (binary, source)
                 print present_on(index[binary])
         if not seen:
             print "%s's binaries are not seeded." % source
