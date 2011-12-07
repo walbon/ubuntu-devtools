@@ -72,18 +72,20 @@ def present_on(appearences):
     for flavor, types in present.iteritems():
         if len(types) > 1:
             types.discard('supported')
-    return ', '.join('%s [%s]' % (flavor, ' '.join(sorted(types)))
-                        for flavor, types in present.iteritems())
+    output = ['  %s: %s' % (flavor, ', '.join(sorted(types)))
+              for flavor, types in present.iteritems()]
+    output.sort()
+    return '\n'.join(output)
 
 
 def output_binaries(index, binaries):
     '''Print binaries found in index'''
     for binary in binaries:
         if binary in index:
-            present = present_on(index[binary])
-            print "%s is seeded in: %s" % (binary, present)
+            print "%s is seeded in:" % binary
+            print present_on(index[binary])
         else:
-            print "%s is not seeded" % binary
+            print "%s is not seeded." % binary
 
 
 def output_by_source(index, by_source):
@@ -93,10 +95,10 @@ def output_by_source(index, by_source):
         for binary in binaries:
             if binary in index:
                 seen = True
-                present = present_on(index[binary])
-                print "%s: %s is seeded in: %s" % (source, binary, present)
+                print "%s: %s is seeded in:" % (source, binary)
+                print present_on(index[binary])
         if not seen:
-            print "%s's binaries are not seeded" % source
+            print "%s's binaries are not seeded." % source
 
 
 def main():
