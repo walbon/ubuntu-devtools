@@ -411,7 +411,7 @@ def copy(src_pkg, release, bugs, sponsoree=None, simulate=False, force=False):
             to_series=ubuntu_series,
             to_pocket=ubuntu_pocket,
             include_binaries=False,
-            sponsoree=sponsoree)
+            sponsored=sponsoree)
     except HTTPError, error:
         Logger.error("HTTP Error %s: %s", error.response.status,
                      error.response.reason)
