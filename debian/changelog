@@ -24,7 +24,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
     - rm the tmpdir with a little more force (shutil.rmtree) (LP: #899399)
   * New Tools: (LP: #876554)
     - ubuntu-upload-permission: Query upload permissions.
-    - ubuntu-is-seeded: Query a package's seed status. Whether it is on
+    - seeded-in-ubuntu: Query a package's seed status. Whether it is on
       current daily images and/or part of the supported seed.
 
   [ Andreas Moog ]

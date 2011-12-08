@@ -148,9 +148,9 @@ Files: doc/pull-debian-debdiff.1
        doc/pull-debian-source.1
        doc/requestbackport.1
        doc/reverse-depends.1
+       doc/seeded-in-ubuntu.1
        doc/sponsor-patch.1
        doc/ubuntu-dev-tools.5
-       doc/ubuntu-is-seeded.1
        doc/ubuntu-upload-permission.1
        doc/update-maintainer.1
        enforced-editing-wrapper
@@ -158,9 +158,9 @@ Files: doc/pull-debian-debdiff.1
        pull-debian-source
        requestbackport
        reverse-depends
+       seeded-in-ubuntu
        sponsor-patch
        test-data/*
-       ubuntu-is-seeded
        ubuntu-upload-permission
        ubuntutools/archive.py
        ubuntutools/builder.py
