@@ -480,9 +480,9 @@ if [ -n "$DEBOOTSTRAP_EXCLUDE" ] ; then
 fi
 
 # if http_proxy is set in the environment (even empty) set 'proxy' to it
-[ "$proxy" = "_unset_" -a "${DEBOOTSTRAP_PROXY-xx}" = "xx" ] &&
+[ "$proxy" = "_unset_" -a "${DEBOOTSTRAP_PROXY-xx}" != "xx" ] &&
     proxy=${DEBOOTSTRAP_PROXY}
-[ "$proxy" = "_unset_" -a "${http_proxy-xx}" = "xx" ] && proxy=${http_proxy}
+[ "$proxy" = "_unset_" -a "${http_proxy-xx}" != "xx" ] && proxy=${http_proxy}
 if [ "$proxy" = "_unset_" ]; then
     _out=$(apt-config shell x Acquire::HTTP::Proxy) &&
         _out=$(sh -c 'eval $1 && echo $x' -- "$_out") && [ -n "$_out" ] &&
