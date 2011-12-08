@@ -1,0 +1,60 @@
+.\" Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+.\" REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+.\" LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+.\" OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+.\" PERFORMANCE OF THIS SOFTWARE.
+.TH ubuntu\-is\-seeded 1 "December 2011" ubuntu\-dev\-tools
+
+.SH NAME
+ubuntu\-is\-seeded \- Determine whether a package is safe to upload
+during a freeze
+
+.SH SYNOPSIS
+.B ubuntu\-is\-seeded \fR[\fIoptions\fR] \fIpackage\fR...
+
+.SH DESCRIPTION
+Lists all the current daily images containing the specified packages.
+Or whether the package is part of the supported seed.
+.PP
+If it isn't on an image, it should be safe to upload.
+During the final freeze, one should avoid packages in the supported seed
+too.
+.PP
+An index of the current manifests is downloaded from UbuntuWire.
+
+.SH OPTIONS
+.TP
+\fB\-b\fR, \fB\-\-binary\fR
+The packages specified are binary packages.
+This is faster than source packages, as otherwise we must query LP to
+determine the binary packages that every specified source package
+builds.
+.TP
+\fB\-u\fR \fIURL\fR, \fB\-\-data\-url\fR=\fIURL\fR
+URL for index of seeded packages.
+Default: UbuntuWire's service at
+\fBhttp://qa.ubuntuwire.org/ubuntu-seeded-packages/seeded.json.gz\fR.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display a help message and exit
+
+.SH EXAMPLES
+All the images that contain unity:
+.IP
+.nf
+.B ubuntu\-is\-seeded -b unity
+.fi
+
+.SH AUTHORS
+\fBubuntu\-is\-seeded\fR and this manpage were written by Stefano Rivera
+<stefanor@ubuntu.com>.
+.PP
+Both are released under the terms of the ISC License.

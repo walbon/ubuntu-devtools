@@ -105,6 +105,7 @@ Description: useful tools for Ubuntu developers
   - syncpackage - helper to prepare .changes file to upload synced packages
   - ubuntu-build - give commands to the Launchpad build daemons from the
     command line.
+  - ubuntu-is-seeded - query if a package is safe to upload during a freeze.
   - ubuntu-iso - output information of an Ubuntu ISO image.
   - ubuntu-upload-permission - query / list the upload permissions for a
     package.

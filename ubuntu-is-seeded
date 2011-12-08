@@ -1,0 +1,129 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import collections
+import gzip
+import json
+import optparse
+import os
+import time
+import urllib
+
+from devscripts.logger import Logger
+
+from ubuntutools.lp.lpapicache import Distribution, PackageNotFoundException
+
+DATA_URL = 'http://qa.ubuntuwire.org/ubuntu-seeded-packages/seeded.json.gz'
+
+
+def load_index(url):
+    '''Download a new copy of the image contents index, if necessary,
+    and read it.
+    '''
+    cachedir = os.path.expanduser('~/.cache/ubuntu-dev-tools')
+    fn = os.path.join(cachedir, 'seeded.json.gz')
+
+    if (not os.path.isfile(fn)
+            or time.time() - os.path.getmtime(fn) > 60 * 60 * 2):
+        if not os.path.isdir(cachedir):
+            os.makedirs(cachedir)
+        urllib.urlretrieve(url, fn)
+
+    with gzip.open(fn, 'r') as f:
+        return json.load(f)
+
+
+def resolve_binaries(sources):
+    '''Return a dict of source:binaries for all binary packages built by
+    sources
+    '''
+    archive = Distribution('ubuntu').getArchive()
+    binaries = {}
+    for source in sources:
+        try:
+            spph = archive.getSourcePackage(source)
+        except PackageNotFoundException, e:
+            Logger.error(str(e))
+            continue
+        binaries[source] = sorted(set(bpph.getPackageName()
+                                      for bpph in spph.getBinaries()))
+
+    return binaries
+
+
+def present_on(appearences):
+    '''Format a list of (flavor, type) tuples into a human-readable string'''
+    present = collections.defaultdict(set)
+    for flavor, type_ in appearences:
+        present[flavor].add(type_)
+    for flavor, types in present.iteritems():
+        if len(types) > 1:
+            types.discard('supported')
+    output = ['  %s: %s' % (flavor, ', '.join(sorted(types)))
+              for flavor, types in present.iteritems()]
+    output.sort()
+    return '\n'.join(output)
+
+
+def output_binaries(index, binaries):
+    '''Print binaries found in index'''
+    for binary in binaries:
+        if binary in index:
+            print "%s is seeded in:" % binary
+            print present_on(index[binary])
+        else:
+            print "%s is not seeded." % binary
+
+
+def output_by_source(index, by_source):
+    '''Print binaries found in index. Grouped by source'''
+    for source, binaries in by_source.iteritems():
+        seen = False
+        for binary in binaries:
+            if binary in index:
+                seen = True
+                print "%s (from %s) is seeded in:" % (binary, source)
+                print present_on(index[binary])
+        if not seen:
+            print "%s's binaries are not seeded." % source
+
+
+def main():
+    '''Query which images the specified packages are on'''
+    parser = optparse.OptionParser('%prog [options] package...')
+    parser.add_option('-b', '--binary',
+                      default=False, action='store_true',
+                      help="Binary packages are being specified, "
+                           "not source packages (fast)")
+    parser.add_option('-u', '--data-url', metavar='URL',
+                      default=DATA_URL,
+                      help='URL for the seeded packages index. '
+                           'Default: UbuntuWire')
+    options, args = parser.parse_args()
+
+    if len(args) < 1:
+        parser.error("At least one package must be specified")
+
+    index = load_index(options.data_url)
+    if options.binary:
+        output_binaries(index, args)
+    else:
+        binaries = resolve_binaries(args)
+        output_by_source(index, binaries)
+
+
+if __name__ == '__main__':
+    main()
