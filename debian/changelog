@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.137) unstable; urgency=low
 
   [ Stefano Rivera ]
   * mk-sbuild: Make --eatmydata command line flag actually work.
@@ -35,7 +35,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
   * requestsync: Give user option to retry in case of temporary error
     (LP: #850360)
 
- -- Andreas Moog <amoog@ubuntu.com>  Wed, 30 Nov 2011 21:04:39 +0100
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 09 Dec 2011 12:59:29 +0200
 
 ubuntu-dev-tools (0.136) unstable; urgency=low
 
