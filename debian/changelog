@@ -26,6 +26,7 @@ ubuntu-dev-tools (0.137) UNRELEASED; urgency=low
     - ubuntu-upload-permission: Query upload permissions.
     - seeded-in-ubuntu: Query a package's seed status. Whether it is on
       current daily images and/or part of the supported seed.
+  * syncpackage: Support sponsorship for native-syncs, now that LP does.
 
   [ Andreas Moog ]
   * sponsor-patch: Check permission to unsubscribe sponsors-team (LP: #896884)

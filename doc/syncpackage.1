@@ -1,9 +1,11 @@
 .TH SYNCPACKAGE "1" "June 2010" "ubuntu-dev-tools"
 .SH NAME
 syncpackage \- copy source packages from Debian to Ubuntu
+.\"
 .SH SYNOPSIS
 .B syncpackage
 [\fIoptions\fR] \fI<.dsc URL/path or package name>\fR
+.\"
 .SH DESCRIPTION
 \fBsyncpackage\fR causes a source package to be copied from Debian to
 Ubuntu.
@@ -14,16 +16,19 @@ this way you can preserve source files integrity between the two distributions.
 .PP
 \fBsyncpackage\fR will detect source tarballs with mismatching
 checksums, and can perform fake syncs.
+.\"
 .SH WARNING
 The use of \fBsyncpackage \-\-no\-lp\fR, which generates a changes file to
 be directly uploaded to the Ubuntu primary archive or a PPA, is discouraged
 by the Ubuntu Archive Administrators, as it introduces an unnecessary window
 for error.
-This only exists for backward compatibility, for unusual corner cases, and
-for uploads to archives other than the Ubuntu primary archive.
+This only exists for backward compatibility, for unusual corner cases
+(such as fakesyncs), and for uploads to archives other than the Ubuntu
+primary archive.
 Omitting this option will cause Launchpad to perform the sync request
 directly, which is the preferred method for uploads to the Ubuntu primary
 archive.
+.\"
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
@@ -42,19 +47,44 @@ Specify the version to sync from.
 \fB\-c\fI COMPONENT\fR, \fB\-\-component\fR=\fICOMPONENT\fR
 Specify the component to sync from.
 .TP
+\fB\-b\fI BUG\fR, \fB\-\-bug\fR=\fIBUG\fR
+Mark a Launchpad bug as being fixed by this upload.
+.TP
+\fB\-s\fI USERNAME\fR, \fB\-\-sponsor\fR=\fIUSERNAME\fR
+Sponsor the sync for \fIUSERNAME\fR (a Launchpad username).
+.TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Display more progress information.
 .TP
-.B \-\-no\-lp
-Construct sync locally rather than letting Launchpad copy the package
-directly (not recommended).
-.TP
 \fB\-F\fR, \fB\-\-fakesync\fR
 Perform a fakesync, to work around a tarball mismatch between Debian and
-Ubuntu. This option ignores blacklisting, and performs a local sync.
+Ubuntu.
+This option ignores blacklisting, and performs a local sync.
+It implies \fB\-\-no\-lp\fR, and will leave a signed \fB.changes\fR file
+for you to upload.
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+Force sync over the top of Ubuntu changes.
+.TP
+.B \-\-no\-conf
+Do not read any configuration files, or configuration from environment
+variables.
 .TP
 \fB\-l\fI INSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
 Launchpad instance to connect to (default: production).
+.TP
+.B \-\-simulate
+Show what would be done, but don't actually do it.
+.\"
+.SH LOCAL SYNC PREPARATION OPTIONS
+.TP
+Options that only apply when using \fB\-\-no\-lp\fR:
+.TP
+.B \-\-no\-lp
+Construct sync locally, rather than letting Launchpad copy the package
+directly.
+It will leave a signed \fB.changes\fR file for you to upload.
+See the \fBWARNING\fR above.
 .TP
 \fB\-n\fI UPLOADER_NAME\fR, \fB\-\-uploader\-name\fR=\fIUPLOADER_NAME\fR
 Use UPLOADER_NAME as the name of the maintainer for this upload instead
@@ -72,12 +102,6 @@ Specify the key ID to be used for signing.
 \fB\-\-dont-sign\fR
 Do not sign the upload.
 .TP
-\fB\-b\fI BUG\fR, \fB\-\-bug\fR=\fIBUG\fR
-Mark a Launchpad bug as being fixed by this upload.
-.TP
-\fB\-f\fR, \fB\-\-force\fR
-Force sync over the top of Ubuntu changes.
-.TP
 .B \-d \fIDEBIAN_MIRROR\fR, \fB\-\-debian\-mirror\fR=\fIDEBIAN_MIRROR\fR
 Use the specified mirror.
 Should be in the form \fBhttp://ftp.debian.org/debian\fR.
@@ -89,13 +113,7 @@ Use the specified Debian security mirror.
 Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.
 If the package isn't found on this mirror, \fBsyncpackage\fR will fall
 back to the default mirror.
-.TP
-.B \-\-no\-conf
-Do not read any configuration files, or configuration from environment
-variables.
-.TP
-.B \-\-simulate
-Show what would be done, but don't actually do it.
+.\"
 .SH ENVIRONMENT
 .TP
 .BR DEBFULLNAME ", " DEBEMAIL ", " UBUMAIL
@@ -108,6 +126,7 @@ All of the \fBCONFIGURATION VARIABLES\fR below are also supported as
 environment variables.
 Variables in the environment take precedence to those in configuration
 files.
+.\"
 .SH CONFIGURATION VARIABLES
 The following variables can be set in the environment or in
 .BR ubuntu\-dev\-tools (5)
@@ -120,9 +139,11 @@ The default value for \fB\-\-debian\-mirror\fR.
 .TP
 .BR SYNCPACKAGE_UBUNTU_MIRROR ", " UBUNTUTOOLS_DEBSEC_MIRROR
 The default value for \fB\-\-ubuntu\-mirror\fR.
+.\"
 .SH SEE ALSO
 .BR requestsync (1),
 .BR ubuntu\-dev\-tools (5)
+.\"
 .SH AUTHOR
 \fBsyncpackage\fR was written by Martin Pitt <martin.pitt@canonical.com> and Benjamin Drung <bdrung@ubuntu.com>.
 .PP
