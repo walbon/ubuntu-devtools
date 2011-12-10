@@ -277,8 +277,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                                                          previous_version)
 
         if successful:
-            #if source_package.sync(upload, bug_number, keyid):
-            if source_package.ack_sync(upload, task.get_lp_task(), launchpad):
+            if source_package.sync(upload, bug_number, bug.owner.name):
                 return
             else:
                 edit = True

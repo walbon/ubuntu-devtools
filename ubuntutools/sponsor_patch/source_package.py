@@ -437,14 +437,12 @@ class SourcePackage(object):
 
         return lintian_filename
 
-    def sync(self, upload, bug_number, keyid):
+    def sync(self, upload, bug_number, requester):
         """Does a sync of the source package."""
 
         if upload == "ubuntu":
-            cmd = ["syncpackage", self._package, "-b", str(bug_number),
-                   "-V", str(self._version)]
-            if keyid is not None:
-                cmd += ["-k", keyid]
+            cmd = ["syncpackage", self._package, "-b", str(bug_number), "-f",
+                   "-s", requester, "-V", str(self._version)]
             Logger.command(cmd)
             if subprocess.call(cmd) != 0:
                 Logger.error("Syncing of %s %s failed.", self._package,
@@ -452,7 +450,7 @@ class SourcePackage(object):
                 sys.exit(1)
         else:
             # FIXME: Support this use case!
-            Logger.error("Uploading a synced package other than to ubuntu "
+            Logger.error("Uploading a synced package other than to Ubuntu "
                          "is not supported yet!")
             sys.exit(1)
         return True
