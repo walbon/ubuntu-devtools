@@ -35,11 +35,13 @@ Replace this with the codename of the version of Ubuntu or Debian you want to us
 .TP
 \fBarchitecture\fP
 This optional parameter will attempt to construct a chroot in a foreign
-architecture.  For some architecture pairs (e.g. i386 on an amd64 install),
-the chroot will be created natively.  For others (e.g. armel on an i386
-install), qemu\-static and binfmt\-misc will be used.  Note that some
-combinations (e.g. amd64 on an i386 install) require special separate
-kernel handling, and may break in unexpected ways.
+architecture.
+For some architecture pairs (e.g. i386 on an amd64 install), the chroot
+will be created natively.
+For others (e.g. armel on an i386 install), qemu\-user\-static will be
+used.
+Note that some combinations (e.g. amd64 on an i386 install) require
+special separate kernel handling, and may break in unexpected ways.
 .TP
 \fBoperation\fP
 Replace this with the action you want \fBpbuilder\fP to do (create, update,

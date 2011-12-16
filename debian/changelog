@@ -1,7 +1,11 @@
 ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * sponsor-patch: Use syncpackage instead of subscribing ubuntu-archive for
     sync requests, because syncpackage supports sponsorship now.
+
+  [ Stefano Rivera ]
+  * Correct reference to qemu-user-static in pbuilder-dist.1 (Closes: #651999)
 
  -- Benjamin Drung <bdrung@debian.org>  Sat, 10 Dec 2011 12:46:33 +0100
 
