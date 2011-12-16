@@ -6,6 +6,7 @@ ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
 
   [ Stefano Rivera ]
   * Correct reference to qemu-user-static in pbuilder-dist.1 (Closes: #651999)
+  * mk-sbuild: Don't install devscripts by default (LP: #904502)
 
  -- Benjamin Drung <bdrung@debian.org>  Sat, 10 Dec 2011 12:46:33 +0100
 

@@ -390,7 +390,7 @@ if [ ! -r "/usr/share/debootstrap/scripts/$RELEASE" ]; then
     exit 1
 fi
 
-BUILD_PKGS="build-essential fakeroot devscripts apt-utils"
+BUILD_PKGS="build-essential fakeroot apt-utils"
 # Handle distro-specific logic, unknown to debootstrap
 case "$DISTRO" in
 ubuntu)
