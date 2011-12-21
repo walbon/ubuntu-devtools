@@ -12,6 +12,7 @@ ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
   * mk-sbuild: Don't install devscripts by default (LP: #904502)
   * backportpackage: Add --release-pocket option, rather than relying entirely
     on heuristics (Closes: #651546)
+  * syncpackage: Mention sponsorship when closing bugs (LP: #904288)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 21 Dec 2011 22:43:13 +0200
 

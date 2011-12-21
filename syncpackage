@@ -429,7 +429,7 @@ def copy(src_pkg, release, bugs, sponsoree=None, simulate=False, force=False):
         answer = YesNoQuestion().ask("Close bugs", "yes")
         if answer == "yes":
             close_bugs(bugs, src_pkg.source, src_pkg.version.full_version,
-                       changes)
+                       changes, sponsoree)
 
 
 def is_blacklisted(query):
@@ -471,11 +471,14 @@ def is_blacklisted(query):
     return (blacklisted, comments)
 
 
-def close_bugs(bugs, package, version, changes):
+def close_bugs(bugs, package, version, changes, sponsoree):
     """Close the correct task on all bugs, with changes"""
     ubuntu = Launchpad.distributions['ubuntu']
     message = ("This bug was fixed in the package %s - %s"
                % (package, version))
+    if sponsoree:
+        message += '\nSponsored for %s (%s)' % (sponsoree.display_name,
+                                                sponsoree.name)
     if changes:
         message += "\n\n---------------\n" + changes
     for bug in bugs:
