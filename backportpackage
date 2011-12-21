@@ -26,12 +26,10 @@ import tempfile
 
 import lsb_release
 
-from debian.debian_support import Version
-
 from devscripts.logger import Logger
 
 from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
-                                 UbuntuSourcePackage, DownloadError, rmadison)
+                                 UbuntuSourcePackage, DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.builder import get_builder
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
