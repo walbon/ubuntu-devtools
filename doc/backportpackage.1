@@ -85,6 +85,12 @@ unpacked, built into, and otherwise manipulated in
 \fIWORKDIR\fR. Otherwise, a temporary directory is created, which is
 deleted before \fIbackportpackage\fR exits.
 .TP
+.B \-r\fR, \fB\-\-release\-pocket
+Target the upload at the release pocket, rather than the
+\fB\-backports\fR pocket.
+This is required for Launchpad PPAs, which are pocket-less (and the
+default, when the upload target is a PPA).
+.TP
 .B \-m \fIMIRROR\fR, \fB\-\-mirror\fR=\fIMIRROR\fR
 Use the specified mirror.
 Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.

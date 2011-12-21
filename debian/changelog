@@ -9,8 +9,10 @@ ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * Correct reference to qemu-user-static in pbuilder-dist.1 (Closes: #651999)
   * mk-sbuild: Don't install devscripts by default (LP: #904502)
+  * backportpackage: Add --release-pocket option, rather than relying entirely
+    on heuristics (Closes: #652000)
 
- -- Benjamin Drung <bdrung@debian.org>  Wed, 21 Dec 2011 21:42:27 +0100
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 21 Dec 2011 22:43:13 +0200
 
 ubuntu-dev-tools (0.137) unstable; urgency=low
 

@@ -70,7 +70,7 @@ def parse(args):
     parser.add_option('-S', '--suffix',
                       metavar='SUFFIX',
                       help='Suffix to append to version number '
-                           '(default: ~ppa1)')
+                           '(default: ~ppa1 when uploading to a PPA)')
     parser.add_option('-b', '--build',
                       default=False,
                       action='store_true',
@@ -99,6 +99,11 @@ def parse(args):
                       metavar='WORKDIR',
                       help='Specify a working directory '
                            '(default: temporary dir)')
+    parser.add_option('-r', '--release-pocket',
+                      default=False,
+                      action='store_true',
+                      help='Target the release pocket in the .changes file. '
+                           'Necessary (and default) for uploads to PPAs')
     parser.add_option('-m', '--mirror',
                       metavar='INSTANCE',
                       help='Preferred mirror (default: Launchpad)')
@@ -126,6 +131,8 @@ def parse(args):
         opts.lpinstance = config.get_value('LPINSTANCE')
     if not opts.upload and not opts.workdir:
         parser.error('Please specify either a working dir or an upload target!')
+    if opts.upload and opts.upload.startswith('ppa:'):
+        opts.release_pocket = True
 
     return opts, args, config
 
@@ -192,11 +199,11 @@ def get_backport_version(version, suffix, upload, release):
         backport_version += '~ppa1'
     return backport_version
 
-def get_backport_dist(upload, release):
-    if not upload or upload == 'ubuntu':
-        return '%s-backports' % release
-    else:
+def get_backport_dist(release, release_pocket):
+    if release_pocket:
         return release
+    else:
+        return '%s-backports' % release
 
 def do_build(workdir, dsc, release, builder, update):
     builder = get_builder(builder)
@@ -224,15 +231,15 @@ def do_upload(workdir, package, bp_version, changes, upload, prompt):
 
     check_call(['dput', upload, changes], cwd=workdir)
 
-def do_backport(workdir, pkg, suffix, release, build, builder, update, upload,
-                prompt):
+def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
+                update, upload, prompt):
     dirname = '%s-%s' % (pkg.source, release)
     pkg.unpack(dirname)
     srcdir = os.path.join(workdir, dirname)
 
     bp_version = get_backport_version(pkg.version.full_version, suffix,
                                       upload, release)
-    bp_dist = get_backport_dist(upload, release)
+    bp_dist = get_backport_dist(release, release_pocket)
 
     check_call(['dch',
                 '--force-bad-version',
@@ -291,6 +298,7 @@ def main(args):
                         pkg,
                         opts.suffix,
                         release,
+                        opts.release_pocket,
                         opts.build,
                         opts.builder,
                         opts.update,
