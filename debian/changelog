@@ -1,14 +1,16 @@
 ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
-  * sponsor-patch: Use syncpackage instead of subscribing ubuntu-archive for
-    sync requests, because syncpackage supports sponsorship now.
+  * sponsor-patch:
+    - Use syncpackage instead of subscribing ubuntu-archive for sync requests,
+      because syncpackage supports sponsorship now.
+    - Check if the sponsored bug is marked as duplicate (LP: #896733).
 
   [ Stefano Rivera ]
   * Correct reference to qemu-user-static in pbuilder-dist.1 (Closes: #651999)
   * mk-sbuild: Don't install devscripts by default (LP: #904502)
 
- -- Benjamin Drung <bdrung@debian.org>  Sat, 10 Dec 2011 12:46:33 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Wed, 21 Dec 2011 21:42:27 +0100
 
 ubuntu-dev-tools (0.137) unstable; urgency=low
 

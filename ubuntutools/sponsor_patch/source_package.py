@@ -340,8 +340,8 @@ class SourcePackage(object):
         debdiff_file.writelines(debdiff)
         debdiff_file.close()
 
-    def is_fixed(self, bug_number):
-        """Make sure that the given bug number is closed.
+    def is_fixed(self, lp_bug):
+        """Make sure that the given Launchpad bug is closed.
 
         Returns true if the bug is closed. Returns false if the user wants to
         change something.
@@ -355,9 +355,14 @@ class SourcePackage(object):
             fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
         fixed_bugs = [int(bug) for bug in fixed_bugs]
 
-        if bug_number not in fixed_bugs:
+        # Check if the given bug is marked as duplicate. In this case get the
+        # master bug.
+        while lp_bug.duplicate_of:
+            lp_bug = lp_bug.duplicate_of
+
+        if lp_bug.id not in fixed_bugs:
             Logger.error("Launchpad bug #%i is not closed by new version." % \
-                         (bug_number))
+                         (lp_bug.id))
             ask_for_manual_fixing()
             return False
         return True

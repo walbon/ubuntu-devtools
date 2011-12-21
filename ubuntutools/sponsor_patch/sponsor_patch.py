@@ -311,7 +311,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
         source_package.generate_debdiff(dsc_file)
 
         # Make sure that the Launchpad bug will be closed
-        if not source_package.is_fixed(bug_number):
+        if not source_package.is_fixed(bug):
             continue
 
         if not source_package.check_target(upload, launchpad):
