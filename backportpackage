@@ -56,77 +56,60 @@ def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
     parser = optparse.OptionParser(usage)
     parser.add_option('-d', '--destination',
+                      metavar='DEST',
                       dest='dest_releases',
                       default=[],
                       action='append',
                       help='Backport to DEST release '
-                           '(default: current release)',
-                      metavar='DEST')
+                           '(default: current release)')
     parser.add_option('-s', '--source',
+                      metavar='SOURCE',
                       dest='source_release',
-                      default=None,
                       help='Backport from SOURCE release '
-                           '(default: devel release)',
-                      metavar='SOURCE')
+                           '(default: devel release)')
     parser.add_option('-S', '--suffix',
-                      dest='suffix',
-                      default=None,
+                      metavar='SUFFIX',
                       help='Suffix to append to version number '
-                           '(default: ~ppa1)',
-                      metavar='SUFFIX')
+                           '(default: ~ppa1)')
     parser.add_option('-b', '--build',
-                      dest='build',
                       default=False,
                       action='store_true',
                       help='Build the package before uploading '
                            '(default: %default)')
     parser.add_option('-B', '--builder',
-                      dest='builder',
-                      default=None,
-                      help='Specify the package builder (default: pbuilder)',
-                      metavar='BUILDER')
+                      metavar='BUILDER',
+                      help='Specify the package builder (default: pbuilder)')
     parser.add_option('-U', '--update',
-                      dest='update',
                       default=False,
                       action='store_true',
                       help='Update the build environment before '
                            'attempting to build')
     parser.add_option('-u', '--upload',
-                      dest='upload',
-                      help='Specify an upload destination',
-                      metavar='UPLOAD')
+                      metavar='UPLOAD',
+                      help='Specify an upload destination')
     parser.add_option('-y', '--yes',
                       dest='prompt',
                       default=True,
                       action='store_false',
                       help='Do not prompt before uploading to a PPA')
     parser.add_option('-v', '--version',
-                      dest='version',
-                      default=None,
-                      help='Package version to backport (or verify)',
-                      metavar='VERSION')
+                      metavar='VERSION',
+                      help='Package version to backport (or verify)')
     parser.add_option('-w', '--workdir',
-                      dest='workdir',
-                      default=None,
+                      metavar='WORKDIR',
                       help='Specify a working directory '
-                           '(default: temporary dir)',
-                      metavar='WORKDIR')
+                           '(default: temporary dir)')
     parser.add_option('-m', '--mirror',
-                      dest='mirror',
-                      default=None,
-                      help='Preferred mirror (default: Launchpad)',
-                      metavar='INSTANCE')
+                      metavar='INSTANCE',
+                      help='Preferred mirror (default: Launchpad)')
     parser.add_option('-l', '--lpinstance',
-                      dest='lpinstance',
-                      default=None,
+                      metavar='INSTANCE',
                       help='Launchpad instance to connect to '
-                           '(default: production)',
-                      metavar='INSTANCE')
+                           '(default: production)')
     parser.add_option('--no-conf',
-                      dest='no_conf',
                       default=False,
-                      help="Don't read config files or environment variables",
-                      action='store_true')
+                      action='store_true',
+                      help="Don't read config files or environment variables")
 
     opts, args = parser.parse_args(args)
     if len(args) != 1:
