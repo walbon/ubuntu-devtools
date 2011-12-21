@@ -28,7 +28,9 @@ from ubuntutools import subprocess
 from ubuntutools.harvest import Harvest
 from ubuntutools.question import Question, YesNoQuestion
 
-from ubuntutools.sponsor_patch.question import ask_for_manual_fixing, user_abort
+from ubuntutools.sponsor_patch.question import (ask_for_ignoring_or_fixing,
+                                                ask_for_manual_fixing,
+                                                user_abort)
 
 def _get_series(launchpad):
     """Returns a tuple with the development and list of supported series."""
@@ -270,16 +272,14 @@ class SourcePackage(object):
                 Logger.error(("%s is not an allowed series. It needs to be one "
                              "of %s.") % (self._changelog.distributions,
                                           ", ".join(allowed)))
-                ask_for_manual_fixing()
-                return False
+                return ask_for_ignoring_or_fixing()
         elif upload and upload.startswith("ppa/"):
             allowed = supported_series + [devel_series]
             if self._changelog.distributions not in allowed:
                 Logger.error(("%s is not an allowed series. It needs to be one "
                              "of %s.") % (self._changelog.distributions,
                                           ", ".join(allowed)))
-                ask_for_manual_fixing()
-                return False
+                return ask_for_ignoring_or_fixing()
         return True
 
     def check_version(self, previous_version):
@@ -292,8 +292,7 @@ class SourcePackage(object):
         if self._version <= previous_version:
             Logger.error("The version %s is not greater than the already "
                          "available %s.", self._version, previous_version)
-            ask_for_manual_fixing()
-            return False
+            return ask_for_ignoring_or_fixing()
         return True
 
     def check_sync_request_version(self, bug_number, task):
@@ -363,8 +362,7 @@ class SourcePackage(object):
         if lp_bug.id not in fixed_bugs:
             Logger.error("Launchpad bug #%i is not closed by new version." % \
                          (lp_bug.id))
-            ask_for_manual_fixing()
-            return False
+            return ask_for_ignoring_or_fixing()
         return True
 
     def _print_logs(self):

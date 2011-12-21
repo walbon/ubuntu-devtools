@@ -17,14 +17,31 @@
 
 import sys
 
-from ubuntutools.question import YesNoQuestion
+from ubuntutools.question import Question, YesNoQuestion
+
+def ask_for_ignoring_or_fixing():
+    """Ask the user to resolve an issue manually or ignore it.
+
+    Returns false if the user want to fix the issue and returns true if the user
+    want to ignore the issue.
+    """
+
+    question = Question(["yes", "ignore", "no"])
+    answer = question.ask("Do you want to resolve this issue manually", "yes")
+    if answer == "no":
+        user_abort()
+    return answer == "ignore"
 
 def ask_for_manual_fixing():
+    """Ask the user to resolve an issue manually."""
+
     answer = YesNoQuestion().ask("Do you want to resolve this issue manually",
                                  "yes")
     if answer == "no":
         user_abort()
 
 def user_abort():
+    """Print abort and quit the program."""
+
     print "User abort."
     sys.exit(2)

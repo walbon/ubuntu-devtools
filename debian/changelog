@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.138) UNRELEASED; urgency=low
     - Use syncpackage instead of subscribing ubuntu-archive for sync requests,
       because syncpackage supports sponsorship now.
     - Check if the sponsored bug is marked as duplicate (LP: #896733).
+    - Allow user to override sanity checks (LP: #896733).
 
   [ Stefano Rivera ]
   * Correct reference to qemu-user-static in pbuilder-dist.1 (Closes: #651999)
