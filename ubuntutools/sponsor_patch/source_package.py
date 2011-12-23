@@ -225,9 +225,9 @@ class SourcePackage(object):
         """
 
         if self._branch:
-            cmd = ['bzr', 'builddeb', '-S', '--', '--no-lintian']
+            cmd = ['bzr', 'builddeb', '-S', '--', '-nc', '--no-lintian']
         else:
-            cmd = ['debuild', '--no-lintian', '-S']
+            cmd = ['debuild', '--no-lintian', '-nc', '-S']
         cmd.append("-v" + previous_version.full_version)
         if previous_version.upstream_version == \
            self._changelog.upstream_version and upload == "ubuntu":

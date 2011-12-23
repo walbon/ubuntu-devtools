@@ -265,7 +265,8 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         subprocess.check_call(cmd)
 
         # Build source package
-        cmd = ["debuild", "--no-lintian", "-S", "-v" + cur_ver.full_version]
+        cmd = ["debuild", "--no-lintian", "-nc", "-S",
+               "-v" + cur_ver.full_version]
         if need_orig:
             cmd += ['-sa']
         if keyid:
