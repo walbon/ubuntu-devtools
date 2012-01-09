@@ -152,7 +152,7 @@ def extract_source(dsc_file, verbose=False):
         Logger.error("Extraction of %s failed." % (os.path.basename(dsc_file)))
         sys.exit(1)
 
-def get_open_ubuntu_bug_task(launchpad, bug):
+def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     """Returns an open Ubuntu bug task for a given Launchpad bug.
 
     The bug task needs to be open (not complete) and target Ubuntu. The user
@@ -161,12 +161,21 @@ def get_open_ubuntu_bug_task(launchpad, bug):
     """
     bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
     ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
+    if branch:
+        branch = branch.split('/')
+
     if len(ubuntu_tasks) == 0:
         Logger.error("No Ubuntu bug task found on bug #%i." % (bug.id))
         sys.exit(1)
     elif len(ubuntu_tasks) == 1:
         task = ubuntu_tasks[0]
-    if len(ubuntu_tasks) > 1:
+    if len(ubuntu_tasks) > 1 and branch and branch[1] == 'ubuntu':
+        tasks = [task for task in ubuntu_tasks
+                      if task.get_series() == branch[2]
+                         and task.package == branch[3]]
+        assert len(tasks) == 1
+        task = tasks[0]
+    elif len(ubuntu_tasks) > 1:
         task_list = [t.get_short_info() for t in ubuntu_tasks]
         Logger.info("%i Ubuntu tasks exist for bug #%i.\n%s", len(ubuntu_tasks),
                     bug.id, "\n".join(task_list))
@@ -250,7 +259,7 @@ def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
     #pylint: enable=E1101
 
     (patch, branch) = get_patch_or_branch(bug)
-    task = get_open_ubuntu_bug_task(launchpad, bug)
+    task = get_open_ubuntu_bug_task(launchpad, bug, branch)
 
     dsc_file = task.download_source()
 
