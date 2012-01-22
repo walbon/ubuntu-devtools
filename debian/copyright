@@ -40,7 +40,9 @@ License: GPL-2
  version 2 can be found in the /usr/share/common-licenses/GPL-2 file.
 
 Files: 404main
+       dgetlp
        doc/404main.1
+       doc/dgetlp.1
        doc/import-bug-from-debian.1
        doc/pbuilder-dist-simple.1
        doc/pbuilder-dist.1
