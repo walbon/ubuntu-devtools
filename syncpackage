@@ -355,7 +355,9 @@ def copy(src_pkg, release, bugs, sponsoree=None, simulate=False, force=False):
                     exact_match=True)[0]
                 )
     except IndexError:
-        Logger.error('Debian version %s does not exist!', src_pkg.version)
+        Logger.error('Debian version %s has not been picked up by LP yet. '
+                     'Please try again later.',
+                     src_pkg.version)
         sys.exit(1)
 
     try:
