@@ -340,11 +340,14 @@ class PbuilderDist:
 
         # Export the distribution and architecture information to the
         # environment so that it is accessible to ~/.pbuilderrc (LP: #628933).
+        # With both common variable name schemes (BTS: #659060).
         return [
             self.auth,
             'HOME=' + os.path.expanduser('~'),
             'ARCHITECTURE=' + self.build_architecture,
             'DISTRIBUTION=' + self.target_distro,
+            'ARCH=' + self.build_architecture,
+            'DIST=' + self.target_distro,
             self.builder,
         ] + arguments
 
