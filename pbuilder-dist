@@ -343,7 +343,7 @@ class PbuilderDist:
         return [
             self.auth,
             'HOME=' + os.path.expanduser('~'),
-            'ARCH=' + self.build_architecture,
+            'ARCHITECTURE=' + self.build_architecture,
             'DISTRIBUTION=' + self.target_distro,
             self.builder,
         ] + arguments
