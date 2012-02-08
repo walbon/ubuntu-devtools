@@ -7,6 +7,9 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
     (LP: #919805)
   * pbuilder-dist: Export DISTRIBUTION and ARCHITECTURE as well as DIST and
     ARCH. Thanks Alessio Treglia. (Closes: #659060, LP: #423609)
+  * reverse-depends: Now that Debian is supported server-side:
+    - Convert Debian release aliases to codenames.
+    - Default to the devel release of the vendor distribution.
 
  -- Stefano Rivera <stefanor@debian.org>  Fri, 23 Dec 2011 22:33:17 +0200
 

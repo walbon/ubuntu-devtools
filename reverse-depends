@@ -18,20 +18,23 @@ import optparse
 import sys
 
 from devscripts.logger import Logger
-from distro_info import UbuntuDistroInfo
 
+from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
+                              codename_to_distribution)
 from ubuntutools.rdepends import query_rdepends, RDependsException
 
 
 def main():
+    system_distro_info = vendor_to_distroinfo(system_distribution())()
     parser = optparse.OptionParser('%prog [options] package',
         description="List reverse-dependencies of package. "
                     "If the package name is prefixed with src: then the "
                     "reverse-dependencies of all the binary packages that "
                     "the specified source package builds will be listed.")
     parser.add_option('-r', '--release', metavar='RELEASE',
-                      default=UbuntuDistroInfo().devel(),
-                      help='Query dependencies in RELEASE. Default: devel')
+                      default=system_distro_info.devel(),
+                      help='Query dependencies in RELEASE. '
+                      'Default: %s' % system_distro_info.devel())
     parser.add_option('-R', '--without-recommends',
                       action='store_false', dest='recommends', default=True,
                       help='Only consider Depends relationships, '
@@ -67,6 +70,14 @@ def main():
     opts = {}
     if options.server is not None:
         opts['server'] = options.server
+
+    # Convert unstable/testing aliases to codenames:
+    distribution = codename_to_distribution(options.release)
+    if not distribution:
+        parser.error('Unknown release codename %s' % options.release)
+    distro_info = vendor_to_distroinfo(distribution)()
+    options.release = distro_info.codename(options.release,
+                                           default=options.release)
 
     try:
         data = query_rdepends(package, options.release, options.arch, **opts)
