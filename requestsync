@@ -110,6 +110,9 @@ def main():
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
 
+    if options.keyid is None:
+        options.keyid = config.get_value('KEYID')
+
     if not options.lpapi:
         if options.lpinstance == 'production':
             bug_mail_domain = 'bugs.launchpad.net'

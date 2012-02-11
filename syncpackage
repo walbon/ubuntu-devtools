@@ -628,6 +628,9 @@ def main():
     if options.ubuntu_mirror is None:
         options.ubuntu_mirror = config.get_value('UBUNTU_MIRROR')
 
+    if options.keyid is None:
+        options.keyid = config.get_value('KEYID')
+
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
     try:
