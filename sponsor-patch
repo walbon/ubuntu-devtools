@@ -89,6 +89,8 @@ def parse(script_name):
         options.update = config.get_value("UPDATE_BUILDER", boolean=True)
     if options.workdir is None:
         options.workdir = config.get_value("WORKDIR")
+    if options.keyid is None:
+        options.keyid = config.get_value("KEYID")
 
     if options.sponsoring:
         options.build = True

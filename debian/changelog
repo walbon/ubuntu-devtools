@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * syncpackage, backportpackage, sponsor-patch: Use -nc when building source
     packages. Avoids needing build-deps on the build machine.
   * sponsor-patch: Determine the task from the UDD branch.
@@ -10,6 +11,10 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
   * reverse-depends: Now that Debian is supported server-side:
     - Convert Debian release aliases to codenames.
     - Default to the devel release of the vendor distribution.
+
+  [ Evan Broder]
+  * sponsor-patch, requestsync, syncpackage: Add a config variable for -k
+    arguments.
 
  -- Stefano Rivera <stefanor@debian.org>  Fri, 23 Dec 2011 22:33:17 +0200
 
