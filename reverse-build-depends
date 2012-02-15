@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cat >&2 <<EOF
+reverse-build-depends has been replaced by reverse-depends -b
+This script now wraps reverse-depends.
+Please use it in the future.
+
+EOF
+
+exec reverse-depends -b "$@"
