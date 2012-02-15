@@ -36,11 +36,14 @@ from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
 from ubuntutools.sponsor_patch.source_package import SourcePackage
 
 
-def is_command_available(command):
+def is_command_available(command, check_sbin=False):
     "Is command in $PATH?"
-    path = os.environ.get('PATH', '/usr/bin:/bin')
+    path = os.environ.get('PATH', '/usr/bin:/bin').split(':')
+    if check_sbin:
+        path += [directory[:-3] + 'sbin'
+                 for directory in path if directory.endswith('/bin')]
     return any(os.access(os.path.join(directory, command), os.X_OK)
-               for directory in path.split(':'))
+               for directory in path)
 
 
 def check_dependencies():
@@ -51,7 +54,7 @@ def check_dependencies():
             missing.append(cmd)
     if not is_command_available('bzr-buildpackage'):
         missing.append('bzr-builddeb')
-    if not any(is_command_available(cmd)
+    if not any(is_command_available(cmd, check_sbin=True)
                for cmd in ('pbuilder', 'sbuild', 'cowbuilder')):
         missing.append('pbuilder/cowbuilder/sbuild')
 
