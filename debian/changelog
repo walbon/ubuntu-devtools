@@ -3,7 +3,9 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * syncpackage, backportpackage, sponsor-patch: Use -nc when building source
     packages. Avoids needing build-deps on the build machine.
-  * sponsor-patch: Determine the task from the UDD branch.
+  * sponsor-patch:
+    - Determine the task from the UDD branch.
+    - Support syncs of new packages.
   * Re-add dgetlp. Still needed for downloading source packages from +queue.
     (LP: #919805)
   * pbuilder-dist: Export DISTRIBUTION and ARCHITECTURE as well as DIST and

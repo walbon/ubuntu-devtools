@@ -53,6 +53,12 @@ class BugTask(object):
             self.project = components[1].lower()
             self.series = components[2].lower()
 
+        if self.package is None:
+            title_re = '^Sync ([a-z0-9+.-]+) [a-z0-9.+:~-]+ \([a-z]+\) from.*'
+            match = re.match(title_re, self.get_bug_title(), re.U | re.I)
+            if match is not None:
+                self.package = match.group(1)
+
     def download_source(self):
         source_files = self.get_source().sourceFileUrls()
         dsc_file = ""
@@ -150,7 +156,11 @@ class BugTask(object):
         return debian.debian_support.Version(source_package_version)
 
     def get_latest_released_version(self):
-        version = self.get_source(True).source_package_version
+        source = self.get_source(True)
+        if source is None:  # Not currently published in Ubuntu
+            version = '~'
+        else:
+            version = source.source_package_version
         return debian.debian_support.Version(version)
 
     def is_complete(self):
