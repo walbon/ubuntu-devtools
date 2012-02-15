@@ -125,13 +125,7 @@ class BugTask(object):
 
         if self.is_derived_from_debian() and not latest_release:
             project = "debian"
-            title = self.bug_task.bug.title.lower().split()
-            if "experimental" in title:
-                series = "experimental"
-            elif "testing" in title:
-                series = distro_info.DebianDistroInfo().testing()
-            else:
-                series = distro_info.DebianDistroInfo().devel()
+            series = self.get_debian_source_series()
         else:
             project = self.project
             series = self.get_series(latest_release)
@@ -162,6 +156,16 @@ class BugTask(object):
         else:
             version = source.source_package_version
         return debian.debian_support.Version(version)
+
+    def get_debian_source_series(self):
+        title = self.bug_task.bug.title.lower().split()
+        if "experimental" in title:
+            series = "experimental"
+        elif "testing" in title:
+            series = distro_info.DebianDistroInfo().testing()
+        else:
+            series = distro_info.DebianDistroInfo().devel()
+        return series
 
     def is_complete(self):
         return self.bug_task.is_complete

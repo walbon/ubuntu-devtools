@@ -6,6 +6,7 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
   * sponsor-patch:
     - Determine the task from the UDD branch.
     - Support syncs of new packages.
+    - Support syncs from a non-default series (LP: #931644)
   * Re-add dgetlp. Still needed for downloading source packages from +queue.
     (LP: #919805)
   * pbuilder-dist: Export DISTRIBUTION and ARCHITECTURE as well as DIST and

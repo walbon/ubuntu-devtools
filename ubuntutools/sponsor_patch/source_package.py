@@ -440,12 +440,13 @@ class SourcePackage(object):
 
         return lintian_filename
 
-    def sync(self, upload, bug_number, requester):
+    def sync(self, upload, series, bug_number, requester):
         """Does a sync of the source package."""
 
         if upload == "ubuntu":
             cmd = ["syncpackage", self._package, "-b", str(bug_number), "-f",
-                   "-s", requester, "-V", str(self._version)]
+                   "-s", requester, "-V", str(self._version),
+                   "-d", series]
             Logger.command(cmd)
             if subprocess.call(cmd) != 0:
                 Logger.error("Syncing of %s %s failed.", self._package,
