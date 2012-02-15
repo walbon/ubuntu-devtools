@@ -18,6 +18,8 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
   * reverse-depends: Now that Debian is supported server-side:
     - Convert Debian release aliases to codenames.
     - Default to the devel release of the vendor distribution.
+    - Provide transitional reverse-build-depends wrapper to help users
+      discover reverse-depends. (LP: #910420)
 
   [ Evan Broder]
   * sponsor-patch, requestsync, syncpackage: Add a config variable for -k
