@@ -141,9 +141,10 @@ def find_release_package(mirror, workdir, package, version, source_release,
 
     if source_release:
         distribution = codename_to_distribution(source_release)
-
         if not distribution:
             error('Unknown release codename %s' % source_release)
+        info = vendor_to_distroinfo(distribution)()
+        source_release = info.codename(source_release, default=source_release)
     else:
         distribution = system_distribution()
     mirrors = [mirror] if mirror else []

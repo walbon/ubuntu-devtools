@@ -20,6 +20,7 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
     - Default to the devel release of the vendor distribution.
     - Provide transitional reverse-build-depends wrapper to help users
       discover reverse-depends. (LP: #910420)
+  * backportpackage: Map Debian release aliases to codenames (LP: #918231)
 
   [ Evan Broder]
   * sponsor-patch, requestsync, syncpackage: Add a config variable for -k
