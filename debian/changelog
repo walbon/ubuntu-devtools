@@ -11,8 +11,10 @@ ubuntu-dev-tools (0.139) UNRELEASED; urgency=low
       dput, lintian, patch, quilt. (LP: #846385)
   * Re-add dgetlp. Still needed for downloading source packages from +queue.
     (LP: #919805)
-  * pbuilder-dist: Export DISTRIBUTION and ARCHITECTURE as well as DIST and
-    ARCH. Thanks Alessio Treglia. (Closes: #659060, LP: #423609)
+  * pbuilder-dist:
+    - Export DISTRIBUTION and ARCHITECTURE as well as DIST and ARCH. Thanks
+      Alessio Treglia. (Closes: #659060, LP: #423609)
+    - Pass DEB_BUILD_OPTIONS through (LP: #685786)
   * reverse-depends: Now that Debian is supported server-side:
     - Convert Debian release aliases to codenames.
     - Default to the devel release of the vendor distribution.

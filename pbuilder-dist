@@ -348,6 +348,7 @@ class PbuilderDist:
             'DISTRIBUTION=' + self.target_distro,
             'ARCH=' + self.build_architecture,
             'DIST=' + self.target_distro,
+            'DEB_BUILD_OPTIONS=' + os.environ.get('DEB_BUILD_OPTIONS', ''),
             self.builder,
         ] + arguments
 
