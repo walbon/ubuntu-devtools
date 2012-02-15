@@ -7,4 +7,4 @@ Please use it in the future.
 
 EOF
 
-exec reverse-depends -b "$@"
+exec $(dirname $0)/reverse-depends -b "$@"
