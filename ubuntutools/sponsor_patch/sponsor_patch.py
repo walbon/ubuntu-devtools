@@ -35,6 +35,31 @@ from ubuntutools.sponsor_patch.patch import Patch
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
 from ubuntutools.sponsor_patch.source_package import SourcePackage
 
+
+def is_command_available(command):
+    "Is command in $PATH?"
+    path = os.environ.get('PATH', '/usr/bin:/bin')
+    return any(os.access(os.path.join(directory, command), os.X_OK)
+               for directory in path.split(':'))
+
+
+def check_dependencies():
+    "Do we have all the commands we need for full functionality?"
+    missing = []
+    for cmd in ('patch', 'bzr', 'quilt', 'dput', 'lintian'):
+        if not is_command_available(cmd):
+            missing.append(cmd)
+    if not is_command_available('bzr-buildpackage'):
+        missing.append('bzr-builddeb')
+    if not any(is_command_available(cmd)
+               for cmd in ('pbuilder', 'sbuild', 'cowbuilder')):
+        missing.append('pbuilder/cowbuilder/sbuild')
+
+    if missing:
+        Logger.warn("sponsor-patch requires %s to be installed for full "
+                    "functionality", ', '.join(missing))
+
+
 def get_source_package_name(bug_task):
     package = None
     if bug_task.bug_target_name != "ubuntu":

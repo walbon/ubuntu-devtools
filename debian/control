@@ -53,13 +53,17 @@ Recommends: bzr,
             debian-archive-keyring,
             debian-keyring,
             debootstrap,
+            dput,
             genisoimage,
+            lintian,
             libwww-perl,
             pbuilder | cowdancer | sbuild,
+            patch,
             perl-modules,
             python-dns,
             python-gnupginterface,
             python-soappy,
+            quilt,
             reportbug (>= 3.39ubuntu1)
 Suggests: ipython, python-simplejson | python (>= 2.7), qemu-user-static
 Description: useful tools for Ubuntu developers

@@ -24,7 +24,8 @@ from devscripts.logger import Logger
 
 from ubuntutools.config import UDTConfig
 from ubuntutools.builder import get_builder
-from ubuntutools.sponsor_patch.sponsor_patch import sponsor_patch
+from ubuntutools.sponsor_patch.sponsor_patch import (sponsor_patch,
+                                                     check_dependencies)
 
 def parse(script_name):
     """Parse the command line parameters."""
@@ -65,6 +66,7 @@ def parse(script_name):
 
     (options, args) = parser.parse_args()
     Logger.set_verbosity(options.verbose)
+    check_dependencies()
 
     if len(args) == 0:
         Logger.error("No bug number specified.")
