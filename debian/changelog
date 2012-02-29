@@ -2,6 +2,8 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
 
   * Bump Standards-Version to 3.9.3, no changes needed.
   * Update machine-readable copyright Format to 1.0.
+  * pbuilder-dist: Use the same chroot, whether the system-architecture was
+    the supplied architecture or was chosen by default (LP: #943435)
 
  -- Stefano Rivera <stefanor@debian.org>  Sat, 25 Feb 2012 16:09:53 +0200
 

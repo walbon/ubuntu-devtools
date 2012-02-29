@@ -187,8 +187,10 @@ class PbuilderDist:
         and return it as a string.
         """
         if not self.build_architecture:
-            self.chroot_string = self.target_distro
             self.build_architecture = self.system_architecture
+
+        if self.build_architecture == self.system_architecture:
+            self.chroot_string = self.target_distro
         else:
             self.chroot_string = (self.target_distro + '-'
                                   + self.build_architecture)
