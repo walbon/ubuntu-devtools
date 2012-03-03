@@ -41,6 +41,7 @@ class UDTConfig(object):
         'UBUNTU_PORTS_MIRROR': 'http://ports.ubuntu.com',
         'UPDATE_BUILDER': False,
         'WORKDIR': None,
+        'KEYID': None,
     }
     # Populated from the configuration files:
     config = {}
