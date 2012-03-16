@@ -218,7 +218,6 @@ class PbuilderDist:
             '--%s' % self.operation,
             '--distribution', self.target_distro,
             '--buildresult', result,
-            '--aptcache', '/var/cache/apt/archives/',
             '--override-config',
         ]
 
