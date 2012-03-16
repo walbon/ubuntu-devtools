@@ -1,11 +1,16 @@
 ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * Bump Standards-Version to 3.9.3, no changes needed.
   * Update machine-readable copyright Format to 1.0.
   * pbuilder-dist: Use the same chroot, whether the system-architecture was
     the supplied architecture or was chosen by default (LP: #943435)
 
- -- Stefano Rivera <stefanor@debian.org>  Sat, 25 Feb 2012 16:09:53 +0200
+  [ Daniel Hahler ]
+  * ubuntutools/archive.py: use ProxyHandler in _download_file.
+    This makes use of the system proxy (e.g. http_proxy).
+
+ -- Daniel Hahler <ubuntu@thequod.de>  Fri, 16 Mar 2012 16:21:00 +0100
 
 ubuntu-dev-tools (0.139) unstable; urgency=low
 

@@ -317,8 +317,10 @@ class SourcePackage(object):
         if parsed.scheme == 'file':
             in_ = open(parsed.path, 'r')
         else:
+            proxy = urllib2.ProxyHandler() # uses default proxy from environment
+            opener = urllib2.build_opener(proxy)
             try:
-                in_ = urllib2.urlopen(url)
+                in_ = opener.open(url)
             except urllib2.URLError:
                 return False
 
