@@ -9,6 +9,8 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
   [ Daniel Hahler ]
   * ubuntutools/archive.py: use ProxyHandler in _download_file.
     This makes use of the system proxy (e.g. http_proxy).
+  * pbuilder-dist: Do not force default value for `--aptcache` argument
+    (LP: #956903)
 
  -- Daniel Hahler <ubuntu@thequod.de>  Fri, 16 Mar 2012 16:21:00 +0100
 
