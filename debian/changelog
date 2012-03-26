@@ -12,6 +12,10 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
   * pbuilder-dist: Do not force default value for `--aptcache` argument
     (LP: #956903)
 
+  [ John S Gruber ]
+  * Don't use --override-config with operations other than update.
+    (LP: #409696)
+
  -- Daniel Hahler <ubuntu@thequod.de>  Fri, 16 Mar 2012 16:21:00 +0100
 
 ubuntu-dev-tools (0.139) unstable; urgency=low

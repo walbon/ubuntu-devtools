@@ -218,8 +218,10 @@ class PbuilderDist:
             '--%s' % self.operation,
             '--distribution', self.target_distro,
             '--buildresult', result,
-            '--override-config',
         ]
+
+        if self.operation == 'update':
+            arguments += ['--override-config']
 
         if self.builder == 'pbuilder':
             arguments += ['--basetgz', prefix + '-base.tgz']
