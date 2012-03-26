@@ -110,7 +110,7 @@ class Dsc(debian.deb822.Dsc):
                 if (size != their_checksums[name][0] or
                     checksum != their_checksums[name][1]):
                     return False
-            return True # one checksum is good enough
+            return True  # one checksum is good enough
         return True
 
 
@@ -153,6 +153,10 @@ class SourcePackage(object):
                 version = 'unknown'
 
         self.version = debian.debian_support.Version(version)
+
+        # uses default proxies from the environment
+        proxy = urllib2.ProxyHandler()
+        self.url_opener = urllib2.build_opener(proxy)
 
     @property
     def lp_spph(self):
@@ -317,10 +321,8 @@ class SourcePackage(object):
         if parsed.scheme == 'file':
             in_ = open(parsed.path, 'r')
         else:
-            proxy = urllib2.ProxyHandler() # uses default proxy from environment
-            opener = urllib2.build_opener(proxy)
             try:
-                in_ = opener.open(url)
+                in_ = self.url_opener.open(url)
             except urllib2.URLError:
                 return False
 
@@ -498,7 +500,7 @@ class DebianSourcePackage(SourcePackage):
                                     "python-simplejson")
 
             try:
-                srcfiles = json.load(urllib2.urlopen(
+                srcfiles = json.load(self.url_opener.open(
                     'http://snapshot.debian.org'
                     '/mr/package/%s/%s/srcfiles?fileinfo=1'
                         % (self.source, self.version.full_version)))
