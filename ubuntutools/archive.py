@@ -110,7 +110,7 @@ class Dsc(debian.deb822.Dsc):
                 if (size != their_checksums[name][0] or
                     checksum != their_checksums[name][1]):
                     return False
-            return True # one checksum is good enough
+            return True  # one checksum is good enough
         return True
 
 
@@ -317,7 +317,8 @@ class SourcePackage(object):
         if parsed.scheme == 'file':
             in_ = open(parsed.path, 'r')
         else:
-            proxy = urllib2.ProxyHandler() # uses default proxy from environment
+            # uses default proxy from environment
+            proxy = urllib2.ProxyHandler()
             opener = urllib2.build_opener(proxy)
             try:
                 in_ = opener.open(url)
