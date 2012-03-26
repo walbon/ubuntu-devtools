@@ -154,6 +154,10 @@ class SourcePackage(object):
 
         self.version = debian.debian_support.Version(version)
 
+        # uses default proxies from the environment
+        proxy = urllib2.ProxyHandler()
+        self.url_opener = urllib2.build_opener(proxy)
+
     @property
     def lp_spph(self):
         "Return the LP Source Package Publishing History entry"
@@ -317,11 +321,8 @@ class SourcePackage(object):
         if parsed.scheme == 'file':
             in_ = open(parsed.path, 'r')
         else:
-            # uses default proxy from environment
-            proxy = urllib2.ProxyHandler()
-            opener = urllib2.build_opener(proxy)
             try:
-                in_ = opener.open(url)
+                in_ = self.url_opener.open(url)
             except urllib2.URLError:
                 return False
 
@@ -499,7 +500,7 @@ class DebianSourcePackage(SourcePackage):
                                     "python-simplejson")
 
             try:
-                srcfiles = json.load(urllib2.urlopen(
+                srcfiles = json.load(self.url_opener.open(
                     'http://snapshot.debian.org'
                     '/mr/package/%s/%s/srcfiles?fileinfo=1'
                         % (self.source, self.version.full_version)))
