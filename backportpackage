@@ -233,8 +233,15 @@ def do_upload(workdir, package, bp_version, changes, upload, prompt):
 def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
                 update, upload, prompt):
     dirname = '%s-%s' % (pkg.source, release)
-    pkg.unpack(dirname)
     srcdir = os.path.join(workdir, dirname)
+
+    if os.path.exists(srcdir):
+        question = 'Working directory %s already exists. Delete it?' % srcdir
+        if YesNoQuestion().ask(question, 'no') == 'no':
+            sys.exit(1)
+        shutil.rmtree(srcdir)
+
+    pkg.unpack(dirname)
 
     bp_version = get_backport_version(pkg.version.full_version, suffix,
                                       upload, release)
