@@ -11,6 +11,7 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
       (LP: #693217)
   * requestsync:
     - New packages from non-free or contrib go into multiverse (LP: #935643)
+    - Catch SeriesNotFoundException and display a friendly error (LP: #963888)
 
   [ Daniel Hahler ]
   * ubuntutools/archive.py: use ProxyHandler in _download_file.

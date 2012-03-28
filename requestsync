@@ -217,6 +217,9 @@ def main():
                    % (srcpkg, release))
             confirmation_prompt()
             newsource = True
+    except udtexceptions.SeriesNotFoundException, error:
+        print >> sys.stderr, "E: %s" % error
+        sys.exit(1)
 
     # Get the requested Debian source package
     try:
@@ -224,6 +227,9 @@ def main():
         debian_version = Version(debian_srcpkg.getVersion())
         debian_component = debian_srcpkg.getComponent()
     except udtexceptions.PackageNotFoundException, error:
+        print >> sys.stderr, "E: %s" % error
+        sys.exit(1)
+    except udtexceptions.SeriesNotFoundException, error:
         print >> sys.stderr, "E: %s" % error
         sys.exit(1)
 
