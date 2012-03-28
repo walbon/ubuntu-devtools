@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.140) unstable; urgency=low
 
   [ Stefano Rivera ]
   * Bump Standards-Version to 3.9.3, no changes needed.
@@ -23,7 +23,7 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
   * Don't use --override-config with operations other than update.
     (LP: #409696)
 
- -- Daniel Hahler <ubuntu@thequod.de>  Fri, 16 Mar 2012 16:21:00 +0100
+ -- Stefano Rivera <stefanor@debian.org>  Thu, 29 Mar 2012 00:01:40 +0200
 
 ubuntu-dev-tools (0.139) unstable; urgency=low
 
