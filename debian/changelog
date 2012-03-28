@@ -5,7 +5,10 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
   * Update machine-readable copyright Format to 1.0.
   * pbuilder-dist: Use the same chroot, whether the system-architecture was
     the supplied architecture or was chosen by default (LP: #943435)
-  * backportpackage: Prompt to delete existing workdirs (LP: #885514)
+  * backportpackage
+    - Prompt to delete existing workdirs (LP: #885514)
+    - Support a BACKPORTPACKAGE_UPLOAD configuration/enviornment variable
+      (LP: #693217)
 
   [ Daniel Hahler ]
   * ubuntutools/archive.py: use ProxyHandler in _download_file.
