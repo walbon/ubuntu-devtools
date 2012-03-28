@@ -206,11 +206,11 @@ def main():
         ubuntu_srcpkg = get_ubuntu_srcpkg(srcpkg, release)
         ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         ubuntu_component = ubuntu_srcpkg.getComponent()
-        newsource = False # override the -n flag
+        newsource = False  # override the -n flag
     except udtexceptions.PackageNotFoundException:
         ubuntu_srcpkg = None
         ubuntu_version = Version('~')
-        ubuntu_component = 'universe' # let's assume universe
+        ubuntu_component = None  # Set after getting the Debian info
         if not newsource:
             print ("'%s' doesn't exist in 'Ubuntu %s'.\n"
                    "Do you want to sync a new package?"
@@ -226,6 +226,12 @@ def main():
     except udtexceptions.PackageNotFoundException, error:
         print >> sys.stderr, "E: %s" % error
         sys.exit(1)
+
+    if ubuntu_component is None:
+        if debian_component == 'main':
+            ubuntu_component = 'universe'
+        else:
+            ubuntu_component = 'multiverse'
 
     # Stop if Ubuntu has already the version from Debian or a newer version
     if (ubuntu_version >= debian_version) and options.lpapi:

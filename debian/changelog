@@ -9,6 +9,8 @@ ubuntu-dev-tools (0.140) UNRELEASED; urgency=low
     - Prompt to delete existing workdirs (LP: #885514)
     - Support a BACKPORTPACKAGE_UPLOAD configuration/enviornment variable
       (LP: #693217)
+  * requestsync:
+    - New packages from non-free or contrib go into multiverse (LP: #935643)
 
   [ Daniel Hahler ]
   * ubuntutools/archive.py: use ProxyHandler in _download_file.
