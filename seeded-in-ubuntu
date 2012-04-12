@@ -24,7 +24,8 @@ import urllib
 
 from devscripts.logger import Logger
 
-from ubuntutools.lp.lpapicache import Distribution, PackageNotFoundException
+from ubuntutools.lp.lpapicache import (Distribution, Launchpad,
+                                       PackageNotFoundException)
 
 DATA_URL = 'http://qa.ubuntuwire.org/ubuntu-seeded-packages/seeded.json.gz'
 
@@ -116,6 +117,9 @@ def main():
 
     if len(args) < 1:
         parser.error("At least one package must be specified")
+
+    # Login anonymously to LP
+    Launchpad.login_anonymously()
 
     index = load_index(options.data_url)
     if options.binary:
