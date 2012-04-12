@@ -633,9 +633,15 @@ def main():
 
     if options.lpinstance is None:
         options.lpinstance = config.get_value('LPINSTANCE')
+
     try:
         # devel for copyPackage and changelogUrl
-        Launchpad.login(service=options.lpinstance, api_version='devel')
+        kwargs = {'service': options.lpinstance,
+                  'api_version': 'devel'}
+        if options.lp:
+            Launchpad.login(**kwargs)
+        else:
+            Launchpad.login_anonymously(**kwargs)
     except IOError:
         sys.exit(1)
 

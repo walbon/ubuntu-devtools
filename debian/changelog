@@ -1,6 +1,8 @@
 ubuntu-dev-tools (0.141) UNRELEASED; urgency=low
 
-  * seeded-in-ubuntu: Log into launchpad anonymously (LP: #979849)
+  * syncpackage: Log into Launchpad anonymously with --no-lp
+    (LP: #979849)
+  * seeded-in-ubuntu: Log into Launchpad anonymously.
 
  -- Stefano Rivera <stefanor@debian.org>  Thu, 12 Apr 2012 18:21:41 +0200
 
