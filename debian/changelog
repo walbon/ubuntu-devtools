@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
+
+  * mk-sbuild: Support kmod, when checking for overlayfs availability.
+
+ -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
+
 ubuntu-dev-tools (0.141) unstable; urgency=low
 
   * syncpackage: Log into Launchpad anonymously with --no-lp
