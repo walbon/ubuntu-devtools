@@ -21,7 +21,7 @@ _pbuilder-dist()
 
     case $prev in
         build)
-            COMPREPLY=( $( compgen -o filenames -G "$cur*.dsc" ) )
+            _filedir "dsc"
             ;;
         *)
             COMPREPLY=( $( compgen -W "$options" | grep "^$cur" ) )
