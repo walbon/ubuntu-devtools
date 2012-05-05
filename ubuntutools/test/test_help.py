@@ -25,7 +25,6 @@ from ubuntutools import subprocess
 from ubuntutools.test import unittest
 
 BLACKLIST = {
-    'check-mir': 'No Help',
     'check-symbols': 'No Help',
     'grep-merges': 'No Help',
     'pbuilder-dist-simple': 'No Help',
