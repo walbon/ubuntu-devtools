@@ -3,6 +3,7 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
   * mk-sbuild: Support kmod, when checking for overlayfs availability.
   * pbuilder-dist: improve bash_completion for *.dsc files. Thanks Maarten
     Bezemer. (Closes: #670924, LP: #770529)
+  * submittodebian: Use optparse to display --help (LP: #988009)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 

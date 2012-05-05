@@ -30,7 +30,6 @@ BLACKLIST = {
     'grep-merges': 'No Help',
     'pbuilder-dist-simple': 'No Help',
     'setup-packaging-environment': 'Throws Error',
-    'submittodebian': 'No Help',
     'ubuntu-iso': 'No Help',
 }
 TIMEOUT = 5

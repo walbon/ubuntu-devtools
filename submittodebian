@@ -22,6 +22,7 @@
 #
 # ##################################################################
 
+import optparse
 import os
 import re
 import shutil
@@ -190,6 +191,10 @@ reportbug --configure for its configuration wizard.
         sys.exit(1)
 
 def main():
+    parser = optparse.OptionParser(
+        description='Submit the Ubuntu changes in a package to Debian. '
+                    'Run inside an unpacked Ubuntu source package.')
+    parser.parse_args()
     check_reportbug_config()
     changelog_file = (check_file('debian/changelog', critical = False) or
                       check_file('../debian/changelog'))
