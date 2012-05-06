@@ -20,6 +20,7 @@
 #
 # ##################################################################
 
+import optparse
 import sys
 
 from ubuntutools import subprocess
@@ -37,7 +38,10 @@ def extract(iso, path):
     return stdout
 
 def main():
-    isos = sys.argv[1:]
+    parser = optparse.OptionParser(usage='%prog [options] iso...',
+            description='Given an ISO, %prog will display the Ubuntu version '
+                        'information')
+    isos = parser.parse_args()[1]
     err = False
 
     for iso in isos:
