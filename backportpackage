@@ -86,6 +86,11 @@ def parse(args):
     parser.add_option('-u', '--upload',
                       metavar='UPLOAD',
                       help='Specify an upload destination')
+    parser.add_option("-k", "--key",
+                      help="Specify the key ID to be used for signing.")
+    parser.add_option('--dont-sign',
+                      dest='key', action='store_false',
+                      help='Do not sign the upload.')
     parser.add_option('-y', '--yes',
                       dest='prompt',
                       default=True,
@@ -130,6 +135,8 @@ def parse(args):
         opts.lpinstance = config.get_value('LPINSTANCE')
     if opts.upload is None:
         opts.upload = config.get_value('UPLOAD')
+    if opts.keyid is None:
+        opts.keyid = config.get_value('KEYID')
     if not opts.upload and not opts.workdir:
         parser.error('Please specify either a working dir or an upload target!')
     if opts.upload and opts.upload.startswith('ppa:'):
@@ -259,7 +266,7 @@ def orig_needed(upload, workdir, pkg):
     return False
 
 def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
-                update, upload, prompt):
+                update, upload, keyid, prompt):
     dirname = '%s-%s' % (pkg.source, release)
     srcdir = os.path.join(workdir, dirname)
 
@@ -284,7 +291,7 @@ def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
                 'No-change backport to %s' % release],
                cwd=srcdir)
 
-    cmd = ['debuild', '--no-lintian', '-S', '-nc']
+    cmd = ['debuild', '--no-lintian', '-S', '-nc', '-uc', '-us']
     if orig_needed(upload, workdir, pkg):
         cmd.append('-sa')
     else:
@@ -292,13 +299,19 @@ def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
     check_call(cmd, cwd=srcdir)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
+    changes = fn_base + '_source.changes'
 
     if build:
         if 0 != do_build(workdir, fn_base + '.dsc', release, builder, update):
             sys.exit(1)
+    if keyid != False:
+        cmd = ['debsign']
+        if keyid:
+            cmd.append('-k' + keyid)
+        cmd.append(changes)
+        check_call(cmd, cwd=workdir)
     if upload:
-        do_upload(workdir, pkg.source, bp_version, fn_base + '_source.changes',
-                  upload, prompt)
+        do_upload(workdir, pkg.source, bp_version, changes, upload, prompt)
 
     shutil.rmtree(srcdir)
 
@@ -343,6 +356,7 @@ def main(args):
                         opts.builder,
                         opts.update,
                         opts.upload,
+                        opts.key,
                         opts.prompt)
     except DownloadError, e:
         error(str(e))

@@ -18,6 +18,7 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
     in the destination PPA (LP: #691897)
   * Allow mk-sbuild to be run by root if a configuration file exists
     (LP: #888736)
+  * backportpackage: Allow unsigned backports (LP: #992739)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 
