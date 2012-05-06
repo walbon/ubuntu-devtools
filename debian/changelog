@@ -14,6 +14,8 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
     reverse-depends, submittodebian, syncpackage:
     Handle outdated distro-info data. Fall back to sane defaults where
     possible.
+  * backportpackage: Avoid uploading orig tarballs if they are already present
+    in the destination PPA (LP: #691897)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 

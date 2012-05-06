@@ -18,6 +18,7 @@
 #
 # ##################################################################
 
+import glob
 import optparse
 import os
 import shutil
@@ -25,8 +26,8 @@ import sys
 import tempfile
 
 import lsb_release
-
 from devscripts.logger import Logger
+from httplib2 import Http, HttpLib2Error
 
 from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
                                  UbuntuSourcePackage, DownloadError)
@@ -232,6 +233,31 @@ def do_upload(workdir, package, bp_version, changes, upload, prompt):
 
     check_call(['dput', upload, changes], cwd=workdir)
 
+def orig_needed(upload, workdir, pkg):
+    '''Avoid a -sa if possible'''
+    if not upload or not upload.startswith('ppa:'):
+        return True
+    ppa = upload.split(':', 1)[1]
+    user, ppa = ppa.split('/', 1)
+
+    version = pkg.version.full_version
+    if pkg.version.epoch:
+        version = version.split(pkg.version.epoch, 1)[1]
+
+    h = Http()
+    for filename in glob.glob(os.path.join(workdir,
+            '%s_%s.orig*' % (pkg.source, version))):
+        url = ('https://launchpad.net/~%s/+archive/%s/+files/%s'
+               % (user, ppa, filename))
+        try:
+            headers, body = h.request(url, 'HEAD')
+            if headers.status != 200:
+                return True
+        except HttpLib2Error, e:
+            Logger.info(e)
+            return True
+    return False
+
 def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
                 update, upload, prompt):
     dirname = '%s-%s' % (pkg.source, release)
@@ -257,7 +283,13 @@ def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
                 '--distribution', bp_dist,
                 'No-change backport to %s' % release],
                cwd=srcdir)
-    check_call(['debuild', '--no-lintian', '-S', '-nc', '-sa'], cwd=srcdir)
+
+    cmd = ['debuild', '--no-lintian', '-S', '-nc']
+    if orig_needed(upload, workdir, pkg):
+        cmd.append('-sa')
+    else:
+        cmd.append('-sd')
+    check_call(cmd, cwd=srcdir)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
 
