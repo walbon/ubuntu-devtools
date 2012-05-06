@@ -175,9 +175,15 @@ done
 # will not exist in the chroot.
 cd /
 
-# Make sure we've got a regular user
-if [ -w /etc/passwd ]; then
-    echo "Please run this script as a regular user, not root." >&2
+if [ -w /etc/passwd -a ! -e ~/.sbuildrc -a ! -e ~/.mk-sbuild.rc ]; then
+    cat >&2 <<EOF
+It's recommended to run this script as a regular user, not root, so that it
+uses the configuration files in your home directory.
+It will use sudo to escalate to root as necessary.
+
+If you really do want to use it as root, create a .sbuildrc or .mk-sbuild.rc
+in root's home.
+EOF
     exit 1
 fi
 
