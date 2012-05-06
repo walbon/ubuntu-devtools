@@ -34,6 +34,7 @@ from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from ubuntutools.config import ubu_email
 from ubuntutools.question import YesNoQuestion, EditFile
 from ubuntutools.subprocess import call, check_call, Popen, PIPE
+from ubuntutools.update_maintainer import update_maintainer, restore_maintainer
 
 try:
     from debian.changelog import Changelog
@@ -69,6 +70,13 @@ def get_bug_body(changelog):
 Thanks for considering the patch.
 """ % ("\n".join([a for a in entry.changes()]))
     return msg
+
+def build_source_package():
+    if os.path.isdir('.bzr'):
+        cmd = ['bzr', 'bd', '-S', '--', '-uc', '-us', '-nc']
+    else:
+        cmd = ['debuild', '-S', '-uc', '-us', '-nc']
+    check_call(cmd)
 
 def gen_debdiff(tmpdir, changelog):
     pkg = changelog.package
@@ -213,7 +221,15 @@ def main():
     fp.write(bug_body)
     fp.close()
 
+    restore_maintainer('debian')
+    build_source_package()
+    update_maintainer('debian')
+
     debdiff = gen_debdiff(tmpdir, changelog)
+
+    # Build again as the user probably doesn't expect the Maintainer to be
+    # reverted in the most recent build
+    build_source_package()
 
     EditFile(debdiff, 'debdiff').edit(optional=True)
 
