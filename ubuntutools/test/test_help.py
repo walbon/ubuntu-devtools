@@ -25,7 +25,6 @@ from ubuntutools import subprocess
 from ubuntutools.test import unittest
 
 BLACKLIST = {
-    'pbuilder-dist-simple': 'No Help',
     'setup-packaging-environment': 'Throws Error',
 }
 TIMEOUT = 5
