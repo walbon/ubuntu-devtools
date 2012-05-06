@@ -43,6 +43,7 @@ except ImportError:
     sys.exit(1)
 
 from ubuntutools import subprocess
+import ubuntutools.misc
 
 USAGE = u"""Usage: %prog [-d|(-v|-q)] <Launchpad URL>
 
@@ -253,6 +254,8 @@ def main():
                       default=False, help="Never print any output")
 
     (options, args) = parser.parse_args()
+    ubuntutools.misc.require_utf8()
+
     if len(args) != 1:
         parser.error("Missing URL")
     Debug = options.debug

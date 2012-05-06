@@ -6,6 +6,8 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
   * check-mir, check-symbols, grep-merges, pbuilder-dist-simple,
     setup-packaging-environment, submittodebian, ubuntu-iso:
     Do enough argument parsing to handle --help (LP: #988009)
+  * dgetlp: Require a UTF-8 locale, or it'll crash when displaying errors
+    (LP: #979117)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 
