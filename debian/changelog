@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
     Do enough argument parsing to handle --help (LP: #988009)
   * dgetlp: Require a UTF-8 locale, or it'll crash when displaying errors
     (LP: #979117)
+  * pbuilder-dist: Don't try to enable -updates for Debian testing
+    (LP: #993006)
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 
