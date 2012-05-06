@@ -10,6 +10,10 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
     (LP: #979117)
   * pbuilder-dist: Don't try to enable -updates for Debian testing
     (LP: #993006)
+  * pbuilder-dist, pull-debian-source, pull-lp-source, requestsync,
+    reverse-depends, submittodebian, syncpackage:
+    Handle outdated distro-info data. Fall back to sane defaults where
+    possible.
 
  -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
 

@@ -31,7 +31,7 @@ import os
 import sys
 
 from debian.changelog import Version
-from distro_info import UbuntuDistroInfo
+from distro_info import UbuntuDistroInfo, DistroDataOutdated
 
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
@@ -45,8 +45,11 @@ from ubuntutools.question import confirmation_prompt, EditBugReport
 def main():
     ubu_info = UbuntuDistroInfo()
     DEFAULT_SOURCE = 'unstable'
-    if ubu_info.is_lts(ubu_info.devel()):
-        DEFAULT_SOURCE = 'testing'
+    try:
+        if ubu_info.is_lts(ubu_info.devel()):
+            DEFAULT_SOURCE = 'testing'
+    except DistroDataOutdated, e:
+        print >> sys.stderr, str(e)
 
     # Our usage options.
     usage = ('Usage: %prog [options] '

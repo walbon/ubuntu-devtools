@@ -29,7 +29,7 @@ import shutil
 import sys
 from tempfile import mkdtemp
 
-from distro_info import UbuntuDistroInfo
+from distro_info import UbuntuDistroInfo, DistroDataOutdated
 
 from ubuntutools.config import ubu_email
 from ubuntutools.question import YesNoQuestion, EditFile
@@ -119,7 +119,11 @@ def check_file(fname, critical = True):
         sys.exit(1)
 
 def submit_bugreport(body, debdiff, deb_version, changelog):
-    devel = UbuntuDistroInfo().devel()
+    try:
+        devel = UbuntuDistroInfo().devel()
+    except DistroDataOutdated, e:
+        print str(e)
+        devel = ''
 
     if os.path.dirname(sys.argv[0]).startswith('/usr/bin'):
         editor_path = '/usr/share/ubuntu-dev-tools'

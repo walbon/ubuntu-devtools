@@ -31,7 +31,7 @@ import urllib
 
 import debian.debian_support
 from devscripts.logger import Logger
-from distro_info import UbuntuDistroInfo
+from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
@@ -294,7 +294,15 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release,
 
     if dist is None:
         ubu_info = UbuntuDistroInfo()
-        dist = 'testing' if ubu_info.is_lts(ubu_info.devel()) else 'unstable'
+        try:
+            if ubu_info.is_lts(ubu_info.devel()):
+                dist = 'testing'
+            else:
+                dist = 'unstable'
+        except DistroDataOutdated, e:
+            Logger.warn(e)
+            dist = 'unstable'
+
     requested_version = version
     if type(version) == str:
         version = Version(version)

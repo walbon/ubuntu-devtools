@@ -18,6 +18,7 @@ import optparse
 import sys
 
 from devscripts.logger import Logger
+from distro_info import DistroDataOutdated
 
 from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
                               codename_to_distribution)
@@ -26,15 +27,21 @@ from ubuntutools.rdepends import query_rdepends, RDependsException
 
 def main():
     system_distro_info = vendor_to_distroinfo(system_distribution())()
+    try:
+        default_release = system_distro_info.devel()
+    except DistroDataOutdated, e:
+        Logger.warn(e)
+        default_release = 'unstable'
+
     parser = optparse.OptionParser('%prog [options] package',
         description="List reverse-dependencies of package. "
                     "If the package name is prefixed with src: then the "
                     "reverse-dependencies of all the binary packages that "
                     "the specified source package builds will be listed.")
     parser.add_option('-r', '--release', metavar='RELEASE',
-                      default=system_distro_info.devel(),
+                      default=default_release,
                       help='Query dependencies in RELEASE. '
-                      'Default: %s' % system_distro_info.devel())
+                      'Default: %s' % default_release)
     parser.add_option('-R', '--without-recommends',
                       action='store_false', dest='recommends', default=True,
                       help='Only consider Depends relationships, '
@@ -76,8 +83,12 @@ def main():
     if not distribution:
         parser.error('Unknown release codename %s' % options.release)
     distro_info = vendor_to_distroinfo(distribution)()
-    options.release = distro_info.codename(options.release,
-                                           default=options.release)
+    try:
+        options.release = distro_info.codename(options.release,
+                                               default=options.release)
+    except DistroDataOutdated:
+        # We already printed a warning
+        pass
 
     try:
         data = query_rdepends(package, options.release, options.arch, **opts)
