@@ -97,6 +97,11 @@ Should be in the form \fBhttp://archive.ubuntu.com/ubuntu\fR.
 If the package isn't found on this mirror, \fBbackportpackage\fR
 will use Launchpad.
 .TP
+.B \-c \fIBUG\fR, \fB\-\-close\fR=\fIBUG\fR
+Include a Launchpad closer for the specified bug in the auto-generated
+changelog. In the future, this may actually close the bug, but
+currently does not.
+.TP
 .B \-l \fIINSTANCE\fR, \fB\-\-lpinstance\fR=\fIINSTANCE\fR
 Use the specified instance of Launchpad (e.g. "staging"), instead of
 the default of "production".

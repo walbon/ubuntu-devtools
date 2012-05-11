@@ -1,10 +1,14 @@
 ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * mk-sbuild: Support kmod, when checking for overlayfs availability.
   * pbuilder-dist: improve bash_completion for *.dsc files. Thanks Maarten
     Bezemer. (Closes: #670924, LP: #770529)
 
- -- Stefano Rivera <stefanor@debian.org>  Wed, 25 Apr 2012 17:38:58 +0200
+  [ Evan Broder ]
+  * backportpackage: Add -c, --close flag to include a changelog closer.
+
+ -- Evan Broder <evan@ebroder.net>  Fri, 11 May 2012 09:54:01 -0700
 
 ubuntu-dev-tools (0.141) unstable; urgency=low
 

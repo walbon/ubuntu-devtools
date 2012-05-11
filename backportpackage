@@ -102,6 +102,9 @@ def parse(args):
                       action='store_true',
                       help='Target the release pocket in the .changes file. '
                            'Necessary (and default) for uploads to PPAs')
+    parser.add_option('-c', '--close',
+                      metavar='BUG',
+                      help='Bug to close in the changelog entry.')
     parser.add_option('-m', '--mirror',
                       metavar='INSTANCE',
                       help='Preferred mirror (default: Launchpad)')
@@ -232,8 +235,8 @@ def do_upload(workdir, package, bp_version, changes, upload, prompt):
 
     check_call(['dput', upload, changes], cwd=workdir)
 
-def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
-                update, upload, prompt):
+def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
+                builder, update, upload, prompt):
     dirname = '%s-%s' % (pkg.source, release)
     srcdir = os.path.join(workdir, dirname)
 
@@ -249,13 +252,16 @@ def do_backport(workdir, pkg, suffix, release, release_pocket, build, builder,
                                       upload, release)
     bp_dist = get_backport_dist(release, release_pocket)
 
+    changelog = 'No-change backport to %s' % (release,)
+    if close:
+        changelog += ' (LP: #%s)' % (close,)
     check_call(['dch',
                 '--force-bad-version',
                 '--force-distribution',
                 '--preserve',
                 '--newversion', bp_version,
                 '--distribution', bp_dist,
-                'No-change backport to %s' % release],
+                changelog],
                cwd=srcdir)
     check_call(['debuild', '--no-lintian', '-S', '-nc', '-sa'], cwd=srcdir)
 
@@ -305,6 +311,7 @@ def main(args):
             do_backport(workdir,
                         pkg,
                         opts.suffix,
+                        opts.close,
                         release,
                         opts.release_pocket,
                         opts.build,
