@@ -30,7 +30,7 @@ import urllib2
 from optparse import OptionParser
 
 from devscripts.logger import Logger
-from distro_info import UbuntuDistroInfo
+from distro_info import UbuntuDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import UbuntuSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
@@ -89,7 +89,11 @@ def main():
     if len(args) > 1:  # Custom distribution specified.
         version = str(args[1])
     else:
-        version = os.getenv('DIST') or ubuntu_info.devel()
+        try:
+            version = os.getenv('DIST') or ubuntu_info.devel()
+        except DistroDataOutdated, e:
+            Logger.warn("%s\nOr specify a distribution.", e)
+            sys.exit(1)
     component = None
 
     # Release, not package version number:

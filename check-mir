@@ -21,9 +21,12 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import apt
 import sys
+import optparse
 import os.path
+
+import apt
+
 
 def check_support(apt_cache, pkgname, alt=False):
     '''Check if pkgname is in main or restricted.
@@ -118,6 +121,11 @@ def check_binary_dependencies(apt_cache, control):
     return any_unsupported
 
 def main():
+    parser = optparse.OptionParser(
+            description="Check if any of a package's build or binary "
+                        "dependencies are in universe or multiverse. "
+                        "Run this inside an unpacked source package")
+    parser.parse_args()
     apt_cache = apt.Cache()
 
     if not os.path.exists('debian/control'):

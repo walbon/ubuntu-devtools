@@ -18,6 +18,7 @@
 #
 # ##################################################################
 
+import glob
 import optparse
 import os
 import shutil
@@ -25,8 +26,8 @@ import sys
 import tempfile
 
 import lsb_release
-
 from devscripts.logger import Logger
+from httplib2 import Http, HttpLib2Error
 
 from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
                                  UbuntuSourcePackage, DownloadError)
@@ -85,6 +86,11 @@ def parse(args):
     parser.add_option('-u', '--upload',
                       metavar='UPLOAD',
                       help='Specify an upload destination')
+    parser.add_option("-k", "--key",
+                      help="Specify the key ID to be used for signing.")
+    parser.add_option('--dont-sign',
+                      dest='key', action='store_false',
+                      help='Do not sign the upload.')
     parser.add_option('-y', '--yes',
                       dest='prompt',
                       default=True,
@@ -132,6 +138,8 @@ def parse(args):
         opts.lpinstance = config.get_value('LPINSTANCE')
     if opts.upload is None:
         opts.upload = config.get_value('UPLOAD')
+    if opts.keyid is None:
+        opts.keyid = config.get_value('KEYID')
     if not opts.upload and not opts.workdir:
         parser.error('Please specify either a working dir or an upload target!')
     if opts.upload and opts.upload.startswith('ppa:'):
@@ -235,8 +243,33 @@ def do_upload(workdir, package, bp_version, changes, upload, prompt):
 
     check_call(['dput', upload, changes], cwd=workdir)
 
+def orig_needed(upload, workdir, pkg):
+    '''Avoid a -sa if possible'''
+    if not upload or not upload.startswith('ppa:'):
+        return True
+    ppa = upload.split(':', 1)[1]
+    user, ppa = ppa.split('/', 1)
+
+    version = pkg.version.full_version
+    if pkg.version.epoch:
+        version = version.split(pkg.version.epoch, 1)[1]
+
+    h = Http()
+    for filename in glob.glob(os.path.join(workdir,
+            '%s_%s.orig*' % (pkg.source, version))):
+        url = ('https://launchpad.net/~%s/+archive/%s/+files/%s'
+               % (user, ppa, filename))
+        try:
+            headers, body = h.request(url, 'HEAD')
+            if headers.status != 200:
+                return True
+        except HttpLib2Error, e:
+            Logger.info(e)
+            return True
+    return False
+
 def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
-                builder, update, upload, prompt):
+                builder, update, upload, keyid, prompt):
     dirname = '%s-%s' % (pkg.source, release)
     srcdir = os.path.join(workdir, dirname)
 
@@ -263,16 +296,28 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
                 '--distribution', bp_dist,
                 changelog],
                cwd=srcdir)
-    check_call(['debuild', '--no-lintian', '-S', '-nc', '-sa'], cwd=srcdir)
+
+    cmd = ['debuild', '--no-lintian', '-S', '-nc', '-uc', '-us']
+    if orig_needed(upload, workdir, pkg):
+        cmd.append('-sa')
+    else:
+        cmd.append('-sd')
+    check_call(cmd, cwd=srcdir)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
+    changes = fn_base + '_source.changes'
 
     if build:
         if 0 != do_build(workdir, fn_base + '.dsc', release, builder, update):
             sys.exit(1)
+    if keyid != False:
+        cmd = ['debsign']
+        if keyid:
+            cmd.append('-k' + keyid)
+        cmd.append(changes)
+        check_call(cmd, cwd=workdir)
     if upload:
-        do_upload(workdir, pkg.source, bp_version, fn_base + '_source.changes',
-                  upload, prompt)
+        do_upload(workdir, pkg.source, bp_version, changes, upload, prompt)
 
     shutil.rmtree(srcdir)
 
@@ -318,6 +363,7 @@ def main(args):
                         opts.builder,
                         opts.update,
                         opts.upload,
+                        opts.key,
                         opts.prompt)
     except DownloadError, e:
         error(str(e))

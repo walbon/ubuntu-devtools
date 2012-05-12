@@ -22,7 +22,7 @@ import sys
 import urllib2
 
 from devscripts.logger import Logger
-from distro_info import DebianDistroInfo
+from distro_info import DebianDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
@@ -52,7 +52,10 @@ def is_suite(version):
 
 def source_package_for(binary, release):
     """Query DDE to find the source package for a particular binary"""
-    release = DebianDistroInfo().codename(release, default=release)
+    try:
+        release = DebianDistroInfo().codename(release, default=release)
+    except DistroDataOutdated, e:
+        Logger.warn(e)
     url = ('http://dde.debian.net/dde/q/udd/dist/d:debian/r:%s/p:%s/?t=json'
            % (release, binary))
     try:

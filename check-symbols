@@ -29,21 +29,55 @@
 # * nm (from binutils)
 
 DISTRO=$(lsb_release -c -s)
-VERSION=$(apt-cache madison "$1" | grep -- "$DISTRO"'/.*Sources$' | awk '{print $3}')
-PACKAGES=$(apt-cache showsrc "$1" | grep-dctrl -s Binary -F Version "$VERSION" | sed 's/Binary\:\ //g;s/\,//g' | sort -u)
 DEBLINE=""
 DEBUG=False
 
-if [[ -z $1 ]]; then
-    echo "Missing argument: source package name."
-    exit 1
+usage() {
+    prog=$(basename $0)
+    cat <<EOF
+Usage: $prog [options] source-package [DEBDIR]
+
+Get a diff of the exported symbols of all .so files in every binary package of
+package the source package. The source package will be found in DEBDIR, defaulting to /var/cache/pbuilder/result.
+
+Options:
+  -h, --help  show this help message and exit
+EOF
+    exit $1
+}
+
+PACKAGE=""
+DEBDIR="/var/cache/pbuilder/result"
+POSITION=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage 0
+            ;;
+        -*)
+            usage 1
+            ;;
+        *)
+            if [ $POSITION -eq 0 ]; then
+                PACKAGE="$1"
+            elif [ $POSITION -eq 1 ]; then
+                DEBDIR="$1"
+            else
+                echo "Too many arguments." >&2
+                usage 1
+            fi
+            POSITION=$(($POSITION+1))
+    esac
+    shift
+done
+
+if [ $POSITION -eq 0 ]; then
+    echo "Missing argument: source package name." >&2
+    usage 1
 fi
 
-if [[ -z $2 ]]; then
-    DEBDIR="/var/cache/pbuilder/result"
-else
-    DEBDIR="$2"
-fi
+VERSION=$(apt-cache madison "$PACKAGE" | grep -- "$DISTRO"'/.*Sources$' | awk '{print $3}')
+PACKAGES=$(apt-cache showsrc "$PACKAGE" | grep-dctrl -s Binary -F Version "$VERSION" | sed 's/Binary\:\ //g;s/\,//g' | sort -u)
 
 if [ `id -u` != "0" ]
 then
@@ -67,7 +101,7 @@ do
 done
 
 if [[ -z $DEBLINE ]]; then
-    echo "Package doesn't exist: $1."
+    echo "Package doesn't exist: $PACKAGE."
     exit 1
 fi
 

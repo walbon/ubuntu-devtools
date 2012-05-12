@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import optparse
 import sys
 import json
 
@@ -28,11 +29,18 @@ import ubuntutools.misc
 
 
 def main():
-    ubuntutools.misc.require_utf8()
-    if len(sys.argv) > 1:
-        match = sys.argv[1]
+    parser = optparse.OptionParser(usage='%prog [options] [string]',
+            description='List pending merges from Debian matching string')
+    args = parser.parse_args()[1]
+
+    if len(args) > 1:
+        parser.error('Too many arguments')
+    elif len(args) == 1:
+        match = args[0]
     else:
         match = None
+
+    ubuntutools.misc.require_utf8()
 
     for component in ('main', 'main-manual',
                       'restricted', 'restricted-manual',

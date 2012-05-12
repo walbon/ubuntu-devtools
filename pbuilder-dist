@@ -33,7 +33,7 @@ import os
 import sys
 
 from devscripts.logger import Logger
-from distro_info import DebianDistroInfo, UbuntuDistroInfo
+from distro_info import DebianDistroInfo, UbuntuDistroInfo, DistroDataOutdated
 
 import ubuntutools.misc
 from ubuntutools.config import UDTConfig
@@ -266,11 +266,17 @@ class PbuilderDist:
         othermirrors = []
         if self.target_distro in self._debian_distros:
             debian_info = DebianDistroInfo()
-            if (debian_info.codename(self.target_distro) or self.target_distro
-                    in (debian_info.devel(), 'experimental')):
+            try:
+                codename = debian_info.codename(self.target_distro,
+                                                default=self.target_distro)
+            except DistroDataOutdated, e:
+                Logger.warn(e)
+            if codename in (debian_info.devel(), 'experimental'):
                 self.enable_security = False
                 self.enable_updates = False
                 self.enable_proposed = False
+            elif codename == 'testing':
+                self.enable_updates = False
 
             if self.enable_security:
                 othermirrors.append('deb %s %s/updates %s'
@@ -283,7 +289,13 @@ class PbuilderDist:
                 othermirrors.append('deb %s %s-proposed-updates %s'
                                     % (mirror, self.target_distro, components))
         else:
-            if self.target_distro == UbuntuDistroInfo().devel():
+            try:
+                dev_release = self.target_distro == UbuntuDistroInfo().devel()
+            except DistroDataOutdated, e:
+                Logger.warn(e)
+                dev_release = True
+
+            if dev_release:
                 self.enable_security = False
                 self.enable_updates = False
                 self.enable_proposed = False

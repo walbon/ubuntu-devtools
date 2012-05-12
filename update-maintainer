@@ -18,7 +18,10 @@ import optparse
 import os
 import sys
 
-from ubuntutools.update_maintainer import update_maintainer
+from ubuntutools.update_maintainer import (update_maintainer,
+                                           restore_maintainer,
+                                           MaintainerUpdateException)
+
 
 def main():
     script_name = os.path.basename(sys.argv[0])
@@ -28,6 +31,9 @@ def main():
     parser.add_option("-d", "--debian-directory", dest="debian_directory",
                       help="location of the 'debian' directory (default: "
                            "%default).", metavar="PATH", default="./debian")
+    parser.add_option("-r", "--restore",
+                      help="Restore the original maintainer",
+                      action='store_true', default=False)
     parser.add_option("-q", "--quiet", help="print no informational messages",
                       dest="quiet", action="store_true", default=False)
     (options, args) = parser.parse_args()
@@ -37,7 +43,15 @@ def main():
                               "specified: %s") % (script_name, ", ".join(args))
         sys.exit(1)
 
-    sys.exit(update_maintainer(options.debian_directory, not options.quiet))
+    if not options.restore:
+        operation = update_maintainer
+    else:
+        operation = restore_maintainer
+
+    try:
+        operation(options.debian_directory, not options.quiet)
+    except MaintainerUpdateException:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

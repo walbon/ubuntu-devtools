@@ -24,15 +24,6 @@ import setup
 from ubuntutools import subprocess
 from ubuntutools.test import unittest
 
-BLACKLIST = {
-    'check-mir': 'No Help',
-    'check-symbols': 'No Help',
-    'grep-merges': 'No Help',
-    'pbuilder-dist-simple': 'No Help',
-    'setup-packaging-environment': 'Throws Error',
-    'submittodebian': 'No Help',
-    'ubuntu-iso': 'No Help',
-}
 TIMEOUT = 5
 
 def load_tests(loader, tests, pattern):
@@ -51,9 +42,6 @@ class HelpTestCase(unittest.TestCase):
     @classmethod
     def make_help_tester(cls, script):
         def tester(self):
-            if script in BLACKLIST:
-                raise unittest.SkipTest("Blacklisted: " + BLACKLIST[script])
-
             null = open('/dev/null', 'r')
             process = subprocess.Popen(['./' + script, '--help'],
                                        close_fds=True, stdin=null,

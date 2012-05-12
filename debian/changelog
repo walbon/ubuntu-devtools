@@ -4,6 +4,25 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
   * mk-sbuild: Support kmod, when checking for overlayfs availability.
   * pbuilder-dist: improve bash_completion for *.dsc files. Thanks Maarten
     Bezemer. (Closes: #670924, LP: #770529)
+  * check-mir, check-symbols, grep-merges, pbuilder-dist-simple,
+    setup-packaging-environment, submittodebian, ubuntu-iso:
+    Do enough argument parsing to handle --help (LP: #988009)
+  * dgetlp: Require a UTF-8 locale, or it'll crash when displaying errors
+    (LP: #979117)
+  * pbuilder-dist: Don't try to enable -updates for Debian testing
+    (LP: #993006)
+  * pbuilder-dist, pull-debian-source, pull-lp-source, requestsync,
+    reverse-depends, submittodebian, syncpackage:
+    Handle outdated distro-info data. Fall back to sane defaults where
+    possible.
+  * backportpackage: Avoid uploading orig tarballs if they are already present
+    in the destination PPA (LP: #691897)
+  * Allow mk-sbuild to be run by root if a configuration file exists
+    (LP: #888736)
+  * backportpackage: Allow unsigned backports (LP: #992739)
+  * update-maintainer: Add a function to restore the original maintainer.
+  * submittodebian: Revert Ubuntu Maintainer mangling, and re-build the source
+    package before diffing. (LP: #902233)
 
   [ Evan Broder ]
   * backportpackage: Add -c, --close flag to include a changelog closer.

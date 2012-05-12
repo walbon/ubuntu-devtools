@@ -30,6 +30,11 @@ _PREVIOUS_UBUNTU_MAINTAINER = (
 )
 _UBUNTU_MAINTAINER = "Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
 
+
+class MaintainerUpdateException(Exception):
+    pass
+
+
 class Control(object):
     """Represents a debian/control file"""
 
@@ -79,6 +84,12 @@ class Control(object):
             self._content = pattern.sub(r"\1\n" + original_maintainer,
                                         self._content)
 
+    def remove_original_maintainer(self):
+        """Strip out out the XSBC-Original-Maintainer line"""
+        pattern = re.compile("^(?:[XSBC]*-)?Original-Maintainer:.*?$.*?^",
+                             re.MULTILINE | re.DOTALL)
+        self._content = pattern.sub('', self._content)
+
 
 def _get_distribution(changelog_file):
     """get distribution of latest changelog entry"""
@@ -87,6 +98,38 @@ def _get_distribution(changelog_file):
     distribution = changelog.distributions.split()[0]
     # Strip things like "-proposed-updates" or "-security" from distribution
     return distribution.split("-", 1)[0]
+
+
+def _find_files(debian_directory, verbose):
+    """Find possible control files.
+    Returns (changelog, control files list)
+    Raises an exception if none can be found.
+    """
+    possible_contol_files = [os.path.join(debian_directory, f) for
+                             f in ["control.in", "control"]]
+
+    changelog_file = os.path.join(debian_directory, "changelog")
+    control_files = [f for f in possible_contol_files if os.path.isfile(f)]
+
+    # Make sure that a changelog and control file is available
+    if len(control_files) == 0:
+        raise MaintainerUpdateException(
+                "No control file found in %s." % debian_directory)
+    if not os.path.isfile(changelog_file):
+        raise MaintainerUpdateException(
+                "No changelog file found in %s." % debian_directory)
+
+    # If the rules file accounts for XSBC-Original-Maintainer, we should not
+    # touch it in this package (e.g. the python package).
+    rules_file = os.path.join(debian_directory, "rules")
+    if os.path.isfile(rules_file) and \
+       'XSBC-Original-' in open(rules_file).read():
+        if verbose:
+            print "XSBC-Original is managed by 'rules' file. Doing nothing."
+        control_files = []
+
+    return (changelog_file, control_files)
+
 
 def update_maintainer(debian_directory, verbose=False):
     """updates the Maintainer field of an Ubuntu package
@@ -99,38 +142,20 @@ def update_maintainer(debian_directory, verbose=False):
 
     Policy: https://wiki.ubuntu.com/DebianMaintainerField
     """
-    possible_contol_files = [os.path.join(debian_directory, f) for
-                             f in ["control.in", "control"]]
-
-    changelog_file = os.path.join(debian_directory, "changelog")
-    control_files = [f for f in possible_contol_files if os.path.isfile(f)]
-
-    # Make sure that a changelog and control file is available
-    if len(control_files) == 0:
-        Logger.error("No control file found in %s.", debian_directory)
-        return(1)
-    if not os.path.isfile(changelog_file):
-        Logger.error("No changelog file found in %s.", debian_directory)
-        return(1)
-
-    # If the rules file accounts for XSBC-Original-Maintainer, we should not
-    # touch it in this package (e.g. the python package).
-    rules_file = os.path.join(debian_directory, "rules")
-    if os.path.isfile(rules_file) and \
-       'XSBC-Original-' in open(rules_file).read():
-        if verbose:
-            print "XSBC-Original is managed by 'rules' file. Doing nothing."
-        return(0)
+    try:
+        changelog_file, control_files = _find_files(debian_directory, verbose)
+    except MaintainerUpdateException, e:
+        Logger.error(str(e))
+        raise
 
     distribution = _get_distribution(changelog_file)
-
     for control_file in control_files:
         control = Control(control_file)
         original_maintainer = control.get_maintainer()
 
         if original_maintainer is None:
             Logger.error("No Maintainer field found in %s.", control_file)
-            return(1)
+            raise MaintainerUpdateException("No Maintainer field found")
 
         if original_maintainer.strip().lower() in _PREVIOUS_UBUNTU_MAINTAINER:
             if verbose:
@@ -149,7 +174,7 @@ def update_maintainer(debian_directory, verbose=False):
         if distribution in ("stable", "testing", "unstable", "experimental"):
             if verbose:
                 print "The package targets Debian. Doing nothing."
-            return(0)
+            return
 
         if control.get_original_maintainer() is not None:
             Logger.warn("Overwriting original maintainer: %s",
@@ -162,4 +187,24 @@ def update_maintainer(debian_directory, verbose=False):
         control.set_maintainer(_UBUNTU_MAINTAINER)
         control.save()
 
-    return(0)
+    return
+
+
+def restore_maintainer(debian_directory, verbose=False):
+    """Restore the original maintainer"""
+    try:
+        changelog_file, control_files = _find_files(debian_directory, verbose)
+    except MaintainerUpdateException, e:
+        Logger.error(str(e))
+        raise
+
+    for control_file in control_files:
+        control = Control(control_file)
+        orig_maintainer = control.get_original_maintainer()
+        if not orig_maintainer:
+            continue
+        if verbose:
+            print "Restoring original maintainer: %s" % orig_maintainer
+        control.set_maintainer(orig_maintainer)
+        control.remove_original_maintainer()
+        control.save()

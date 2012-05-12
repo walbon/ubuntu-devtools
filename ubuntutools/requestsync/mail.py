@@ -29,7 +29,7 @@ import tempfile
 
 from debian.changelog import Changelog, Version
 from devscripts.logger import Logger
-from distro_info import DebianDistroInfo
+from distro_info import DebianDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import rmadison, FakeSPPH
 from ubuntutools.question import confirmation_prompt, YesNoQuestion
@@ -49,7 +49,10 @@ def _get_srcpkg(distro, name, release):
     if distro == 'debian':
         # Canonicalise release:
         debian_info = DebianDistroInfo()
-        release = debian_info.codename(release, default=release)
+        try:
+            release = debian_info.codename(release, default=release)
+        except DistroDataOutdated, e:
+            Logger.warn(e)
 
     lines = list(rmadison(distro, name, suite=release, arch='source'))
     if not lines:
