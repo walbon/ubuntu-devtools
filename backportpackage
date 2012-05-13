@@ -87,6 +87,7 @@ def parse(args):
                       metavar='UPLOAD',
                       help='Specify an upload destination')
     parser.add_option("-k", "--key",
+                      dest='keyid',
                       help="Specify the key ID to be used for signing.")
     parser.add_option('--dont-sign',
                       dest='key', action='store_false',
