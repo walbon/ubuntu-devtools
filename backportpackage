@@ -217,6 +217,18 @@ def get_backport_version(version, suffix, upload, release):
         backport_version += '~ppa1'
     return backport_version
 
+def get_old_version(source, release):
+    try:
+        distribution = codename_to_distribution(release)
+        archive = Distribution(distribution.lower()).getArchive()
+        pkg = archive.getSourcePackage(source,
+                                       release,
+                                       ('Release', 'Security', 'Updates',
+                                        'Proposed', 'Backports'))
+        return pkg.getVersion()
+    except (SeriesNotFoundException, PackageNotFoundException), e:
+        pass
+
 def get_backport_dist(release, release_pocket):
     if release_pocket:
         return release
@@ -289,6 +301,7 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
 
     bp_version = get_backport_version(pkg.version.full_version, suffix,
                                       upload, release)
+    old_version = get_old_version(pkg.source, release)
     bp_dist = get_backport_dist(release, release_pocket)
 
     changelog = 'No-change backport to %s' % (release,)
@@ -308,6 +321,8 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
         cmd.append('-sa')
     else:
         cmd.append('-sd')
+    if old_version:
+        cmd.append('-v%s' % old_version)
     check_call(cmd, cwd=srcdir)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
