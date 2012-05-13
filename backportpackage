@@ -204,7 +204,13 @@ def find_package(mirror, workdir, package, version, source_release, config):
     return srcpkg
 
 def get_backport_version(version, suffix, upload, release):
-    backport_version = version + ('~%s1' % release)
+    distribution = codename_to_distribution(release)
+    if not distribution:
+        error('Unknown release codename %s' % release)
+    series = Distribution(distribution.lower()).\
+        getSeries(name_or_version=release)
+
+    backport_version = version + ('~%s%s.1' % (distribution.lower(), series.version))
     if suffix is not None:
         backport_version += suffix
     elif upload and upload.startswith('ppa:'):
