@@ -43,11 +43,6 @@ except ImportError:
            u"which isn't currently installed.")
     sys.exit(1)
 
-if not os.path.exists('/usr/bin/reportbug'):
-    print (u"This utility requires the «reportbug» package, which isn't "
-           u"currently installed.")
-    sys.exit(1)
-
 def get_most_recent_debian_version(changelog):
     for block in changelog:
         version = block.version.full_version
@@ -207,6 +202,12 @@ def main():
         description='Submit the Ubuntu changes in a package to Debian. '
                     'Run inside an unpacked Ubuntu source package.')
     parser.parse_args()
+
+    if not os.path.exists('/usr/bin/reportbug'):
+        print(u"This utility requires the «reportbug» package, which isn't "
+              u"currently installed.")
+        sys.exit(1)
+
     check_reportbug_config()
     changelog_file = (check_file('debian/changelog', critical = False) or
                       check_file('../debian/changelog'))
