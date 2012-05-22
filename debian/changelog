@@ -14,7 +14,7 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
   * pbuilder-dist, pull-debian-source, pull-lp-source, requestsync,
     reverse-depends, submittodebian, syncpackage:
     Handle outdated distro-info data. Fall back to sane defaults where
-    possible.
+    possible. (Closes: #673957)
   * backportpackage: Avoid uploading orig tarballs if they are already present
     in the destination PPA (LP: #691897)
   * Allow mk-sbuild to be run by root if a configuration file exists
