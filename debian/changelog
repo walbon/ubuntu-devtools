@@ -21,6 +21,8 @@ ubuntu-dev-tools (0.142) UNRELEASED; urgency=low
     (LP: #888736)
   * backportpackage: Allow unsigned backports (LP: #992739)
   * update-maintainer: Add a function to restore the original maintainer.
+    - Update sponsor-patch to use the new API resulting from this change
+      (LP: #1002999)
   * submittodebian: Revert Ubuntu Maintainer mangling, and re-build the source
     package before diffing. (LP: #902233)
 

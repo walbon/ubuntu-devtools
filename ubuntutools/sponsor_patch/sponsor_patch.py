@@ -27,7 +27,8 @@ from distro_info import UbuntuDistroInfo
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools import subprocess
-from ubuntutools.update_maintainer import update_maintainer
+from ubuntutools.update_maintainer import (update_maintainer,
+                                           MaintainerUpdateException)
 from ubuntutools.question import input_number
 
 from ubuntutools.sponsor_patch.bugtask import BugTask, is_sync
@@ -239,8 +240,10 @@ def _create_and_change_into(workdir):
 def _update_maintainer_field():
     """Update the Maintainer field in debian/control."""
     Logger.command(["update-maintainer"])
-    if update_maintainer("debian", Logger.verbose) != 0:
-        Logger.error("update-maintainer script failed.")
+    try:
+        update_maintainer("debian", Logger.verbose)
+    except MaintainerUpdateException, e:
+        Logger.error("update-maintainer failed: %s", str(e))
         sys.exit(1)
 
 def _update_timestamp():
