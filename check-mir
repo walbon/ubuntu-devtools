@@ -121,10 +121,10 @@ def check_binary_dependencies(apt_cache, control):
     return any_unsupported
 
 def main():
-    parser = optparse.OptionParser(
-            description="Check if any of a package's build or binary "
-                        "dependencies are in universe or multiverse. "
-                        "Run this inside an unpacked source package")
+    description = "Check if any of a package's build or binary " + \
+                  "dependencies are in universe or multiverse. " + \
+                  "Run this inside an unpacked source package"
+    parser = optparse.OptionParser(description=description)
     parser.parse_args()
     apt_cache = apt.Cache()
 

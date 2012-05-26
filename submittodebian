@@ -198,9 +198,9 @@ reportbug --configure for its configuration wizard.
         sys.exit(1)
 
 def main():
-    parser = optparse.OptionParser(
-        description='Submit the Ubuntu changes in a package to Debian. '
-                    'Run inside an unpacked Ubuntu source package.')
+    description = 'Submit the Ubuntu changes in a package to Debian. ' + \
+                  'Run inside an unpacked Ubuntu source package.'
+    parser = optparse.OptionParser(description=description)
     parser.parse_args()
 
     if not os.path.exists('/usr/bin/reportbug'):

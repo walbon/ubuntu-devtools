@@ -38,9 +38,9 @@ def extract(iso, path):
     return stdout
 
 def main():
+    desc = 'Given an ISO, %prog will display the Ubuntu version information'
     parser = optparse.OptionParser(usage='%prog [options] iso...',
-            description='Given an ISO, %prog will display the Ubuntu version '
-                        'information')
+                                   description=desc)
     isos = parser.parse_args()[1]
     err = False
 
