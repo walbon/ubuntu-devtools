@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
+
+  * backportpackage: Fix filenames searched when looking for existing
+    .orig.tar.foo files (to determine if we need to upload it again or not).
+    (LP: #1007908)
+
+ -- Iain Lane <laney@ubuntu.com>  Sat, 02 Jun 2012 20:25:50 +0100
+
 ubuntu-dev-tools (0.142) unstable; urgency=low
 
   [ Stefano Rivera ]

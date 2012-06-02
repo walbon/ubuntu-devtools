@@ -269,9 +269,7 @@ def orig_needed(upload, workdir, pkg):
     ppa = upload.split(':', 1)[1]
     user, ppa = ppa.split('/', 1)
 
-    version = pkg.version.full_version
-    if pkg.version.epoch:
-        version = version.split(pkg.version.epoch, 1)[1]
+    version = pkg.version.upstream_version
 
     h = Http()
     for filename in glob.glob(os.path.join(workdir,
