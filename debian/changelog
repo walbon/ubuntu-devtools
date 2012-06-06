@@ -1,10 +1,16 @@
 ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
 
+  [ Iain Lane ]
   * backportpackage: Fix filenames searched when looking for existing
     .orig.tar.foo files (to determine if we need to upload it again or not).
     (LP: #1007908)
 
- -- Iain Lane <laney@ubuntu.com>  Sat, 02 Jun 2012 20:25:50 +0100
+  [ Mathieu Trudel-Lapierre ]
+  * mk-sbuild: use and update messages to suggest using the source:$chroot way
+    of referring to source chroots instead of $chroot-source; since the latter
+    does not work with btrfs snapshot-based chroots.
+
+ -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 
 ubuntu-dev-tools (0.142) unstable; urgency=low
 

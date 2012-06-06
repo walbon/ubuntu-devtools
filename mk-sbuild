@@ -730,13 +730,13 @@ case "$SCHROOT_TYPE" in
 esac
 
 # Run finalization script on the "golden" copy via schroot.
-sudo schroot -c "$CHROOT_NAME"-source -u root /finish.sh
+sudo schroot -c source:$CHROOT_NAME -u root /finish.sh
 
 # Finished
 echo ""
 echo "Done building $CHROOT_NAME."
 echo ""
-echo " To CHANGE the golden image: sudo schroot -c ${CHROOT_NAME}-source -u root"
+echo " To CHANGE the golden image: sudo schroot -c source:${CHROOT_NAME} -u root"
 echo " To ENTER an image snapshot: schroot -c ${CHROOT_NAME}"
 echo " To BUILD within a snapshot: sbuild -A -d ${CHROOT_NAME} PACKAGE*.dsc"
 echo ""
