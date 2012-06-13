@@ -322,7 +322,9 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
         cmd.append('-sd')
     if old_version:
         cmd.append('-v%s' % old_version)
-    check_call(cmd, cwd=srcdir)
+    env = os.environ.copy()
+    del env['DEBEMAIL']
+    check_call(cmd, cwd=srcdir, env=env)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
     changes = fn_base + '_source.changes'
