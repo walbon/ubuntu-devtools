@@ -323,7 +323,9 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
     if old_version:
         cmd.append('-v%s' % old_version)
     env = os.environ.copy()
-    del env['DEBEMAIL']
+    # An ubuntu.com e-mail address would make dpkg-buildpackage fail if there
+    # wasn't an Ubuntu maintainer for an ubuntu-versioned package. LP: #1007042
+    env.pop('DEBEMAIL', None)
     check_call(cmd, cwd=srcdir, env=env)
 
     fn_base = pkg.source + '_' + bp_version.split(':', 1)[-1]
