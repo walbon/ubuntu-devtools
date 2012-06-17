@@ -4,6 +4,9 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   * backportpackage: Fix filenames searched when looking for existing
     .orig.tar.foo files (to determine if we need to upload it again or not).
     (LP: #1007908)
+  * backportpackage: Unset DEBEMAIL when building source package. Fixes error
+    when building backports for packages with no Ubuntu changes. (LP:
+    #1007042)
 
   [ Mathieu Trudel-Lapierre ]
   * mk-sbuild: use and update messages to suggest using the source:$chroot way
