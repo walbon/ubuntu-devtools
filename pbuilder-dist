@@ -275,7 +275,7 @@ class PbuilderDist:
                 self.enable_security = False
                 self.enable_updates = False
                 self.enable_proposed = False
-            elif codename == 'testing':
+            elif codename in (debian_info.testing(), 'testing'):
                 self.enable_updates = False
 
             if self.enable_security:
