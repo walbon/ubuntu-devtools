@@ -21,6 +21,7 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
     referring to Debian testing, either (LP: #1011870)
   * Correct spelling mistakes in package description, thanks Logan Rosen for
     the patch (Closes: #678245)
+  * Correct metavar for --mirror in backportpackage (LP: #999727)
 
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 

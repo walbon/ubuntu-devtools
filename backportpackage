@@ -113,7 +113,7 @@ def parse(args):
                       metavar='BUG',
                       help='Bug to close in the changelog entry.')
     parser.add_option('-m', '--mirror',
-                      metavar='INSTANCE',
+                      metavar='URL',
                       help='Preferred mirror (default: Launchpad)')
     parser.add_option('-l', '--lpinstance',
                       metavar='INSTANCE',
