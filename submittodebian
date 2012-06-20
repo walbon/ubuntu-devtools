@@ -43,15 +43,18 @@ except ImportError:
            u"which isn't currently installed.")
     sys.exit(1)
 
+
 def get_most_recent_debian_version(changelog):
     for block in changelog:
         version = block.version.full_version
         if not re.search('(ubuntu|build)', version):
             return version
 
+
 def get_bug_body(changelog):
     entry = next(iter(changelog))
-    msg = """In Ubuntu, the attached patch was applied to achieve the following:
+    msg = """
+In Ubuntu, the attached patch was applied to achieve the following:
 
 ## ---------------- REPLACE THIS WITH ACTUAL INFORMATION ---------------------
 ## Please add all necessary information about why the change needed to go in
@@ -66,12 +69,14 @@ Thanks for considering the patch.
 """ % ("\n".join([a for a in entry.changes()]))
     return msg
 
+
 def build_source_package():
     if os.path.isdir('.bzr'):
         cmd = ['bzr', 'bd', '-S', '--', '-uc', '-us', '-nc']
     else:
         cmd = ['debuild', '-S', '-uc', '-us', '-nc']
     check_call(cmd)
+
 
 def gen_debdiff(tmpdir, changelog):
     pkg = changelog.package
@@ -88,9 +93,9 @@ def gen_debdiff(tmpdir, changelog):
         print "Extracting bzr diff between %s and %s" % (oldver, newver)
     else:
         if oldver.epoch is not None:
-            oldver = str(oldver)[str(oldver).index(":")+1:]
+            oldver = str(oldver)[str(oldver).index(":") + 1:]
         if newver.epoch is not None:
-            newver = str(newver)[str(newver).index(":")+1:]
+            newver = str(newver)[str(newver).index(":") + 1:]
 
         olddsc = '../%s_%s.dsc' % (pkg, oldver)
         newdsc = '../%s_%s.dsc' % (pkg, newver)
@@ -112,7 +117,8 @@ def gen_debdiff(tmpdir, changelog):
 
     return debdiff
 
-def check_file(fname, critical = True):
+
+def check_file(fname, critical=True):
     if os.path.exists(fname):
         return fname
     else:
@@ -120,6 +126,7 @@ def check_file(fname, critical = True):
             return False
         print u"Couldn't find «%s».\n" % fname
         sys.exit(1)
+
 
 def submit_bugreport(body, debdiff, deb_version, changelog):
     try:
@@ -147,7 +154,8 @@ def submit_bugreport(body, debdiff, deb_version, changelog):
            '--no-check-available',
            '--no-check-installed',
            '--pseudo-header', 'User: ubuntu-devel@lists.ubuntu.com',
-           '--pseudo-header', 'Usertags: origin-ubuntu %s ubuntu-patch' % devel,
+           '--pseudo-header', 'Usertags: origin-ubuntu %s ubuntu-patch'
+                              % devel,
            '--tag', 'patch',
            '--attach', debdiff,
            '--bts', 'debian',
@@ -197,6 +205,7 @@ reportbug --configure for its configuration wizard.
     if YesNoQuestion().ask("Continue submitting this bug", "yes") == "no":
         sys.exit(1)
 
+
 def main():
     description = 'Submit the Ubuntu changes in a package to Debian. ' + \
                   'Run inside an unpacked Ubuntu source package.'
@@ -209,7 +218,7 @@ def main():
         sys.exit(1)
 
     check_reportbug_config()
-    changelog_file = (check_file('debian/changelog', critical = False) or
+    changelog_file = (check_file('debian/changelog', critical=False) or
                       check_file('../debian/changelog'))
     changelog = Changelog(file(changelog_file).read())
 
