@@ -5,8 +5,8 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
     .orig.tar.foo files (to determine if we need to upload it again or not).
     (LP: #1007908)
   * backportpackage: Unset DEBEMAIL when building source package. Fixes error
-    when building backports for packages with no Ubuntu changes. (LP:
-    #1007042)
+    when building backports for packages with no Ubuntu changes.
+    (LP: #1007042)
 
   [ Mathieu Trudel-Lapierre ]
   * mk-sbuild: use and update messages to suggest using the source:$chroot way
@@ -28,6 +28,8 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
     data cached (LP: #1008783)
   * ubuntutools.archive: Improve error handling around rmadison calls
     (LP: #1010951)
+  * submittodebian; Unset DEBEMAIL when building source package.
+    (LP: #1015066)
 
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 

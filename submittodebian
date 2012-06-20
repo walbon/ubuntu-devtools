@@ -75,7 +75,10 @@ def build_source_package():
         cmd = ['bzr', 'bd', '-S', '--', '-uc', '-us', '-nc']
     else:
         cmd = ['debuild', '-S', '-uc', '-us', '-nc']
-    check_call(cmd)
+    env = os.environ.copy()
+    # Unset DEBEMAIL in case there's an @ubuntu.com e-mail address
+    env.pop('DEBEMAIL', None)
+    check_call(cmd, env=env)
 
 
 def gen_debdiff(tmpdir, changelog):
