@@ -43,8 +43,14 @@ def load_index(url):
             os.makedirs(cachedir)
         urllib.urlretrieve(url, fn)
 
-    with gzip.open(fn, 'r') as f:
-        return json.load(f)
+    try:
+        with gzip.open(fn, 'r') as f:
+            return json.load(f)
+    except Exception, e:
+        Logger.error("Unable to parse seed data: %s. "
+                     "Deleting cached data, please try again.",
+                     str(e))
+        os.unlink(fn)
 
 
 def resolve_binaries(sources):

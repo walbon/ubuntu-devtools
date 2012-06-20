@@ -24,6 +24,8 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   * Correct metavar for --mirror in backportpackage (LP: #999727)
   * submittodebian: Explitictly UTF-8 encode the bug body (LP: #1005834)
   * backportpackage.1: Document --key and --dont-sign (LP: #1007564)
+  * seeded-in-ubuntu: Catch errors in parsing data, and don't keep unreadable
+    data cached (LP: #1008783)
 
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 
