@@ -11,7 +11,7 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   [ Mathieu Trudel-Lapierre ]
   * mk-sbuild: use and update messages to suggest using the source:$chroot way
     of referring to source chroots instead of $chroot-source; since the latter
-    does not work with btrfs snapshot-based chroots.
+    does not work with btrfs snapshot-based chroots. (LP: #1014669)
 
   [ Lars Düsing ]
   * Corrected brackets in man-page for sponsor-patch.
