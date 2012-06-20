@@ -228,7 +228,7 @@ def main():
     tmpdir = mkdtemp()
     body = os.path.join(tmpdir, 'bug_body')
     fp = open(body, 'w')
-    fp.write(bug_body)
+    fp.write(bug_body.encode('utf-8'))
     fp.close()
 
     restore_maintainer('debian')
