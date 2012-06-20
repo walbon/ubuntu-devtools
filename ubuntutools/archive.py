@@ -600,13 +600,12 @@ def rmadison(url, package, suite=None, arch=None):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, close_fds=True)
     output, error_output = process.communicate()
-    try:
-        assert process.wait() == 0
-    except AssertionError:
+    if process.wait() != 0:
         if error_output:
             Logger.error('rmadison failed with: %s', error_output)
-            sys.exit(1)
-        raise
+        else:
+            Logger.error('rmadison failed')
+        sys.exit(1)
 
     # rmadison uses some shorthand
     if suite:

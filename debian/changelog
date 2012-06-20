@@ -26,6 +26,8 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   * backportpackage.1: Document --key and --dont-sign (LP: #1007564)
   * seeded-in-ubuntu: Catch errors in parsing data, and don't keep unreadable
     data cached (LP: #1008783)
+  * ubuntutools.archive: Improve error handling around rmadison calls
+    (LP: #1010951)
 
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 
