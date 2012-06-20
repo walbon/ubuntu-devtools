@@ -96,9 +96,9 @@ Description: useful tools for Ubuntu developers
     chroots (for different Ubuntu and Debian releases) on the same system.
   - pull-debian-debdiff - attempts to find and download a specific version of
     a Debian package and its immediate parent to generate a debdiff.
-  - pull-debian-source - downloads the lastest source package available in
+  - pull-debian-source - downloads the latest source package available in
     Debian of a package.
-  - pull-lp-source - downloads lastest source package from Launchpad.
+  - pull-lp-source - downloads latest source package from Launchpad.
   - pull-revu-source - downloads the latest source package from REVU
   - requestbackport - file a backporting request.
   - requestsync - files a sync request with Debian changelog and rationale.

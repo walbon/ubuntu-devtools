@@ -19,6 +19,8 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * pbuilder-dist: Don't try to enable -updates for the current codename
     referring to Debian testing, either (LP: #1011870)
+  * Correct spelling mistakes in package description, thanks Logan Rosen for
+    the patch (Closes: #678245)
 
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 
