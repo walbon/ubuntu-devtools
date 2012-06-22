@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.143) unstable; urgency=low
 
   [ Iain Lane ]
   * backportpackage: Fix filenames searched when looking for existing
@@ -34,7 +34,7 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * Add a man page for the reverse-build-depends wrapper script.
 
- -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 22 Jun 2012 13:34:43 +0200
 
 ubuntu-dev-tools (0.142) unstable; urgency=low
 
