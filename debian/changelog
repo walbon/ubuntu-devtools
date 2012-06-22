@@ -31,6 +31,9 @@ ubuntu-dev-tools (0.143) UNRELEASED; urgency=low
   * submittodebian; Unset DEBEMAIL when building source package.
     (LP: #1015066)
 
+  [ Benjamin Drung ]
+  * Add a man page for the reverse-build-depends wrapper script.
+
  -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Wed, 06 Jun 2012 09:53:24 -0400
 
 ubuntu-dev-tools (0.142) unstable; urgency=low
