@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.144) quantal; urgency=low
+
+  * Use dpkg-buildpackage instead of debuild in submittodebian. It really
+    doesn't need to run lintian twice.
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 02 Jul 2012 13:20:29 +0200
+
 ubuntu-dev-tools (0.143) unstable; urgency=low
 
   [ Iain Lane ]

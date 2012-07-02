@@ -74,7 +74,7 @@ def build_source_package():
     if os.path.isdir('.bzr'):
         cmd = ['bzr', 'bd', '-S', '--', '-uc', '-us', '-nc']
     else:
-        cmd = ['debuild', '-S', '-uc', '-us', '-nc']
+        cmd = ['dpkg-buildpackage', '-S', '-uc', '-us', '-nc']
     env = os.environ.copy()
     # Unset DEBEMAIL in case there's an @ubuntu.com e-mail address
     env.pop('DEBEMAIL', None)
