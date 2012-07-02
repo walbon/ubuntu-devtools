@@ -72,7 +72,8 @@ Thanks for considering the patch.
 
 def build_source_package():
     if os.path.isdir('.bzr'):
-        cmd = ['bzr', 'bd', '-S', '--', '-uc', '-us', '-nc']
+        cmd = ['bzr', 'bd', '--builder=dpkg-buildpackage', '-S',
+               '--', '-uc', '-us', '-nc']
     else:
         cmd = ['dpkg-buildpackage', '-S', '-uc', '-us', '-nc']
     env = os.environ.copy()

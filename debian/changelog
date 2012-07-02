@@ -5,8 +5,10 @@ ubuntu-dev-tools (0.144) quantal; urgency=low
       lintian twice.
     - Use --include instead of --attach when not using reportbug's internal
       MUA.
+    - Pass --builder=dpkg-buildpackage to bzr bd, in case the user has
+      configured a custom builder that doesn't do source builds (LP: #1019817)
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 02 Jul 2012 13:20:29 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 02 Jul 2012 19:23:15 +0200
 
 ubuntu-dev-tools (0.143) unstable; urgency=low
 
