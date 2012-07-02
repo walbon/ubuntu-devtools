@@ -225,7 +225,8 @@ class SourcePackage(object):
         """
 
         if self._branch:
-            cmd = ['bzr', 'builddeb', '-S', '--', '--no-lintian', '-nc']
+            cmd = ['bzr', 'builddeb', '--builder=debuild', '-S',
+                   '--', '--no-lintian', '-nc']
         else:
             cmd = ['debuild', '--no-lintian', '-nc', '-S']
         cmd.append("-v" + previous_version.full_version)
