@@ -1,7 +1,10 @@
 ubuntu-dev-tools (0.144) quantal; urgency=low
 
-  * Use dpkg-buildpackage instead of debuild in submittodebian. It really
-    doesn't need to run lintian twice.
+  * submittodebian:
+    - Use dpkg-buildpackage instead of debuild. It really doesn't need to run
+      lintian twice.
+    - Use --include instead of --attach when not using reportbug's internal
+      MUA.
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 02 Jul 2012 13:20:29 +0200
 

@@ -153,6 +153,19 @@ def submit_bugreport(body, debdiff, deb_version, changelog):
             '.*REPLACE THIS WITH ACTUAL INFORMATION.*')
     env['UDT_EDIT_WRAPPER_FILE_DESCRIPTION'] = 'bug report'
 
+    # In external mua mode, attachments are lost (Reportbug bug: #679907)
+    internal_mua = True
+    for cfgfile in ('/etc/reportbug.conf', '~/.reportbugrc'):
+        cfgfile = os.path.expanduser(cfgfile)
+        if not os.path.exists(cfgfile):
+            continue
+        with open(cfgfile, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line in ('gnus', 'mutt', 'nmh') or line.startswith('mua '):
+                    internal_mua = False
+                    break
+
     cmd = ('reportbug',
            '--no-check-available',
            '--no-check-installed',
@@ -160,9 +173,9 @@ def submit_bugreport(body, debdiff, deb_version, changelog):
            '--pseudo-header', 'Usertags: origin-ubuntu %s ubuntu-patch'
                               % devel,
            '--tag', 'patch',
-           '--attach', debdiff,
            '--bts', 'debian',
            '--include', body,
+           '--attach' if internal_mua else '--include', debdiff,
            '--package-version', deb_version,
            changelog.package)
     check_call(cmd, env=env)
