@@ -115,7 +115,12 @@ def find_rdepends(releases, published_binaries):
                     continue
                 for relationship, rdeps in raw_rdeps.iteritems():
                     for rdep in rdeps:
+                        # Ignore circular deps:
                         if rdep['Package'] in published_binaries:
+                            continue
+                        # arch==any queries return Reverse-Build-Deps:
+                        if (arch == 'any' and rdep.get('Architectures', [])
+                                              == ['source']):
                             continue
                         intermediate[binpkg][rdep['Package']] \
                                 .append((release, relationship))
