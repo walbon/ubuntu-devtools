@@ -10,10 +10,12 @@ ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
       configured a custom builder that doesn't do source builds (LP: #1019817)
   * seeded-in-ubuntu Inform the user when we couldn't determine binary
     packages built by a source package, as it most recently FTBFS.
-  * request-backport: Avoid duplicate Reverse-Build-Deps when sources build
-    binaries of the same name.
+  * requestbackport:
+    - Avoid duplicate Reverse-Build-Deps when sources build binaries of the
+      same name.
+    - Explain that backports aren't to fix bugs.
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 18 Jul 2012 12:45:05 +0200
+ -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 18 Jul 2012 12:47:01 +0200
 
 ubuntu-dev-tools (0.143) unstable; urgency=low
 

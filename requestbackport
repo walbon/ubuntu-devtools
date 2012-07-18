@@ -74,6 +74,16 @@ def determine_destinations(source, destination):
     return destinations
 
 
+def disclaimer():
+    print ("Ubuntu's backports are not for fixing bugs in stable releases, "
+           "but for bringing new features to older, stable releases.")
+    print ("See https://wiki.ubuntu.com/UbuntuBackports for the Ubuntu "
+           "Backports policy and processes.")
+    print ("See https://wiki.ubuntu.com/StableReleaseUpdates for the process "
+           "for fixing bugs in stable releases.")
+    confirmation_prompt()
+
+
 def check_existing(package, destinations):
     """Search for possible existing bug reports"""
     # The LP bug search is indexed, not substring:
@@ -288,6 +298,8 @@ def main():
     except DestinationException, e:
         Logger.error(str(e))
         sys.exit(1)
+
+    disclaimer()
 
     check_existing(package, destinations)
 
