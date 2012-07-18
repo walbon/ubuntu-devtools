@@ -99,6 +99,11 @@ def output_by_source(index, by_source):
     '''Print binaries found in index. Grouped by source'''
     for source, binaries in by_source.iteritems():
         seen = False
+        if not binaries:
+            print ("Status unknown: No binary packages built by the latest "
+                   "%s.\nTry again using -b and the expected binary packages."
+                   % source)
+            continue
         for binary in binaries:
             if binary in index:
                 seen = True

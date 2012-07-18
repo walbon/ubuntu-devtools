@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.144) quantal; urgency=low
+ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
 
   * submittodebian:
     - Use dpkg-buildpackage instead of debuild. It really doesn't need to run
@@ -8,6 +8,8 @@ ubuntu-dev-tools (0.144) quantal; urgency=low
   * submittodebian, sponsor-patch:
     - Pass --builder=dpkg-buildpackage to bzr bd, in case the user has
       configured a custom builder that doesn't do source builds (LP: #1019817)
+  * seeded-in-ubuntu Inform the user when we couldn't determine binary
+    packages built by a source package, as it most recently FTBFS.
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Mon, 02 Jul 2012 19:26:32 +0200
 
