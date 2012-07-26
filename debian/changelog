@@ -1,5 +1,6 @@
 ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
 
+  [ Stefano Rivera ]
   * submittodebian:
     - Use dpkg-buildpackage instead of debuild. It really doesn't need to run
       lintian twice.
@@ -14,6 +15,10 @@ ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
     - Avoid duplicate Reverse-Build-Deps when sources build binaries of the
       same name.
     - Explain that backports aren't to fix bugs.
+
+  [ Benjamin Drung ]
+  * seeded-in-ubuntu: State in error message that it takes a source package.
+    (LP: #1029155)
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 18 Jul 2012 12:47:01 +0200
 

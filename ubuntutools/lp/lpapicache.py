@@ -369,8 +369,14 @@ class Archive(BaseWrapper):
                     latest = record
 
             if latest is None:
-                msg = "The package '%s' does not exist in the %s %s archive" % \
-                      (name, dist.display_name, self.name)
+                if name_key == 'binary_name':
+                    package_type = "binary package"
+                elif name_key == 'source_name':
+                    package_type = "source package"
+                else:
+                    package_type = "package"
+                msg = "The %s '%s' does not exist in the %s %s archive" % \
+                      (package_type, name, dist.display_name, self.name)
                 pockets = [series.name if pocket == 'Release'
                            else '%s-%s' % (series.name, pocket.lower())
                            for pocket in pockets]
