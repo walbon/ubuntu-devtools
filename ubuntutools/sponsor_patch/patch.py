@@ -28,7 +28,7 @@ class Patch(object):
 
     def __init__(self, patch):
         self._patch = patch
-        self._patch_file = re.sub(" ", "_", patch.title)
+        self._patch_file = re.sub(" |/", "_", patch.title)
         if not reduce(lambda r, x: r or self._patch.title.endswith(x),
                       (".debdiff", ".diff", ".patch"), False):
             Logger.info("Patch %s does not have a proper file extension." % \

@@ -19,6 +19,7 @@ ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
   [ Benjamin Drung ]
   * seeded-in-ubuntu: State in error message that it takes a source package.
     (LP: #1029155)
+  * sponsor-patch: Fix crash if Debian patch contains a slash.
 
  -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 18 Jul 2012 12:47:01 +0200
 
