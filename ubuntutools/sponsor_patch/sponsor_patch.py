@@ -202,6 +202,9 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
         tasks = [task for task in ubuntu_tasks
                       if task.get_series() == branch[2]
                          and task.package == branch[3]]
+        if len(tasks) > 1:
+            # A bug targetted to the development series?
+            tasks = [task for task in tasks if task.series is not None]
         assert len(tasks) == 1
         task = tasks[0]
     elif len(ubuntu_tasks) > 1:
