@@ -55,7 +55,11 @@ class Question(object):
 
         selected = None
         while selected not in self.options:
-            selected = raw_input(question).strip().lower()
+            try:
+                selected = raw_input(question).strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                print '\nAborting as requested.'
+                sys.exit(1)
             if selected == "":
                 selected = default
             else:
@@ -81,7 +85,11 @@ def input_number(question, min_number, max_number, default=None):
         question += "? "
     selected = None
     while selected < min_number or selected > max_number:
-        selected = raw_input(question).strip()
+        try:
+            selected = raw_input(question).strip()
+        except (EOFError, KeyboardInterrupt):
+            print '\nAborting as requested.'
+            sys.exit(1)
         if default and selected == "":
             selected = default
         else:
@@ -106,7 +114,7 @@ def confirmation_prompt(message=None, action=None):
         message = 'Press [Enter] to %s. Press [Ctrl-C] to abort now.' % action
     try:
         raw_input(message)
-    except KeyboardInterrupt:
+    except (EOFError, KeyboardInterrupt):
         print '\nAborting as requested.'
         sys.exit(1)
 
