@@ -47,12 +47,14 @@ def source_package_for(binary, release):
     """
     url = ('http://dde.debian.net/dde/q/udd/dist/d:ubuntu/r:%s/p:%s/?t=json'
            % (release, binary))
+    data = None
     try:
         data = json.load(urllib2.urlopen(url))['r']
     except urllib2.URLError, e:
         Logger.error('Unable to retrieve package information from DDE: '
                      '%s (%s)', url, str(e))
-        return None
+    except ValueError:
+        Logger.error('Unable to parse the response from DDE.')
     if not data:
         return None
     return data[0]['source']
