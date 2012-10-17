@@ -53,8 +53,9 @@ def source_package_for(binary, release):
     except urllib2.URLError, e:
         Logger.error('Unable to retrieve package information from DDE: '
                      '%s (%s)', url, str(e))
-    except ValueError:
-        Logger.error('Unable to parse the response from DDE.')
+    except ValueError, e:
+        Logger.error('Unable to parse JSON response from DDE: '
+                     '%s (%s)', url, str(e))
     if not data:
         return None
     return data[0]['source']
