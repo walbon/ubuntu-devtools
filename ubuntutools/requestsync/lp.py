@@ -53,7 +53,10 @@ def get_ubuntu_srcpkg(name, release, pocket='Release'):
         return ubuntu_archive.getSourcePackage(name, release, pocket)
     except udtexceptions.PackageNotFoundException:
         if pocket != 'Release':
-            return get_ubuntu_srcpkg(name, release, 'Release')
+            parent_pocket = 'Release'
+            if pocket == 'Updates':
+                parent_pocket = 'Proposed'
+            return get_ubuntu_srcpkg(name, release, parent_pocket)
         raise
 
 
