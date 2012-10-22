@@ -27,9 +27,11 @@ from devscripts.logger import Logger
 from distro_info import DebianDistroInfo, DistroDataOutdated
 from httplib2 import Http, HttpLib2Error
 
+from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
 from ubuntutools.question import confirmation_prompt
+
 
 def get_debian_srcpkg(name, release):
     debian = Distribution('debian')
@@ -42,11 +44,18 @@ def get_debian_srcpkg(name, release):
 
     return debian_archive.getSourcePackage(name, release)
 
+
 def get_ubuntu_srcpkg(name, release, pocket='Release'):
     ubuntu = Distribution('ubuntu')
     ubuntu_archive = ubuntu.getArchive()
 
-    return ubuntu_archive.getSourcePackage(name, release, pocket)
+    try:
+        return ubuntu_archive.getSourcePackage(name, release, pocket)
+    except udtexceptions.PackageNotFoundException:
+        if pocket != 'Release':
+            return get_ubuntu_srcpkg(name, release, 'Release')
+        raise
+
 
 def need_sponsorship(name, component, release):
     '''

@@ -20,6 +20,8 @@ ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
   * ubuntutools.question: Catch EOF and SIGINT on all input and bail out.
     (LP: #1037488)
   * pull-lp-source: Catch errors parsing JSON we got from DDE (LP: #1059848)
+  * syncpackage, requestsync: Check the Release pocket if we can't find an
+    Ubuntu package in the requested pocket. (LP: #1069867)
 
   [ Benjamin Drung ]
   * seeded-in-ubuntu: State in error message that it takes a source package.
