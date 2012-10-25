@@ -28,6 +28,9 @@ ubuntu-dev-tools (0.144) UNRELEASED; urgency=low
     (LP: #1029155)
   * sponsor-patch: Fix crash if Debian patch contains a slash.
 
+  [ Colin Watson ]
+  * syncpackage: Default to <current_series>-proposed.
+
  -- Stefano Rivera <stefanor@ubuntu.com>  Wed, 18 Jul 2012 12:47:01 +0200
 
 ubuntu-dev-tools (0.143) unstable; urgency=low

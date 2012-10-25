@@ -655,7 +655,7 @@ def main():
 
     if options.release is None:
         ubuntu = Launchpad.distributions["ubuntu"]
-        options.release = ubuntu.current_series.name
+        options.release = "%s-proposed" % ubuntu.current_series.name
 
     if not options.fakesync and not options.lp:
         Logger.warn("The use of --no-lp is not recommended for uploads "
