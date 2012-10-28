@@ -504,7 +504,7 @@ if [ -n "$TARGET_ARCH" ]; then
     # Ultimately we would like there to be a "cross-build-essential-$arch"
     # package.  In practice, the cross-g++ package is sufficient to pull in
     # everything we need.
-    if ! target_tuple=$(dpkg-architecture -a"$TARGET_ARCH" -qDEB_HOST_GNU_TYPE)
+    if ! target_tuple=$(dpkg-architecture -a"$TARGET_ARCH" -qDEB_HOST_GNU_TYPE 2>/dev/null)
     then
         echo "Unknown target architecture $TARGET_ARCH" >&2
         exit 1
