@@ -206,7 +206,7 @@ def main():
 
     # Get the current Ubuntu source package
     try:
-        ubuntu_srcpkg = get_ubuntu_srcpkg(srcpkg, release)
+        ubuntu_srcpkg = get_ubuntu_srcpkg(srcpkg, release, 'Proposed')
         ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         ubuntu_component = ubuntu_srcpkg.getComponent()
         newsource = False  # override the -n flag
