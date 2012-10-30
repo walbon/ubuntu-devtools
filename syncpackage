@@ -134,8 +134,9 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
     new_ver = Version(src_pkg.dsc["Version"])
 
     try:
-        series = release.split("-")[0]
-        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, series)
+        ubuntu_series, ubuntu_pocket = split_release_pocket(release)
+        ubuntu_source = get_ubuntu_srcpkg(src_pkg.source, ubuntu_series,
+                                          ubuntu_pocket)
         ubuntu_ver = Version(ubuntu_source.getVersion())
         ubu_pkg = UbuntuSourcePackage(src_pkg.source, ubuntu_ver.full_version,
                                       ubuntu_source.getComponent(),
@@ -317,7 +318,9 @@ def fetch_source_pkg(package, dist, version, component, ubuntu_release,
         if version is None:
             version = Version(debian_srcpkg.getVersion())
         try:
-            ubuntu_srcpkg = get_ubuntu_srcpkg(package, ubuntu_release)
+            ubuntu_series, ubuntu_pocket = split_release_pocket(ubuntu_release)
+            ubuntu_srcpkg = get_ubuntu_srcpkg(package, ubuntu_series,
+                                              ubuntu_pocket)
             ubuntu_version = Version(ubuntu_srcpkg.getVersion())
         except udtexceptions.PackageNotFoundException:
             ubuntu_version = Version('~')
@@ -692,7 +695,7 @@ def main():
     src_pkg = fetch_source_pkg(package, options.distribution,
                                options.debian_version,
                                options.component,
-                               options.release.split("-")[0],
+                               options.release,
                                options.debian_mirror)
 
     blacklisted, comments = is_blacklisted(src_pkg.source)

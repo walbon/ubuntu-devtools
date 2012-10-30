@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.145) UNRELEASED; urgency=low
+
+  * syncpackage: Don't throw away release pockets, returning correct errors
+    when the source and destination match even though the destination release
+    pocket doesn't.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 30 Oct 2012 09:40:08 +0100
+
 ubuntu-dev-tools (0.144) experimental; urgency=low
 
   [ Stefano Rivera ]
