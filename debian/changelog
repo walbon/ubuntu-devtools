@@ -41,6 +41,9 @@ ubuntu-dev-tools (0.144) experimental; urgency=low
   [ Colin Watson ]
   * syncpackage: Default to <current_series>-proposed.
 
+  [ Steve Langasek ]
+  * Initial support for setting up cross-build chroots.
+
  -- Stefano Rivera <stefanor@debian.org>  Mon, 29 Oct 2012 09:02:29 +0100
 
 ubuntu-dev-tools (0.143) unstable; urgency=low

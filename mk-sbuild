@@ -6,6 +6,7 @@
 #  Emmet Hikory <persia@ubuntu.com>
 #  Scott Moser <smoser@ubuntu.com>
 #  Stefano Rivera <stefanor@ubuntu.com>
+#  Steve Langasek <steve.langasek@ubuntu.com>
 #
 # ##################################################################
 #
@@ -57,6 +58,7 @@ function usage()
     echo "  --distro=DISTRO            Install specific distro:"
     echo "                                 'ubuntu' or 'debian' "
     echo "                                 (defaults to determining from release name)"
+    echo "  --target=ARCH              Target architecture for cross-building"
     echo "  --type=SCHROOT_TYPE        Define the schroot type:"
     echo "                                 'directory'(default), 'file', or 'btrfs-snapshot'"
     echo "                                 'lvm-snapshot' is selected via --vg"
@@ -86,7 +88,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:,target:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -159,6 +161,10 @@ while :; do
             ;;
         --type)
             SCHROOT_TYPE="$2"
+            shift 2
+            ;;
+        --target)
+            TARGET_ARCH="$2"
             shift 2
             ;;
         --)
@@ -440,6 +446,20 @@ ubuntu)
             ;;
         esac
     fi
+    if [ -n "$TARGET_ARCH" ]; then
+        # target chroots only supported in precise and later, so ignore
+        # the fact that powerpc was once not on ports.
+        case "$TARGET_ARCH" in
+        amd64 | i386)
+            TARGET_MIRROR="http://archive.ubuntu.com/ubuntu"
+            TARGET_SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
+            ;;
+        armhf | armel | hppa | ia64 | lpia | powerpc | sparc)
+            TARGET_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
+            TARGET_SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
+            ;;
+        esac
+    fi
     # Add edgy+ buildd tools
     if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
         # Disable recommends for a smaller chroot (gutsy and later only)
@@ -463,6 +483,10 @@ debian)
     if [ -z "$SOURCES_SECURITY_URL" ]; then
         SOURCES_SECURITY_URL="http://security.debian.org/"
     fi
+    if [ -n "$TARGET_ARCH" ]; then
+        TARGET_MIRROR="$DEBOOTSTRAP_MIRROR"
+        TARGET_SOURCES_SECURITY_URL="$SOURCES_SECURITY_URL"
+    fi
     # Unstable (aka "sid") does not have a security repository
     if [ "$RELEASE" = 'unstable' ] || [ "$RELEASE" = 'sid' ]; then
         SKIP_SECURITY=1
@@ -475,6 +499,18 @@ debian)
     exit 1
     ;;
 esac
+
+if [ -n "$TARGET_ARCH" ]; then
+    # Ultimately we would like there to be a "cross-build-essential-$arch"
+    # package.  In practice, the cross-g++ package is sufficient to pull in
+    # everything we need.
+    if ! target_tuple=$(dpkg-architecture -a"$TARGET_ARCH" -qDEB_HOST_GNU_TYPE 2>/dev/null)
+    then
+        echo "Unknown target architecture $TARGET_ARCH" >&2
+        exit 1
+    fi
+    BUILD_PKGS="$BUILD_PKGS g++-$target_tuple pkg-config-$target_tuple dpkg-cross libc-dev:$TARGET_ARCH"
+fi
 
 debootstrap_opts="--components=$(echo $COMPONENTS | tr ' ' ,)"
 if [ -n "$DEBOOTSTRAP_INCLUDE" ] ; then
@@ -565,30 +601,53 @@ TEMP_SOURCES=`mktemp -t sources-XXXXXX`
 if [ -z "$TEMPLATE_SOURCES" ]; then
     TEMPLATE_SOURCES=~/.mk-sbuild.sources
 fi
+if [ -n "$TARGET_ARCH" ]; then
+    MIRROR_ARCHS="[arch=$CHROOT_ARCH] "
+fi
 if [ -r "$TEMPLATE_SOURCES" ]; then
     cat "$TEMPLATE_SOURCES" > "$TEMP_SOURCES"
 else
     cat > "$TEMP_SOURCES" <<EOM
-deb ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
+deb ${MIRROR_ARCHS}${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} RELEASE ${COMPONENTS}
 EOM
+    if [ -n "$TARGET_ARCH" ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
+deb [arch=$TARGET_ARCH] $TARGET_MIRROR RELEASE $COMPONENTS
+EOM
+    fi
     if [ "$EXPERIMENTAL" -eq 1 ]; then
         cat >> "$TEMP_SOURCES" <<EOM
-deb ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
+deb ${MIRROR_ARCHS}${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} experimental ${COMPONENTS}
 EOM
+        if [ -n "$TARGET_ARCH" ]; then
+            cat >> "$TEMP_SOURCES" <<EOM
+deb [arch=$TARGET_ARCH] $TARGET_MIRROR experimental $COMPONENTS
+EOM
+        fi
     fi
     if [ -z "$SKIP_UPDATES" ]; then
         cat >> "$TEMP_SOURCES" <<EOM
-deb ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
+deb ${MIRROR_ARCHS}${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
 deb-src ${DEBOOTSTRAP_MIRROR} RELEASE-updates ${COMPONENTS}
 EOM
+        if [ -n "$TARGET_ARCH" ]; then
+            cat >> "$TEMP_SOURCES" <<EOM
+deb [arch=$TARGET_ARCH] $TARGET_MIRROR RELEASE-updates $COMPONENTS
+EOM
+        fi
     fi
     if [ -z "$SKIP_SECURITY" ]; then
         cat >> "$TEMP_SOURCES" <<EOM
-deb ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
+deb ${MIRROR_ARCHS}${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
 deb-src ${SOURCES_SECURITY_URL} ${SOURCES_SECURITY_SUITE} ${COMPONENTS}
 EOM
+        if [ -n "$TARGET_ARCH" ]; then
+            cat >> "$TEMP_SOURCES" <<EOM
+deb [arch=$TARGET_ARCH] $TARGET_SOURCES_SECURITY_URL $SOURCES_SECURITY_SUITE $COMPONENTS
+EOM
+        fi
     fi
 fi
 cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
@@ -693,6 +752,16 @@ if [ -n "$proxy" ]; then
 Acquire { HTTP { Proxy "$proxy"; }; };
 EOF
 fi
+EOM
+
+if [ -n "$TARGET_ARCH" ]; then
+    sudo bash -c "cat >> $MNT/finish.sh" <<EOM
+# Configure target architecture
+dpkg --add-architecture "$TARGET_ARCH"
+EOM
+fi
+
+sudo bash -c "cat >> $MNT/finish.sh" <<EOM
 # Reload package lists
 apt-get update || true
 # Pull down signature requirements
