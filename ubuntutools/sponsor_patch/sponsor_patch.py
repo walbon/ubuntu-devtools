@@ -192,6 +192,9 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
     if branch:
         branch = branch.split('/')
+        # Non-production LP?
+        if len(branch) > 5:
+            branch = branch[3:]
 
     if len(ubuntu_tasks) == 0:
         Logger.error("No Ubuntu bug task found on bug #%i." % (bug.id))
