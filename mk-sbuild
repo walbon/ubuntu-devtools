@@ -49,6 +49,7 @@ function usage()
     echo "  --vg=VG                    use LVM snapshots, with group VG"
     echo "  --debug                    Turn on script debugging"
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
+    echo "  --skip-proposed            Do not include -proposed pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
     echo "  --debootstrap-include=list Comma separated list of packages to include"
@@ -71,6 +72,7 @@ function usage()
     echo "  CHROOT_SNAPSHOT_DIR        Directory to mount open btrfs snaphshot chroots (default ${CHROOT_SNAPSHOT_DIR})"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
     echo "  SKIP_UPDATES               Enable --skip-updates"
+    echo "  SKIP_PROPOSED              Enable --skip-proposed"
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
     echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
@@ -88,7 +90,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:,target:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:,target:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -117,6 +119,10 @@ while :; do
             ;;
         --skip-updates)
             SKIP_UPDATES="1"
+            shift
+            ;;
+        --skip-proposed)
+            SKIP_PROPOSED="1"
             shift
             ;;
         --name)
@@ -426,6 +432,9 @@ ubuntu)
     if [ -z "$COMPONENTS" ]; then
         COMPONENTS="main restricted universe multiverse"
     fi
+    if [ -z "$SOURCES_PROPOSED_SUITE" ]; then
+        SOURCES_PROPOSED_SUITE="RELEASE-proposed"
+    fi
     if [ -z "$SOURCES_SECURITY_SUITE" ]; then
         SOURCES_SECURITY_SUITE="RELEASE-security"
     fi
@@ -475,6 +484,9 @@ debian)
     if [ -z "$COMPONENTS" ]; then
         COMPONENTS="main non-free contrib"
     fi
+    if [ -z "$SOURCES_PROPOSED_SUITE" ]; then
+        SOURCES_PROPOSED_SUITE="RELEASE-proposed-updates"
+    fi
     # Debian only performs security updates
     SKIP_UPDATES=1
     if [ -z "$SOURCES_SECURITY_SUITE" ]; then
@@ -487,9 +499,10 @@ debian)
         TARGET_MIRROR="$DEBOOTSTRAP_MIRROR"
         TARGET_SOURCES_SECURITY_URL="$SOURCES_SECURITY_URL"
     fi
-    # Unstable (aka "sid") does not have a security repository
-    if [ "$RELEASE" = 'unstable' ] || [ "$RELEASE" = 'sid' ]; then
+    # Unstable and Experimental do not have security or proposed repositories
+    if [ "$RELEASE" = 'unstable' ] || [ "$RELEASE" = 'sid' ] || [ "$RELEASE" = 'experimental' ]; then
         SKIP_SECURITY=1
+        SKIP_PROPOSED=1
     fi
     # Keep the chroot as minimal as possible
     BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
@@ -635,6 +648,17 @@ EOM
         if [ -n "$TARGET_ARCH" ]; then
             cat >> "$TEMP_SOURCES" <<EOM
 deb [arch=$TARGET_ARCH] $TARGET_MIRROR RELEASE-updates $COMPONENTS
+EOM
+        fi
+    fi
+    if [ -z "$SKIP_PROPOSED" ]; then
+        cat >> "$TEMP_SOURCES" <<EOM
+deb ${MIRROR_ARCHS}${DEBOOTSTRAP_MIRROR} $SOURCES_PROPOSED_SUITE ${COMPONENTS}
+deb-src ${DEBOOTSTRAP_MIRROR} $SOURCES_PROPOSED_SUITE ${COMPONENTS}
+EOM
+        if [ -n "$TARGET_ARCH" ]; then
+            cat >> "$TEMP_SOURCES" <<EOM
+deb [arch=$TARGET_ARCH] $TARGET_MIRROR RELEASE-proposed $COMPONENTS
 EOM
         fi
     fi

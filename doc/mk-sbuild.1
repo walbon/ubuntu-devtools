@@ -32,6 +32,10 @@ Turn on script debugging.
 Do not include the \fB\-updates\fR pocket in the installed
 \fBsources.list\fR.
 .TP
+.B \-\-skip\-proposed
+Do not include the \fB\-proposed\fR pocket in the installed
+\fBsources.list\fR.
+.TP
 .B \-\-source\-template\fR=\fIFILE
 Use \fIFILE\fR as the \fBsources.list\fR template (defaults to
 \fI$HOME\fB/.mk\-sbuild.sources\fR).
@@ -80,6 +84,10 @@ Lines to append to schroot entries.
 .B SKIP_UPDATES
 Do not include the \fB\-updates\fR pocket (same as
 \fB\-\-skip\-updates\fR)
+.TP
+.B SKIP_PROPOSED
+Do not include the \fB\-proposed\fR pocket (same as
+\fB\-\-skip\-proposed\fR)
 .TP
 .B DEBOOTSTRAP_MIRROR
 Mirror location (same as \fB\-\-debootstrap-mirror\fR)
