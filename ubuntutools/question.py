@@ -129,7 +129,7 @@ class EditFile(object):
 
     def edit(self, optional=False):
         if optional:
-            print "Currently the %s looks like:" % self.description
+            print "\n\nCurrently the %s looks like:" % self.description
             with open(self.filename, 'r') as f:
                 print f.read()
             if YesNoQuestion().ask("Edit", "no") == "no":
