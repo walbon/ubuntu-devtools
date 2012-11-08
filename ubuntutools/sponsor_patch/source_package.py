@@ -426,7 +426,8 @@ class SourcePackage(object):
         # Check lintian
         assert os.path.isfile(changes_for_lintian), "%s does not exist." % \
                                                     (changes_for_lintian)
-        cmd = ["lintian", "-IE", "--pedantic", "-q", changes_for_lintian]
+        cmd = ["lintian", "-IE", "--pedantic", "-q", "--profile", "ubuntu",
+               changes_for_lintian]
         lintian_filename = os.path.join(self._workdir,
                                         self._package + "_" +
                                         strip_epoch(self._version) + ".lintian")
