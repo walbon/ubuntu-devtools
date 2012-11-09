@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.146ubuntu1) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.145) UNRELEASED; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch: Use ubuntu profile when running lintian.
