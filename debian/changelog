@@ -1,6 +1,10 @@
 ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
 
+  [ Benjamin Drung ]
   * sponsor-patch: Use ubuntu profile when running lintian.
+
+  [ Dmitrijs Ledkovs ]
+  * dgetlp: drop it, and hence remove python-gnupginterface dependency.
 
  -- Benjamin Drung <bdrung@debian.org>  Thu, 08 Nov 2012 19:27:03 +0100
 

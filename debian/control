@@ -17,7 +17,6 @@ Build-Depends: dctrl-tools,
                python-apt (>= 0.7.93~),
                python-debian (>= 0.1.20~),
                python-distro-info (>= 0.4~),
-               python-gnupginterface,
                python-httplib2,
                python-launchpadlib (>= 1.5.7),
                python-mox,
@@ -61,7 +60,6 @@ Recommends: bzr,
             pbuilder | cowdancer | sbuild,
             perl-modules,
             python-dns,
-            python-gnupginterface,
             python-soappy,
             quilt,
             reportbug (>= 3.39ubuntu1)
@@ -81,7 +79,6 @@ Description: useful tools for Ubuntu developers
   - check-symbols - will compare and give you a diff of the exported symbols of
     all .so files in a binary package.
   - dch-repeat - used to repeat a change log into an older release.
-  - dgetlp - download a source package from the Launchpad librarian.
   - grab-merge - grabs a merge from merges.ubuntu.com easily.
   - grep-merges - search for pending merges from Debian.
   - harvest - grabs information about development opportunities from
