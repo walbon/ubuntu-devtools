@@ -6,7 +6,10 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
   [ Dmitrijs Ledkovs ]
   * dgetlp: drop it, and hence remove python-gnupginterface dependency.
 
- -- Benjamin Drung <bdrung@debian.org>  Thu, 08 Nov 2012 19:27:03 +0100
+  [ Benjamin Kerensa ]
+  * setup-packaging-environment: update developer guide URL (LP: #1068049)
+
+ -- Benjamin Kerensa <bkerensa@ubuntu.com>  Fri, 09 Nov 2012 03:07:44 -0800
 
 ubuntu-dev-tools (0.145) experimental; urgency=low
 

@@ -205,7 +205,7 @@ echo "have the basic tools and configurations recommended for Ubuntu"
 echo "development."
 echo
 echo "Some resources which may be useful during your path are:"
-echo " - The Ubuntu Packaging Guide: http://wiki.ubuntu.com/PackagingGuide"
+echo " - The Ubuntu Packaging Guide: http://developer.ubuntu.com/packaging/html/"
 echo " - The Ubuntu Developers IRC channel: #ubuntu-motu on irc.freenode.net"
 echo
 echo "May the source be with you!"
