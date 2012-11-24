@@ -63,7 +63,7 @@ Recommends: bzr,
             python-soappy,
             quilt,
             reportbug (>= 3.39ubuntu1)
-Suggests: ipython, python-simplejson | python (>= 2.7), qemu-user-static
+Suggests: python-simplejson | python (>= 2.7), qemu-user-static
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
  packaging work a lot easier.
