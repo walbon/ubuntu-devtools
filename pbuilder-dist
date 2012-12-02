@@ -298,7 +298,6 @@ class PbuilderDist:
             if dev_release:
                 self.enable_security = False
                 self.enable_updates = False
-                self.enable_proposed = False
 
             if self.enable_security:
                 othermirrors.append('deb %s %s-security %s'
