@@ -334,7 +334,9 @@ def do_backport(workdir, pkg, suffix, close, release, release_pocket, build,
     if build:
         if 0 != do_build(workdir, fn_base + '.dsc', release, builder, update):
             sys.exit(1)
-    if keyid != False:
+
+    # None: sign with the default signature. False: don't sign
+    if keyid is not False:
         cmd = ['debsign']
         if keyid:
             cmd.append('-k' + keyid)
