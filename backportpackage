@@ -387,7 +387,7 @@ def main(args):
                         opts.builder,
                         opts.update,
                         opts.upload,
-                        opts.key,
+                        opts.keyid,
                         opts.prompt)
     except DownloadError, e:
         error(str(e))
