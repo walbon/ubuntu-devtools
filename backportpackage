@@ -51,6 +51,17 @@ def check_call(cmd, *args, **kwargs):
     if ret != 0:
         error('%s returned %d.' % (cmd[0], ret))
 
+
+def check_program_exists(name, package=None):
+    paths = set(os.environ['PATH'].split(':'))
+    paths |= set(('/sbin', '/usr/sbin', '/usr/local/sbin'))
+    if not any(os.path.exists(os.path.join(p, name)) for p in paths):
+        Logger.error('Could not find "%s". Please install the package "%s" '
+                     'to use this functionality.',
+                     name, package or name)
+        sys.exit(1)
+
+
 def parse(args):
     usage = 'Usage: %prog [options] <source package name or .dsc URL/file>'
     parser = optparse.OptionParser(usage)
@@ -145,6 +156,8 @@ def parse(args):
         parser.error('Please specify either a working dir or an upload target!')
     if opts.upload and opts.upload.startswith('ppa:'):
         opts.release_pocket = True
+    if opts.upload:
+        check_program_exists('dput')
 
     return opts, args, config
 

@@ -15,7 +15,10 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
   [ Stefano Rivera ]
   * pbuilder-dist: Build with -proposed enabled for Ubuntu dev releases.
     Thanks Scott Kitterman (LP: #1082452)
-  * backportpackage: Don't ignore -k (LP: #1083688)
+  * backportpackage:
+    - Don't ignore -k (LP: #1083688)
+    - Check that dput is installed when uploading, thanks H.-Dirk Schmitt
+      (LP: #1086342)
 
  -- Julian Taylor <jtaylor@ubuntu.com>  Sat, 24 Nov 2012 21:07:01 +0100
 
