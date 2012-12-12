@@ -20,7 +20,7 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
     - Check that dput is installed when uploading, thanks H.-Dirk Schmitt
       (LP: #1086342)
   * ubuntu-build: Default to DEV-proposed in batch mode. Thanks Scott
-    Kitterman(LP: #1088010)
+    Kitterman (LP: #1088010)
 
  -- Julian Taylor <jtaylor@ubuntu.com>  Sat, 24 Nov 2012 21:07:01 +0100
 
