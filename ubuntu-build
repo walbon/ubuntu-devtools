@@ -217,8 +217,10 @@ def main():
     # filter out duplicate and invalid architectures
     archs.intersection_update(valid_archs)
 
-    release = (options.series or
-               Distribution('ubuntu').getDevelopmentSeries().name)
+    release = options.series
+    if not release:
+        release = (Distribution('ubuntu').getDevelopmentSeries().name
+                   + '-proposed')
     try:
         (release, pocket) = split_release_pocket(release)
     except PocketDoesNotExistError, error:
