@@ -21,8 +21,10 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
       (LP: #1086342)
   * ubuntu-build: Default to DEV-proposed in batch mode. Thanks Scott
     Kitterman (LP: #1088010)
+  * seeded-in-ubuntu: Clarify that "not seeded" binary packages may not exist
+    (LP: #1029620)
 
- -- Julian Taylor <jtaylor@ubuntu.com>  Sat, 24 Nov 2012 21:07:01 +0100
+ -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 12 Jan 2013 14:33:25 +0200
 
 ubuntu-dev-tools (0.145) experimental; urgency=low
 
