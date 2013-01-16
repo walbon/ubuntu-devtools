@@ -92,7 +92,7 @@ def output_binaries(index, binaries):
             print "%s is seeded in:" % binary
             print present_on(index[binary])
         else:
-            print "%s is not seeded." % binary
+            print "%s is not seeded (and may not exist)." % binary
 
 
 def output_by_source(index, by_source):
