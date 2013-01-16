@@ -22,6 +22,10 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
   * ubuntu-build: Default to DEV-proposed in batch mode. Thanks Scott
     Kitterman (LP: #1088010)
 
+  [ Iain Lane ]
+  * sponsor-patch: Allow all supported bare releases now that LP rewrites
+    these to contain '-proposed' for us. 
+
  -- Julian Taylor <jtaylor@ubuntu.com>  Sat, 24 Nov 2012 21:07:01 +0100
 
 ubuntu-dev-tools (0.145) experimental; urgency=low

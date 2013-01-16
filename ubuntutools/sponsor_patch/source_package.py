@@ -267,7 +267,8 @@ class SourcePackage(object):
         (devel_series, supported_series) = _get_series(launchpad)
 
         if upload == "ubuntu":
-            allowed = [s + "-proposed" for s in supported_series] + \
+            allowed = supported_series + \
+                      [s + "-proposed" for s in supported_series] + \
                       [devel_series]
             if self._changelog.distributions not in allowed:
                 Logger.error(("%s is not an allowed series. It needs to be one "
