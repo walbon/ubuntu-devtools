@@ -317,7 +317,7 @@ fi
 if [ -z "$TARGET_ARCH" ]; then
     CHROOT_NAME="${name}-${CHROOT_ARCH}"
 else
-    CHROOT_NAME="${name}-cross-${CHROOT_ARCH}-${TARGET_ARCH}"
+    CHROOT_NAME="${name}-${CHROOT_ARCH}-${TARGET_ARCH}"
 fi
 
 if [ -z "$synonym" ]; then
