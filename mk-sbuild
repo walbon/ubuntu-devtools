@@ -362,7 +362,11 @@ case "$SCHROOT_TYPE" in
     fi
 
     # Set up some variables for use in the paths and names
-    CHROOT_LV="${name}_${CHROOT_ARCH}_chroot"
+    if [ -z "$TARGET_ARCH" ]; then
+	CHROOT_LV="${name}_${CHROOT_ARCH}_chroot"
+    else
+	CHROOT_LV="${name}_${CHROOT_ARCH}_${TARGET_ARCH}_chroot"
+    fi
     CHROOT_PATH="/dev/$VG/$CHROOT_LV"
 
     # Install lvm2 if missing
