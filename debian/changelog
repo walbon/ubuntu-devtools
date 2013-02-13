@@ -5,6 +5,7 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
 
   [ Dmitrijs Ledkovs ]
   * dgetlp: drop it, and hence remove python-gnupginterface dependency.
+  * mk-sbuild: change lvm volume names to include target (LP: #1087194)
 
   [ Benjamin Kerensa ]
   * setup-packaging-environment: update developer guide URL (LP: #1068049)
