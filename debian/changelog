@@ -24,8 +24,10 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
     Kitterman (LP: #1088010)
   * seeded-in-ubuntu: Clarify that "not seeded" binary packages may not exist
     (LP: #1029620)
-  * mk-sbuild: Name cross chroots after the build architecture and target
-    (LP: #1087194)
+  * mk-sbuild:
+    - Name cross chroots after the build architecture and target
+      (LP: #1087194)
+    - Use the sbuild schroot profile.
 
   [ Iain Lane ]
   * sponsor-patch: Allow all supported bare releases now that LP rewrites

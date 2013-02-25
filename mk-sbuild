@@ -712,6 +712,7 @@ root-groups=$ADMIN_GROUPS
 #source-root-users=$ADMIN_GROUPS
 #source-root-groups=$ADMIN_GROUPS
 type=SCHROOT_TYPE
+profile=sbuild
 EOM
     if [ $EATMYDATA -eq 1 ]; then
     cat >> "$TEMP_SCHROOTCONF" <<EOM
