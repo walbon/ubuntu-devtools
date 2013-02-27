@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.146) experimental; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch: Use ubuntu profile when running lintian.
@@ -34,7 +34,7 @@ ubuntu-dev-tools (0.146) UNRELEASED; urgency=low
   * sponsor-patch: Allow all supported bare releases now that LP rewrites
     these to contain '-proposed' for us. 
 
- -- Stefano Rivera <stefanor@ubuntu.com>  Sat, 12 Jan 2013 14:33:25 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Wed, 27 Feb 2013 19:56:12 +0100
 
 ubuntu-dev-tools (0.145) experimental; urgency=low
 
