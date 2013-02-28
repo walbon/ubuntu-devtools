@@ -2,7 +2,7 @@ ubuntu-dev-tools (0.146) experimental; urgency=low
 
   [ Benjamin Drung ]
   * sponsor-patch: Use ubuntu profile when running lintian.
-  * Bump Standards-Version to 3.8.4 (no changes needed).
+  * Bump Standards-Version to 3.9.4 (no changes needed).
 
   [ Dmitrijs Ledkovs ]
   * dgetlp: drop it, and hence remove python-gnupginterface dependency.
