@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.147) UNRELEASED; urgency=low
+
+  * Move devscripts.logger to ubuntutools.logger.
+
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 19 Mar 2013 00:17:25 +0100
+
 ubuntu-dev-tools (0.146) experimental; urgency=low
 
   [ Benjamin Drung ]

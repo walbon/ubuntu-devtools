@@ -28,13 +28,13 @@ import socket
 import tempfile
 
 from debian.changelog import Changelog, Version
-from devscripts.logger import Logger
 from distro_info import DebianDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import rmadison, FakeSPPH
+from ubuntutools.lp.udtexceptions import PackageNotFoundException
+from ubuntutools.logger import Logger
 from ubuntutools.question import confirmation_prompt, YesNoQuestion
 from ubuntutools import subprocess
-from ubuntutools.lp.udtexceptions import PackageNotFoundException
 
 __all__ = [
     'get_debian_srcpkg',

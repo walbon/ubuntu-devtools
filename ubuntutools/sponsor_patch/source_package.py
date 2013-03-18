@@ -22,10 +22,9 @@ import sys
 import debian.changelog
 import debian.deb822
 
-from devscripts.logger import Logger
-
 from ubuntutools import subprocess
 from ubuntutools.harvest import Harvest
+from ubuntutools.logger import Logger
 from ubuntutools.question import Question, YesNoQuestion
 
 from ubuntutools.sponsor_patch.question import (ask_for_ignoring_or_fixing,

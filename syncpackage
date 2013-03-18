@@ -30,21 +30,21 @@ import textwrap
 import urllib
 
 import debian.debian_support
-from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
                                  DownloadError)
 from ubuntutools.config import UDTConfig, ubu_email
-from ubuntutools.requestsync.mail import (
-        get_debian_srcpkg as requestsync_mail_get_debian_srcpkg)
-from ubuntutools.requestsync.lp import get_debian_srcpkg, get_ubuntu_srcpkg
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import (Distribution, Launchpad, PersonTeam,
                                        SourcePackagePublishingHistory)
+from ubuntutools.logger import Logger
 from ubuntutools.misc import split_release_pocket
 from ubuntutools.question import YesNoQuestion
+from ubuntutools.requestsync.mail import (
+        get_debian_srcpkg as requestsync_mail_get_debian_srcpkg)
+from ubuntutools.requestsync.lp import get_debian_srcpkg, get_ubuntu_srcpkg
 from ubuntutools import subprocess
 
 

@@ -20,15 +20,15 @@ import re
 import sys
 
 import apt
-from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo
 
+from ubuntutools.config import UDTConfig
 from ubuntutools.lp.lpapicache import Launchpad, Distribution
 from ubuntutools.lp.udtexceptions import PackageNotFoundException
-from ubuntutools.config import UDTConfig
-from ubuntutools.rdepends import query_rdepends, RDependsException
+from ubuntutools.logger import Logger
 from ubuntutools.question import (YesNoQuestion, EditBugReport,
                                   confirmation_prompt)
+from ubuntutools.rdepends import query_rdepends, RDependsException
 
 
 class DestinationException(Exception):

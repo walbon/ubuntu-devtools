@@ -23,7 +23,7 @@ import debian.debian_support
 import distro_info
 import httplib2
 
-from devscripts.logger import Logger
+from ubuntutools.logger import Logger
 
 def is_sync(bug):
     """Checks if a Launchpad bug is a sync request.

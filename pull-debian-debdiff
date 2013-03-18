@@ -23,10 +23,9 @@ import sys
 import debian.debian_support
 import debian.changelog
 
-from devscripts.logger import Logger
-
 from ubuntutools.archive import DebianSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 
 def previous_version(package, version, distance):
     "Given an (extracted) package, determine the version distance versions ago"

@@ -29,7 +29,6 @@ import sys
 import urllib2
 from optparse import OptionParser
 
-from devscripts.logger import Logger
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import UbuntuSourcePackage, DownloadError
@@ -38,6 +37,7 @@ from ubuntutools.lp.lpapicache import Distribution, Launchpad
 from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
                                           PackageNotFoundException,
                                           PocketDoesNotExistError)
+from ubuntutools.logger import Logger
 from ubuntutools.misc import split_release_pocket
 
 

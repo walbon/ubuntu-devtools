@@ -32,13 +32,13 @@
 import os
 import sys
 
-from devscripts.logger import Logger
 from distro_info import DebianDistroInfo, UbuntuDistroInfo, DistroDataOutdated
 
 import ubuntutools.misc
 from ubuntutools.config import UDTConfig
-from ubuntutools import subprocess
+from ubuntutools.logger import Logger
 from ubuntutools.question import YesNoQuestion
+from ubuntutools import subprocess
 
 
 class PbuilderDist:

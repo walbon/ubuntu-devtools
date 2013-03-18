@@ -17,11 +17,10 @@
 import optparse
 import sys
 
-from devscripts.logger import Logger
-
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        Packageset, PackageNotFoundException,
                                        SeriesNotFoundException)
+from ubuntutools.logger import Logger
 from ubuntutools.misc import split_release_pocket
 
 

@@ -28,9 +28,8 @@
 from optparse import OptionParser
 import sys
 
-from devscripts.logger import Logger
-
 from ubuntutools.harvest import Harvest
+from ubuntutools.logger import Logger
 
 def main():
     usage = "usage: %prog source-package-name"

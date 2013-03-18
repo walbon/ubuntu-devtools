@@ -20,13 +20,12 @@ import pwd
 import shutil
 import sys
 
-from devscripts.logger import Logger
-
 from distro_info import UbuntuDistroInfo
 
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools import subprocess
+from ubuntutools.logger import Logger
 from ubuntutools.update_maintainer import (update_maintainer,
                                            MaintainerUpdateException)
 from ubuntutools.question import input_number

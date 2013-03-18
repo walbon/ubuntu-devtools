@@ -22,10 +22,9 @@ import os
 import time
 import urllib
 
-from devscripts.logger import Logger
-
 from ubuntutools.lp.lpapicache import (Distribution, Launchpad,
                                        PackageNotFoundException)
+from ubuntutools.logger import Logger
 
 DATA_URL = 'http://qa.ubuntuwire.org/ubuntu-seeded-packages/seeded.json.gz'
 

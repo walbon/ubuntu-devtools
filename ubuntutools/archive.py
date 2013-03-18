@@ -41,11 +41,10 @@ import debian.deb822
 import debian.debian_support
 import httplib2
 
-from devscripts.logger import Logger
-
 from ubuntutools.config import UDTConfig
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
+from ubuntutools.logger import Logger
 from ubuntutools import subprocess
 
 

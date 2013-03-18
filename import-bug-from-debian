@@ -27,7 +27,6 @@ import re
 import sys
 import webbrowser
 
-from devscripts.logger import Logger
 try:
     import SOAPpy
 except ImportError:
@@ -37,6 +36,7 @@ except ImportError:
 from launchpadlib.launchpad import Launchpad
 
 from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")

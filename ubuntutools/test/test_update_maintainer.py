@@ -23,8 +23,7 @@ import sys
 
 import mox
 
-from devscripts.logger import Logger
-
+from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 from ubuntutools.update_maintainer import update_maintainer
 

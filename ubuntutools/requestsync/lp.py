@@ -23,13 +23,13 @@
 import re
 
 from debian.deb822 import Changes
-from devscripts.logger import Logger
 from distro_info import DebianDistroInfo, DistroDataOutdated
 from httplib2 import Http, HttpLib2Error
 
 from ubuntutools.lp import udtexceptions
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution, PersonTeam,
                                        DistributionSourcePackage)
+from ubuntutools.logger import Logger
 from ubuntutools.question import confirmation_prompt
 
 

@@ -20,10 +20,9 @@ import shutil
 import sys
 import tempfile
 
-from devscripts.logger import Logger
-
-from ubuntutools.config import UDTConfig
 from ubuntutools.builder import get_builder
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 from ubuntutools.sponsor_patch.sponsor_patch import (sponsor_patch,
                                                      check_dependencies)
 

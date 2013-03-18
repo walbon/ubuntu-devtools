@@ -27,9 +27,8 @@ from optparse import OptionParser
 from launchpadlib.launchpad import Launchpad
 from launchpadlib.errors import HTTPError
 
-from devscripts.logger import Logger
-
 from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 
 def error_out(msg):
     Logger.error(msg)

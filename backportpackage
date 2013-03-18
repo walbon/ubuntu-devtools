@@ -26,7 +26,6 @@ import sys
 import tempfile
 
 import lsb_release
-from devscripts.logger import Logger
 from httplib2 import Http, HttpLib2Error
 
 from ubuntutools.archive import (SourcePackage, DebianSourcePackage,
@@ -36,6 +35,7 @@ from ubuntutools.builder import get_builder
 from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SeriesNotFoundException,
                                        PackageNotFoundException)
+from ubuntutools.logger import Logger
 from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
                               codename_to_distribution)
 from ubuntutools.question import YesNoQuestion

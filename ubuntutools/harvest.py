@@ -16,7 +16,7 @@ import os.path
 import sys
 import urllib2
 
-from devscripts.logger import Logger
+from ubuntutools.logger import Logger
 
 BASE_URL = "http://harvest.ubuntu.com/"
 

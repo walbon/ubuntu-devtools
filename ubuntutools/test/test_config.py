@@ -21,9 +21,8 @@ from StringIO import StringIO
 
 import mox
 
-from devscripts.logger import Logger
-
 from ubuntutools.config import UDTConfig, ubu_email
+from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
 class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):

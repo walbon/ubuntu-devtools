@@ -21,11 +21,11 @@ import optparse
 import sys
 import urllib2
 
-from devscripts.logger import Logger
 from distro_info import DebianDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import DebianSourcePackage, DownloadError, rmadison
 from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
 
 
 def is_suite(version):

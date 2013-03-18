@@ -20,7 +20,7 @@ import os
 import re
 
 import debian.changelog
-from devscripts.logger import Logger
+from ubuntutools.logger import Logger
 
 # Prior May 2009 these Maintainers were used:
 _PREVIOUS_UBUNTU_MAINTAINER = (

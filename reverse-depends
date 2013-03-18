@@ -17,9 +17,9 @@
 import optparse
 import sys
 
-from devscripts.logger import Logger
 from distro_info import DistroDataOutdated
 
+from ubuntutools.logger import Logger
 from ubuntutools.misc import (system_distribution, vendor_to_distroinfo,
                               codename_to_distribution)
 from ubuntutools.rdepends import query_rdepends, RDependsException
