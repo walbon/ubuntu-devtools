@@ -27,16 +27,16 @@ import re
 import sys
 import webbrowser
 
+from launchpadlib.launchpad import Launchpad
+
+from ubuntutools.config import UDTConfig
+from ubuntutools.logger import Logger
+
 try:
     import SOAPpy
 except ImportError:
     Logger.error("Please install 'python-soappy' in order to use this utility.")
     sys.exit(1)
-
-from launchpadlib.launchpad import Launchpad
-
-from ubuntutools.config import UDTConfig
-from ubuntutools.logger import Logger
 
 def main():
     bug_re = re.compile(r"bug=(\d+)")
