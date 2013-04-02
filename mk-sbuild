@@ -781,7 +781,7 @@ set -e
 if [ -n "$proxy" ]; then
    mkdir -p /etc/apt/apt.conf.d/
    cat > /etc/apt/apt.conf.d/99mk-sbuild-proxy <<EOF
-## proxy settings copied from mk-sbuild
+// proxy settings copied from mk-sbuild
 Acquire { HTTP { Proxy "$proxy"; }; };
 EOF
 fi

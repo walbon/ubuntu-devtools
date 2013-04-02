@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.148) UNRELEASED; urgency=low
+
+  * mk-sbuild: Fix comment syntax in proxy configuration (LP: #1163300).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 02 Apr 2013 13:42:56 +0100
+
 ubuntu-dev-tools (0.147) experimental; urgency=low
 
   * Move devscripts.logger to ubuntutools.logger.
