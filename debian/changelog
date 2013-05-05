@@ -1,8 +1,11 @@
-ubuntu-dev-tools (0.148) UNRELEASED; urgency=low
+ubuntu-dev-tools (0.148) unstable; urgency=low
 
+  * Upload to unstable after the Debian 7.0 release.
+
+  [ Colin Watson ]
   * mk-sbuild: Fix comment syntax in proxy configuration (LP: #1163300).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 02 Apr 2013 13:42:56 +0100
+ -- Benjamin Drung <bdrung@debian.org>  Sun, 05 May 2013 19:10:19 +0200
 
 ubuntu-dev-tools (0.147) experimental; urgency=low
 
