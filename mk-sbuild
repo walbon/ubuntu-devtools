@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-# Copyright 2006-2011 (C) Canonical Ltd.
+# Copyright 2006-2013 (C) Canonical Ltd.
 # Authors:
 #  Kees Cook <kees@ubuntu.com>
 #  Emmet Hikory <persia@ubuntu.com>
 #  Scott Moser <smoser@ubuntu.com>
 #  Stefano Rivera <stefanor@ubuntu.com>
 #  Steve Langasek <steve.langasek@ubuntu.com>
+#  Marc Deslauriers <marc.deslauriers@ubuntu.com>
 #
 # ##################################################################
 #
@@ -38,6 +39,7 @@ SNAPSHOT_SIZE="4G"
 SOURCE_CHROOTS_DIR="/var/lib/schroot/chroots"
 SOURCE_CHROOTS_TGZ="/var/lib/schroot/tarballs"
 CHROOT_SNAPSHOT_DIR="/var/lib/schroot/snapshots"
+SCHROOT_PROFILE="sbuild"
 
 function usage()
 {
@@ -71,6 +73,7 @@ function usage()
     echo "  SOURCE_CHROOTS_TGZ         Directory to store file source chroots"
     echo "  CHROOT_SNAPSHOT_DIR        Directory to mount open btrfs snaphshot chroots (default ${CHROOT_SNAPSHOT_DIR})"
     echo "  SCHROOT_CONF_SUFFIX        Lines to append to schroot.conf entries"
+    echo "  SCHROOT_PROFILE            Profile to use with schroot (default ${SCHROOT_PROFILE})"
     echo "  SKIP_UPDATES               Enable --skip-updates"
     echo "  SKIP_PROPOSED              Enable --skip-proposed"
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
@@ -712,7 +715,7 @@ root-groups=$ADMIN_GROUPS
 #source-root-users=$ADMIN_GROUPS
 #source-root-groups=$ADMIN_GROUPS
 type=SCHROOT_TYPE
-profile=sbuild
+profile=$SCHROOT_PROFILE
 EOM
     if [ $EATMYDATA -eq 1 ]; then
     cat >> "$TEMP_SCHROOTCONF" <<EOM
