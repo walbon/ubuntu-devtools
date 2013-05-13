@@ -1,4 +1,5 @@
 # test_config.py - Test suite for ubuntutools.config
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
 #
@@ -210,3 +211,8 @@ class UbuEmailTestCase(unittest.TestCase):
         os.environ['DEBEMAIL'] = orig = '%s <%s>' % (name, email)
         self.assertEqual(ubu_email(), (name, email))
         self.assertEqual(os.environ['DEBEMAIL'], orig)
+
+    def test_unicode_name(self):
+        os.environ['DEBFULLNAME'] = name  = 'Jöe Déveloper'
+        os.environ['DEBEMAIL']    = email = 'joe@example.net'
+        self.assertEqual(ubu_email(), (name.decode('utf-8'), email))
