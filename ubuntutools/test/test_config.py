@@ -18,6 +18,7 @@
 import __builtin__
 import os
 import sys
+import locale
 from StringIO import StringIO
 
 import mox
@@ -213,6 +214,10 @@ class UbuEmailTestCase(unittest.TestCase):
         self.assertEqual(os.environ['DEBEMAIL'], orig)
 
     def test_unicode_name(self):
-        os.environ['DEBFULLNAME'] = name  = 'Jöe Déveloper'
+        encoding = locale.getdefaultlocale()[1]
+        if not encoding:
+            encoding = 'utf-8'
+        name = 'Jöe Déveloper'.decode('utf-8')
+        os.environ['DEBFULLNAME'] = name.encode(encoding)
         os.environ['DEBEMAIL']    = email = 'joe@example.net'
-        self.assertEqual(ubu_email(), (name.decode('utf-8'), email))
+        self.assertEqual(ubu_email(), (name, email))
