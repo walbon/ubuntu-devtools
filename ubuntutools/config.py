@@ -177,6 +177,7 @@ def ubu_email(name=None, email=None, export=True):
 
     # decode env var or gecos raw string with the current locale's encoding
     encoding = locale.getdefaultlocale()[1]
-    if encoding:
-        name = name.decode(encoding)
+    if not encoding:
+        encoding = 'utf-8'
+    name = name.decode(encoding)
     return name, email
