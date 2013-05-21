@@ -21,6 +21,7 @@ import re
 import shlex
 import socket
 import sys
+import locale
 
 from ubuntutools.logger import Logger
 
@@ -173,4 +174,10 @@ def ubu_email(name=None, email=None, export=True):
     if export:
         os.environ['DEBFULLNAME'] = name
         os.environ['DEBEMAIL'] = email
+
+    # decode env var or gecos raw string with the current locale's encoding
+    encoding = locale.getdefaultlocale()[1]
+    if not encoding:
+        encoding = 'utf-8'
+    name = name.decode(encoding)
     return name, email

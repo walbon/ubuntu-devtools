@@ -1,4 +1,5 @@
 # test_config.py - Test suite for ubuntutools.config
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
 #
@@ -17,6 +18,7 @@
 import __builtin__
 import os
 import sys
+import locale
 from StringIO import StringIO
 
 import mox
@@ -210,3 +212,12 @@ class UbuEmailTestCase(unittest.TestCase):
         os.environ['DEBEMAIL'] = orig = '%s <%s>' % (name, email)
         self.assertEqual(ubu_email(), (name, email))
         self.assertEqual(os.environ['DEBEMAIL'], orig)
+
+    def test_unicode_name(self):
+        encoding = locale.getdefaultlocale()[1]
+        if not encoding:
+            encoding = 'utf-8'
+        name = 'Jöe Déveloper'.decode('utf-8')
+        os.environ['DEBFULLNAME'] = name.encode(encoding)
+        os.environ['DEBEMAIL']    = email = 'joe@example.net'
+        self.assertEqual(ubu_email(), (name, email))

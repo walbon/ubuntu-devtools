@@ -1,6 +1,11 @@
 ubuntu-dev-tools (0.149) UNRELEASED; urgency=low
 
+  [ Marc Deslauriers ]
    * mk-sbuild: allow specifying the schroot profile.
+
+  [ Loïc Minier ]
+  * ubuntutools.config: decode developer names with the current locale's
+    encoding and add corresponding test; fixes handling of non-ascii names.
 
  -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 06 May 2013 09:43:02 -0400
 
