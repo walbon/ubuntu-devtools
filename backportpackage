@@ -101,7 +101,7 @@ def parse(args):
                       dest='keyid',
                       help="Specify the key ID to be used for signing.")
     parser.add_option('--dont-sign',
-                      dest='key', action='store_false',
+                      dest='keyid', action='store_false',
                       help='Do not sign the upload.')
     parser.add_option('-y', '--yes',
                       dest='prompt',
