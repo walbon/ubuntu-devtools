@@ -10,7 +10,12 @@ ubuntu-dev-tools (0.149) UNRELEASED; urgency=low
   [ Adam Gandelman ]
   * backportpackage: Fix destination for --dont-sign option. (LP: #1183985)
 
- -- Adam Gandelman <adamg@ubuntu.com>  Fri, 24 May 2013 12:56:08 -0700
+  [ Evan Broder ]
+  * Only conclude that we don't need an orig tarball if we're sent to the
+    librarian (as opposed to the login page from a private PPA).
+    (LP: #1106429)
+
+ -- Evan Broder <evan@stripe.com>  Tue, 09 Jul 2013 17:49:21 -0700
 
 ubuntu-dev-tools (0.148) unstable; urgency=low
 
