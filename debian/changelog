@@ -1,7 +1,8 @@
 ubuntu-dev-tools (0.149) UNRELEASED; urgency=low
 
   [ Marc Deslauriers ]
-   * mk-sbuild: allow specifying the schroot profile.
+  * mk-sbuild: allow specifying the schroot profile.
+  * ubuntutools/config.py: properly handle name being None.
 
   [ Loïc Minier ]
   * ubuntutools.config: decode developer names with the current locale's
@@ -15,7 +16,7 @@ ubuntu-dev-tools (0.149) UNRELEASED; urgency=low
     librarian (as opposed to the login page from a private PPA).
     (LP: #1106429)
 
- -- Evan Broder <evan@stripe.com>  Tue, 09 Jul 2013 17:49:21 -0700
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 13 Aug 2013 17:00:26 -0400
 
 ubuntu-dev-tools (0.148) unstable; urgency=low
 
