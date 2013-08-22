@@ -2,7 +2,7 @@ ubuntu-dev-tools (0.150) UNRELEASED; urgency=low
 
   * ubuntutools/sponsor_patch/sponsor_patch.py: correct grammar regarding
     which task for the patch, cache bug.id instead of retrieving it up more
-    than once .
+    than once.
 
  -- Brian Murray <brian@ubuntu.com>  Thu, 22 Aug 2013 08:20:14 -0700
 
