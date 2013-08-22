@@ -189,6 +189,7 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     """
     bug_tasks = [BugTask(x, launchpad) for x in bug.bug_tasks]
     ubuntu_tasks = [x for x in bug_tasks if x.is_ubuntu_task()]
+    bug_id = bug.id
     if branch:
         branch = branch.split('/')
         # Non-production LP?
@@ -196,7 +197,7 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
             branch = branch[3:]
 
     if len(ubuntu_tasks) == 0:
-        Logger.error("No Ubuntu bug task found on bug #%i." % (bug.id))
+        Logger.error("No Ubuntu bug task found on bug #%i." % (bug_id))
         sys.exit(1)
     elif len(ubuntu_tasks) == 1:
         task = ubuntu_tasks[0]
@@ -212,17 +213,17 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     elif len(ubuntu_tasks) > 1:
         task_list = [t.get_short_info() for t in ubuntu_tasks]
         Logger.info("%i Ubuntu tasks exist for bug #%i.\n%s", len(ubuntu_tasks),
-                    bug.id, "\n".join(task_list))
+                    bug_id, "\n".join(task_list))
         open_ubuntu_tasks = [x for x in ubuntu_tasks if not x.is_complete()]
         if len(open_ubuntu_tasks) == 1:
             task = open_ubuntu_tasks[0]
         else:
             Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
-                          % (bug.id, len(ubuntu_tasks)))
+                          % (bug_id, len(ubuntu_tasks)))
             for i in xrange(len(ubuntu_tasks)):
                 print "%i) %s" % (i + 1,
                                   ubuntu_tasks[i].get_package_and_series())
-            selected = input_number("To which Ubuntu tasks do the patch belong",
+            selected = input_number("To which Ubuntu task does the patch belong",
                                     1, len(ubuntu_tasks))
             task = ubuntu_tasks[selected - 1]
     Logger.info("Selected Ubuntu task: %s" % (task.get_short_info()))
