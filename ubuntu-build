@@ -39,7 +39,7 @@ def main():
     usage += "Only Launchpad Buildd Admins may rescore package builds."
 
     # Valid architectures.
-    valid_archs = set(["armel", "armhf", "amd64", "hppa", "i386", "ia64",
+    valid_archs = set(["armel", "armhf", "arm64", "amd64", "hppa", "i386", "ia64",
                        "lpia", "powerpc", "sparc"])
 
     # Prepare our option parser.
