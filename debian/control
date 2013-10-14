@@ -7,7 +7,7 @@ Uploaders: Benjamin Drung <bdrung@debian.org>,
 Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Build-Depends: dctrl-tools,
-               debhelper (>= 7.0.50~),
+               debhelper (>= 9),
                devscripts (>= 2.11.0~),
                distro-info (>= 0.2~),
                libwww-perl,
