@@ -1,7 +1,8 @@
 ubuntu-dev-tools (0.151) UNRELEASED; urgency=low
 
   * Since Britney migration was introduced in Ubuntu, automatic syncing is
-    always done from unstable.
+    always done from unstable. Adjust requstsync & syncpackage to always
+    default to unstable.
 
  -- Dmitrijs Ledkovs <xnox@ubuntu.com>  Tue, 22 Oct 2013 17:02:41 +0100
 

@@ -45,11 +45,6 @@ from ubuntutools.question import confirmation_prompt, EditBugReport
 def main():
     ubu_info = UbuntuDistroInfo()
     DEFAULT_SOURCE = 'unstable'
-    try:
-        if ubu_info.is_lts(ubu_info.devel()):
-            DEFAULT_SOURCE = 'testing'
-    except DistroDataOutdated, e:
-        print >> sys.stderr, str(e)
 
     # Our usage options.
     usage = ('Usage: %prog [options] '
