@@ -31,7 +31,7 @@ import os
 import sys
 
 from debian.changelog import Version
-from distro_info import UbuntuDistroInfo, DistroDataOutdated
+from distro_info import UbuntuDistroInfo
 
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.lp import udtexceptions
@@ -43,16 +43,13 @@ from ubuntutools.question import confirmation_prompt, EditBugReport
 #
 
 def main():
-    ubu_info = UbuntuDistroInfo()
-    DEFAULT_SOURCE = 'unstable'
-
     # Our usage options.
     usage = ('Usage: %prog [options] '
              '<source package> [<target release> [base version]]')
     parser = optparse.OptionParser(usage)
 
     parser.add_option('-d', type='string',
-                      dest='dist', default=DEFAULT_SOURCE,
+                      dest='dist', default='unstable',
                       help='Debian distribution to sync from.')
     parser.add_option('-k', type='string',
                       dest='keyid', default=None,
@@ -187,6 +184,7 @@ def main():
         if lpapi:
             release = Distribution('ubuntu').getDevelopmentSeries().name
         else:
+            ubu_info = UbuntuDistroInfo()
             release = ubu_info.devel()
         print >> sys.stderr, 'W: Target release missing - assuming %s' % release
     elif len(args) == 2:

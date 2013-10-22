@@ -30,7 +30,6 @@ import textwrap
 import urllib
 
 import debian.debian_support
-from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from lazr.restfulclient.errors import HTTPError
 
 from ubuntutools.archive import (DebianSourcePackage, UbuntuSourcePackage,
