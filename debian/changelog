@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.151) UNRELEASED; urgency=low
+
+  * Since Britney migration was introduced in Ubuntu, automatic syncing is
+    always done from unstable.
+
+ -- Dmitrijs Ledkovs <xnox@ubuntu.com>  Tue, 22 Oct 2013 17:02:41 +0100
+
 ubuntu-dev-tools (0.150) unstable; urgency=low
 
   [ Brian Murray ]
