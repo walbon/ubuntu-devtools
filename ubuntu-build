@@ -40,7 +40,7 @@ def main():
 
     # Valid architectures.
     valid_archs = set(["armel", "armhf", "arm64", "amd64", "hppa", "i386", "ia64",
-                       "lpia", "powerpc", "sparc"])
+                       "lpia", "powerpc", "ppc64el", "sparc"])
 
     # Prepare our option parser.
     opt_parser = OptionParser(usage)

@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.152) UNRELEASED; urgency=medium
+
+  * Add ppc64el to valid architectures in pbuilder-dist and ubuntu-build.
+  * Simplify mirror detection in mk-sbuild, all supported releases, all
+    architectures but i386/amd64 are on ports.ubuntu.com
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Fri, 20 Dec 2013 15:00:08 +0000
+
 ubuntu-dev-tools (0.151) unstable; urgency=low
 
   [ Dmitrijs Ledkovs ]

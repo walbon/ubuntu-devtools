@@ -428,15 +428,8 @@ ubuntu)
         amd64 | i386)
             DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
             ;;
-        armhf | armel | arm64 | hppa | ia64 | lpia | sparc)
+        *)
             DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
-            ;;
-        powerpc)
-            if [ "$RELEASE" != "dapper" ]; then
-                DEBOOTSTRAP_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
-            else
-                DEBOOTSTRAP_MIRROR="http://archive.ubuntu.com/ubuntu"
-            fi
             ;;
         esac
     fi
@@ -454,15 +447,8 @@ ubuntu)
         amd64 | i386)
             SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
             ;;
-        armhf | armel | arm64 | hppa | ia64 | lpia | sparc)
+        *)
             SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
-            ;;
-        powerpc)
-            if [ "$RELEASE" != "dapper" ]; then
-                SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
-            else
-                SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
-            fi
             ;;
         esac
     fi
@@ -474,7 +460,7 @@ ubuntu)
             TARGET_MIRROR="http://archive.ubuntu.com/ubuntu"
             TARGET_SOURCES_SECURITY_URL="http://security.ubuntu.com/ubuntu"
             ;;
-        armhf | armel | arm64 | hppa | ia64 | lpia | powerpc | sparc)
+        *)
             TARGET_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
             TARGET_SOURCES_SECURITY_URL="http://ports.ubuntu.com/ubuntu-ports"
             ;;
