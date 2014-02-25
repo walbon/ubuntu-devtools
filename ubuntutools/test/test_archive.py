@@ -57,7 +57,7 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
         self.assertTrue(self.dsc.verify_file(
             'test-data/example_1.0.orig.tar.gz'))
         self.assertTrue(self.dsc.verify_file(
-            'test-data/example_1.0-1.debian.tar.gz'))
+            'test-data/example_1.0-1.debian.tar.xz'))
 
     def test_missing(self):
         self.assertFalse(self.dsc.verify_file(
@@ -151,7 +151,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
     def test_workdir_srcpkg_noinfo(self):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
-        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+        shutil.copy2('test-data/example_1.0-1.debian.tar.xz', self.workdir)
 
         pkg = self.SourcePackage(dscfile=os.path.join(self.workdir,
                                                       'example_1.0-1.dsc'),
@@ -162,7 +162,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
     def test_workdir_srcpkg_info(self):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
-        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
+        shutil.copy2('test-data/example_1.0-1.debian.tar.xz', self.workdir)
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile=os.path.join(self.workdir,
@@ -174,8 +174,8 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
     def test_verification(self):
         shutil.copy2('test-data/example_1.0-1.dsc', self.workdir)
         shutil.copy2('test-data/example_1.0.orig.tar.gz', self.workdir)
-        shutil.copy2('test-data/example_1.0-1.debian.tar.gz', self.workdir)
-        with open(os.path.join(self.workdir, 'example_1.0-1.debian.tar.gz'),
+        shutil.copy2('test-data/example_1.0-1.debian.tar.xz', self.workdir)
+        with open(os.path.join(self.workdir, 'example_1.0-1.debian.tar.xz'),
                   'r+b') as f:
             f.write('CORRUPTION')
 
@@ -195,7 +195,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
         url_opener.open(mirror + urlbase + 'example_1.0.orig.tar.gz'
                        ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.gz'
+        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.xz'
                        ).WithSideEffects(self.urlopen_proxy)
         self.mox.ReplayAll()
 
@@ -219,7 +219,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
                        ).WithSideEffects(self.urlopen_404)
         url_opener.open(lpbase + 'example_1.0.orig.tar.gz'
                        ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.gz'
+        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.xz'
                        ).WithSideEffects(self.urlopen_proxy)
         self.mox.ReplayAll()
 
@@ -273,7 +273,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         url_opener.open('http://snapshot.debian.org/file/hashabc'
                        ).WithSideEffects(self.urlopen_file(
                            'example_1.0.orig.tar.gz'))
-        url_opener.open(debian_mirror + base + 'example_1.0-1.debian.tar.gz'
+        url_opener.open(debian_mirror + base + 'example_1.0-1.debian.tar.xz'
                        ).WithSideEffects(self.urlopen_proxy)
         self.mox.ReplayAll()
 
@@ -297,7 +297,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
         url_opener.open(mirror + base + 'example_1.0.orig.tar.gz'
                        ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + base + 'example_1.0-1.debian.tar.gz'
+        url_opener.open(mirror + base + 'example_1.0-1.debian.tar.xz'
                        ).WithSideEffects(self.urlopen_proxy)
 
         def fake_gpg_info(self, message, keyrings=None):

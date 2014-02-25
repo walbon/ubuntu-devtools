@@ -1,3 +1,16 @@
+ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
+
+  * Thanks for the NMU, Paul.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 25 Feb 2014 22:45:05 +0200
+
+ubuntu-dev-tools (0.152+nmu1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Change debian.tar.gz to debian.tar.xz (Closes: #738413)
+
+ -- Paul Tagliamonte <paultag@debian.org>  Mon, 24 Feb 2014 22:34:22 -0500
+
 ubuntu-dev-tools (0.152) unstable; urgency=medium
 
   [ Dimitri John Ledkov ]
