@@ -1,8 +1,13 @@
 ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
 
+  [ Stefano Rivera ]
   * Thanks for the NMU, Paul.
   * Explicitly use xz compression when building source packages, rather than
     relying on dpkg >= 1.16.5 behavior.
+
+  [ Robie Basak ]
+  * check-mir: correctly parse dependencies with architecture specifications
+    (LP: #1149679).
 
  -- Stefano Rivera <stefanor@debian.org>  Tue, 25 Feb 2014 22:45:05 +0200
 
