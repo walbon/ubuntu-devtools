@@ -106,7 +106,8 @@ def check_binary_dependencies(apt_cache, control):
         for field in ('Depends', 'Pre-Depends', 'Recommends'):
             if field not in control.section:
                 continue
-            for or_group in apt.apt_pkg.parse_src_depends(control.section[field]):
+            for or_group in apt.apt_pkg.parse_src_depends(
+                    control.section[field]):
                 pkgname = or_group[0][0]
                 if pkgname.startswith('$'):
                     continue
