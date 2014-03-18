@@ -21,6 +21,8 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+
 import sys
 import optparse
 import os.path
@@ -42,7 +44,7 @@ def check_support(apt_cache, pkgname, alt=False):
     try:
         pkg = apt_cache[pkgname]
     except KeyError:
-        print >> sys.stderr, prefix, 'does not exist (pure virtual?)'
+        print(prefix, 'does not exist (pure virtual?)', file=sys.stderr)
         return False
 
     section = pkg.candidate.section
@@ -51,30 +53,31 @@ def check_support(apt_cache, pkgname, alt=False):
         # promotion
         source_records = apt.apt_pkg.SourceRecords()
         if not source_records.lookup(pkg.candidate.source_name):
-            print >> sys.stderr, 'ERROR: Cannot lookup source package for', \
-                                 pkg.name
-            print prefix, 'package is in', section.split('/')[0]
+            print('ERROR: Cannot lookup source package for', pkg.name,
+                  file=sys.stderr)
+            print(prefix, 'package is in', section.split('/')[0])
             return False
         src = apt.apt_pkg.TagSection(source_records.record)
         if (src['Section'].startswith('universe') or
-            src['Section'].startswith('multiverse')):
-            print prefix, 'binary and source package is in', \
-                  section.split('/')[0]
+                src['Section'].startswith('multiverse')):
+            print(prefix, 'binary and source package is in',
+                  section.split('/')[0])
             return False
         else:
-            print prefix, 'is in', section.split('/')[0] + ', but its source', \
-                  pkg.candidate.source_name, \
-                  ('is already in main; file an ubuntu-archive bug for '
-                   'promoting the current preferred alternative')
+            print(prefix, 'is in', section.split('/')[0] + ', but its source',
+                  pkg.candidate.source_name,
+                  'is already in main; file an ubuntu-archive bug for '
+                  'promoting the current preferred alternative')
             return True
 
     if alt:
-        print prefix, 'is already in main; consider preferring it'
+        print(prefix, 'is already in main; consider preferring it')
 
     return True
 
+
 def check_build_dependencies(apt_cache, control):
-    print 'Checking support status of build dependencies...'
+    print('Checking support status of build dependencies...')
 
     any_unsupported = False
 
@@ -93,10 +96,11 @@ def check_build_dependencies(apt_cache, control):
 
     return any_unsupported
 
+
 def check_binary_dependencies(apt_cache, control):
     any_unsupported = False
 
-    print '\nChecking support status of binary dependencies...'
+    print('\nChecking support status of binary dependencies...')
     while True:
         try:
             control.next()
@@ -121,6 +125,7 @@ def check_binary_dependencies(apt_cache, control):
 
     return any_unsupported
 
+
 def main():
     description = "Check if any of a package's build or binary " + \
                   "dependencies are in universe or multiverse. " + \
@@ -130,8 +135,8 @@ def main():
     apt_cache = apt.Cache()
 
     if not os.path.exists('debian/control'):
-        print >> sys.stderr, ('debian/control not found. You need to run '
-                              'this tool in a source package directory')
+        print('debian/control not found. You need to run this tool in a '
+              'source package directory', file=sys.stderr)
         sys.exit(1)
 
     # get build dependencies from debian/control
@@ -142,11 +147,11 @@ def main():
     unsupported_binary_deps = check_binary_dependencies(apt_cache, control)
 
     if unsupported_build_deps or unsupported_binary_deps:
-        print ('\nPlease check https://wiki.ubuntu.com/MainInclusionProcess if '
-               'this source package needs to get into in main/restricted, or '
-               'reconsider if the package really needs above dependencies.')
+        print('\nPlease check https://wiki.ubuntu.com/MainInclusionProcess if '
+              'this source package needs to get into in main/restricted, or '
+              'reconsider if the package really needs above dependencies.')
     else:
-        print 'All dependencies are supported in main or restricted.'
+        print('All dependencies are supported in main or restricted.')
 
 if __name__ == '__main__':
     main()
