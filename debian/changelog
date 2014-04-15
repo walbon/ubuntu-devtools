@@ -1,7 +1,7 @@
 ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
 
   [ Stefano Rivera ]
-  * Thanks for the NMU, Paul.
+  * Acknowledge NMU. Thanks to Paul.
   * Explicitly use xz compression when building source packages, rather than
     relying on dpkg >= 1.16.5 behavior.
 
