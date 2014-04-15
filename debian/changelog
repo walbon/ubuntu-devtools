@@ -12,6 +12,8 @@ ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
   [ Benjamin Drung ]
   * pbuilder-dist:
     - Set different aptcache directories for Debian and Ubuntu.
+    - Store build logs in <source>_<version>_<arch>.build instead of
+      last_operation.log (to avoid overwriting build logs).
 
  -- Stefano Rivera <stefanor@debian.org>  Tue, 25 Feb 2014 22:45:05 +0200
 

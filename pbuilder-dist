@@ -32,9 +32,11 @@
 import os
 import sys
 
+import debian.deb822
 from distro_info import DebianDistroInfo, UbuntuDistroInfo, DistroDataOutdated
 
 import ubuntutools.misc
+import ubuntutools.version
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 from ubuntutools.question import YesNoQuestion
@@ -196,15 +198,25 @@ class PbuilderDist(object):
 
         prefix = os.path.join(self.base, self.chroot_string)
         if '--buildresult' not in remaining_arguments:
-            result = '%s_result/' % prefix
+            result = os.path.normpath('%s_result/' % prefix)
         else:
             location_of_arg = remaining_arguments.index('--buildresult')
-            result = remaining_arguments[location_of_arg+1]
+            result = os.path.normpath(remaining_arguments[location_of_arg+1])
             remaining_arguments.pop(location_of_arg+1)
             remaining_arguments.pop(location_of_arg)
 
         if not self.logfile and self.operation != 'login':
-            self.logfile = os.path.normpath('%s/last_operation.log' % result)
+            if self.operation == 'build':
+                dsc_files = [a for a in remaining_arguments
+                             if a.strip().endswith('.dsc')]
+                assert len(dsc_files) == 1
+                dsc = debian.deb822.Dsc(open(dsc_files[0]))
+                version = ubuntutools.version.Version(dsc['Version'])
+                name = (dsc['Source'] + '_' + version.strip_epoch() + '_' +
+                        self.build_architecture + '.build')
+                self.logfile = os.path.join(result, name)
+            else:
+                self.logfile = os.path.join(result, 'last_operation.log')
 
         if not os.path.isdir(result):
             try:
@@ -471,9 +483,11 @@ def main():
     # Parse the operation
     args = app.set_operation(args.pop(0)) + args
 
-    if app.operation == 'build' and '.dsc' not in ' '.join(args):
-        Logger.error('You have to specify a .dsc file if you want to build.')
-        sys.exit(1)
+    if app.operation == 'build':
+        if len([a for a in args if a.strip().endswith('.dsc')]) != 1:
+            msg = 'You have to specify one .dsc file if you want to build.'
+            Logger.error(msg)
+            sys.exit(1)
 
     # Execute the pbuilder command
     if not '--debug-echo' in args:
