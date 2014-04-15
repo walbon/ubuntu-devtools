@@ -287,6 +287,8 @@ class PbuilderDist(object):
             if self.enable_proposed:
                 othermirrors.append('deb %s %s-proposed-updates %s'
                                     % (mirror, self.target_distro, components))
+
+            aptcache = os.path.join(self.base, 'aptcache', 'debian')
         else:
             try:
                 dev_release = self.target_distro == UbuntuDistroInfo().devel()
@@ -307,6 +309,8 @@ class PbuilderDist(object):
             if self.enable_proposed:
                 othermirrors.append('deb %s %s-proposed %s'
                                     % (mirror, self.target_distro, components))
+
+            aptcache = os.path.join(self.base, 'aptcache', 'ubuntu')
 
         if 'OTHERMIRROR' in os.environ:
             othermirrors += os.environ['OTHERMIRROR'].split('|')
@@ -336,7 +340,14 @@ class PbuilderDist(object):
                 '--keyring=/usr/share/keyrings/debian-archive-keyring.gpg',
             ]
 
-        arguments += ['--components', components]
+        arguments += ['--aptcache', aptcache, '--components', components]
+
+        if not os.path.isdir(aptcache):
+            try:
+                os.makedirs(aptcache)
+            except OSError:
+                Logger.error('Cannot create aptcache directory "%s"', aptcache)
+                sys.exit(1)
 
         if self.build_architecture != self.system_architecture:
             arguments += ['--debootstrapopts',
