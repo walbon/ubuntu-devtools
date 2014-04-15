@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.153) unstable; urgency=medium
 
   [ Stefano Rivera ]
   * Acknowledge NMU. Thanks to Paul.
@@ -15,7 +15,7 @@ ubuntu-dev-tools (0.153) UNRELEASED; urgency=medium
     - Store build logs in <source>_<version>_<arch>.build instead of
       last_operation.log (to avoid overwriting build logs).
 
- -- Stefano Rivera <stefanor@debian.org>  Tue, 25 Feb 2014 22:45:05 +0200
+ -- Benjamin Drung <bdrung@debian.org>  Tue, 15 Apr 2014 13:17:12 +0200
 
 ubuntu-dev-tools (0.152+nmu1) unstable; urgency=medium
 
