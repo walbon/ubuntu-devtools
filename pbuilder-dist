@@ -147,7 +147,7 @@ class PbuilderDist(object):
                     question = ('Warning: Unknown distribution "%s". '
                                 'Do you want to continue' % distro)
                     answer = YesNoQuestion().ask(question, 'no')
-                    if answer == 'yes':
+                    if answer == 'no':
                         sys.exit(0)
             else:
                 Logger.error('Please install package "debootstrap".')
