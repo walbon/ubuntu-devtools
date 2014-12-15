@@ -90,16 +90,21 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         super(LocalSourcePackageTestCase, self).setUp()
         self.workdir = tempfile.mkdtemp(prefix='udt-test')
 
-        self.mox.StubOutWithMock(ubuntutools.archive, 'Distribution')
-        self.mox.StubOutWithMock(ubuntutools.archive, 'rmadison')
+        self._stubout('ubuntutools.archive.Distribution')
+        self._stubout('ubuntutools.archive.rmadison')
 
         self.real_http = httplib2.Http()
         self.mox.StubOutWithMock(httplib2, 'Http')
         self.mock_http = self.mox.CreateMock(httplib2.Http)
 
         # Silence the tests a little:
-        self.mox.stubs.Set(Logger, 'stdout', StringIO.StringIO())
-        self.mox.stubs.Set(Logger, 'stderr', StringIO.StringIO())
+        self._stubout('ubuntutools.logger.Logger.stdout')
+        self._stubout('ubuntutools.logger.Logger.stderr')        
+
+    def _stubout(self, stub):
+        patcher = mock.patch(stub)
+        self.addCleanup(patcher.stop)
+        patcher.start()
 
     def tearDown(self):
         super(LocalSourcePackageTestCase, self).tearDown()
