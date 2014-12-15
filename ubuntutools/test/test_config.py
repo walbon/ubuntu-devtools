@@ -51,7 +51,7 @@ class ConfigTestCase(unittest.TestCase):
         m.side_effect = self._fake_open
         patcher = mock.patch('__builtin__.open', m)
         self.addCleanup(patcher.stop)
-        self.MockOpen = self.patcher.start()
+        patcher.start()
         
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()

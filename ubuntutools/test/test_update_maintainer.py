@@ -220,11 +220,11 @@ class UpdateMaintainerTestCase(unittest.TestCase):
         m.side_effect = self._fake_open
         patcher = mock.patch('__builtin__.open', m)
         self.addCleanup(patcher.stop)
-        self.MockOpen = patcher.start()
+        patcher.start()
         m = mock.MagicMock(side_effect=self._fake_isfile)
         patcher = mock.patch('os.path.isfile', m)
         self.addCleanup(patcher.stop)
-        self.MockIsfile = patcher.start()
+        patcher.start()
         self._files["rules"] = StringIO.StringIO(_SIMPLE_RULES)
         Logger.stdout = StringIO.StringIO()
         Logger.stderr = StringIO.StringIO()
