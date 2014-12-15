@@ -20,12 +20,14 @@ import __builtin__
 import os.path
 import shutil
 import StringIO
+from io import BytesIO
 import tempfile
 import types
 import urllib2
 
 import debian.deb822
 import httplib2
+import mock
 import mox
 
 import ubuntutools.archive
@@ -44,14 +46,10 @@ def setUpModule():
         ex_pkg.cleanup()
 
 
-class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
+class DscVerificationTestCase(unittest.TestCase):
     def setUp(self):
-        super(DscVerificationTestCase, self).setUp()
         with open('test-data/example_1.0-1.dsc', 'rb') as f:
             self.dsc = ubuntutools.archive.Dsc(f.read())
-
-    def tearDown(self):
-        super(DscVerificationTestCase, self).tearDown()
 
     def test_good(self):
         self.assertTrue(self.dsc.verify_file(
@@ -68,10 +66,10 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
         with open(fn, 'rb') as f:
             data = f.read()
         data = data[:-1] + chr(ord(data[-1]) ^ 8)
-        self.mox.StubOutWithMock(__builtin__, 'open')
-        open(fn, 'rb').AndReturn(StringIO.StringIO(data))
-        self.mox.ReplayAll()
-        self.assertFalse(self.dsc.verify_file(fn))
+        m = mock.MagicMock(name='open', spec=open)
+        m.return_value = BytesIO(data)
+        with mock.patch('__builtin__.open', m):
+            self.assertFalse(self.dsc.verify_file(fn))
 
     def test_sha1(self):
         del self.dsc['Checksums-Sha256']

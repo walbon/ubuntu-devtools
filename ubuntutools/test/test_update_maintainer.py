@@ -21,7 +21,7 @@ import os
 import StringIO
 import sys
 
-import mox
+import mock
 
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
@@ -186,7 +186,7 @@ Package: seahorse-plugins
 """
 
 #pylint: disable=R0904
-class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
+class UpdateMaintainerTestCase(unittest.TestCase):
     """TestCase object for ubuntutools.update_maintainer"""
 
     _directory = "/"
@@ -216,9 +216,15 @@ class UpdateMaintainerTestCase(mox.MoxTestBase, unittest.TestCase):
 
     #pylint: disable=C0103
     def setUp(self):
-        super(UpdateMaintainerTestCase, self).setUp()
-        self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
-        self.mox.stubs.Set(os.path, 'isfile', self._fake_isfile)
+        m = mock.mock_open()
+        m.side_effect = self._fake_open
+        patcher = mock.patch('__builtin__.open', m)
+        self.addCleanup(patcher.stop)
+        self.MockOpen = patcher.start()
+        m = mock.MagicMock(side_effect=self._fake_isfile)
+        patcher = mock.patch('os.path.isfile', m)
+        self.addCleanup(patcher.stop)
+        self.MockIsfile = patcher.start()
         self._files["rules"] = StringIO.StringIO(_SIMPLE_RULES)
         Logger.stdout = StringIO.StringIO()
         Logger.stderr = StringIO.StringIO()

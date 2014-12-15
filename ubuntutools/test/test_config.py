@@ -19,15 +19,16 @@ import __builtin__
 import os
 import sys
 import locale
+from io import BytesIO
 from StringIO import StringIO
 
-import mox
+import mock
 
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
-class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
+class ConfigTestCase(unittest.TestCase):
     _config_files = {
         'system': '',
         'user': '',
@@ -42,11 +43,16 @@ class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
         }
         if filename not in files:
             raise IOError("No such file or directory: '%s'" % filename)
-        return StringIO(files[filename])
+        return BytesIO(files[filename])
 
     def setUp(self):
         super(ConfigTestCase, self).setUp()
-        self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
+        m = mock.mock_open()
+        m.side_effect = self._fake_open
+        patcher = mock.patch('__builtin__.open', m)
+        self.addCleanup(patcher.stop)
+        self.MockOpen = self.patcher.start()
+        
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()
 
