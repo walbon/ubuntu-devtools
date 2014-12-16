@@ -19,7 +19,6 @@ Build-Depends: dctrl-tools,
                python-distro-info (>= 0.4~),
                python-httplib2,
                python-launchpadlib (>= 1.5.7),
-               python-mox,
                python-setuptools,
                python-soappy,
                python-unittest2
