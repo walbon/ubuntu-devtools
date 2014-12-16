@@ -27,14 +27,23 @@ Approach:
 3. Verify checksums.
 """
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 import hashlib
 import os.path
-import urllib2
-import urlparse
+try:
+    from urllib.request import ProxyHandler, build_opener, urlopen
+    from urllib.parse import urlparse
+    from urllib.error import URLError, HTTPError
+except ImportError:
+    from urllib2 import ProxyHandler, build_opener, urlopen
+    from urlparse import urlparse
+    from urllib2 import URLError, HTTPError
 import re
 import sys
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str    
 
 from debian.changelog import Changelog, Version
 import debian.deb822
@@ -102,7 +111,7 @@ class Dsc(debian.deb822.Dsc):
             their_checksums = \
                 dict((entry['name'], (int(entry['size']), entry[key]))
                      for entry in other[field])
-            for name, (size, checksum) in our_checksums.iteritems():
+            for name, (size, checksum) in our_checksums.items():
                 if name not in their_checksums:
                     # file only in one dsc
                     continue
@@ -154,8 +163,8 @@ class SourcePackage(object):
         self.version = debian.debian_support.Version(version)
 
         # uses default proxies from the environment
-        proxy = urllib2.ProxyHandler()
-        self.url_opener = urllib2.build_opener(proxy)
+        proxy = ProxyHandler()
+        self.url_opener = build_opener(proxy)
 
     @property
     def lp_spph(self):
@@ -231,10 +240,10 @@ class SourcePackage(object):
     def pull_dsc(self):
         "Retrieve dscfile and parse"
         if self._dsc_source:
-            parsed = urlparse.urlparse(self._dsc_source)
+            parsed = urlparse(self._dsc_source)
             if parsed.scheme == '':
                 self._dsc_source = 'file://' + os.path.abspath(self._dsc_source)
-                parsed = urlparse.urlparse(self._dsc_source)
+                parsed = urlparse(self._dsc_source)
             url = self._dsc_source
         else:
             url = self._lp_url(self.dsc_name)
@@ -244,14 +253,14 @@ class SourcePackage(object):
 
     def _download_dsc(self, url):
         "Download specified dscfile and parse"
-        parsed = urlparse.urlparse(url)
+        parsed = urlparse(url)
         if parsed.scheme == 'file':
             with open(parsed.path, 'r') as f:
                 body = f.read()
         else:
             try:
                 response, body = httplib2.Http().request(url)
-            except httplib2.HttpLib2Error, e:
+            except httplib2.HttpLib2Error as e:
                 raise DownloadError(e)
             if response.status != 200:
                 raise DownloadError("%s: %s %s" % (url, response.status,
@@ -312,7 +321,7 @@ class SourcePackage(object):
                 if entry['name'] == filename]
         assert len(size) == 1
         size = int(size[0])
-        parsed = urlparse.urlparse(url)
+        parsed = urlparse(url)
         if not self.quiet:
             Logger.normal('Downloading %s from %s (%0.3f MiB)',
                           filename, parsed.hostname, size / 1024.0 / 1024)
@@ -322,7 +331,7 @@ class SourcePackage(object):
         else:
             try:
                 in_ = self.url_opener.open(url)
-            except urllib2.URLError:
+            except URLError:
                 return False
 
         downloaded = 0
@@ -360,9 +369,9 @@ class SourcePackage(object):
                 try:
                     if self._download_file(url, name):
                         break
-                except urllib2.HTTPError, e:
+                except HTTPError as e:
                     Logger.normal('HTTP Error %i: %s', e.code, str(e))
-                except urllib2.URLError, e:
+                except URLError as e:
                     Logger.normal('URL Error: %s', e.reason)
             else:
                 raise DownloadError('File %s could not be found' % name)
@@ -457,7 +466,7 @@ class DebianSourcePackage(SourcePackage):
         wrapped_iterator = super(DebianSourcePackage, self)._source_urls(name)
         while True:
             try:
-                yield wrapped_iterator.next()
+                yield next(wrapped_iterator)
             except StopIteration:
                 break
         if self.snapshot_list:
@@ -503,7 +512,7 @@ class DebianSourcePackage(SourcePackage):
                     'http://snapshot.debian.org'
                     '/mr/package/%s/%s/srcfiles?fileinfo=1'
                         % (self.source, self.version.full_version)))
-            except urllib2.HTTPError:
+            except HTTPError:
                 Logger.error('Version %s of %s not found on '
                              'snapshot.debian.org',
                              self.version.full_version, self.source)
@@ -511,7 +520,7 @@ class DebianSourcePackage(SourcePackage):
                 return False
             self._snapshot_list = dict((info[0]['name'], hash_)
                                        for hash_, info
-                                       in srcfiles['fileinfo'].iteritems())
+                                       in srcfiles['fileinfo'].items())
         return self._snapshot_list
 
     def _snapshot_url(self, name):
@@ -569,9 +578,9 @@ class FakeSPPH(object):
                                self.name + '_' + pkgversion,
                                'changelog' + extension)
             try:
-                self._changelog = urllib2.urlopen(url).read()
-            except urllib2.HTTPError, error:
-                print >> sys.stderr, ('%s: %s' % (url, error))
+                self._changelog = urlopen(url).read()
+            except HTTPError as error:
+                print(('%s: %s' % (url, error)), file=sys.stderr)
                 return None
 
         if since_version is None:
