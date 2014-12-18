@@ -30,10 +30,10 @@ import tempfile
 import types
 try:
     from urllib.request import OpenerDirector, urlopen
-    from urllib.error import HTTPError
+    from urllib.error import HTTPError, URLError
 except ImportError:
     from urllib2 import OpenerDirector, urlopen
-    from urllib2 import HTTPError
+    from urllib2 import HTTPError, URLError
 import debian.deb822
 import httplib2
 import sys
@@ -317,4 +317,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
-        self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
+        try:
+            self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
+        except URLError:
+            raise unittest.SkipTest('Test needs addr resolution to work')
