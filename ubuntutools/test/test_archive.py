@@ -14,17 +14,26 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from __future__ import with_statement
 
-import __builtin__
+try:
+    import builtins
+except ImportError:
+    import __builtin__
 import os.path
 import shutil
-import StringIO
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 from io import BytesIO
 import tempfile
 import types
-import urllib2
-
+try:
+    from urllib.request import OpenerDirector, urlopen
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import OpenerDirector, urlopen
+    from urllib2 import HTTPError
 import debian.deb822
 import httplib2
 import mock
@@ -94,7 +103,7 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         self.mock_http = self._stubout('httplib2.Http.request')
         self.mock_http.side_effect = self.request_proxy
 
-        self.url_opener = mock.MagicMock(spec=urllib2.OpenerDirector)
+        self.url_opener = mock.MagicMock(spec=OpenerDirector)
         self.url_opener.open.side_effect = self.urlopen_proxy
 
         # Silence the tests a little:
@@ -114,7 +123,7 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         if destname is None:
             destname = os.path.basename(url)
         destpath = os.path.join(os.path.abspath('test-data'), destname)
-        return urllib2.urlopen('file://' + destpath)
+        return urlopen('file://' + destpath)
 
     def urlopen_file(self, filename):
         "Wrapper for urlopen_proxy for named files"
@@ -122,11 +131,11 @@ class LocalSourcePackageTestCase(unittest.TestCase):
 
     def urlopen_null(self, url):
         "urlopen for zero length files"
-        return StringIO.StringIO('')
+        return StringIO('')
 
     def urlopen_404(self, url):
         "urlopen for errors"
-        raise urllib2.HTTPError(url, 404, "Not Found", {}, None)
+        raise HTTPError(url, 404, "Not Found", {}, None)
 
     def request_proxy(self, url, destname=None):
         "httplib2 proxy for grabbing the file from test-data"
@@ -212,7 +221,7 @@ class LocalSourcePackageTestCase(unittest.TestCase):
                     self.urlopen_proxy]
         def _callable_iter(*args, **kwargs):
             return sequence.pop(0)(*args, **kwargs)
-        url_opener = mock.MagicMock(spec=urllib2.OpenerDirector)
+        url_opener = mock.MagicMock(spec=OpenerDirector)
         url_opener.open.side_effect = _callable_iter
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
@@ -249,7 +258,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
                     self.urlopen_proxy]
         def _callable_iter(*args, **kwargs):
             return sequence.pop(0)(*args, **kwargs)
-        url_opener = mock.MagicMock(spec=urllib2.OpenerDirector)
+        url_opener = mock.MagicMock(spec=OpenerDirector)
         url_opener.open.side_effect = _callable_iter
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
