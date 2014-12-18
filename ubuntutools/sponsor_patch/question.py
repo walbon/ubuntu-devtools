@@ -15,6 +15,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
+
 import sys
 
 from ubuntutools.question import Question, YesNoQuestion
@@ -43,5 +45,5 @@ def ask_for_manual_fixing():
 def user_abort():
     """Print abort and quit the program."""
 
-    print "User abort."
+    print("User abort.")
     sys.exit(2)
