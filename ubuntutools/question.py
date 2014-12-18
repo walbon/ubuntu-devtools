@@ -16,10 +16,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
+
 import tempfile
 import os
 import re
 import sys
+if sys.version_info[0] < 3:
+    input = raw_input
+
 
 import ubuntutools.subprocess
 
@@ -56,9 +61,9 @@ class Question(object):
         selected = None
         while selected not in self.options:
             try:
-                selected = raw_input(question).strip().lower()
+                selected = input(question).strip().lower()
             except (EOFError, KeyboardInterrupt):
-                print '\nAborting as requested.'
+                print('\nAborting as requested.')
                 sys.exit(1)
             if selected == "":
                 selected = default
@@ -68,8 +73,8 @@ class Question(object):
                     if selected == option[0]:
                         selected = option
             if selected not in self.options:
-                print "Please answer the question with " + \
-                      self.get_options() + "."
+                print("Please answer the question with " + \
+                      self.get_options() + ".")
         return selected
 
 
@@ -86,9 +91,9 @@ def input_number(question, min_number, max_number, default=None):
     selected = None
     while selected < min_number or selected > max_number:
         try:
-            selected = raw_input(question).strip()
+            selected = input(question).strip()
         except (EOFError, KeyboardInterrupt):
-            print '\nAborting as requested.'
+            print('\nAborting as requested.')
             sys.exit(1)
         if default and selected == "":
             selected = default
@@ -96,10 +101,10 @@ def input_number(question, min_number, max_number, default=None):
             try:
                 selected = int(selected)
                 if selected < min_number or selected > max_number:
-                    print "Please input a number between %i and %i." % \
-                          (min_number, max_number)
+                    print("Please input a number between %i and %i." % \
+                          (min_number, max_number))
             except ValueError:
-                print "Please input a number."
+                print("Please input a number.")
     assert type(selected) == int
     return selected
 
@@ -113,9 +118,9 @@ def confirmation_prompt(message=None, action=None):
             action = 'continue'
         message = 'Press [Enter] to %s. Press [Ctrl-C] to abort now.' % action
     try:
-        raw_input(message)
+        input(message)
     except (EOFError, KeyboardInterrupt):
-        print '\nAborting as requested.'
+        print('\nAborting as requested.')
         sys.exit(1)
 
 
@@ -129,9 +134,9 @@ class EditFile(object):
 
     def edit(self, optional=False):
         if optional:
-            print "\n\nCurrently the %s looks like:" % self.description
+            print("\n\nCurrently the %s looks like:" % self.description)
             with open(self.filename, 'r') as f:
-                print f.read()
+                print(f.read())
             if YesNoQuestion().ask("Edit", "no") == "no":
                 return
 
@@ -150,12 +155,12 @@ class EditFile(object):
                                 placeholders_present = True
 
             if placeholders_present:
-                print ("Placeholders still present in the %s. "
-                       "Please replace them with useful information."
-                       % self.description)
+                print("Placeholders still present in the %s. "
+                      "Please replace them with useful information."
+                      % self.description)
                 confirmation_prompt(action='edit again')
             elif not modified:
-                print "The %s was not modified" % self.description
+                print("The %s was not modified" % self.description)
                 if YesNoQuestion().ask("Edit again", "yes") == "no":
                     done = True
             elif self.check_edit():
@@ -189,8 +194,8 @@ class EditBugReport(EditFile):
             report = f.read().decode('utf-8')
 
         if self.split_re.match(report) is None:
-            print ("The %s doesn't start with 'Summary:' and 'Description:' "
-                   "blocks" % self.description)
+            print("The %s doesn't start with 'Summary:' and 'Description:' "
+                  "blocks" % self.description)
             confirmation_prompt('edit again')
             return False
         return True
