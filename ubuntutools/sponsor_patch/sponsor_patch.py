@@ -17,13 +17,13 @@
 
 from __future__ import print_function
 
-if sys.version_info[0] < 3:
-    range = xrange
-
 import os
 import pwd
 import shutil
 import sys
+
+if sys.version_info[0] < 3:
+    range = xrange
 
 from distro_info import UbuntuDistroInfo
 
