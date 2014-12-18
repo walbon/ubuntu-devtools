@@ -23,7 +23,10 @@ import os
 import sys
 import locale
 from io import BytesIO
-from io import StringIO
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 
 import mock
 
