@@ -90,7 +90,7 @@ class Dsc(debian.deb822.Dsc):
             f = open(pathname, 'rb')
             while True:
                 buf = f.read(hash_func.block_size)
-                if buf == '':
+                if buf == b'':
                     break
                 hash_func.update(buf)
             f.close()
@@ -327,7 +327,7 @@ class SourcePackage(object):
                           filename, parsed.hostname, size / 1024.0 / 1024)
 
         if parsed.scheme == 'file':
-            in_ = open(parsed.path, 'r')
+            in_ = open(parsed.path, 'rb')
         else:
             try:
                 in_ = self.url_opener.open(url)
@@ -340,10 +340,10 @@ class SourcePackage(object):
             with open(pathname, 'wb') as out:
                 while True:
                     block = in_.read(10240)
-                    if block == '':
+                    if block == b'':
                         break
                     downloaded += len(block)
-                    out.write(block)
+                    out.write(block)                    
                     if not self.quiet:
                         percent = downloaded * 100 // size
                         bar = '=' * int(round(downloaded * bar_width / size))
