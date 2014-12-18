@@ -22,6 +22,8 @@
 #
 # ##################################################################
 
+from __future__ import print_function
+
 # Modules.
 import locale
 import os
@@ -66,8 +68,8 @@ def system_distribution_chain():
                     break
                 _system_distribution_chain.append(parent)
             except Exception:
-                print ('Error: Could not determine the parent of the '
-                       'distribution %s' % _system_distribution_chain[-1])
+                print(('Error: Could not determine the parent of the '
+                       'distribution %s' % _system_distribution_chain[-1]))
                 return []
 
     return _system_distribution_chain
@@ -92,8 +94,8 @@ def host_architecture():
                  stderr=PIPE).communicate()[0].split()
 
     if not arch or 'not found' in arch[0]:
-        print 'Error: Not running on a Debian based system; could not ' \
-            'detect its architecture.'
+        print('Error: Not running on a Debian based system; could not ' \
+            'detect its architecture.')
         return None
 
     return arch[0]
@@ -106,13 +108,13 @@ def readlist(filename, uniq=True):
     """
 
     if not os.path.isfile(filename):
-        print 'File "%s" does not exist.' % filename
+        print('File "%s" does not exist.' % filename)
         return False
 
     content = open(filename).read().replace('\n', ' ').replace(',', ' ')
 
     if not content.strip():
-        print 'File "%s" is empty.' % filename
+        print('File "%s" is empty.' % filename)
         return False
 
     items = [item for item in content.split() if item]
@@ -149,8 +151,8 @@ def split_release_pocket(release, default='Release'):
 def require_utf8():
     '''Can be called by programs that only function in UTF-8 locales'''
     if locale.getpreferredencoding() != 'UTF-8':
-        print >> sys.stderr, ("This program only functions in a UTF-8 locale. "
-                              "Aborting.")
+        print(("This program only functions in a UTF-8 locale. "
+                              "Aborting."), file=sys.stderr)
         sys.exit(1)
 
 
