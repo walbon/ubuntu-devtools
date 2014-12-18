@@ -308,7 +308,7 @@ class SourcePackage(object):
         "Write dsc file to workdir"
         if self._dsc is None:
             self.pull_dsc()
-        with open(self.dsc_pathname, 'w') as f:
+        with open(self.dsc_pathname, 'wb') as f:
             f.write(self.dsc.raw_text)
 
     def _download_file(self, url, filename):
