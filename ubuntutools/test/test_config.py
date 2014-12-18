@@ -22,7 +22,6 @@ except ImportError:
 import os
 import sys
 import locale
-from io import BytesIO
 try:
     from StringIO import StringIO
 except:
@@ -49,7 +48,7 @@ class ConfigTestCase(unittest.TestCase):
         }
         if filename not in files:
             raise IOError("No such file or directory: '%s'" % filename)
-        return BytesIO(files[filename])
+        return StringIO(files[filename])
 
     def setUp(self):
         super(ConfigTestCase, self).setUp()
@@ -57,7 +56,11 @@ class ConfigTestCase(unittest.TestCase):
             self.assertRegex = self.assertRegexpMatches
         m = mock.mock_open()
         m.side_effect = self._fake_open
-        patcher = mock.patch('__builtin__.open', m)
+        if sys.version_info[0] >= 3:
+            target = 'builtins.open'
+        else:
+            target = '__builtin__.open'
+        patcher = mock.patch(target, m)
         self.addCleanup(patcher.stop)
         patcher.start()
         
@@ -77,7 +80,7 @@ class ConfigTestCase(unittest.TestCase):
     def clean_environment(self):
         self._config_files['system'] = ''
         self._config_files['user'] = ''
-        for k in os.environ.keys():
+        for k in list(os.environ.keys()):
             if k.startswith(('UBUNTUTOOLS_', 'TEST_')):
                 del os.environ[k]
 
@@ -231,7 +234,11 @@ class UbuEmailTestCase(unittest.TestCase):
         encoding = locale.getdefaultlocale()[1]
         if not encoding:
             encoding = 'utf-8'
-        name = 'Jöe Déveloper'.decode('utf-8')
-        os.environ['DEBFULLNAME'] = name.encode(encoding)
+        name = 'Jöe Déveloper'
+        env_name = name
+        if isinstance(name, bytes):
+            name = 'Jöe Déveloper'.decode('utf-8')
+            env_name = name.encode(encoding)
+        os.environ['DEBFULLNAME'] = env_name
         os.environ['DEBEMAIL']    = email = 'joe@example.net'
         self.assertEqual(ubu_email(), (name, email))
