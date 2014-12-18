@@ -48,6 +48,7 @@ if sys.version_info[0] >= 3:
 from debian.changelog import Changelog, Version
 import debian.deb822
 import debian.debian_support
+import codecs
 import httplib2
 
 from ubuntutools.config import UDTConfig
@@ -508,10 +509,13 @@ class DebianSourcePackage(SourcePackage):
                                     "python-simplejson")
 
             try:
-                srcfiles = json.load(self.url_opener.open(
+                data = self.url_opener.open(
                     'http://snapshot.debian.org'
                     '/mr/package/%s/%s/srcfiles?fileinfo=1'
-                        % (self.source, self.version.full_version)))
+                        % (self.source, self.version.full_version))
+                reader = codecs.getreader('utf-8')
+                srcfiles = json.load(reader(data))
+
             except HTTPError:
                 Logger.error('Version %s of %s not found on '
                              'snapshot.debian.org',

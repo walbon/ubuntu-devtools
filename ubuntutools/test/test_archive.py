@@ -226,7 +226,6 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         pkg.quiet = True
         pkg.pull()
 
-    @unittest.skipIf(sys.version_info[0] >=3, "Stalls on PY3")
     def test_mirrors(self):
         master = UDTConfig.defaults['UBUNTU_MIRROR']
         mirror = 'http://mirror'
@@ -256,7 +255,6 @@ class LocalSourcePackageTestCase(unittest.TestCase):
 class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
     SourcePackage = ubuntutools.archive.DebianSourcePackage
 
-    @unittest.skipIf(sys.version_info[0] >=3, "Stalls on PY3")
     def test_mirrors(self):
         debian_master = UDTConfig.defaults['DEBIAN_MIRROR']
         debsec_master = UDTConfig.defaults['DEBSEC_MIRROR']
@@ -271,7 +269,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
                     self.urlopen_404,
                     self.urlopen_404,
                     lambda x: BytesIO(
-                        '{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'),
+                        b'{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'),
                     self.urlopen_file('example_1.0.orig.tar.gz'),
                     self.urlopen_proxy]
         def _callable_iter(*args, **kwargs):
