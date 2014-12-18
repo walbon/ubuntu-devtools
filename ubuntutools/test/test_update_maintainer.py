@@ -16,9 +16,16 @@
 
 """Test suite for ubuntutools.update_maintainer"""
 
-import __builtin__
+try:
+    import builtins
+except ImportError:
+    import __builtin__
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+
 import os
-import StringIO
 import sys
 
 import mock
@@ -210,12 +217,14 @@ class UpdateMaintainerTestCase(unittest.TestCase):
             (mode == "r" and self._files[base] is None)):
             raise IOError("No such file or directory: '%s'" % filename)
         if mode == "w":
-            self._files[base] = StringIO.StringIO()
+            self._files[base] = StringIO()
             self._files[base].close = lambda: None
         return self._files[base]
 
     #pylint: disable=C0103
     def setUp(self):
+        if sys.version_info[0] < 3:
+            self.assertRegex = self.assertRegexpMatches
         m = mock.mock_open()
         m.side_effect = self._fake_open
         patcher = mock.patch('__builtin__.open', m)
@@ -225,9 +234,9 @@ class UpdateMaintainerTestCase(unittest.TestCase):
         patcher = mock.patch('os.path.isfile', m)
         self.addCleanup(patcher.stop)
         patcher.start()
-        self._files["rules"] = StringIO.StringIO(_SIMPLE_RULES)
-        Logger.stdout = StringIO.StringIO()
-        Logger.stderr = StringIO.StringIO()
+        self._files["rules"] = StringIO(_SIMPLE_RULES)
+        Logger.stdout = StringIO()
+        Logger.stderr = StringIO()
 
     def tearDown(self):
         self.assertEqual(Logger.stdout.getvalue(), '')
@@ -242,8 +251,8 @@ class UpdateMaintainerTestCase(unittest.TestCase):
     #pylint: enable=C0103
     def test_debian_package(self):
         """Test: Don't update Maintainer field if target is Debian."""
-        self._files["changelog"] = StringIO.StringIO(_UNSTABLE_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
+        self._files["changelog"] = StringIO(_UNSTABLE_CHANGELOG)
+        self._files["control"] = StringIO(_ABP_CONTROL)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_CONTROL)
 
@@ -252,52 +261,52 @@ class UpdateMaintainerTestCase(unittest.TestCase):
 
            The Maintainer field needs to be update even if
            XSBC-Original-Maintainer has an @ubuntu.com address."""
-        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_AXIS2C_CONTROL)
+        self._files["changelog"] = StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO(_AXIS2C_CONTROL)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _AXIS2C_UPDATED)
         warnings = Logger.stderr.getvalue().strip()
-        Logger.stderr = StringIO.StringIO()
+        Logger.stderr = StringIO()
         self.assertEqual(len(warnings.splitlines()), 1)
-        self.assertRegexpMatches(warnings, "Warning: Overwriting original "
+        self.assertRegex(warnings, "Warning: Overwriting original "
                                            "maintainer: Soren Hansen "
                                            "<soren@ubuntu.com>")
 
     def test_update_maintainer(self):
         """Test: Update Maintainer field."""
-        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
+        self._files["changelog"] = StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO(_ABP_CONTROL)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_UPDATED)
 
     def test_update_old_maintainer(self):
         """Test: Update old MOTU address."""
-        self._files["changelog"] = StringIO.StringIO(_UNSTABLE_CHANGELOG)
-        self._files["control.in"] = StringIO.StringIO(_ABP_OLD_MAINTAINER)
+        self._files["changelog"] = StringIO(_UNSTABLE_CHANGELOG)
+        self._files["control.in"] = StringIO(_ABP_OLD_MAINTAINER)
         update_maintainer(self._directory, True)
         self.assertEqual(self._files["control.in"].getvalue(), _ABP_UPDATED)
 
     def test_comments_in_control(self):
         """Test: Update Maintainer field in a control file containing
            comments."""
-        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_SEAHORSE_PLUGINS_CONTROL)
+        self._files["changelog"] = StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO(_SEAHORSE_PLUGINS_CONTROL)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(),
                          _SEAHORSE_PLUGINS_UPDATED)
 
     def test_skip_smart_rules(self):
         """Test: Skip update when XSBC-Original in debian/rules."""
-        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
-        self._files["rules"] = StringIO.StringIO(_COMPLEX_RULES)
+        self._files["changelog"] = StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO(_ABP_CONTROL)
+        self._files["rules"] = StringIO(_COMPLEX_RULES)
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_CONTROL)
 
     def test_missing_rules(self):
         """Test: Skip XSBC-Original test when debian/rules is missing."""
-        self._files["changelog"] = StringIO.StringIO(_LUCID_CHANGELOG)
-        self._files["control"] = StringIO.StringIO(_ABP_CONTROL)
+        self._files["changelog"] = StringIO(_LUCID_CHANGELOG)
+        self._files["control"] = StringIO(_ABP_CONTROL)
         self._files["rules"] = None
         update_maintainer(self._directory)
         self.assertEqual(self._files["control"].getvalue(), _ABP_UPDATED)
