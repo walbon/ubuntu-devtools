@@ -351,7 +351,7 @@ class SourcePackage(object):
 
         assert os.path.isfile(self._changes_file), "%s does not exist." % \
                (self._changes_file)
-        changes = debian.deb822.Changes(file(self._changes_file))
+        changes = debian.deb822.Changes(open(self._changes_file))
         fixed_bugs = []
         if "Launchpad-Bugs-Fixed" in changes:
             fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
@@ -393,7 +393,7 @@ class SourcePackage(object):
         # Check the changelog
         self._changelog = debian.changelog.Changelog()
         try:
-            self._changelog.parse_changelog(file("debian/changelog"),
+            self._changelog.parse_changelog(open("debian/changelog"),
                                             max_blocks=1, strict=True)
         except debian.changelog.ChangelogParseError as error:
             Logger.error("The changelog entry doesn't validate: %s", str(error))
