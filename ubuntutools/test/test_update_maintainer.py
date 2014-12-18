@@ -227,7 +227,11 @@ class UpdateMaintainerTestCase(unittest.TestCase):
             self.assertRegex = self.assertRegexpMatches
         m = mock.mock_open()
         m.side_effect = self._fake_open
-        patcher = mock.patch('__builtin__.open', m)
+        if sys.version_info[0] >= 3:
+            target = 'builtins.open'
+        else:
+            target = '__builtin__.open'
+        patcher = mock.patch(target, m)
         self.addCleanup(patcher.stop)
         patcher.start()
         m = mock.MagicMock(side_effect=self._fake_isfile)
