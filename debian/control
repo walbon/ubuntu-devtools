@@ -23,6 +23,7 @@ Build-Depends: dctrl-tools,
                python-setuptools,
                python-soappy,
                python-unittest2,
+               python-mock,
                python3-all,
                python3-apt,
                python3-debian,
@@ -30,6 +31,7 @@ Build-Depends: dctrl-tools,
                python3-httplib2,
                python3-launchpadlib,
                python3-setuptools,
+               python3-mock,
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.2
 Homepage: https://launchpad.net/ubuntu-dev-tools
