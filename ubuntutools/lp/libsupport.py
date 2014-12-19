@@ -19,8 +19,11 @@
 #
 
 # Modules.
-import urllib
-import urlparse
+try:
+    from urllib.parse import urlsplit, urlencode, urlunsplit
+except ImportError:
+    from urllib import urlencode
+    from urlparse import urlsplit, urlunsplit
 
 def query_to_dict(query_string):
     result = dict()
@@ -31,7 +34,7 @@ def query_to_dict(query_string):
     return result
 
 def translate_web_api(url, launchpad):
-    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    scheme, netloc, path, query, fragment = urlsplit(url)
     query = query_to_dict(query)
 
     differences = set(netloc.split('.')).symmetric_difference(
@@ -44,8 +47,8 @@ def translate_web_api(url, launchpad):
         if "ws.op" in query:
             raise ValueError("Invalid web url, url: %s" %url)
         query["ws.op"] = "searchTasks"
-    scheme, netloc, api_path, _, _ = urlparse.urlsplit(str(launchpad._root_uri))
-    query = urllib.urlencode(query)
-    url = urlparse.urlunsplit((scheme, netloc, api_path + path.lstrip("/"),
+    scheme, netloc, api_path, _, _ = urlsplit(str(launchpad._root_uri))
+    query = urlencode(query)
+    url = urlunsplit((scheme, netloc, api_path + path.lstrip("/"),
                                query, fragment))
     return url

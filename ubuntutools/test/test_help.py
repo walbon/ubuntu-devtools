@@ -45,6 +45,7 @@ class HelpTestCase(unittest.TestCase):
             null = open('/dev/null', 'r')
             process = subprocess.Popen(['./' + script, '--help'],
                                        close_fds=True, stdin=null,
+                                       universal_newlines=True,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             started = time.time()
@@ -57,7 +58,10 @@ class HelpTestCase(unittest.TestCase):
 
             while time.time() - started < TIMEOUT:
                 for fd in select.select(fds, [], fds, TIMEOUT)[0]:
-                    out.append(os.read(fd, 1024))
+                    output = os.read(fd, 1024)
+                    if not isinstance(output, str):
+                        output = output.decode('utf-8')
+                    out.append(output)
                 if process.poll() is not None:
                     break
 

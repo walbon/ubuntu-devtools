@@ -15,19 +15,25 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import __builtin__
+try:
+    import builtins
+except ImportError:
+    import __builtin__
 import os
 import sys
 import locale
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 
-import mox
+import mock
 
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
-class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
+class ConfigTestCase(unittest.TestCase):
     _config_files = {
         'system': '',
         'user': '',
@@ -46,7 +52,18 @@ class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
 
     def setUp(self):
         super(ConfigTestCase, self).setUp()
-        self.mox.stubs.Set(__builtin__, 'open', self._fake_open)
+        if sys.version_info[0] < 3:
+            self.assertRegex = self.assertRegexpMatches
+        m = mock.mock_open()
+        m.side_effect = self._fake_open
+        if sys.version_info[0] >= 3:
+            target = 'builtins.open'
+        else:
+            target = '__builtin__.open'
+        patcher = mock.patch(target, m)
+        self.addCleanup(patcher.stop)
+        patcher.start()
+        
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()
 
@@ -63,7 +80,7 @@ class ConfigTestCase(mox.MoxTestBase, unittest.TestCase):
     def clean_environment(self):
         self._config_files['system'] = ''
         self._config_files['user'] = ''
-        for k in os.environ.keys():
+        for k in list(os.environ.keys()):
             if k.startswith(('UBUNTUTOOLS_', 'TEST_')):
                 del os.environ[k]
 
@@ -97,8 +114,8 @@ REPEAT=yes
         errs = Logger.stderr.getvalue().strip()
         Logger.stderr = StringIO()
         self.assertEqual(len(errs.splitlines()), 1)
-        self.assertRegexpMatches(errs,
-                                r'Warning: Cannot parse.*\bCOMMAND_EXECUTION=a')
+        self.assertRegex(errs,
+                         r'Warning: Cannot parse.*\bCOMMAND_EXECUTION=a')
 
     def get_value(self, *args, **kwargs):
         config = UDTConfig(prefix='TEST')
@@ -137,8 +154,8 @@ REPEAT=yes
         errs = Logger.stderr.getvalue().strip()
         Logger.stderr = StringIO()
         self.assertEqual(len(errs.splitlines()), 1)
-        self.assertRegexpMatches(errs,
-                                 r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
+        self.assertRegex(errs,
+                         r'deprecated.*\bCOMPATFOOBAR\b.*\bTEST_QUX\b')
 
     def test_boolean(self):
         self._config_files['user'] = "TEST_BOOLEAN=yes"
@@ -150,7 +167,7 @@ REPEAT=yes
 
     def test_nonpackagewide(self):
         self._config_files['user'] = 'UBUNTUTOOLS_FOOBAR=a'
-        self.assertEquals(self.get_value('FOOBAR'), None)
+        self.assertEqual(self.get_value('FOOBAR'), None)
 
 
 class UbuEmailTestCase(unittest.TestCase):
@@ -217,7 +234,11 @@ class UbuEmailTestCase(unittest.TestCase):
         encoding = locale.getdefaultlocale()[1]
         if not encoding:
             encoding = 'utf-8'
-        name = 'Jöe Déveloper'.decode('utf-8')
-        os.environ['DEBFULLNAME'] = name.encode(encoding)
+        name = 'Jöe Déveloper'
+        env_name = name
+        if isinstance(name, bytes):
+            name = 'Jöe Déveloper'.decode('utf-8')
+            env_name = name.encode(encoding)
+        os.environ['DEBFULLNAME'] = env_name
         os.environ['DEBEMAIL']    = email = 'joe@example.net'
         self.assertEqual(ubu_email(), (name, email))

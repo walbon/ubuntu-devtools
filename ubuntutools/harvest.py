@@ -14,7 +14,12 @@
 import json
 import os.path
 import sys
-import urllib2
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen
+    from urllib2 import URLError
 
 from ubuntutools.logger import Logger
 
@@ -32,11 +37,11 @@ class Harvest(object):
 
     def _get_data(self):
         try:
-            sock = urllib2.urlopen(self.data_url)
+            sock = urlopen(self.data_url)
         except IOError:
             try:
-                urllib2.urlopen(BASE_URL)
-            except urllib2.URLError:
+                urlopen(BASE_URL)
+            except URLError:
                 Logger.error("Harvest is down.")
                 sys.exit(1)
             return None
@@ -45,9 +50,7 @@ class Harvest(object):
         return json.loads(response)
 
     def opportunity_summary(self):
-        l = []
-        for key in filter(lambda a: a != "total", self.data.keys()):
-            l += ["%s (%s)" % (key, self.data[key])]
+        l = ["%s (%s)" % (k,v) for (k,v) in self.data.items() if k != "total"]
         return ", ".join(l)
 
     def report(self):

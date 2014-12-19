@@ -20,6 +20,8 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
+from __future__ import print_function
+
 import re
 
 from debian.deb822 import Changes
@@ -39,7 +41,7 @@ def get_debian_srcpkg(name, release):
 
     try:
         release = DebianDistroInfo().codename(release, None, release)
-    except DistroDataOutdated, e:
+    except DistroDataOutdated as e:
         Logger.warn(e)
 
     return debian_archive.getSourcePackage(name, release)
@@ -71,11 +73,11 @@ def need_sponsorship(name, component, release):
     need_sponsor = not PersonTeam.me.canUploadPackage(archive, distroseries,
                                                       name, component)
     if need_sponsor:
-        print '''You are not able to upload this package directly to Ubuntu.
+        print('''You are not able to upload this package directly to Ubuntu.
 Your sync request shall require an approval by a member of the appropriate
 sponsorship team, who shall be subscribed to this bug report.
 This must be done before it can be processed by a member of the Ubuntu Archive
-team.'''
+team.''')
         confirmation_prompt()
 
     return need_sponsor
@@ -98,12 +100,12 @@ def check_existing_reports(srcpkg):
     for bug in pkg_bug_list:
         # check for Sync or sync and the package name
         if not bug.is_complete and 'ync %s' % srcpkg in bug.title:
-            print ('The following bug could be a possible duplicate sync bug '
-                   'on Launchpad:\n'
-                   ' * %s (%s)\n'
-                   'Please check the above URL to verify this before '
-                   'continuing.'
-                   % (bug.title, bug.web_link))
+            print('The following bug could be a possible duplicate sync bug '
+                  'on Launchpad:\n'
+                  ' * %s (%s)\n'
+                  'Please check the above URL to verify this before '
+                  'continuing.'
+                  % (bug.title, bug.web_link))
             confirmation_prompt()
 
 def get_ubuntu_delta_changelog(srcpkg):
@@ -127,7 +129,7 @@ def get_ubuntu_delta_changelog(srcpkg):
             break
         try:
             response, body = Http().request(changes_url)
-        except HttpLib2Error, e:
+        except HttpLib2Error as e:
             Logger.error(str(e))
             break
         if response.status != 200:
@@ -156,8 +158,8 @@ def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
     Use the LP API to file the sync request.
     '''
 
-    print ('The final report is:\nSummary: %s\nDescription:\n%s\n'
-           % (bugtitle, bugtext))
+    print('The final report is:\nSummary: %s\nDescription:\n%s\n'
+          % (bugtitle, bugtext))
     confirmation_prompt()
 
     if srcpkg:
@@ -181,5 +183,5 @@ def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
 
     bug.subscribe(person = PersonTeam(subscribe)())
 
-    print ('Sync request filed as bug #%i: %s'
-           % (bug.id, bug.web_link))
+    print('Sync request filed as bug #%i: %s'
+          % (bug.id, bug.web_link))

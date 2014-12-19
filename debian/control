@@ -8,6 +8,7 @@ Vcs-Bzr: lp:ubuntu-dev-tools
 Vcs-Browser: https://code.launchpad.net/~ubuntu-dev/ubuntu-dev-tools/trunk
 Build-Depends: dctrl-tools,
                debhelper (>= 9),
+               dh-python,
                devscripts (>= 2.11.0~),
                distro-info (>= 0.2~),
                libwww-perl,
@@ -19,11 +20,19 @@ Build-Depends: dctrl-tools,
                python-distro-info (>= 0.4~),
                python-httplib2,
                python-launchpadlib (>= 1.5.7),
-               python-mox,
                python-setuptools,
                python-soappy,
-               python-unittest2
+               python-unittest2,
+               python3-all,
+               python3-apt,
+               python3-debian,
+               python3-distro-info,
+               python3-httplib2,
+               python3-launchpadlib,
+               python3-setuptools,
+               python3-soappy,
 X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.2
 Homepage: https://launchpad.net/ubuntu-dev-tools
 Standards-Version: 3.9.5
 
@@ -114,3 +123,23 @@ Description: useful tools for Ubuntu developers
   - ubuntu-upload-permission - query / list the upload permissions for a
     package.
   - update-maintainer - script to update maintainer field in ubuntu packages.
+
+Package: python-ubuntutools
+Architecture: all
+Depends: ${python:Depends}
+Breaks: ubuntu-dev-tools (<< 0.154)
+Replaces: ubuntu-dev-tools (<< 0.154)
+Description: useful library of APIs for Ubuntu developer tools (Python 2)
+ This package ships a collection of APIs, helpers and wrappers used to
+ develop useful utiliteis for Ubuntu developers.
+ .
+ Python 2 variant.
+
+Package: python3-ubuntutools
+Architecture: all
+Depends: ${python3:Depends}
+Description: useful library of APIs for Ubuntu developer tools
+ This package ships a collection of APIs, helpers and wrappers used to
+ develop useful utiliteis for Ubuntu developers.
+ .
+ Python 3 variant.

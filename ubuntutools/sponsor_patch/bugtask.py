@@ -17,7 +17,11 @@
 
 import os
 import re
-import urllib
+try:
+    from urllib.parse import unquote
+    from urllib.request import urlretrieve
+except ImportError:
+    from urllib import unquote, urlretrieve
 
 import debian.debian_support
 import distro_info
@@ -63,7 +67,7 @@ class BugTask(object):
         source_files = self.get_source().sourceFileUrls()
         dsc_file = ""
         for url in source_files:
-            filename = urllib.unquote(os.path.basename(url))
+            filename = unquote(os.path.basename(url))
             Logger.info("Downloading %s..." % (filename))
             # HttpLib2 isn't suitable for large files (it reads into memory),
             # but we want its https certificate validation on the .dsc
@@ -75,7 +79,7 @@ class BugTask(object):
 
                 dsc_file = os.path.join(os.getcwd(), filename)
             else:
-                urllib.urlretrieve(url, filename)
+                urlretrieve(url, filename)
         assert os.path.isfile(dsc_file), "%s does not exist." % (dsc_file)
         return dsc_file
 

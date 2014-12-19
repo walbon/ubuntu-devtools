@@ -15,6 +15,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -301,7 +303,7 @@ class SourcePackage(object):
            bug title."""
 
         if not task.title_contains(self._version):
-            print "Bug #%i title: %s" % (bug_number, task.get_bug_title())
+            print("Bug #%i title: %s" % (bug_number, task.get_bug_title()))
             msg = "Is %s %s the version that should be synced" % (self._package,
                                                                   self._version)
             answer =  YesNoQuestion().ask(msg, "no")
@@ -349,7 +351,7 @@ class SourcePackage(object):
 
         assert os.path.isfile(self._changes_file), "%s does not exist." % \
                (self._changes_file)
-        changes = debian.deb822.Changes(file(self._changes_file))
+        changes = debian.deb822.Changes(open(self._changes_file))
         fixed_bugs = []
         if "Launchpad-Bugs-Fixed" in changes:
             fixed_bugs = changes["Launchpad-Bugs-Fixed"].split(" ")
@@ -370,16 +372,16 @@ class SourcePackage(object):
         """Print things that should be checked before uploading a package."""
 
         lintian_filename = self._run_lintian()
-        print "\nPlease check %s %s carefully:" % (self._package, self._version)
+        print("\nPlease check %s %s carefully:" % (self._package, self._version))
         if os.path.isfile(self._debdiff_filename):
-            print "file://" + self._debdiff_filename
-        print "file://" + lintian_filename
+            print("file://" + self._debdiff_filename)
+        print("file://" + lintian_filename)
         if self._build_log:
-            print "file://" + self._build_log
+            print("file://" + self._build_log)
 
         harvest = Harvest(self._package)
         if harvest.data:
-            print harvest.report()
+            print(harvest.report())
 
     def reload_changelog(self):
         """Reloads debian/changelog and updates the version.
@@ -391,9 +393,9 @@ class SourcePackage(object):
         # Check the changelog
         self._changelog = debian.changelog.Changelog()
         try:
-            self._changelog.parse_changelog(file("debian/changelog"),
+            self._changelog.parse_changelog(open("debian/changelog"),
                                             max_blocks=1, strict=True)
-        except debian.changelog.ChangelogParseError, error:
+        except debian.changelog.ChangelogParseError as error:
             Logger.error("The changelog entry doesn't validate: %s", str(error))
             ask_for_manual_fixing()
             return False

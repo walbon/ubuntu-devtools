@@ -14,19 +14,30 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-from __future__ import with_statement
 
-import __builtin__
+try:
+    import builtins
+except ImportError:
+    import __builtin__
 import os.path
 import shutil
-import StringIO
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+from io import BytesIO
 import tempfile
 import types
-import urllib2
-
+try:
+    from urllib.request import OpenerDirector, urlopen
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib2 import OpenerDirector, urlopen
+    from urllib2 import HTTPError, URLError
 import debian.deb822
 import httplib2
-import mox
+import sys
+import mock
 
 import ubuntutools.archive
 from ubuntutools.config import UDTConfig
@@ -44,14 +55,10 @@ def setUpModule():
         ex_pkg.cleanup()
 
 
-class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
+class DscVerificationTestCase(unittest.TestCase):
     def setUp(self):
-        super(DscVerificationTestCase, self).setUp()
         with open('test-data/example_1.0-1.dsc', 'rb') as f:
             self.dsc = ubuntutools.archive.Dsc(f.read())
-
-    def tearDown(self):
-        super(DscVerificationTestCase, self).tearDown()
 
     def test_good(self):
         self.assertTrue(self.dsc.verify_file(
@@ -67,11 +74,19 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
         fn = 'test-data/example_1.0.orig.tar.gz'
         with open(fn, 'rb') as f:
             data = f.read()
-        data = data[:-1] + chr(ord(data[-1]) ^ 8)
-        self.mox.StubOutWithMock(__builtin__, 'open')
-        open(fn, 'rb').AndReturn(StringIO.StringIO(data))
-        self.mox.ReplayAll()
-        self.assertFalse(self.dsc.verify_file(fn))
+        if sys.version_info[0] >= 3:
+            last_byte = chr(data[-1] ^ 8).encode()
+        else:
+            last_byte = chr(ord(data[-1]) ^ 8)
+        data = data[:-1] + last_byte
+        m = mock.MagicMock(name='open', spec=open)
+        m.return_value = BytesIO(data)
+        if sys.version_info[0] >= 3:
+            target = 'builtins.open'
+        else:
+            target = '__builtin__.open'
+        with mock.patch(target, m):
+            self.assertFalse(self.dsc.verify_file(fn))
 
     def test_sha1(self):
         del self.dsc['Checksums-Sha256']
@@ -85,26 +100,31 @@ class DscVerificationTestCase(mox.MoxTestBase, unittest.TestCase):
         self.test_bad()
 
 
-class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
+class LocalSourcePackageTestCase(unittest.TestCase):
     SourcePackage = ubuntutools.archive.UbuntuSourcePackage
 
     def setUp(self):
-        super(LocalSourcePackageTestCase, self).setUp()
         self.workdir = tempfile.mkdtemp(prefix='udt-test')
 
-        self.mox.StubOutWithMock(ubuntutools.archive, 'Distribution')
-        self.mox.StubOutWithMock(ubuntutools.archive, 'rmadison')
+        self._stubout('ubuntutools.archive.Distribution')
+        self._stubout('ubuntutools.archive.rmadison')
 
-        self.real_http = httplib2.Http()
-        self.mox.StubOutWithMock(httplib2, 'Http')
-        self.mock_http = self.mox.CreateMock(httplib2.Http)
+        self.mock_http = self._stubout('httplib2.Http.request')
+        self.mock_http.side_effect = self.request_proxy
+
+        self.url_opener = mock.MagicMock(spec=OpenerDirector)
+        self.url_opener.open.side_effect = self.urlopen_proxy
 
         # Silence the tests a little:
-        self.mox.stubs.Set(Logger, 'stdout', StringIO.StringIO())
-        self.mox.stubs.Set(Logger, 'stderr', StringIO.StringIO())
+        self._stubout('ubuntutools.logger.Logger.stdout')
+        self._stubout('ubuntutools.logger.Logger.stderr')        
+
+    def _stubout(self, stub):
+        patcher = mock.patch(stub)
+        self.addCleanup(patcher.stop)
+        return patcher.start()
 
     def tearDown(self):
-        super(LocalSourcePackageTestCase, self).tearDown()
         shutil.rmtree(self.workdir)
 
     def urlopen_proxy(self, url, destname=None):
@@ -112,7 +132,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         if destname is None:
             destname = os.path.basename(url)
         destpath = os.path.join(os.path.abspath('test-data'), destname)
-        return urllib2.urlopen('file://' + destpath)
+        return urlopen('file://' + destpath)
 
     def urlopen_file(self, filename):
         "Wrapper for urlopen_proxy for named files"
@@ -120,11 +140,11 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
 
     def urlopen_null(self, url):
         "urlopen for zero length files"
-        return StringIO.StringIO('')
+        return BytesIO(b'')
 
     def urlopen_404(self, url):
         "urlopen for errors"
-        raise urllib2.HTTPError(url, 404, "Not Found", {}, None)
+        raise HTTPError(url, 404, "Not Found", {}, None)
 
     def request_proxy(self, url, destname=None):
         "httplib2 proxy for grabbing the file from test-data"
@@ -132,7 +152,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
             destname = os.path.basename(url)
         destpath = os.path.join(os.path.abspath('test-data'), destname)
         response = httplib2.Response({})
-        with open(destpath, 'r') as f:
+        with open(destpath, 'rb') as f:
             body = f.read()
         return response, body
 
@@ -141,10 +161,17 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         response = httplib2.Response({'status': 404})
         return response, "I'm a 404 Error"
 
+    def request_404_then_proxy(self, url, destname=None):
+        "mock side_effect callable to chain request 404 & proxy"
+        if self.mock_http.called:
+            return self.request_proxy(url, destname)
+        return self.request_404(url)
+
     def test_local_copy(self):
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
+        pkg.quiet = True
         pkg.pull()
         pkg.unpack()
 
@@ -156,6 +183,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         pkg = self.SourcePackage(dscfile=os.path.join(self.workdir,
                                                       'example_1.0-1.dsc'),
                                  workdir=self.workdir)
+        pkg.quiet = True
         pkg.pull()
         pkg.unpack()
 
@@ -168,6 +196,7 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
                                  dscfile=os.path.join(self.workdir,
                                                       'example_1.0-1.dsc'),
                                  workdir=self.workdir)
+        pkg.quiet = True
         pkg.pull()
         pkg.unpack()
 
@@ -177,31 +206,24 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         shutil.copy2('test-data/example_1.0-1.debian.tar.xz', self.workdir)
         with open(os.path.join(self.workdir, 'example_1.0-1.debian.tar.xz'),
                   'r+b') as f:
-            f.write('CORRUPTION')
+            f.write(b'CORRUPTION')
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
+        pkg.quiet = True        
         pkg.pull()
 
     def test_pull(self):
         dist = self.SourcePackage.distribution
         mirror = UDTConfig.defaults['%s_MIRROR' % dist.upper()]
         urlbase = '/pool/main/e/example/'
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request('https://launchpad.net/%s/+archive/primary/'
-                               '+files/example_1.0-1.dsc' % dist
-                              ).WithSideEffects(self.request_proxy)
-        url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
-        url_opener.open(mirror + urlbase + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.xz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        self.mox.ReplayAll()
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir)
-        pkg.url_opener = url_opener
+
+        pkg.url_opener = self.url_opener
+        pkg.quiet = True
         pkg.pull()
 
     def test_mirrors(self):
@@ -209,34 +231,24 @@ class LocalSourcePackageTestCase(mox.MoxTestBase, unittest.TestCase):
         mirror = 'http://mirror'
         lpbase = 'https://launchpad.net/ubuntu/+archive/primary/+files/'
         urlbase = '/pool/main/e/example/'
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(lpbase + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_proxy)
-        url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
-        url_opener.open(mirror + urlbase + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_null)
-        url_opener.open(master + urlbase + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_404)
-        url_opener.open(lpbase + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + urlbase + 'example_1.0-1.debian.tar.xz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        self.mox.ReplayAll()
+        sequence = [self.urlopen_null, self.urlopen_404, self.urlopen_proxy,
+                    self.urlopen_proxy]
+        def _callable_iter(*args, **kwargs):
+            return sequence.pop(0)(*args, **kwargs)
+        url_opener = mock.MagicMock(spec=OpenerDirector)
+        url_opener.open.side_effect = _callable_iter
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
         pkg.url_opener = url_opener
+        pkg.quiet = True        
         pkg.pull()
 
     def test_dsc_missing(self):
-        lpbase = 'https://launchpad.net/ubuntu/+archive/primary/+files/'
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(lpbase + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_404)
-        self.mox.ReplayAll()
-
+        self.mock_http.side_effect = self.request_404
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir)
+        pkg.quiet = True        
         self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
 
 
@@ -251,35 +263,24 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
         base = '/pool/main/e/example/'
 
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(lpbase + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_proxy)
-        url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
-        url_opener.open(debian_mirror + base + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_null)
-        url_opener.open(debsec_mirror + base + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_404)
-        url_opener.open(debian_master + base + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_404)
-        url_opener.open(debsec_master + base + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_404)
-        url_opener.open(lpbase + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_404)
-        url_opener.open('http://snapshot.debian.org/mr/package/example/1.0-1/'
-                        'srcfiles?fileinfo=1'
-                       ).WithSideEffects(lambda x: StringIO.StringIO(
-            '{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'
-            ))
-        url_opener.open('http://snapshot.debian.org/file/hashabc'
-                       ).WithSideEffects(self.urlopen_file(
-                           'example_1.0.orig.tar.gz'))
-        url_opener.open(debian_mirror + base + 'example_1.0-1.debian.tar.xz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        self.mox.ReplayAll()
+        sequence = [self.urlopen_null,
+                    self.urlopen_404,
+                    self.urlopen_404,
+                    self.urlopen_404,
+                    self.urlopen_404,
+                    lambda x: BytesIO(
+                        b'{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'),
+                    self.urlopen_file('example_1.0.orig.tar.gz'),
+                    self.urlopen_proxy]
+        def _callable_iter(*args, **kwargs):
+            return sequence.pop(0)(*args, **kwargs)
+        url_opener = mock.MagicMock(spec=OpenerDirector)
+        url_opener.open.side_effect = _callable_iter
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[debian_mirror,
                                                                 debsec_mirror])
+        pkg.quiet = True
         pkg.url_opener = url_opener
         pkg.pull()
         pkg.unpack()
@@ -288,61 +289,35 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
         mirror = 'http://mirror'
         lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
         base = '/pool/main/e/example/'
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(lpbase + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_404)
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(mirror + base + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_proxy)
-        url_opener = self.mox.CreateMock(urllib2.OpenerDirector)
-        url_opener.open(mirror + base + 'example_1.0.orig.tar.gz'
-                       ).WithSideEffects(self.urlopen_proxy)
-        url_opener.open(mirror + base + 'example_1.0-1.debian.tar.xz'
-                       ).WithSideEffects(self.urlopen_proxy)
+        self.mock_http.side_effect = self.request_404_then_proxy
 
-        def fake_gpg_info(self, message, keyrings=None):
-            return debian.deb822.GpgInfo.from_output(
-                    '[GNUPG:] GOODSIG DEADBEEF Joe Developer '
-                    '<joe@example.net>')
-        # We have to stub this out without mox because there some versions of
-        # python-debian will pass keyrings=None, others won't.
-        # http://code.google.com/p/pymox/issues/detail?id=37
-        self.mox.stubs.Set(debian.deb822.GpgInfo, 'from_sequence',
-                           types.MethodType(fake_gpg_info,
-                                            debian.deb822.GpgInfo,
-                                            debian.deb822.GpgInfo))
-
-        self.mox.ReplayAll()
+        patcher = mock.patch.object(debian.deb822.GpgInfo, 'from_sequence')
+        self.addCleanup(patcher.stop)
+        mock_gpg_info = patcher.start()
+        mock_gpg_info.return_value = debian.deb822.GpgInfo.from_output(
+            '[GNUPG:] GOODSIG DEADBEEF Joe Developer '
+            '<joe@example.net>')
 
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
-        pkg.url_opener = url_opener
+        pkg.url_opener = self.url_opener
         pkg.pull()
 
     def test_dsc_badsig(self):
         mirror = 'http://mirror'
         lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
         base = '/pool/main/e/example/'
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(lpbase + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_404)
-        httplib2.Http().AndReturn(self.mock_http)
-        self.mock_http.request(mirror + base + 'example_1.0-1.dsc'
-                              ).WithSideEffects(self.request_proxy)
+        self.mock_http.side_effect = self.request_404_then_proxy        
 
-        def fake_gpg_info(self, message, keyrings=None):
-            return debian.deb822.GpgInfo.from_output(
-                    '[GNUPG:] ERRSIG DEADBEEF')
-        # We have to stub this out without mox because there some versions of
-        # python-debian will pass keyrings=None, others won't.
-        # http://code.google.com/p/pymox/issues/detail?id=37
-        self.mox.stubs.Set(debian.deb822.GpgInfo, 'from_sequence',
-                           types.MethodType(fake_gpg_info,
-                                            debian.deb822.GpgInfo,
-                                            debian.deb822.GpgInfo))
-
-        self.mox.ReplayAll()
-
+        patcher = mock.patch.object(debian.deb822.GpgInfo, 'from_sequence')
+        self.addCleanup(patcher.stop)
+        mock_gpg_info = patcher.start()
+        mock_gpg_info.return_value = debian.deb822.GpgInfo.from_output(
+            '[GNUPG:] ERRSIG DEADBEEF')
+        
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
-        self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
+        try:
+            self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
+        except URLError:
+            raise unittest.SkipTest('Test needs addr resolution to work')
