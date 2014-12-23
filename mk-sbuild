@@ -57,6 +57,9 @@ function usage()
     echo "  --debootstrap-include=list Comma separated list of packages to include"
     echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
     echo "  --debootstrap-proxy=URL    Use PROXY as apt proxy"
+    echo "  --debootstrap-keyring=KEYRING"
+    echo "                             Use KEYRING to check signatures of retrieved Release files"
+    echo "  --debootstrap-no-check-gpg Disables checking gpg signatures of retrieved Release files"
     echo "  --eatmydata                Install and use eatmydata"
     echo "  --distro=DISTRO            Install specific distro:"
     echo "                                 'ubuntu' or 'debian' "
@@ -80,6 +83,8 @@ function usage()
     echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
     echo "  DEBOOTSTRAP_PROXY          Apt proxy (same as --debootstrap-proxy)"
+    echo "  DEBOOTSTRAP_KEYRING        GPG keyring (same as --debootstrap-keyring)"
+    echo "  DEBOOTSTRAP_NO_CHECK_GPG   Disable GPG verification (same as --debootstrap-no-check-gpg)"
     echo "  EATMYDATA                  Enable --eatmydata"
     echo "  TEMPLATE_SOURCES           A template for sources.list"
     echo "  TEMPLATE_SCHROOTCONF       A template for schroot.conf stanza"
@@ -93,13 +98,14 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,personality:,distro:,vg:,type:,target:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,debootstrap-no-check-gpg,debootstrap-keyring:,personality:,distro:,vg:,type:,target:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
 DISTRO=""
 name=""
 proxy="_unset_"
+DEBOOTSTRAP_NO_CHECK_GPG=0
 EATMYDATA=0
 
 while :; do
@@ -155,6 +161,15 @@ while :; do
         --debootstrap-proxy)
             proxy="$2"
             shift 2
+            ;;
+        --debootstrap-keyring)
+            # Store the absolute path because we cd to the root directory later.
+            DEBOOTSTRAP_KEYRING=$(readlink -f "$2")
+            shift 2
+            ;;
+        --debootstrap-no-check-gpg)
+            DEBOOTSTRAP_NO_CHECK_GPG=1
+            shift
             ;;
         --eatmydata)
             EATMYDATA=1
@@ -529,6 +544,12 @@ fi
 
 if [ -n "$DEBOOTSTRAP_EXCLUDE" ] ; then
     debootstrap_opts="$debootstrap_opts --exclude=$DEBOOTSTRAP_EXCLUDE"
+fi
+
+if [ $DEBOOTSTRAP_NO_CHECK_GPG -eq 1 ]; then
+    debootstrap_opts="$debootstrap_opts --no-check-gpg"
+elif [ -n "$DEBOOTSTRAP_KEYRING" ]; then
+    debootstrap_opts="$debootstrap_opts --keyring=$DEBOOTSTRAP_KEYRING"
 fi
 
 # if http_proxy is set in the environment (even empty) set 'proxy' to it

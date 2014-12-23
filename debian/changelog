@@ -7,6 +7,10 @@ ubuntu-dev-tools (0.154) UNRELEASED; urgency=medium
   * mk-sbuild: better message for cross build so that new start have 
     correct sbuild command from the last message of mk-sbuild.
 
+  [ Niklas Fiekas ]
+  * mk-sbuild: support debootstrap keyring and no-check-gpg
+    options. (Closes: 754327)
+
   [ Dimitri John Ledkov ]
   * Port ubuntutools module to python3.
 

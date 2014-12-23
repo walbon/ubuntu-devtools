@@ -55,6 +55,15 @@ Pass along a comma separated list of packages to debootstrap's
 \fBWARNING:\fR be careful using this option as you can end up
 excluding essential package. See \fBdebootstrap \fR(8) for more details.
 .TP
+.B \-\-debootstrap\-keyring\fR=\fIkeyring
+Pass along the path to a gpg keyring file to debootsrap's
+\fB\-\-keyring\fR argument. See \fBdebootstrap\fR (8) for more details.
+.TP
+.B \-\-debootstrap\-no\-check\-gpg
+Disable checking gpg signatures of downloaded Release files by using
+debootstrap's \fB\-\-no\-check\-gpg\fR option. See \fBdebootstrap\fR (8)
+for more details.
+.TP
 .B \-\-distro\fR=\fIDISTRO
 Enable distro-specific logic.
 When not provided, the distribution is determined from \fIrelease\fR.
@@ -102,6 +111,14 @@ Comma separated list of packages to include when bootstrapping (same as
 .B DEBOOTSTRAP_EXCLUDE
 Comma separated list of packages to exclude when bootstrapping (same as
 \fB\-\-debootstrap-exclude\fR; see warning above)
+.TP
+.B DEBOOTSTRAP_KEYRING
+Keyring file to use for checking gpg signatures of retrieved release files
+(same as \fB\-\-debootstrap\-keyring\fR)
+.TP
+.B DEBOOTSTRAP_NO_CHECK_GPG
+Disable gpg verification of retrieved release files (same as
+\fB\-\-debootstrap\-no\-check\-gpg\fR)
 .TP
 .B SOURCE_CHROOTS_DIR
 Use \fBSOURCE_CHROOTS_DIR\fR as home of schroot source directories.
