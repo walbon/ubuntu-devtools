@@ -25,9 +25,6 @@ WHITELIST = [re.compile(': %s$' % x) for x in (
     r"No name '\w+Error' in module 'launchpadlib\.errors'",
     # http://www.logilab.org/ticket/51250:
     r"Module 'hashlib' has no '(md5|sha(1|224|256|384|512))' member",
-    # mox:
-    r"Instance of '.+' has no '(WithSideEffects|MultipleTimes|AndReturn)' "
-    r"member",
     # pylint doesn't like *args/**kwargs
     r"Instance of 'Popen' has no '.*' member",
 )]

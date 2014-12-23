@@ -21,6 +21,7 @@ import re
 from ubuntutools import subprocess
 from ubuntutools.logger import Logger
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
+from functools import reduce
 
 class Patch(object):
     """This object represents a patch that can be downloaded from Launchpad."""

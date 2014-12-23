@@ -4,6 +4,7 @@ from setuptools import setup
 import glob
 import os
 import re
+import sys
 
 # look/set what version we have
 changelog = "debian/changelog"
@@ -13,7 +14,11 @@ if os.path.exists(changelog):
     if match:
         version = match.group(1)
 
-scripts = ['404main',
+if sys.version_info[0] >= 3:
+    scripts = []
+    data_files = []
+else:
+    scripts = ['404main',
            'backportpackage',
            'bitesize',
            'check-mir',
@@ -46,6 +51,12 @@ scripts = ['404main',
            'ubuntu-upload-permission',
            'update-maintainer',
           ]
+    data_files = [
+        ('/etc/bash_completion.d', glob.glob("bash_completion/*")),
+        ('share/man/man1', glob.glob("doc/*.1")),
+        ('share/man/man5', glob.glob("doc/*.5")),
+        ('share/ubuntu-dev-tools', ['enforced-editing-wrapper']),
+    ]        
 
 if __name__ == '__main__':
     setup(name='ubuntu-dev-tools',
@@ -57,11 +68,6 @@ if __name__ == '__main__':
                     'ubuntutools/sponsor_patch',
                     'ubuntutools/test',
                    ],
-          data_files=[('/etc/bash_completion.d',
-                       glob.glob("bash_completion/*")),
-                      ('share/man/man1', glob.glob("doc/*.1")),
-                      ('share/man/man5', glob.glob("doc/*.5")),
-                      ('share/ubuntu-dev-tools', ['enforced-editing-wrapper']),
-                     ],
+          data_files=data_files,
           test_suite='ubuntutools.test.discover',
     )

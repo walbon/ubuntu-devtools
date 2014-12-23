@@ -15,10 +15,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
+
 import os
 import pwd
 import shutil
 import sys
+
+if sys.version_info[0] < 3:
+    range = xrange
 
 from distro_info import UbuntuDistroInfo
 
@@ -81,11 +86,11 @@ def edit_source():
     # Spawn shell to allow modifications
     cmd = [get_user_shell()]
     Logger.command(cmd)
-    print """An interactive shell was launched in
+    print("""An interactive shell was launched in
 file://%s
 Edit your files. When you are done, exit the shell. If you wish to abort the
 process, exit the shell such that it returns an exit code other than zero.
-""" % (os.getcwd()),
+""" % (os.getcwd()), end=' ')
     returncode = subprocess.call(cmd)
     if returncode != 0:
         Logger.error("Shell exited with exit value %i." % (returncode))
@@ -113,10 +118,10 @@ def ask_for_patch_or_branch(bug, attached_patches, linked_branches):
     i = 0
     for linked_branch in linked_branches:
         i += 1
-        print "%i) %s" % (i, linked_branch.display_name)
+        print("%i) %s" % (i, linked_branch.display_name))
     for attached_patch in attached_patches:
         i += 1
-        print "%i) %s" % (i, attached_patch.title)
+        print("%i) %s" % (i, attached_patch.title))
     selected = input_number("Which branch or patch do you want to download",
                             1, i, i)
     if selected <= len(linked_branches):
@@ -220,9 +225,9 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
         else:
             Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
                           % (bug_id, len(ubuntu_tasks)))
-            for i in xrange(len(ubuntu_tasks)):
-                print "%i) %s" % (i + 1,
-                                  ubuntu_tasks[i].get_package_and_series())
+            for i in range(len(ubuntu_tasks)):
+                print("%i) %s" % (i + 1,
+                                  ubuntu_tasks[i].get_package_and_series()))
             selected = input_number("To which Ubuntu task does the patch belong",
                                     1, len(ubuntu_tasks))
             task = ubuntu_tasks[selected - 1]
@@ -235,7 +240,7 @@ def _create_and_change_into(workdir):
     if not os.path.isdir(workdir):
         try:
             os.makedirs(workdir)
-        except os.error, error:
+        except os.error as error:
             Logger.error("Failed to create the working directory %s [Errno " \
                          "%i]: %s." % (workdir, error.errno, error.strerror))
             sys.exit(1)
@@ -248,7 +253,7 @@ def _update_maintainer_field():
     Logger.command(["update-maintainer"])
     try:
         update_maintainer("debian", Logger.verbose)
-    except MaintainerUpdateException, e:
+    except MaintainerUpdateException as e:
         Logger.error("update-maintainer failed: %s", str(e))
         sys.exit(1)
 

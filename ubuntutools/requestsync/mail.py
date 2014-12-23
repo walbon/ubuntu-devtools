@@ -20,12 +20,18 @@
 #   Please see the /usr/share/common-licenses/GPL-2 file for the full text
 #   of the GNU General Public License license.
 
+from __future__ import print_function
+
 import os
 import re
 import sys
 import smtplib
 import socket
 import tempfile
+
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str    
 
 from debian.changelog import Changelog, Version
 from distro_info import DebianDistroInfo, DistroDataOutdated
@@ -51,7 +57,7 @@ def _get_srcpkg(distro, name, release):
         debian_info = DebianDistroInfo()
         try:
             release = debian_info.codename(release, default=release)
-        except DistroDataOutdated, e:
+        except DistroDataOutdated as e:
             Logger.warn(e)
 
     lines = list(rmadison(distro, name, suite=release, arch='source'))
@@ -86,9 +92,9 @@ def check_existing_reports(srcpkg):
     '''
     Point the user to the URL to manually check for duplicate bug reports.
     '''
-    print ('Please check on '
-           'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
-           'for duplicate sync requests before continuing.' % srcpkg)
+    print('Please check on '
+          'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
+          'for duplicate sync requests before continuing.' % srcpkg)
     confirmation_prompt()
 
 def get_ubuntu_delta_changelog(srcpkg):
@@ -164,7 +170,7 @@ Content-Type: text/plain; charset=UTF-8
 
 %s''' % (myemailaddr, to, bugtitle, signed_report)
 
-    print 'The final report is:\n%s' % mail
+    print('The final report is:\n%s' % mail)
     confirmation_prompt()
 
     # save mail in temporary file
@@ -184,11 +190,11 @@ Content-Type: text/plain; charset=UTF-8
                           mailserver_port)
             s = smtplib.SMTP(mailserver_host, mailserver_port)
             break
-        except socket.error, s:
+        except socket.error as s:
             Logger.error('Could not connect to %s:%s: %s (%i)',
                          mailserver_host, mailserver_port, s[1], s[0])
             return
-        except smtplib.SMTPConnectError, s:
+        except smtplib.SMTPConnectError as s:
             Logger.error('Could not connect to %s:%s: %s (%i)',
                          mailserver_host, mailserver_port, s[1], s[0])
             if s.smtp_code == 421:
@@ -215,7 +221,7 @@ Content-Type: text/plain; charset=UTF-8
             os.remove(backup.name)
             Logger.normal('Sync request mailed.')
             break
-        except smtplib.SMTPRecipientsRefused, smtperror:
+        except smtplib.SMTPRecipientsRefused as smtperror:
             smtp_code, smtp_message = smtperror.recipients[to]
             Logger.error('Error while sending: %i, %s', smtp_code, smtp_message)
             if smtp_code == 450:
@@ -223,7 +229,7 @@ Content-Type: text/plain; charset=UTF-8
                           '[Enter] to retry. Press [Ctrl-C] to abort now.')
             else:
                 return
-        except smtplib.SMTPResponseException, e:
+        except smtplib.SMTPResponseException as e:
             Logger.error('Error while sending: %i, %s',
                          e.smtp_code, e.smtp_error)
             return

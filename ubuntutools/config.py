@@ -179,6 +179,6 @@ def ubu_email(name=None, email=None, export=True):
     encoding = locale.getdefaultlocale()[1]
     if not encoding:
         encoding = 'utf-8'
-    if name:
+    if name and isinstance(name, bytes):
         name = name.decode(encoding)
     return name, email

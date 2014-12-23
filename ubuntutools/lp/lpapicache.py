@@ -21,11 +21,33 @@
 #
 #   Based on code written by Jonathan Davies <jpds@ubuntu.com>
 
+from __future__ import print_function
+
 # Uncomment for tracing LP API calls
 #import httplib2
 #httplib2.debuglevel = 1
 
 import sys
+
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str
+
+#Shameless steal from python-six
+def add_metaclass(metaclass):
+    """Class decorator for creating a class with a metaclass."""
+    def wrapper(cls):
+        orig_vars = cls.__dict__.copy()
+        slots = orig_vars.get('__slots__')
+        if slots is not None:
+            if isinstance(slots, str):
+                slots = [slots]
+            for slots_var in slots:
+                orig_vars.pop(slots_var)
+        orig_vars.pop('__dict__', None)
+        orig_vars.pop('__weakref__', None)
+        return metaclass(cls.__name__, cls.__bases__, orig_vars)
+    return wrapper
 
 from debian.changelog import Changelog, Version
 from httplib2 import Http, HttpLib2Error
@@ -39,6 +61,7 @@ from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
                                           PackageNotFoundException,
                                           PocketDoesNotExistError,
                                           SeriesNotFoundException)
+import collections
 
 __all__ = [
     'Archive',
@@ -64,8 +87,8 @@ class _Launchpad(object):
             try:
                 self.__lp = LP.login_with('ubuntu-dev-tools', service,
                                           version=api_version)
-            except IOError, error:
-                print >> sys.stderr, 'E: %s' % error
+            except IOError as error:
+                print('E: %s' % error, file=sys.stderr)
                 raise
         else:
             raise AlreadyLoggedInError('Already logged in to Launchpad.')
@@ -112,11 +135,11 @@ class MetaWrapper(type):
         cls._cache = dict()
 
 
+@add_metaclass(MetaWrapper)
 class BaseWrapper(object):
     '''
     A base class from which other wrapper classes are derived.
     '''
-    __metaclass__ = MetaWrapper
     resource_type = None  # it's a base class after all
 
     def __new__(cls, data):
@@ -149,7 +172,7 @@ class BaseWrapper(object):
                     cls._cache[data.self_link] = cached
                     # add additional class specific caching (if available)
                     cache = getattr(cls, 'cache', None)
-                    if callable(cache):
+                    if isinstance(cache, collections.Callable):
                         cache(cached)
                 return cached
             else:
@@ -158,7 +181,7 @@ class BaseWrapper(object):
         else:
             # not a LP API representation, let the specific class handle it
             fetch = getattr(cls, 'fetch', None)
-            if callable(fetch):
+            if isinstance(fetch, collections.Callable):
                 return fetch(data)
             else:
                 raise NotImplementedError("Don't know how to fetch '%s' from LP"
@@ -502,19 +525,19 @@ class SourcePackagePublishingHistory(BaseWrapper):
         if self._changelog is None:
             url = self._lpobject.changelogUrl()
             if url is None:
-                print >> sys.stderr, ('E: No changelog available for %s %s',
+                print(('E: No changelog available for %s %s',
                                       (self.getPackageName(),
-                                       self.getVersion()))
+                                       self.getVersion())), file=sys.stderr)
                 return None
 
             try:
                 response, changelog = Http().request(url)
-            except HttpLib2Error, e:
-                print >> sys.stderr, str(e)
+            except HttpLib2Error as e:
+                print(str(e), file=sys.stderr)
                 return None
             if response.status != 200:
-                print >> sys.stderr, ('%s: %s %s' % (url, response.status,
-                                                     response.reason))
+                print(('%s: %s %s' % (url, response.status,
+                                                     response.reason)), file=sys.stderr)
                 return None
             self._changelog = changelog
 
@@ -627,7 +650,7 @@ class MetaPersonTeam(MetaWrapper):
         if '_me' not in cls.__dict__:
             try:
                 cls._me = PersonTeam(Launchpad.me)
-            except HTTPError, error:
+            except HTTPError as error:
                 if error.response.status == 401:
                     # Anonymous login
                     cls._me = None
@@ -636,11 +659,11 @@ class MetaPersonTeam(MetaWrapper):
         return cls._me
 
 
+@add_metaclass(MetaPersonTeam)
 class PersonTeam(BaseWrapper):
     '''
     Wrapper class around a LP person or team object.
     '''
-    __metaclass__ = MetaPersonTeam
 
     resource_type = (
             'person',
@@ -716,7 +739,7 @@ class PersonTeam(BaseWrapper):
                         sourcepackagename=package,
                         )
                 canUpload = True
-            except HTTPError, e:
+            except HTTPError as e:
                 if e.response.status == 403:
                     canUpload = False
                 else:

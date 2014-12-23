@@ -14,6 +14,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
+
 """This module is for updating the Maintainer field of an Ubuntu package."""
 
 import os
@@ -125,7 +127,7 @@ def _find_files(debian_directory, verbose):
     if os.path.isfile(rules_file) and \
        'XSBC-Original-' in open(rules_file).read():
         if verbose:
-            print "XSBC-Original is managed by 'rules' file. Doing nothing."
+            print("XSBC-Original is managed by 'rules' file. Doing nothing.")
         control_files = []
 
     return (changelog_file, control_files)
@@ -144,7 +146,7 @@ def update_maintainer(debian_directory, verbose=False):
     """
     try:
         changelog_file, control_files = _find_files(debian_directory, verbose)
-    except MaintainerUpdateException, e:
+    except MaintainerUpdateException as e:
         Logger.error(str(e))
         raise
 
@@ -159,8 +161,8 @@ def update_maintainer(debian_directory, verbose=False):
 
         if original_maintainer.strip().lower() in _PREVIOUS_UBUNTU_MAINTAINER:
             if verbose:
-                print "The old maintainer was: %s" % original_maintainer
-                print "Resetting as: %s" % _UBUNTU_MAINTAINER
+                print("The old maintainer was: %s" % original_maintainer)
+                print("Resetting as: %s" % _UBUNTU_MAINTAINER)
             control.set_maintainer(_UBUNTU_MAINTAINER)
             control.save()
             continue
@@ -173,7 +175,7 @@ def update_maintainer(debian_directory, verbose=False):
 
         if distribution in ("stable", "testing", "unstable", "experimental"):
             if verbose:
-                print "The package targets Debian. Doing nothing."
+                print("The package targets Debian. Doing nothing.")
             return
 
         if control.get_original_maintainer() is not None:
@@ -181,8 +183,8 @@ def update_maintainer(debian_directory, verbose=False):
                         control.get_original_maintainer())
 
         if verbose:
-            print "The original maintainer is: %s" % original_maintainer
-            print "Resetting as: %s" % _UBUNTU_MAINTAINER
+            print("The original maintainer is: %s" % original_maintainer)
+            print("Resetting as: %s" % _UBUNTU_MAINTAINER)
         control.set_original_maintainer(original_maintainer)
         control.set_maintainer(_UBUNTU_MAINTAINER)
         control.save()
@@ -194,7 +196,7 @@ def restore_maintainer(debian_directory, verbose=False):
     """Restore the original maintainer"""
     try:
         changelog_file, control_files = _find_files(debian_directory, verbose)
-    except MaintainerUpdateException, e:
+    except MaintainerUpdateException as e:
         Logger.error(str(e))
         raise
 
@@ -204,7 +206,7 @@ def restore_maintainer(debian_directory, verbose=False):
         if not orig_maintainer:
             continue
         if verbose:
-            print "Restoring original maintainer: %s" % orig_maintainer
+            print("Restoring original maintainer: %s" % orig_maintainer)
         control.set_maintainer(orig_maintainer)
         control.remove_original_maintainer()
         control.save()
