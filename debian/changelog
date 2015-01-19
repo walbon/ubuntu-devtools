@@ -2,8 +2,10 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
 
   * Fix python3 setup.py clean failing to read unicode from
     debian/changelog.
+  * Fix test_config to skip Unicode environment variable test, when python
+    interpreter is not running in an unicode capable locale.
 
- -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Sat, 17 Jan 2015 15:40:33 +0000
+ -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 
 ubuntu-dev-tools (0.154) experimental; urgency=medium
 

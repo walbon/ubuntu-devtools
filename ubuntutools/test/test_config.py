@@ -239,6 +239,9 @@ class UbuEmailTestCase(unittest.TestCase):
         if isinstance(name, bytes):
             name = 'Jöe Déveloper'.decode('utf-8')
             env_name = name.encode(encoding)
-        os.environ['DEBFULLNAME'] = env_name
+        try:
+            os.environ['DEBFULLNAME'] = env_name
+        except UnicodeEncodeError:
+            raise unittest.SkipTest("python interpreter is not running in an unicode capable locale")
         os.environ['DEBEMAIL']    = email = 'joe@example.net'
         self.assertEqual(ubu_email(), (name, email))
