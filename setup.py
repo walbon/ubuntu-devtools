@@ -5,11 +5,12 @@ import glob
 import os
 import re
 import sys
+import codecs
 
 # look/set what version we have
 changelog = "debian/changelog"
 if os.path.exists(changelog):
-    head=open(changelog).readline()
+    head=codecs.open(changelog, 'r', 'utf-8', 'replace').readline()
     match = re.compile(".*\((.*)\).*").match(head)
     if match:
         version = match.group(1)
