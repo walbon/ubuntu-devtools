@@ -4,6 +4,7 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
     debian/changelog.
   * Fix test_config to skip Unicode environment variable test, when python
     interpreter is not running in an unicode capable locale.
+  * Add python-ubunutools dependency to ubuntu-dev-tools.
 
  -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 
