@@ -14,7 +14,7 @@ ubuntu-dev-tools (0.154) experimental; urgency=medium
   * pbuilder-dist: Fix yes/no for unknown distribution (LP: #1311884).
 
   [ Yuan-Chen Cheng ]
-  * mk-sbuild: better message for cross build so that new start have 
+  * mk-sbuild: better message for cross build so that new start have
     correct sbuild command from the last message of mk-sbuild.
 
   [ Niklas Fiekas ]
@@ -157,7 +157,7 @@ ubuntu-dev-tools (0.146) experimental; urgency=low
 
   [ Iain Lane ]
   * sponsor-patch: Allow all supported bare releases now that LP rewrites
-    these to contain '-proposed' for us. 
+    these to contain '-proposed' for us.
 
  -- Benjamin Drung <bdrung@debian.org>  Wed, 27 Feb 2013 19:56:12 +0100
 
