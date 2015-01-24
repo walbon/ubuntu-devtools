@@ -133,7 +133,7 @@ Breaks: ubuntu-dev-tools (<< 0.154)
 Replaces: ubuntu-dev-tools (<< 0.154)
 Description: useful library of APIs for Ubuntu developer tools (Python 2)
  This package ships a collection of APIs, helpers and wrappers used to
- develop useful utiliteis for Ubuntu developers.
+ develop useful utilities for Ubuntu developers.
  .
  Python 2 variant.
 
@@ -142,6 +142,6 @@ Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}
 Description: useful library of APIs for Ubuntu developer tools
  This package ships a collection of APIs, helpers and wrappers used to
- develop useful utiliteis for Ubuntu developers.
+ develop useful utilities for Ubuntu developers.
  .
  Python 3 variant.
