@@ -182,7 +182,7 @@ def find_release_package(mirror, workdir, package, version, source_release,
         archive = Distribution(distribution.lower()).getArchive()
         try:
             spph = archive.getSourcePackage(package, source_release)
-        except (SeriesNotFoundException, PackageNotFoundException), e:
+        except (SeriesNotFoundException, PackageNotFoundException) as e:
             error(str(e))
         version = spph.getVersion()
 
@@ -240,7 +240,7 @@ def get_old_version(source, release):
                                        ('Release', 'Security', 'Updates',
                                         'Proposed', 'Backports'))
         return pkg.getVersion()
-    except (SeriesNotFoundException, PackageNotFoundException), e:
+    except (SeriesNotFoundException, PackageNotFoundException) as e:
         pass
 
 def get_backport_dist(release, release_pocket):
@@ -265,8 +265,8 @@ def do_build(workdir, dsc, release, builder, update):
                          os.path.join(workdir, "buildresult"))
 
 def do_upload(workdir, package, bp_version, changes, upload, prompt):
-    print 'Please check %s %s in file://%s carefully!' % \
-          (package, bp_version, workdir)
+    print('Please check %s %s in file://%s carefully!' % \
+          (package, bp_version, workdir))
     if prompt or upload == 'ubuntu':
         question = 'Do you want to upload the package to %s' % upload
         answer = YesNoQuestion().ask(question, "yes")
@@ -295,7 +295,7 @@ def orig_needed(upload, workdir, pkg):
                 not headers['content-location'].
                     startswith('https://launchpadlibrarian.net')):
                 return True
-        except HttpLib2Error, e:
+        except HttpLib2Error as e:
             Logger.info(e)
             return True
     return False
@@ -406,7 +406,7 @@ def main(args):
                         opts.upload,
                         opts.keyid,
                         opts.prompt)
-    except DownloadError, e:
+    except DownloadError as e:
         error(str(e))
     finally:
         if not opts.workdir:
