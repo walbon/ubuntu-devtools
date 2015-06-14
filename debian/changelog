@@ -1,10 +1,14 @@
 ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
 
+  [ Dimitri John Ledkov ]
   * Fix python3 setup.py clean failing to read unicode from
     debian/changelog.
   * Fix test_config to skip Unicode environment variable test, when python
     interpreter is not running in an Unicode capable locale.
   * Add python-ubuntutools dependency to ubuntu-dev-tools.
+
+  [ Adam Conrad ]
+  * Allow requestsync/syncpackage to work with either codename or alias.
 
  -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 
