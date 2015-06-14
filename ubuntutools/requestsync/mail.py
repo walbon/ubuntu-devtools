@@ -56,15 +56,18 @@ def _get_srcpkg(distro, name, release):
         # Canonicalise release:
         debian_info = DebianDistroInfo()
         try:
-            release = debian_info.codename(release, default=release)
+            codename = debian_info.codename(release, default=release)
         except DistroDataOutdated as e:
             Logger.warn(e)
 
-    lines = list(rmadison(distro, name, suite=release, arch='source'))
+    lines = list(rmadison(distro, name, suite=codename, arch='source'))
     if not lines:
-        raise PackageNotFoundException("'%s' doesn't appear to exist "
-                                       "in %s '%s'"
-                                       % (name, distro.capitalize(), release))
+        lines = list(rmadison(distro, name, suite=release, arch='source'))
+        if not lines:
+            raise PackageNotFoundException("'%s' doesn't appear to exist "
+                                           "in %s '%s'"
+                                           % (name, distro.capitalize(),
+                                           release))
     pkg = max(lines, key=lambda x: Version(x['version']))
 
     return FakeSPPH(pkg['source'], pkg['version'], pkg['component'], distro)
