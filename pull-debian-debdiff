@@ -52,7 +52,7 @@ def main():
     parser.add_option('-d', '--debian-mirror', metavar='DEBIAN_MIRROR',
                       dest='debian_mirror',
                       help='Preferred Debian mirror '
-                           '(default: http://ftp.debian.org/debian)')
+                           '(default: http://httpredir.debian.org/debian)')
     parser.add_option('-s', '--debsec-mirror', metavar='DEBSEC_MIRROR',
                       dest='debsec_mirror',
                       help='Preferred Debian Security mirror '

@@ -10,6 +10,10 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
   [ Adam Conrad ]
   * Allow requestsync/syncpackage to work with either codename or alias.
 
+  [ Mike Miller ]
+  * mk-sbuild, pull-debian-{debdiff,source}: Use httpredir.debian.org as the
+    default mirror for Debian.
+
  -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 
 ubuntu-dev-tools (0.154) experimental; urgency=medium
