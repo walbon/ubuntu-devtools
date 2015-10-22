@@ -636,7 +636,11 @@ def rmadison(url, package, suite=None, arch=None):
         # rmadison returns some results outside the requested set.
         # It'll include backports, and when given an unknown suite,
         # it ignores that argument
-        if suite and dist != suite:
+        #
+        # some versions (2.14.1ubuntu0.1) of rmadison return 'sid' when
+        # asked about 'unstable'.  Others return 'unstable'.  Accept either.
+        if (suite and dist != suite and not 
+                (suite == 'sid' and dist == 'unstable')):
             continue
 
         if 'source' in archs:
