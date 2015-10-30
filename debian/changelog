@@ -24,6 +24,7 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
 
   [ Benjamin Drung ]
   * Move python*-ubuntutools to section Python
+  * Bump Standards-Version to 3.9.6 (no changes needed)
 
  -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 

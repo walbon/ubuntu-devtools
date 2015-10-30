@@ -35,7 +35,7 @@ Build-Depends: dctrl-tools,
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.2
 Homepage: https://launchpad.net/ubuntu-dev-tools
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 
 Package: ubuntu-dev-tools
 Architecture: all
