@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.155) unstable; urgency=medium
 
   [ Dimitri John Ledkov ]
   * Fix python3 setup.py clean failing to read unicode from
@@ -17,12 +17,13 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
   [ Scott Moser ]
   * ubuntutools/archive.py/rmadison: return results for sid if asked about
     unstable.
-    Some versions of rmadison return results with 'unstable' when asked 
-    about sid. Others return 'sid'. This makes a query of 'unstable' return 
+    Some versions of rmadison return results with 'unstable' when asked
+    about sid. Others return 'sid'. This makes a query of 'unstable' return
     results for sid.
     End result is fixing 'pull-debian-source hello' on wily.
 
   [ Benjamin Drung ]
+  * Upload to unstable
   * Move python*-ubuntutools to section Python
   * Bump Standards-Version to 3.9.6 (no changes needed)
   * Install bash completions into /usr/share/bash-completion/completions
@@ -30,7 +31,7 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
   * Drop recommending perl-modules. perl-base is enough for dch-repeat and
     pull-revu-source
 
- -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
+ -- Benjamin Drung <bdrung@debian.org>  Fri, 30 Oct 2015 22:59:34 +0100
 
 ubuntu-dev-tools (0.154) experimental; urgency=medium
 
