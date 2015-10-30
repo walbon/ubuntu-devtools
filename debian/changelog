@@ -22,6 +22,9 @@ ubuntu-dev-tools (0.155) UNRELEASED; urgency=medium
     results for sid.
     End result is fixing 'pull-debian-source hello' on wily.
 
+  [ Benjamin Drung ]
+  * Move python*-ubuntutools to section Python
+
  -- Dimitri John Ledkov <dimitri.j.ledkov@linux.intel.com>  Mon, 19 Jan 2015 14:15:32 +0000
 
 ubuntu-dev-tools (0.154) experimental; urgency=medium

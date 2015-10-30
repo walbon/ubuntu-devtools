@@ -128,6 +128,7 @@ Description: useful tools for Ubuntu developers
 
 Package: python-ubuntutools
 Architecture: all
+Section: python
 Depends: ${python:Depends}, ${misc:Depends}
 Breaks: ubuntu-dev-tools (<< 0.154)
 Replaces: ubuntu-dev-tools (<< 0.154)
@@ -139,6 +140,7 @@ Description: useful library of APIs for Ubuntu developer tools (Python 2)
 
 Package: python3-ubuntutools
 Architecture: all
+Section: python
 Depends: ${python3:Depends}, ${misc:Depends}
 Description: useful library of APIs for Ubuntu developer tools
  This package ships a collection of APIs, helpers and wrappers used to
