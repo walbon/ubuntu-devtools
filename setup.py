@@ -53,7 +53,7 @@ else:
            'update-maintainer',
           ]
     data_files = [
-        ('/etc/bash_completion.d', glob.glob("bash_completion/*")),
+        ('share/bash-completion/completions', glob.glob("bash_completion/*")),
         ('share/man/man1', glob.glob("doc/*.1")),
         ('share/man/man5', glob.glob("doc/*.5")),
         ('share/ubuntu-dev-tools', ['enforced-editing-wrapper']),
