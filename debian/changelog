@@ -5,7 +5,7 @@ ubuntu-dev-tools (0.156) unstable; urgency=medium
     allow armhf and armel to be native on arm64 systems (LP: #1579619)
 
   [ Luke Faraone ]
-  * mk-sbuild: Add a --debootstrap-opts argument for arbitrary options.
+  * mk-sbuild: Pass in arguments via --debootstrap-opts (LP: #1366723)
 
  -- Adam Conrad <adconrad@ubuntu.com>  Sun, 08 May 2016 23:06:34 -0600
 
