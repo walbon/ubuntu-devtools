@@ -8,7 +8,7 @@ ubuntu-dev-tools (0.156) unstable; urgency=medium
   * mk-sbuild: Pass in arguments via --debootstrap-opts (LP: #1366723)
   * mk-sbuild: Add --skip-security, like --skip-updates (LP: #1366721)
 
- -- Adam Conrad <adconrad@ubuntu.com>  Sun, 08 May 2016 23:06:34 -0600
+ -- Adam Conrad <adconrad@debian.org>  Sun, 08 May 2016 23:06:34 -0600
 
 ubuntu-dev-tools (0.155) unstable; urgency=medium
 
