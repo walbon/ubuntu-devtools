@@ -51,6 +51,7 @@ function usage()
     echo "  --vg=VG                    use LVM snapshots, with group VG"
     echo "  --debug                    Turn on script debugging"
     echo "  --skip-updates             Do not include -updates pocket in sources.list"
+    echo "  --skip-security            Do not include -security pocket in sources.list"
     echo "  --skip-proposed            Do not include -proposed pocket in sources.list"
     echo "  --source-template=FILE     Use FILE as the sources.list template"
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
@@ -80,6 +81,7 @@ function usage()
     echo "  SCHROOT_PROFILE            Profile to use with schroot (default ${SCHROOT_PROFILE})"
     echo "  SKIP_UPDATES               Enable --skip-updates"
     echo "  SKIP_PROPOSED              Enable --skip-proposed"
+    echo "  SKIP_SECURITY              Enable --skip-security"
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
     echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
@@ -100,7 +102,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-opts:,debootstrap-proxy:,debootstrap-no-check-gpg,debootstrap-keyring:,personality:,distro:,vg:,type:,target:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-security,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-opts:,debootstrap-proxy:,debootstrap-no-check-gpg,debootstrap-keyring:,personality:,distro:,vg:,type:,target:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -134,6 +136,10 @@ while :; do
             ;;
         --skip-proposed)
             SKIP_PROPOSED="1"
+            shift
+            ;;
+        --skip-security)
+            SKIP_SECURITY="1"
             shift
             ;;
         --name)
