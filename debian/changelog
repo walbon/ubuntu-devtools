@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.156) unstable; urgency=medium
+
+  * mk-sbuild: Remove references to the obsolete arm architecture, and
+    allow armhf and armel to be native on arm64 systems (LP: #1579619)
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Sun, 08 May 2016 23:06:34 -0600
+
 ubuntu-dev-tools (0.155) unstable; urgency=medium
 
   [ Dimitri John Ledkov ]

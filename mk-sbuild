@@ -568,7 +568,7 @@ DEBOOTSTRAP_COMMAND=debootstrap
 if [ "$CHROOT_ARCH" != "$HOST_ARCH" ] ; then
     case "$CHROOT_ARCH-$HOST_ARCH" in
     # Sometimes we don't need qemu
-    amd64-i386|amd64-lpia|arm-armel|armel-arm|armel-armhf|armhf-armel|arm64-arm|arm64-armel|arm64-armhf|i386-amd64|i386-lpia|lpia-i386|powerpc-ppc64|ppc64-powerpc|sparc-sparc64|sparc64-sparc)
+    amd64-i386|amd64-lpia|armel-armhf|armhf-armel|arm64-armel|arm64-armhf|armel-arm64|armhf-arm64|i386-amd64|i386-lpia|lpia-i386|powerpc-ppc64|ppc64-powerpc|sparc-sparc64|sparc64-sparc)
         ;;
     # Sometimes we do
     *)
