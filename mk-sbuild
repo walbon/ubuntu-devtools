@@ -713,7 +713,7 @@ cat "$TEMP_SOURCES" | sed -e "s|RELEASE|$RELEASE|g" | \
 rm -f "$TEMP_SOURCES"
 
 # Copy the timezone (comment this out if you want to leave the chroot at UTC)
-sudo cp /etc/localtime /etc/timezone "$MNT"/etc/
+sudo cp -P --remove-destination /etc/localtime /etc/timezone "$MNT"/etc/
 # Create a schroot entry for this chroot
 TEMP_SCHROOTCONF=`mktemp -t schrootconf-XXXXXX`
 TEMPLATE_SCHROOTCONF=~/.mk-sbuild.schroot.conf

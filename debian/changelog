@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.157) unstable; urgency=medium
+
+  * mk-sbuild: cp localtime and timezone a little harder (LP: #1569400)
+
+ -- Adam Conrad <adconrad@debian.org>  Sun, 08 May 2016 23:58:48 -0600
+
 ubuntu-dev-tools (0.156) unstable; urgency=medium
 
   [ Adam Conrad ]
