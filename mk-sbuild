@@ -56,6 +56,7 @@ function usage()
     echo "  --debootstrap-mirror=URL   Use URL as the debootstrap source"
     echo "  --debootstrap-include=list Comma separated list of packages to include"
     echo "  --debootstrap-exclude=list Comma separated list of packages to exclude"
+    echo "  --debootstrap-opts=OPTS    Extra options passed to debootstrap"
     echo "  --debootstrap-proxy=URL    Use PROXY as apt proxy"
     echo "  --debootstrap-keyring=KEYRING"
     echo "                             Use KEYRING to check signatures of retrieved Release files"
@@ -82,6 +83,7 @@ function usage()
     echo "  DEBOOTSTRAP_MIRROR         Mirror location (same as --debootstrap-mirror)"
     echo "  DEBOOTSTRAP_INCLUDE        Included packages (same as --debootstrap-include)"
     echo "  DEBOOTSTRAP_EXCLUDE        Excluded packages (same as --debootstrap-exclude)"
+    echo "  DEBOOTSTRAP_OPTS           Extra options passed to debootstrap (same as --debootstrap-opts)"
     echo "  DEBOOTSTRAP_PROXY          Apt proxy (same as --debootstrap-proxy)"
     echo "  DEBOOTSTRAP_KEYRING        GPG keyring (same as --debootstrap-keyring)"
     echo "  DEBOOTSTRAP_NO_CHECK_GPG   Disable GPG verification (same as --debootstrap-no-check-gpg)"
@@ -98,7 +100,7 @@ function usage()
 if [ -z "$1" ]; then
     usage
 fi
-OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-proxy:,debootstrap-no-check-gpg,debootstrap-keyring:,personality:,distro:,vg:,type:,target:" -- "$@"`
+OPTS=`getopt -o 'h' --long "help,debug,skip-updates,skip-proposed,eatmydata,arch:,name:,source-template:,debootstrap-mirror:,debootstrap-include:,debootstrap-exclude:,debootstrap-opts:,debootstrap-proxy:,debootstrap-no-check-gpg,debootstrap-keyring:,personality:,distro:,vg:,type:,target:" -- "$@"`
 eval set -- "$OPTS"
 
 VG=""
@@ -156,6 +158,10 @@ while :; do
             ;;
         --debootstrap-exclude)
             DEBOOTSTRAP_EXCLUDE="$2"
+            shift 2
+            ;;
+        --debootstrap-opts)
+            DEBOOTSTRAP_OPTS="$2"
             shift 2
             ;;
         --debootstrap-proxy)
@@ -550,6 +556,10 @@ if [ $DEBOOTSTRAP_NO_CHECK_GPG -eq 1 ]; then
     debootstrap_opts="$debootstrap_opts --no-check-gpg"
 elif [ -n "$DEBOOTSTRAP_KEYRING" ]; then
     debootstrap_opts="$debootstrap_opts --keyring=$DEBOOTSTRAP_KEYRING"
+fi
+
+if [ -n "$DEBOOTSTRAP_OPTS" ] ; then
+    debootstrap_opts="$debootstrap_opts $DEBOOTSTRAP_OPTS"
 fi
 
 # if http_proxy is set in the environment (even empty) set 'proxy' to it
