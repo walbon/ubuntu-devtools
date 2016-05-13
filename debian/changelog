@@ -1,3 +1,11 @@
+ubuntu-dev-tools (0.158) UNRELEASED; urgency=medium
+
+  [ Dmitry Shachnev ]
+  * grep-merges: Do not override author or uploader with None
+    There can be JSON entries which have uploader=None.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 13 May 2016 09:04:03 +0200
+
 ubuntu-dev-tools (0.157) unstable; urgency=medium
 
   * mk-sbuild: cp localtime and timezone a little harder (LP: #1569400)

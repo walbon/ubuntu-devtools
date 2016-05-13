@@ -61,9 +61,9 @@ def main():
         for merge in json.loads(page):
             package = merge['source_package']
             author, uploader = '', ''
-            if 'user' in merge:
+            if merge.get('user'):
                 author = merge['user']
-            if 'uploader' in merge:
+            if merge.get('uploader'):
                 uploader = '(%s)' % merge['uploader']
             pretty_uploader = ' '.join((author, uploader)).strip()
             if (match is None or
