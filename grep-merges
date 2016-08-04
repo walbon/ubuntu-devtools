@@ -65,7 +65,7 @@ def main():
                 author = merge['user']
             if merge.get('uploader'):
                 uploader = '(%s)' % merge['uploader']
-            pretty_uploader = ' '.join((author, uploader)).strip()
+            pretty_uploader = u'{} {}'.format(author, uploader)
             if (match is None or
                 match in package or match in author or match in uploader):
                 print '%s\t%s' % (package.encode("utf-8"), pretty_uploader.encode("utf-8"))
