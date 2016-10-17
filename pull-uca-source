@@ -1,0 +1,89 @@
+#!/usr/bin/python
+#
+# pull-uca-source -- pull a source package from Ubuntu Cloud Archive
+# Basic usage: pull-uca-source <source package> <openstack release>
+#
+# Copyright (C) 2008,      Iain Lane <iain@orangesquash.org.uk>,
+#               2010-2011, Stefano Rivera <stefanor@ubuntu.com>
+#               2016,      Corey Bryant <corey.bryant@ubuntu.com>
+#
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL for more details.
+#
+# ##################################################################
+
+
+import sys
+from optparse import OptionParser
+
+from ubuntutools.archive import SourcePackage, DownloadError
+from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools.logger import Logger
+
+from lazr.restfulclient.errors import NotFound
+
+
+def main():
+    usage = "Usage: %prog <package> <openstack release>"
+    opt_parser = OptionParser(usage)
+    opt_parser.add_option('-d', '--download-only',
+                          dest='download_only', default=False,
+                          action='store_true',
+                          help="Do not extract the source package")
+    (options, args) = opt_parser.parse_args()
+    if not args:
+        opt_parser.error("Must specify package name")
+
+    # Login anonymously to LP
+    Launchpad.login_anonymously()
+
+    package = str(args[0]).lower()
+    release = str(args[1]).lower()
+    version = None
+
+    # Downloads are from Ubuntu Cloud Archive staging PPAs
+    uca = Launchpad.distributions["~ubuntu-cloud-archive"]
+    ppa_name = ''.join([release, '-staging'])
+    try:
+        ppa = uca.getPPAByName(name=ppa_name)
+    except NotFound, e:
+        Logger.error('Archive does not exist for OpenStack release: %s',
+                     str(release))
+        sys.exit(1)
+
+    srcpkg = None
+    for source in ppa.getPublishedSources(status='Published'):
+        if source.source_package_name == package:
+             dsc_file = source.sourceFileUrls()[0]
+             srcpkg = SourcePackage(dscfile=dsc_file)
+             version = srcpkg.dsc['Version']
+
+    if not srcpkg:
+        Logger.error('Package not found: %s', str(package))
+        sys.exit(1)
+
+    Logger.normal('Downloading %s version %s', package, version)
+    try:
+        srcpkg.pull()
+    except DownloadError, e:
+        Logger.error('Failed to download: %s', str(e))
+        sys.exit(1)
+    if not options.download_only:
+        srcpkg.unpack()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        Logger.normal('User abort.')

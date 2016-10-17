@@ -11,7 +11,10 @@ ubuntu-dev-tools (0.158) UNRELEASED; urgency=medium
   * grep-merges: Use unicode string format for pretty output to deal with
     non ascii encoding.
 
- -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 13 May 2016 09:04:03 +0200
+  [ Corey Bryant ]
+  * pull-uca-source: Added to pull source from Ubuntu Cloud Archive.
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Mon, 17 Oct 2016 09:53:08 -0400
 
 ubuntu-dev-tools (0.157) unstable; urgency=medium
 
