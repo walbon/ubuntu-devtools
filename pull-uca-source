@@ -42,8 +42,8 @@ def main():
                           action='store_true',
                           help="Do not extract the source package")
     (options, args) = opt_parser.parse_args()
-    if not args:
-        opt_parser.error("Must specify package name")
+    if len(sys.argv) != 3:
+        opt_parser.error("Must specify package name and openstack release")
 
     # Login anonymously to LP
     Launchpad.login_anonymously()
