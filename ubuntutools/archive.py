@@ -538,6 +538,20 @@ class UbuntuSourcePackage(SourcePackage):
     distribution = 'ubuntu'
 
 
+class UbuntuCloudArchiveSourcePackage(UbuntuSourcePackage):
+    "Download / unpack an Ubuntu Cloud Archive source package"
+    def __init__(self, uca_release, *args, **kwargs):
+        super(UbuntuCloudArchiveSourcePackage, self).__init__(*args, **kwargs)
+        self._uca_release = uca_release
+        self.masters = [ "http://ubuntu-cloud.archive.canonical.com/ubuntu/" ]
+
+    def _lp_url(self, filename):
+        "Build a source package URL on Launchpad"
+        return os.path.join('https://launchpad.net', "~ubuntu-cloud-archive",
+                            '+archive', ("%s-staging" % self._uca_release),
+                            '+files', filename)
+
+
 class FakeSPPH(object):
     """Provide the same interface as
     ubuntutools.lpapicache.SourcePackagePublishingHistory

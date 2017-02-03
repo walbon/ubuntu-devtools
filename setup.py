@@ -38,6 +38,7 @@ else:
            'pull-debian-source',
            'pull-lp-source',
            'pull-revu-source',
+           'pull-uca-source',
            'requestbackport',
            'requestsync',
            'reverse-build-depends',
