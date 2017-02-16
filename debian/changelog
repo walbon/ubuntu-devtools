@@ -1,8 +1,8 @@
 ubuntu-dev-tools (0.158) UNRELEASED; urgency=medium
 
   [ Dmitry Shachnev ]
-  * grep-merges: Do not override author or uploader with None
-    There can be JSON entries which have uploader=None.
+  * grep-merges: Do not override author or uploader with None.
+    There can be JSON entries which have uploader=None (LP: #1663601).
 
   [ Colin Watson ]
   * pbuilder-dist, ubuntu-build: Add s390x.
