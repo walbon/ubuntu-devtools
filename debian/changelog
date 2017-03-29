@@ -1,8 +1,10 @@
-ubuntu-dev-tools (0.158) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.158) experimental; urgency=medium
+
+  * Team upload.
 
   [ Dmitry Shachnev ]
   * grep-merges: Do not override author or uploader with None.
-    There can be JSON entries which have uploader=None (LP: #1663601).
+    There can be JSON entries which have uploader=None.  (LP: #1663601)
 
   [ Colin Watson ]
   * pbuilder-dist, ubuntu-build: Add s390x.
@@ -14,7 +16,7 @@ ubuntu-dev-tools (0.158) UNRELEASED; urgency=medium
   [ Corey Bryant ]
   * pull-uca-source: Added to pull source from Ubuntu Cloud Archive.
 
- -- Corey Bryant <corey.bryant@canonical.com>  Mon, 17 Oct 2016 09:53:08 -0400
+ -- Mattia Rizzolo <mattia@debian.org>  Wed, 29 Mar 2017 20:07:38 +0200
 
 ubuntu-dev-tools (0.157) unstable; urgency=medium
 
