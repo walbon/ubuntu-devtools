@@ -15,6 +15,7 @@ ubuntu-dev-tools (0.158) experimental; urgency=medium
 
   [ Corey Bryant ]
   * pull-uca-source: Added to pull source from Ubuntu Cloud Archive.
+    (LP: #1661324)
 
  -- Mattia Rizzolo <mattia@debian.org>  Wed, 29 Mar 2017 20:07:38 +0200
 
