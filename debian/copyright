@@ -74,19 +74,16 @@ License: GPL-2+
 
 Files: doc/bitesize.1
        doc/grab-merge.1
-       doc/harvest.1
        doc/hugdaylist.1
        doc/merge-changelog.1
        doc/setup-packaging-environment.1
        doc/syncpackage.1
        bitesize
        grab-merge
-       harvest
        hugdaylist
        merge-changelog
        setup-packaging-environment
        syncpackage
-       ubuntutools/harvest.py
 Copyright: 2010,      Benjamin Drung <bdrung@ubuntu.com>
            2007-2011, Canonical Ltd.
            2008,      Jonathan Patrick Davies <jpds@ubuntu.com>

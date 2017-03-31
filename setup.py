@@ -27,7 +27,6 @@ else:
            'dch-repeat',
            'grab-merge',
            'grep-merges',
-           'harvest',
            'hugdaylist',
            'import-bug-from-debian',
            'merge-changelog',

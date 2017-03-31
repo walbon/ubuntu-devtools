@@ -25,7 +25,6 @@ import debian.changelog
 import debian.deb822
 
 from ubuntutools import subprocess
-from ubuntutools.harvest import Harvest
 from ubuntutools.logger import Logger
 from ubuntutools.question import Question, YesNoQuestion
 
@@ -379,9 +378,6 @@ class SourcePackage(object):
         if self._build_log:
             print("file://" + self._build_log)
 
-        harvest = Harvest(self._package)
-        if harvest.data:
-            print(harvest.report())
 
     def reload_changelog(self):
         """Reloads debian/changelog and updates the version.
