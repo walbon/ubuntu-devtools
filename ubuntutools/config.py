@@ -34,7 +34,7 @@ class UDTConfig(object):
     # These are reqired to be used by at least two scripts.
     defaults = {
         'BUILDER': 'pbuilder',
-        'DEBIAN_MIRROR': 'http://httpredir.debian.org/debian',
+        'DEBIAN_MIRROR': 'http://deb.debian.org/debian',
         'DEBSEC_MIRROR': 'http://security.debian.org',
         'LPINSTANCE': 'production',
         'MIRROR_FALLBACK': True,

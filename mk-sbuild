@@ -503,7 +503,7 @@ ubuntu)
     ;;
 debian)
     if [ -z "$DEBOOTSTRAP_MIRROR" ]; then
-        DEBOOTSTRAP_MIRROR="http://httpredir.debian.org/debian"
+        DEBOOTSTRAP_MIRROR="http://deb.debian.org/debian"
     fi
     if [ -z "$COMPONENTS" ]; then
         COMPONENTS="main non-free contrib"
