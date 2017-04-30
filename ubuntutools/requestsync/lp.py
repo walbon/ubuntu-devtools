@@ -82,6 +82,7 @@ team.''')
 
     return need_sponsor
 
+
 def check_existing_reports(srcpkg):
     '''
     Check existing bug reports on Launchpad for a possible sync request.
@@ -107,6 +108,7 @@ def check_existing_reports(srcpkg):
                   'continuing.'
                   % (bug.title, bug.web_link))
             confirmation_prompt()
+
 
 def get_ubuntu_delta_changelog(srcpkg):
     '''
@@ -153,6 +155,7 @@ def get_ubuntu_delta_changelog(srcpkg):
 
     return '\n'.join(delta)
 
+
 def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
     '''
     Use the LP API to file the sync request.
@@ -181,7 +184,7 @@ def post_bug(srcpkg, subscribe, status, bugtitle, bugtext):
     task.status = status
     task.lp_save()
 
-    bug.subscribe(person = PersonTeam(subscribe)())
+    bug.subscribe(person=PersonTeam(subscribe)())
 
     print('Sync request filed as bug #%i: %s'
           % (bug.id, bug.web_link))

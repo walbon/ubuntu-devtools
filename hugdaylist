@@ -36,6 +36,7 @@ from launchpadlib.launchpad import Launchpad
 
 from ubuntutools.lp.libsupport import translate_web_api
 
+
 def check_args():
     howmany = -1
     url = ""
@@ -65,6 +66,7 @@ def check_args():
 
     return (howmany, url)
 
+
 def filter_unsolved(task):
     # TODO: don't use this filter here, only check status and assignee of
     #   the given task
@@ -73,11 +75,12 @@ def filter_unsolved(task):
     # this is expensive, parse name out of self_link instead?
     subscriptions = set(s.person.name for s in task.bug.subscriptions)
     if (task.status != "Fix Committed" and
-        (not task.assignee or task.assignee.name in ['motu','desktop-bugs']) and
-         'ubuntu-sponsors' not in subscriptions and
-         'ubuntu-archive' not in subscriptions):
+            (not task.assignee or task.assignee.name in ['motu', 'desktop-bugs']) and
+            'ubuntu-sponsors' not in subscriptions and
+            'ubuntu-archive' not in subscriptions):
         return True
     return False
+
 
 def main():
     (howmany, url) = check_args()

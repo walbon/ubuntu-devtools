@@ -153,5 +153,6 @@ def main():
     else:
         print('All dependencies are supported in main or restricted.')
 
+
 if __name__ == '__main__':
     main()

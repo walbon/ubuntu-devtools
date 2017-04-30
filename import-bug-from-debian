@@ -38,6 +38,7 @@ except ImportError:
     Logger.error("Please install 'python-soappy' in order to use this utility.")
     sys.exit(1)
 
+
 def main():
     bug_re = re.compile(r"bug=(\d+)")
 
@@ -46,8 +47,8 @@ def main():
     debbugs = SOAPpy.SOAPProxy(url, namespace)
 
     # debug
-    #debbugs.config.dumpSOAPOut = 1
-    #debbugs.config.dumpSOAPIn = 1
+    # debbugs.config.dumpSOAPOut = 1
+    # debbugs.config.dumpSOAPIn = 1
 
     parser = OptionParser(usage="%prog [option] bug ...")
     parser.add_option("-b", "--browserless",
@@ -118,10 +119,10 @@ def main():
                          ubupackage)
             sys.exit(1)
 
-        u_bug = launchpad.bugs.createBug(target=target, title=subject,
-                description='Imported from Debian bug '
-                            'http://bugs.debian.org/%d:\n\n%s'
-                            % (bug_num, summary))
+        u_bug = launchpad.bugs.createBug(
+            target=target, title=subject,
+            description='Imported from Debian bug http://bugs.debian.org/%d:\n\n%s' %
+                        (bug_num, summary))
         d_sp = debian.getSourcePackage(name=package)
         if d_sp is None and options.package:
             d_sp = debian.getSourcePackage(name=options.package)
@@ -132,6 +133,7 @@ def main():
         Logger.normal("Opened %s", u_bug.web_link)
         if not options.browserless:
             webbrowser.open(u_bug.web_link)
+
 
 if __name__ == '__main__':
     main()

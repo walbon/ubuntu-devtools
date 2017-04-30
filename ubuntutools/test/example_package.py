@@ -20,6 +20,7 @@ import subprocess
 
 import debian.debian_support
 
+
 class ExamplePackage(object):
     def __init__(self, source='example', version='1.0-1'):
         self.source = source

@@ -23,8 +23,8 @@ import tempfile
 from ubuntutools.builder import get_builder
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
-from ubuntutools.sponsor_patch.sponsor_patch import (sponsor_patch,
-                                                     check_dependencies)
+from ubuntutools.sponsor_patch.sponsor_patch import sponsor_patch, check_dependencies
+
 
 def parse(script_name):
     """Parse the command line parameters."""
@@ -99,6 +99,7 @@ def parse(script_name):
 
     return (options, bug_number)
 
+
 def main():
     script_name = os.path.basename(sys.argv[0])
     (options, bug_number) = parse(script_name)
@@ -127,6 +128,7 @@ def main():
     finally:
         if options.workdir is None:
             shutil.rmtree(workdir)
+
 
 if __name__ == "__main__":
     main()

@@ -15,33 +15,23 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 
-try:
-    import builtins
-except ImportError:
-    import __builtin__
 import os.path
 import shutil
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
-from io import BytesIO
+import sys
 import tempfile
-import types
+from io import BytesIO
 try:
     from urllib.request import OpenerDirector, urlopen
     from urllib.error import HTTPError, URLError
 except ImportError:
     from urllib2 import OpenerDirector, urlopen
     from urllib2 import HTTPError, URLError
-import debian.deb822
 import httplib2
-import sys
 import mock
 
+import debian.deb822
+
 import ubuntutools.archive
-from ubuntutools.config import UDTConfig
-from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
 
 from ubuntutools.test.example_package import ExamplePackage
@@ -117,7 +107,7 @@ class LocalSourcePackageTestCase(unittest.TestCase):
 
         # Silence the tests a little:
         self._stubout('ubuntutools.logger.Logger.stdout')
-        self._stubout('ubuntutools.logger.Logger.stderr')        
+        self._stubout('ubuntutools.logger.Logger.stderr')
 
     def _stubout(self, stub):
         patcher = mock.patch(stub)
@@ -211,14 +201,10 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  dscfile='test-data/example_1.0-1.dsc',
                                  workdir=self.workdir)
-        pkg.quiet = True        
+        pkg.quiet = True
         pkg.pull()
 
     def test_pull(self):
-        dist = self.SourcePackage.distribution
-        mirror = UDTConfig.defaults['%s_MIRROR' % dist.upper()]
-        urlbase = '/pool/main/e/example/'
-
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir)
 
@@ -227,12 +213,10 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         pkg.pull()
 
     def test_mirrors(self):
-        master = UDTConfig.defaults['UBUNTU_MIRROR']
         mirror = 'http://mirror'
-        lpbase = 'https://launchpad.net/ubuntu/+archive/primary/+files/'
-        urlbase = '/pool/main/e/example/'
         sequence = [self.urlopen_null, self.urlopen_404, self.urlopen_proxy,
                     self.urlopen_proxy]
+
         def _callable_iter(*args, **kwargs):
             return sequence.pop(0)(*args, **kwargs)
         url_opener = mock.MagicMock(spec=OpenerDirector)
@@ -241,14 +225,14 @@ class LocalSourcePackageTestCase(unittest.TestCase):
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
         pkg.url_opener = url_opener
-        pkg.quiet = True        
+        pkg.quiet = True
         pkg.pull()
 
     def test_dsc_missing(self):
         self.mock_http.side_effect = self.request_404
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir)
-        pkg.quiet = True        
+        pkg.quiet = True
         self.assertRaises(ubuntutools.archive.DownloadError, pkg.pull)
 
 
@@ -256,12 +240,8 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
     SourcePackage = ubuntutools.archive.DebianSourcePackage
 
     def test_mirrors(self):
-        debian_master = UDTConfig.defaults['DEBIAN_MIRROR']
-        debsec_master = UDTConfig.defaults['DEBSEC_MIRROR']
         debian_mirror = 'http://mirror/debian'
         debsec_mirror = 'http://mirror/debsec'
-        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
-        base = '/pool/main/e/example/'
 
         sequence = [self.urlopen_null,
                     self.urlopen_404,
@@ -272,6 +252,7 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
                         b'{"fileinfo": {"hashabc": [{"name": "example_1.0.orig.tar.gz"}]}}'),
                     self.urlopen_file('example_1.0.orig.tar.gz'),
                     self.urlopen_proxy]
+
         def _callable_iter(*args, **kwargs):
             return sequence.pop(0)(*args, **kwargs)
         url_opener = mock.MagicMock(spec=OpenerDirector)
@@ -287,8 +268,6 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
 
     def test_dsc_missing(self):
         mirror = 'http://mirror'
-        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
-        base = '/pool/main/e/example/'
         self.mock_http.side_effect = self.request_404_then_proxy
 
         patcher = mock.patch.object(debian.deb822.GpgInfo, 'from_sequence')
@@ -305,16 +284,14 @@ class DebianLocalSourcePackageTestCase(LocalSourcePackageTestCase):
 
     def test_dsc_badsig(self):
         mirror = 'http://mirror'
-        lpbase = 'https://launchpad.net/debian/+archive/primary/+files/'
-        base = '/pool/main/e/example/'
-        self.mock_http.side_effect = self.request_404_then_proxy        
+        self.mock_http.side_effect = self.request_404_then_proxy
 
         patcher = mock.patch.object(debian.deb822.GpgInfo, 'from_sequence')
         self.addCleanup(patcher.stop)
         mock_gpg_info = patcher.start()
         mock_gpg_info.return_value = debian.deb822.GpgInfo.from_output(
             '[GNUPG:] ERRSIG DEADBEEF')
-        
+
         pkg = self.SourcePackage('example', '1.0-1', 'main',
                                  workdir=self.workdir, mirrors=[mirror])
         try:

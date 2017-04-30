@@ -31,11 +31,12 @@ import apt
 
 from ubuntutools import subprocess
 
+
 def process_deps(cache, deps):
     """Takes a list of (build) dependencies and processes it."""
 
     for basedep in [d.or_dependencies[0] for d in deps]:
-        if not packages.has_key(basedep.name) and basedep.name != '':
+        if basedep.name not in packages and basedep.name != '':
             # Check the (build) dependencies recursively
             find_main(cache, basedep.name)
 
@@ -79,7 +80,7 @@ def find_main(cache, pack):
         packages[pack] = True
         return
     else:
-        if not packages.has_key(pack):
+        if pack not in packages:
             packages[pack] = False
 
         # Retrieve package dependencies
@@ -108,9 +109,11 @@ def find_main(cache, pack):
 
         process_deps(cache, deps)
 
+
 def usage(exit_code):
     print 'Usage: %s <package name> [<distribution>]' % sys.argv[0]
     sys.exit(exit_code)
+
 
 def main():
 
@@ -129,9 +132,8 @@ def main():
         distro = sys.argv[2]
         if not get_package_version(cache, distro, 'bash'):
             print u'«%s» is not a valid distribution.' % distro
-            print ('Remember that for 404main to work with a certain '
-                   'distribution it must be in your /etc/apt/sources.list '
-                   'file.')
+            print('Remember that for 404main to work with a certain distribution '
+                  'it must be in your /etc/apt/sources.list file.')
             sys.exit(1)
     else:
         cmd = ['lsb_release', '-cs']
@@ -139,12 +141,10 @@ def main():
         distro = process.stdout.read().strip('\n')
 
     if not get_package_version(cache, distro, sys.argv[1]):
-        print (u"Can't find package «%s» in distribution «%s»."
-               % (sys.argv[1], distro))
+        print(u"Can't find package «%s» in distribution «%s»." % (sys.argv[1], distro))
         sys.exit(1)
 
-    print (u'Checking package «%s» in distribution «%s»...'
-           % (sys.argv[1], distro))
+    print(u'Checking package «%s» in distribution «%s»...' % (sys.argv[1], distro))
 
     find_main(cache, sys.argv[1])
 
@@ -159,8 +159,9 @@ def main():
             print '  ', package
 
     if all_in_main:
-        print (u'Package «%s» and all its dependencies and build dependencies '
-               u'are in main.') % sys.argv[1]
+        print((u'Package «%s» and all its dependencies and build dependencies are in main.') %
+              sys.argv[1])
+
 
 if __name__ == '__main__':
 

@@ -29,10 +29,6 @@ import smtplib
 import socket
 import tempfile
 
-if sys.version_info[0] >= 3:
-    basestring = str
-    unicode = str    
-
 from debian.changelog import Changelog, Version
 from distro_info import DebianDistroInfo, DistroDataOutdated
 
@@ -42,6 +38,11 @@ from ubuntutools.logger import Logger
 from ubuntutools.question import confirmation_prompt, YesNoQuestion
 from ubuntutools import subprocess
 
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str
+
+
 __all__ = [
     'get_debian_srcpkg',
     'get_ubuntu_srcpkg',
@@ -50,6 +51,7 @@ __all__ = [
     'get_ubuntu_delta_changelog',
     'mail_bug',
 ]
+
 
 def _get_srcpkg(distro, name, release):
     if distro == 'debian':
@@ -64,19 +66,20 @@ def _get_srcpkg(distro, name, release):
     if not lines:
         lines = list(rmadison(distro, name, suite=release, arch='source'))
         if not lines:
-            raise PackageNotFoundException("'%s' doesn't appear to exist "
-                                           "in %s '%s'"
-                                           % (name, distro.capitalize(),
-                                           release))
+            raise PackageNotFoundException("'%s' doesn't appear to exist in %s '%s'" %
+                                           (name, distro.capitalize(), release))
     pkg = max(lines, key=lambda x: Version(x['version']))
 
     return FakeSPPH(pkg['source'], pkg['version'], pkg['component'], distro)
 
+
 def get_debian_srcpkg(name, release):
     return _get_srcpkg('debian', name, release)
 
+
 def get_ubuntu_srcpkg(name, release):
     return _get_srcpkg('ubuntu', name, release)
+
 
 def need_sponsorship(name, component, release):
     '''
@@ -84,12 +87,11 @@ def need_sponsorship(name, component, release):
     component.
     '''
 
-    val = YesNoQuestion().ask("Do you have upload permissions for the "
-                              "'%s' component or the package '%s' in "
-                              "Ubuntu %s?\n"
-                              "If in doubt answer 'n'."
-                               % (component, name, release), 'no')
+    val = YesNoQuestion().ask("Do you have upload permissions for the '%s' component or "
+                              "the package '%s' in Ubuntu %s?\nIf in doubt answer 'n'." %
+                              (component, name, release), 'no')
     return val == 'no'
+
 
 def check_existing_reports(srcpkg):
     '''
@@ -99,6 +101,7 @@ def check_existing_reports(srcpkg):
           'https://bugs.launchpad.net/ubuntu/+source/%s/+bugs\n'
           'for duplicate sync requests before continuing.' % srcpkg)
     confirmation_prompt()
+
 
 def get_ubuntu_delta_changelog(srcpkg):
     '''
@@ -118,6 +121,7 @@ def get_ubuntu_delta_changelog(srcpkg):
                   if change.strip()]
 
     return u'\n'.join(delta)
+
 
 def mail_bug(srcpkg, subscribe, status, bugtitle, bugtext, bug_mail_domain,
              keyid, myemailaddr, mailserver_host, mailserver_port,
@@ -177,9 +181,11 @@ Content-Type: text/plain; charset=UTF-8
     confirmation_prompt()
 
     # save mail in temporary file
-    backup = tempfile.NamedTemporaryFile(mode='w', delete=False,
-            prefix='requestsync-' + re.sub(r'[^a-zA-Z0-9_-]', '',
-                                           bugtitle.replace(' ', '_')))
+    backup = tempfile.NamedTemporaryFile(
+        mode='w',
+        delete=False,
+        prefix='requestsync-' + re.sub(r'[^a-zA-Z0-9_-]', '', bugtitle.replace(' ', '_'))
+    )
     with backup:
         backup.write(mail)
 
@@ -201,8 +207,8 @@ Content-Type: text/plain; charset=UTF-8
             Logger.error('Could not connect to %s:%s: %s (%i)',
                          mailserver_host, mailserver_port, s[1], s[0])
             if s.smtp_code == 421:
-                confirmation_prompt(message='This is a temporary error, press '
-                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
+                confirmation_prompt(message='This is a temporary error, press [Enter] '
+                                            'to retry. Press [Ctrl-C] to abort now.')
 
     if mailserver_user and mailserver_pass:
         try:
@@ -228,8 +234,8 @@ Content-Type: text/plain; charset=UTF-8
             smtp_code, smtp_message = smtperror.recipients[to]
             Logger.error('Error while sending: %i, %s', smtp_code, smtp_message)
             if smtp_code == 450:
-                confirmation_prompt(message='This is a temporary error, press '
-                          '[Enter] to retry. Press [Ctrl-C] to abort now.')
+                confirmation_prompt(message='This is a temporary error, press [Enter] '
+                                            'to retry. Press [Ctrl-C] to abort now.')
             else:
                 return
         except smtplib.SMTPResponseException as e:

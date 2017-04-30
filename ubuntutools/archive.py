@@ -29,6 +29,7 @@ Approach:
 
 from __future__ import with_statement, print_function
 
+import codecs
 import hashlib
 import os.path
 try:
@@ -36,19 +37,14 @@ try:
     from urllib.parse import urlparse
     from urllib.error import URLError, HTTPError
 except ImportError:
-    from urllib2 import ProxyHandler, build_opener, urlopen
+    from urllib2 import ProxyHandler, build_opener, urlopen, URLError, HTTPError
     from urlparse import urlparse
-    from urllib2 import URLError, HTTPError
 import re
 import sys
-if sys.version_info[0] >= 3:
-    basestring = str
-    unicode = str    
 
 from debian.changelog import Changelog, Version
 import debian.deb822
 import debian.debian_support
-import codecs
 import httplib2
 
 from ubuntutools.config import UDTConfig
@@ -56,6 +52,10 @@ from ubuntutools.lp.lpapicache import (Launchpad, Distribution,
                                        SourcePackagePublishingHistory)
 from ubuntutools.logger import Logger
 from ubuntutools import subprocess
+
+if sys.version_info[0] >= 3:
+    basestring = str
+    unicode = str
 
 
 class DownloadError(Exception):
@@ -116,8 +116,7 @@ class Dsc(debian.deb822.Dsc):
                 if name not in their_checksums:
                     # file only in one dsc
                     continue
-                if (size != their_checksums[name][0] or
-                    checksum != their_checksums[name][1]):
+                if size != their_checksums[name][0] or checksum != their_checksums[name][1]:
                     return False
             return True  # one checksum is good enough
         return True
@@ -176,12 +175,11 @@ class SourcePackage(object):
                     Launchpad.login_existing(self._lp)
                 else:
                     Launchpad.login_anonymously()
-            spph = (Distribution(self.distribution).getArchive()
-                          .getPublishedSources(
-                              source_name=self.source,
-                              version=self.version.full_version,
-                              exact_match=True,
-                          ))
+            spph = Distribution(self.distribution).getArchive().getPublishedSources(
+                source_name=self.source,
+                version=self.version.full_version,
+                exact_match=True,
+            )
             self._spph = SourcePackagePublishingHistory(spph[0])
         return self._spph
 
@@ -344,7 +342,7 @@ class SourcePackage(object):
                     if block == b'':
                         break
                     downloaded += len(block)
-                    out.write(block)                    
+                    out.write(block)
                     if not self.quiet:
                         percent = downloaded * 100 // size
                         bar = '=' * int(round(downloaded * bar_width / size))
@@ -510,9 +508,8 @@ class DebianSourcePackage(SourcePackage):
 
             try:
                 data = self.url_opener.open(
-                    'http://snapshot.debian.org'
-                    '/mr/package/%s/%s/srcfiles?fileinfo=1'
-                        % (self.source, self.version.full_version))
+                    'http://snapshot.debian.org/mr/package/%s/%s/srcfiles?fileinfo=1' %
+                    (self.source, self.version.full_version))
                 reader = codecs.getreader('utf-8')
                 srcfiles = json.load(reader(data))
 
@@ -543,7 +540,7 @@ class UbuntuCloudArchiveSourcePackage(UbuntuSourcePackage):
     def __init__(self, uca_release, *args, **kwargs):
         super(UbuntuCloudArchiveSourcePackage, self).__init__(*args, **kwargs)
         self._uca_release = uca_release
-        self.masters = [ "http://ubuntu-cloud.archive.canonical.com/ubuntu/" ]
+        self.masters = ["http://ubuntu-cloud.archive.canonical.com/ubuntu/"]
 
     def _lp_url(self, filename):
         "Build a source package URL on Launchpad"
@@ -653,23 +650,23 @@ def rmadison(url, package, suite=None, arch=None):
         #
         # some versions (2.14.1ubuntu0.1) of rmadison return 'sid' when
         # asked about 'unstable'.  Others return 'unstable'.  Accept either.
-        if (suite and dist != suite and not 
+        if (suite and dist != suite and not
                 (suite == 'sid' and dist == 'unstable')):
             continue
 
         if 'source' in archs:
             yield {
-                   'source': pkg,
-                   'version': ver,
-                   'suite': dist,
-                   'component': comp,
-                  }
+                'source': pkg,
+                'version': ver,
+                'suite': dist,
+                'component': comp,
+            }
         archs.discard('source')
         if archs:
             yield {
-                   'binary': pkg,
-                   'version': ver,
-                   'suite': dist,
-                   'component': comp,
-                   'architectures': archs,
-                  }
+                'binary': pkg,
+                'version': ver,
+                'suite': dist,
+                'component': comp,
+                'architectures': archs,
+            }

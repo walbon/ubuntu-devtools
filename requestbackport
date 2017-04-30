@@ -75,12 +75,12 @@ def determine_destinations(source, destination):
 
 
 def disclaimer():
-    print ("Ubuntu's backports are not for fixing bugs in stable releases, "
-           "but for bringing new features to older, stable releases.")
-    print ("See https://wiki.ubuntu.com/UbuntuBackports for the Ubuntu "
-           "Backports policy and processes.")
-    print ("See https://wiki.ubuntu.com/StableReleaseUpdates for the process "
-           "for fixing bugs in stable releases.")
+    print("Ubuntu's backports are not for fixing bugs in stable releases, "
+          "but for bringing new features to older, stable releases.\n"
+          "See https://wiki.ubuntu.com/UbuntuBackports for the Ubuntu "
+          "Backports policy and processes.\n"
+          "See https://wiki.ubuntu.com/StableReleaseUpdates for the process "
+          "for fixing bugs in stable releases.")
     confirmation_prompt()
 
 
@@ -129,11 +129,9 @@ def find_rdepends(releases, published_binaries):
                         if rdep['Package'] in published_binaries:
                             continue
                         # arch==any queries return Reverse-Build-Deps:
-                        if (arch == 'any' and rdep.get('Architectures', [])
-                                              == ['source']):
+                        if arch == 'any' and rdep.get('Architectures', []) == ['source']:
                             continue
-                        intermediate[binpkg][rdep['Package']] \
-                                .append((release, relationship))
+                        intermediate[binpkg][rdep['Package']].append((release, relationship))
 
     output = []
     for binpkg, rdeps in intermediate.iteritems():
@@ -240,8 +238,7 @@ def request_backport(package_spph, source, destinations):
             + testing
             + [""]
             + find_rdepends(destinations, published_binaries)
-            + [""]
-        ) % subst)
+            + [""]) % subst)
 
     editor = EditBugReport(subject, body)
     editor.edit()

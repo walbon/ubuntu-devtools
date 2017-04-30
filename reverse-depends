@@ -33,7 +33,8 @@ def main():
         Logger.warn(e)
         default_release = 'unstable'
 
-    parser = optparse.OptionParser('%prog [options] package',
+    parser = optparse.OptionParser(
+        '%prog [options] package',
         description="List reverse-dependencies of package. "
                     "If the package name is prefixed with src: then the "
                     "reverse-dependencies of all the binary packages that "
@@ -51,8 +52,7 @@ def main():
                       help='Also consider Suggests relationships')
     parser.add_option('-b', '--build-depends',
                       action='store_const', dest='arch', const='source',
-                      help='Query build dependencies (synonym for '
-                            '--arch=source)')
+                      help='Query build dependencies (synonym for --arch=source)')
     parser.add_option('-a', '--arch', metavar='ARCH', default='any',
                       help='Query dependencies in ARCH. '
                            'Default: any')

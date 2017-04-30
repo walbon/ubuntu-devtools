@@ -15,10 +15,6 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-try:
-    import builtins
-except ImportError:
-    import __builtin__
 import os
 import sys
 import locale
@@ -32,6 +28,7 @@ import mock
 from ubuntutools.config import UDTConfig, ubu_email
 from ubuntutools.logger import Logger
 from ubuntutools.test import unittest
+
 
 class ConfigTestCase(unittest.TestCase):
     _config_files = {
@@ -63,7 +60,7 @@ class ConfigTestCase(unittest.TestCase):
         patcher = mock.patch(target, m)
         self.addCleanup(patcher.stop)
         patcher.start()
-        
+
         Logger.stdout = StringIO()
         Logger.stderr = StringIO()
 
@@ -183,22 +180,22 @@ class UbuEmailTestCase(unittest.TestCase):
                 del os.environ[k]
 
     def test_pristine(self):
-        os.environ['DEBFULLNAME'] = name  = 'Joe Developer'
-        os.environ['DEBEMAIL']    = email = 'joe@example.net'
+        os.environ['DEBFULLNAME'] = name = 'Joe Developer'
+        os.environ['DEBEMAIL'] = email = 'joe@example.net'
         self.assertEqual(ubu_email(), (name, email))
 
     def test_two_hat(self):
-        os.environ['DEBFULLNAME'] = name  = 'Joe Developer'
-        os.environ['DEBEMAIL']            = 'joe@debian.org'
-        os.environ['UBUMAIL']     = email = 'joe@ubuntu.com'
+        os.environ['DEBFULLNAME'] = name = 'Joe Developer'
+        os.environ['DEBEMAIL'] = 'joe@debian.org'
+        os.environ['UBUMAIL'] = email = 'joe@ubuntu.com'
         self.assertEqual(ubu_email(), (name, email))
         self.assertEqual(os.environ['DEBFULLNAME'], name)
         self.assertEqual(os.environ['DEBEMAIL'], email)
 
     def test_two_hat_cmdlineoverride(self):
         os.environ['DEBFULLNAME'] = 'Joe Developer'
-        os.environ['DEBEMAIL']    = 'joe@debian.org'
-        os.environ['UBUMAIL']     = 'joe@ubuntu.com'
+        os.environ['DEBEMAIL'] = 'joe@debian.org'
+        os.environ['UBUMAIL'] = 'joe@ubuntu.com'
         name = 'Foo Bar'
         email = 'joe@example.net'
         self.assertEqual(ubu_email(name, email), (name, email))
@@ -206,16 +203,16 @@ class UbuEmailTestCase(unittest.TestCase):
         self.assertEqual(os.environ['DEBEMAIL'], email)
 
     def test_two_hat_noexport(self):
-        os.environ['DEBFULLNAME'] = name   = 'Joe Developer'
-        os.environ['DEBEMAIL']    = demail = 'joe@debian.org'
-        os.environ['UBUMAIL']     = uemail = 'joe@ubuntu.com'
+        os.environ['DEBFULLNAME'] = name = 'Joe Developer'
+        os.environ['DEBEMAIL'] = demail = 'joe@debian.org'
+        os.environ['UBUMAIL'] = uemail = 'joe@ubuntu.com'
         self.assertEqual(ubu_email(export=False), (name, uemail))
         self.assertEqual(os.environ['DEBFULLNAME'], name)
         self.assertEqual(os.environ['DEBEMAIL'], demail)
 
     def test_two_hat_with_name(self):
         os.environ['DEBFULLNAME'] = 'Joe Developer'
-        os.environ['DEBEMAIL']    = 'joe@debian.org'
+        os.environ['DEBEMAIL'] = 'joe@debian.org'
         name = 'Joe Ubuntunista'
         email = 'joe@ubuntu.com'
         os.environ['UBUMAIL'] = '%s <%s>' % (name, email)
@@ -242,6 +239,7 @@ class UbuEmailTestCase(unittest.TestCase):
         try:
             os.environ['DEBFULLNAME'] = env_name
         except UnicodeEncodeError:
-            raise unittest.SkipTest("python interpreter is not running in an unicode capable locale")
-        os.environ['DEBEMAIL']    = email = 'joe@example.net'
+            raise unittest.SkipTest("python interpreter is not running in an "
+                                    "unicode capable locale")
+        os.environ['DEBEMAIL'] = email = 'joe@example.net'
         self.assertEqual(ubu_email(), (name, email))

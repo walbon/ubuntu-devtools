@@ -208,7 +208,7 @@ def sync_dsc(src_pkg, debian_dist, release, name, email, bugs, ubuntu_mirror,
         remove_signature(src_pkg.dsc_name)
         if keyid is not False:
             cmd = ["debsign", changes_filename]
-            if not keyid is None:
+            if keyid is not None:
                 cmd.insert(1, "-k" + keyid)
             Logger.command(cmd)
             subprocess.check_call(cmd)
@@ -521,11 +521,12 @@ def parse():
                       help="Show what would be done, but don't actually do "
                            "it.")
 
-    no_lp = optparse.OptionGroup(parser, "Local sync preparation options",
-            "Options that only apply when using --no-lp.  "
-            "WARNING: The use of --no-lp is not recommended for uploads "
-            "targeted at Ubuntu. "
-            "The archive-admins discourage its use, except for fakesyncs.")
+    no_lp = optparse.OptionGroup(
+        parser, "Local sync preparation options",
+        "Options that only apply when using --no-lp.  "
+        "WARNING: The use of --no-lp is not recommended for uploads "
+        "targeted at Ubuntu. "
+        "The archive-admins discourage its use, except for fakesyncs.")
     no_lp.add_option("--no-lp",
                      dest="lp", action="store_false", default=True,
                      help="Construct sync locally, rather than letting "

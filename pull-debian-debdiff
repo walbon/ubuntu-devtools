@@ -27,6 +27,7 @@ from ubuntutools.archive import DebianSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
+
 def previous_version(package, version, distance):
     "Given an (extracted) package, determine the version distance versions ago"
     upver = debian.debian_support.Version(version).upstream_version
@@ -42,6 +43,7 @@ def previous_version(package, version, distance):
             return entry.version.full_version
         seen += 1
     return False
+
 
 def main():
     parser = optparse.OptionParser('%prog [options] <package> <version> '
@@ -104,6 +106,7 @@ def main():
         sys.exit(1)
     oldpkg.unpack()
     print 'file://' + oldpkg.debdiff(newpkg, diffstat=True)
+
 
 if __name__ == '__main__':
     try:

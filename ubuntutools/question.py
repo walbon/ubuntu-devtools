@@ -22,11 +22,11 @@ import tempfile
 import os
 import re
 import sys
-if sys.version_info[0] < 3:
-    input = raw_input
-
 
 import ubuntutools.subprocess
+
+if sys.version_info[0] < 3:
+    input = raw_input  # noqa
 
 
 class Question(object):
@@ -73,8 +73,7 @@ class Question(object):
                     if selected == option[0]:
                         selected = option
             if selected not in self.options:
-                print("Please answer the question with " + \
-                      self.get_options() + ".")
+                print("Please answer the question with " + self.get_options() + ".")
         return selected
 
 
@@ -101,8 +100,7 @@ def input_number(question, min_number, max_number, default=None):
             try:
                 selected = int(selected)
                 if selected < min_number or selected > max_number:
-                    print("Please input a number between %i and %i." % \
-                          (min_number, max_number))
+                    print("Please input a number between %i and %i." % (min_number, max_number))
             except ValueError:
                 print("Please input a number.")
     assert type(selected) == int

@@ -23,10 +23,12 @@ import os
 from ubuntutools.logger import Logger
 from ubuntutools import subprocess
 
+
 def _build_preparation(result_directory):
     """prepares the builder for building a package"""
     if not os.path.isdir(result_directory):
         os.makedirs(result_directory)
+
 
 class Builder(object):
     def __init__(self, name):
@@ -37,7 +39,7 @@ class Builder(object):
 
     def _build_failure(self, returncode, dsc_file):
         if returncode != 0:
-            Logger.error("Failed to build %s from source with %s." % \
+            Logger.error("Failed to build %s from source with %s." %
                          (os.path.basename(dsc_file), self.name))
         return returncode
 
@@ -55,7 +57,7 @@ class Builder(object):
 
     def _update_failure(self, returncode, dist):
         if returncode != 0:
-            Logger.error("Failed to update %s chroot for %s." % \
+            Logger.error("Failed to update %s chroot for %s." %
                          (dist, self.name))
         return returncode
 
@@ -142,10 +144,10 @@ class Sbuild(Builder):
                     ["sbuild-distupgrade"],
                     ["sbuild-clean", "-a", "-c"]]
         for cmd in commands:
-            #pylint: disable=W0631
+            # pylint: disable=W0631
             Logger.command(cmd + [chroot])
             ret = subprocess.call(cmd + [chroot])
-            #pylint: enable=W0631
+            # pylint: enable=W0631
             if ret != 0:
                 return self._update_failure(ret, dist)
         return 0
@@ -158,6 +160,7 @@ _SUPPORTED_BUILDERS = {
     "pbuilder-dist": lambda: Pbuilderdist(),
     "sbuild": lambda: Sbuild(),
 }
+
 
 def get_builder(name):
     if name in _SUPPORTED_BUILDERS:

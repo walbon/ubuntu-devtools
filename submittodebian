@@ -39,8 +39,8 @@ from ubuntutools.update_maintainer import update_maintainer, restore_maintainer
 try:
     from debian.changelog import Changelog
 except ImportError:
-    print (u"This utility requires modules from the «python-debian» package, "
-           u"which isn't currently installed.")
+    print(u"This utility requires modules from the «python-debian» package, "
+          u"which isn't currently installed.")
     sys.exit(1)
 
 
@@ -264,6 +264,7 @@ def main():
     os.unlink(body)
     os.unlink(debdiff)
     shutil.rmtree(tmpdir)
+
 
 if __name__ == '__main__':
     main()

@@ -29,6 +29,7 @@ import httplib2
 
 from ubuntutools.logger import Logger
 
+
 def is_sync(bug):
     """Checks if a Launchpad bug is a sync request.
 

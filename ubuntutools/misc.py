@@ -35,6 +35,8 @@ from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 from ubuntutools.subprocess import Popen, PIPE
 
 _system_distribution_chain = []
+
+
 def system_distribution_chain():
     """ system_distribution_chain() -> [string]
 
@@ -51,8 +53,7 @@ def system_distribution_chain():
                       stdout=PIPE)
             _system_distribution_chain.append(p.communicate()[0].strip())
         except OSError:
-            print ('Error: Could not determine what distribution you are '
-                   'running.')
+            print('Error: Could not determine what distribution you are running.')
             return []
 
         while True:
@@ -74,6 +75,7 @@ def system_distribution_chain():
 
     return _system_distribution_chain
 
+
 def system_distribution():
     """ system_distro() -> string
 
@@ -83,6 +85,7 @@ def system_distribution():
     """
     return system_distribution_chain()[0]
 
+
 def host_architecture():
     """ host_architecture -> string
 
@@ -90,15 +93,15 @@ def host_architecture():
     architecture can't be determined, print an error message and return None.
     """
 
-    arch = Popen(['dpkg', '--print-architecture'], stdout=PIPE, \
+    arch = Popen(['dpkg', '--print-architecture'], stdout=PIPE,
                  stderr=PIPE).communicate()[0].split()
 
     if not arch or 'not found' in arch[0]:
-        print('Error: Not running on a Debian based system; could not ' \
-            'detect its architecture.')
+        print('Error: Not running on a Debian based system; could not detect its architecture.')
         return None
 
     return arch[0]
+
 
 def readlist(filename, uniq=True):
     """ readlist(filename, uniq) -> list
@@ -124,6 +127,7 @@ def readlist(filename, uniq=True):
 
     return items
 
+
 def split_release_pocket(release, default='Release'):
     '''Splits the release and pocket name.
 
@@ -141,23 +145,23 @@ def split_release_pocket(release, default='Release'):
         (release, pocket) = release.rsplit('-', 1)
         pocket = pocket.capitalize()
 
-        if pocket not in ('Release', 'Security', 'Updates', 'Proposed',
-                'Backports'):
-            raise PocketDoesNotExistError("Pocket '%s' does not exist." % \
-                                          pocket)
+        if pocket not in ('Release', 'Security', 'Updates', 'Proposed', 'Backports'):
+            raise PocketDoesNotExistError("Pocket '%s' does not exist." % pocket)
 
     return (release, pocket)
+
 
 def require_utf8():
     '''Can be called by programs that only function in UTF-8 locales'''
     if locale.getpreferredencoding() != 'UTF-8':
-        print(("This program only functions in a UTF-8 locale. "
-                              "Aborting."), file=sys.stderr)
+        print("This program only functions in a UTF-8 locale. Aborting.", file=sys.stderr)
         sys.exit(1)
 
 
 _vendor_to_distroinfo = {"Debian": distro_info.DebianDistroInfo,
                          "Ubuntu": distro_info.UbuntuDistroInfo}
+
+
 def vendor_to_distroinfo(vendor):
     """ vendor_to_distroinfo(string) -> DistroInfo class
 
@@ -166,6 +170,7 @@ def vendor_to_distroinfo(vendor):
     unknown.
     """
     return _vendor_to_distroinfo.get(vendor)
+
 
 def codename_to_distribution(codename):
     """ codename_to_distribution(string) -> string

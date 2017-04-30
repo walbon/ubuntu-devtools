@@ -26,20 +26,13 @@
 
 
 import re
-import json
-import os
 import sys
-import urllib2
 from optparse import OptionParser
-
-from distro_info import UbuntuDistroInfo, DistroDataOutdated
 
 from ubuntutools.archive import UbuntuCloudArchiveSourcePackage, DownloadError
 from ubuntutools.config import UDTConfig
-from ubuntutools.lp.lpapicache import Distribution, Launchpad
-from ubuntutools.lp.udtexceptions import (SeriesNotFoundException,
-                                          PackageNotFoundException,
-                                          PocketDoesNotExistError)
+from ubuntutools.lp.lpapicache import Launchpad
+from ubuntutools.lp.udtexceptions import PocketDoesNotExistError
 from ubuntutools.logger import Logger
 from ubuntutools.misc import split_release_pocket
 
@@ -51,13 +44,13 @@ from launchpadlib.launchpad import Launchpad as LP
 def showOpenstackReleases(uca):
     releases = []
     for p in uca.ppas:
-        if re.match("\w*-staging", p.name):
+        if re.match(r"\w*-staging", p.name):
             releases.append(re.sub("-staging", "", p.name))
     Logger.error("Openstack releases are:\n\t%s", ", ".join(releases))
 
 
 def getSPPH(lp, archive, package, version=None, series=None, pocket=None, try_binary=True):
-    params = { 'exact_match': True, 'order_by_date': True, }
+    params = {'exact_match': True, 'order_by_date': True}
     if pocket:
         params['pocket'] = pocket
     if series:
@@ -155,6 +148,7 @@ def main():
         sys.exit(1)
     if not options.download_only:
         srcpkg.unpack()
+
 
 if __name__ == '__main__':
     try:

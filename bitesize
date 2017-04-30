@@ -30,9 +30,11 @@ from launchpadlib.errors import HTTPError
 from ubuntutools.config import UDTConfig
 from ubuntutools.logger import Logger
 
+
 def error_out(msg):
     Logger.error(msg)
     sys.exit(1)
+
 
 def save_entry(entry):
     try:
@@ -40,9 +42,11 @@ def save_entry(entry):
     except HTTPError, error:
         error_out(error.content)
 
+
 def tag_bug(bug):
-    bug.tags = bug.tags + ['bitesize'] # LP: #254901 workaround
+    bug.tags = bug.tags + ['bitesize']  # LP: #254901 workaround
     save_entry(bug)
+
 
 def main():
     usage = "Usage: %prog <bug number>"
@@ -71,7 +75,7 @@ def main():
         bug = launchpad.bugs[args[0]]
     except HTTPError, error:
         if error.response.status == 401:
-            error_out("Don't have enough permissions to access bug %s. %s" % \
+            error_out("Don't have enough permissions to access bug %s. %s" %
                       (args[0], error.content))
         else:
             raise
@@ -82,7 +86,8 @@ def main():
                            "for newcomers in Ubuntu development. If you need "
                            "any help with fixing it, talk to me about it.")
     bug.subscribe(person=launchpad.me)
-    tag_bug(launchpad.bugs[bug.id]) # fresh bug object, LP: #336866 workaround
+    tag_bug(launchpad.bugs[bug.id])  # fresh bug object, LP: #336866 workaround
+
 
 if __name__ == '__main__':
     main()

@@ -25,6 +25,7 @@ except ImportError:
     from urllib import urlencode
     from urlparse import urlsplit, urlunsplit
 
+
 def query_to_dict(query_string):
     result = dict()
     options = filter(None, query_string.split("&"))
@@ -32,6 +33,7 @@ def query_to_dict(query_string):
         key, value = opt.split("=")
         result.setdefault(key, set()).add(value)
     return result
+
 
 def translate_web_api(url, launchpad):
     scheme, netloc, path, query, fragment = urlsplit(url)
@@ -45,10 +47,9 @@ def translate_web_api(url, launchpad):
     if path.endswith("/+bugs"):
         path = path[:-6]
         if "ws.op" in query:
-            raise ValueError("Invalid web url, url: %s" %url)
+            raise ValueError("Invalid web url, url: %s" % url)
         query["ws.op"] = "searchTasks"
     scheme, netloc, api_path, _, _ = urlsplit(str(launchpad._root_uri))
     query = urlencode(query)
-    url = urlunsplit((scheme, netloc, api_path + path.lstrip("/"),
-                               query, fragment))
+    url = urlunsplit((scheme, netloc, api_path + path.lstrip("/"), query, fragment))
     return url

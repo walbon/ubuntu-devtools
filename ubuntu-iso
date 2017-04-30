@@ -25,6 +25,7 @@ import sys
 
 from ubuntutools import subprocess
 
+
 def extract(iso, path):
     command = ['isoinfo', '-R', '-i', iso, '-x', path]
     pipe = subprocess.Popen(command, stdout=subprocess.PIPE,
@@ -36,6 +37,7 @@ def extract(iso, path):
         sys.exit(pipe.returncode)
 
     return stdout
+
 
 def main():
     desc = 'Given an ISO, %prog will display the Ubuntu version information'
@@ -61,6 +63,7 @@ def main():
 
     if err:
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

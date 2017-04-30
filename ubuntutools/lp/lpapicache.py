@@ -24,16 +24,32 @@
 from __future__ import print_function
 
 # Uncomment for tracing LP API calls
-#import httplib2
-#httplib2.debuglevel = 1
+# import httplib2
+# httplib2.debuglevel = 1
 
+import collections
 import sys
+
+from debian.changelog import Changelog, Version
+from httplib2 import Http, HttpLib2Error
+from launchpadlib.launchpad import Launchpad as LP
+from launchpadlib.errors import HTTPError
+from lazr.restfulclient.resource import Entry
+
+from ubuntutools.lp import (service, api_version)
+from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
+                                          ArchiveNotFoundException,
+                                          ArchSeriesNotFoundException,
+                                          PackageNotFoundException,
+                                          PocketDoesNotExistError,
+                                          SeriesNotFoundException)
 
 if sys.version_info[0] >= 3:
     basestring = str
     unicode = str
 
-#Shameless steal from python-six
+
+# Shameless steal from python-six
 def add_metaclass(metaclass):
     """Class decorator for creating a class with a metaclass."""
     def wrapper(cls):
@@ -49,20 +65,6 @@ def add_metaclass(metaclass):
         return metaclass(cls.__name__, cls.__bases__, orig_vars)
     return wrapper
 
-from debian.changelog import Changelog, Version
-from httplib2 import Http, HttpLib2Error
-from launchpadlib.launchpad import Launchpad as LP
-from launchpadlib.errors import HTTPError
-from lazr.restfulclient.resource import Entry
-
-from ubuntutools.lp import (service, api_version)
-from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
-                                          ArchiveNotFoundException,
-                                          ArchSeriesNotFoundException,
-                                          PackageNotFoundException,
-                                          PocketDoesNotExistError,
-                                          SeriesNotFoundException)
-import collections
 
 __all__ = [
     'Archive',
@@ -121,6 +123,8 @@ class _Launchpad(object):
 
     def __call__(self):
         return self
+
+
 Launchpad = _Launchpad()
 
 
@@ -131,7 +135,7 @@ class MetaWrapper(type):
     def __init__(cls, name, bases, attrd):
         super(MetaWrapper, cls).__init__(name, bases, attrd)
         if 'resource_type' not in attrd:
-            raise TypeError('Class "%s" needs an associated resource type' % \
+            raise TypeError('Class "%s" needs an associated resource type' %
                             name)
         cls._cache = dict()
 
@@ -144,8 +148,7 @@ class BaseWrapper(object):
     resource_type = None  # it's a base class after all
 
     def __new__(cls, data):
-        if (isinstance(data, basestring) and
-            data.startswith(str(Launchpad._root_uri))):
+        if isinstance(data, basestring) and data.startswith(str(Launchpad._root_uri)):
             # looks like a LP API URL
             # check if it's already cached
             cached = cls._cache.get(data)
@@ -161,8 +164,7 @@ class BaseWrapper(object):
 
         if isinstance(data, Entry):
             (service_root, resource_type) = data.resource_type_link.split('#')
-            if (service_root == str(Launchpad._root_uri) and
-                resource_type in cls.resource_type):
+            if service_root == str(Launchpad._root_uri) and resource_type in cls.resource_type:
                 # check if it's already cached
                 cached = cls._cache.get(data.self_link)
                 if not cached:
@@ -254,7 +256,7 @@ class Distribution(BaseWrapper):
                           (archive, self.display_name)
                 raise ArchiveNotFoundException(message)
         else:
-            if not '_main_archive' in self.__dict__:
+            if '_main_archive' not in self.__dict__:
                 self._main_archive = Archive(self.main_archive_link)
             return self._main_archive
 
@@ -266,8 +268,7 @@ class Distribution(BaseWrapper):
         '''
         if name_or_version not in self._series:
             try:
-                series = DistroSeries(
-                        self().getSeries(name_or_version=name_or_version))
+                series = DistroSeries(self().getSeries(name_or_version=name_or_version))
                 # Cache with name and version
                 self._series[series.name] = series
                 self._series[series.version] = series
@@ -448,7 +449,7 @@ class Archive(BaseWrapper):
                 else:
                     package_type = "package"
                 msg = ("The %s '%s' does not exist in the %s %s archive" %
-                        (package_type, name, dist.display_name, self.name))
+                       (package_type, name, dist.display_name, self.name))
                 if archtag is not None and archtag != []:
                     msg += " for architecture %s" % archtag
                 pockets = [series.name if pocket == 'Release'
@@ -492,10 +493,9 @@ class Archive(BaseWrapper):
         '''
         if component_name not in self._component_uploaders:
             self._component_uploaders[component_name] = sorted(set(
-                    PersonTeam(permission.person_link)
-                    for permission in self._lpobject.getUploadersForComponent(
-                        component_name=component_name
-                    )))
+                PersonTeam(permission.person_link) for permission in
+                self._lpobject.getUploadersForComponent(component_name=component_name)
+            ))
         return self._component_uploaders[component_name]
 
     def getUploadersForPackage(self, source_package_name):
@@ -504,10 +504,9 @@ class Archive(BaseWrapper):
         '''
         if source_package_name not in self._pkg_uploaders:
             self._pkg_uploaders[source_package_name] = sorted(set(
-                    PersonTeam(permission.person_link)
-                    for permission in self._lpobject.getUploadersForPackage(
-                        source_package_name=source_package_name
-                    )))
+                PersonTeam(permission.person_link) for permission in
+                self._lpobject.getUploadersForPackage(source_package_name=source_package_name)
+            ))
         return self._pkg_uploaders[source_package_name]
 
     def getUploadersForPackageset(self, packageset, direct_permissions=False):
@@ -517,11 +516,12 @@ class Archive(BaseWrapper):
         key = (packageset, direct_permissions)
         if key not in self._pkgset_uploaders:
             self._pkgset_uploaders[key] = sorted(set(
-                    PersonTeam(permission.person_link)
-                    for permission in self._lpobject.getUploadersForPackageset(
-                        packageset=packageset._lpobject,
-                        direct_permissions=direct_permissions,
-                    )))
+                PersonTeam(permission.person_link) for permission in
+                self._lpobject.getUploadersForPackageset(
+                    packageset=packageset._lpobject,
+                    direct_permissions=direct_permissions,
+                )
+            ))
         return self._pkgset_uploaders[key]
 
 
@@ -576,9 +576,8 @@ class SourcePackagePublishingHistory(BaseWrapper):
         if self._changelog is None:
             url = self._lpobject.changelogUrl()
             if url is None:
-                print(('E: No changelog available for %s %s',
-                                      (self.getPackageName(),
-                                       self.getVersion())), file=sys.stderr)
+                print('E: No changelog available for %s %s' %
+                      (self.getPackageName(), self.getVersion()), file=sys.stderr)
                 return None
 
             try:
@@ -587,8 +586,7 @@ class SourcePackagePublishingHistory(BaseWrapper):
                 print(str(e), file=sys.stderr)
                 return None
             if response.status != 200:
-                print(('%s: %s %s' % (url, response.status,
-                                                     response.reason)), file=sys.stderr)
+                print('%s: %s %s' % (url, response.status, response.reason), file=sys.stderr)
                 return None
             self._changelog = changelog
 
@@ -700,7 +698,7 @@ class BinaryPackagePublishingHistory(BaseWrapper):
             return self._lpobject.binaryFileUrls()
         except AttributeError:
             raise AttributeError("binaryFileUrls can only be found in lpapi "
-                    "devel, not 1.0. Login using devel to have it.")
+                                 "devel, not 1.0. Login using devel to have it.")
 
 
 class MetaPersonTeam(MetaWrapper):
@@ -727,10 +725,7 @@ class PersonTeam(BaseWrapper):
     Wrapper class around a LP person or team object.
     '''
 
-    resource_type = (
-            'person',
-            'team',
-            )
+    resource_type = ('person', 'team')
 
     def __init__(self, *args):
         # Don't share _upload between different PersonTeams
@@ -794,12 +789,12 @@ class PersonTeam(BaseWrapper):
             # checkUpload() throws an exception if the person can't upload
             try:
                 archive.checkUpload(
-                        component=component,
-                        distroseries=distroseries(),
-                        person=self(),
-                        pocket=pocket,
-                        sourcepackagename=package,
-                        )
+                    component=component,
+                    distroseries=distroseries(),
+                    person=self(),
+                    pocket=pocket,
+                    sourcepackagename=package,
+                )
                 canUpload = True
             except HTTPError as e:
                 if e.response.status == 403:
@@ -866,9 +861,7 @@ class Packageset(BaseWrapper):
             if distroseries is not None:
                 params['distroseries'] = distroseries._lpobject
 
-            cls._source_sets[key] = [
-                    Packageset(packageset) for packageset
-                    in cls._lp_packagesets.setsIncludingSource(**params)
-            ]
+            cls._source_sets[key] = [Packageset(packageset) for packageset in
+                                     cls._lp_packagesets.setsIncludingSource(**params)]
 
         return cls._source_sets[key]

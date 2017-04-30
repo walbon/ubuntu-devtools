@@ -42,6 +42,7 @@ from ubuntutools.question import confirmation_prompt, EditBugReport
 # entry point
 #
 
+
 def main():
     # Our usage options.
     usage = ('Usage: %prog [options] '
@@ -208,9 +209,8 @@ def main():
         ubuntu_version = Version('~')
         ubuntu_component = None  # Set after getting the Debian info
         if not newsource:
-            print ("'%s' doesn't exist in 'Ubuntu %s'.\n"
-                   "Do you want to sync a new package?"
-                   % (srcpkg, release))
+            print("'%s' doesn't exist in 'Ubuntu %s'.\nDo you want to sync a new package?" %
+                  (srcpkg, release))
             confirmation_prompt()
             newsource = True
     except udtexceptions.SeriesNotFoundException, error:
@@ -240,8 +240,7 @@ def main():
         # try rmadison
         import ubuntutools.requestsync.mail
         try:
-            debian_srcpkg = ubuntutools.requestsync.mail.get_debian_srcpkg(
-                    srcpkg, distro)
+            debian_srcpkg = ubuntutools.requestsync.mail.get_debian_srcpkg(srcpkg, distro)
             debian_version = Version(debian_srcpkg.getVersion())
             debian_component = debian_srcpkg.getComponent()
         except udtexceptions.PackageNotFoundException, error:
@@ -249,9 +248,8 @@ def main():
             sys.exit(1)
 
     if ubuntu_version == debian_version:
-        print  >> sys.stderr, ('E: The versions in Debian and Ubuntu are the '
-                               'same already (%s). Aborting.'
-                               % ubuntu_version)
+        print >> sys.stderr, ('E: The versions in Debian and Ubuntu are the '
+                              'same already (%s). Aborting.' % ubuntu_version)
         sys.exit(1)
     if ubuntu_version > debian_version:
         print >> sys.stderr, ('E: The version in Ubuntu (%s) is newer than '
@@ -283,9 +281,9 @@ def main():
     if 'ubuntu' in str(ubuntu_version):
         need_interaction = True
 
-        print ('Changes have been made to the package in Ubuntu.\n'
-               'Please edit the report and give an explanation.\n'
-               'Not saving the report file will abort the request.')
+        print('Changes have been made to the package in Ubuntu.\n'
+              'Please edit the report and give an explanation.\n'
+              'Not saving the report file will abort the request.')
         report += (u'Explanation of the Ubuntu delta and why it can be '
                    u'dropped:\n%s\n>>> ENTER_EXPLANATION_HERE <<<\n\n'
                    % get_ubuntu_delta_changelog(ubuntu_srcpkg))
@@ -293,9 +291,9 @@ def main():
     if ffe:
         need_interaction = True
 
-        print ('To approve FeatureFreeze exception, you need to state\n'
-               'the reason why you feel it is necessary.\n'
-               'Not saving the report file will abort the request.')
+        print('To approve FeatureFreeze exception, you need to state\n'
+              'the reason why you feel it is necessary.\n'
+              'Not saving the report file will abort the request.')
         report += ('Explanation of FeatureFreeze exception:\n'
                    '>>> ENTER_EXPLANATION_HERE <<<\n\n')
 
@@ -353,6 +351,7 @@ def main():
         mail_bug(srcpkg, subscribe, status, title, report, bug_mail_domain,
                  options.keyid, email_from, mailserver_host, mailserver_port,
                  mailserver_user, mailserver_pass)
+
 
 if __name__ == '__main__':
     try:

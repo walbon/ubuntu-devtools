@@ -169,8 +169,7 @@ def update_maintainer(debian_directory, verbose=False):
 
         if original_maintainer.strip().endswith("ubuntu.com>"):
             if verbose:
-                print ("The Maintainer email is set to an ubuntu.com address. "
-                       "Doing nothing.")
+                print("The Maintainer email is set to an ubuntu.com address. Doing nothing.")
             continue
 
         if distribution in ("stable", "testing", "unstable", "experimental"):

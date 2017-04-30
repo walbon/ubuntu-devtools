@@ -32,15 +32,15 @@ from ubuntutools.sponsor_patch.question import (ask_for_ignoring_or_fixing,
                                                 ask_for_manual_fixing,
                                                 user_abort)
 
+
 def _get_series(launchpad):
     """Returns a tuple with the development and list of supported series."""
-    #pylint: disable=E1101
     ubuntu = launchpad.distributions['ubuntu']
-    #pylint: enable=E1101
     devel_series = ubuntu.current_series.name
     supported_series = [series.name for series in ubuntu.series
                         if series.active and series.name != devel_series]
     return (devel_series, supported_series)
+
 
 def strip_epoch(version):
     """Removes the epoch from a Debian version string.
@@ -54,6 +54,7 @@ def strip_epoch(version):
         del parts[0]
     version_without_epoch = ':'.join(parts)
     return version_without_epoch
+
 
 class SourcePackage(object):
     """This class represents a source package."""
@@ -134,8 +135,7 @@ class SourcePackage(object):
             else:
                 target = upload
             question = Question(["yes", "edit", "no"])
-            answer = question.ask("Do you want to upload the package to %s" % \
-                                  target, "no")
+            answer = question.ask("Do you want to upload the package to %s" % target, "no")
             if answer == "edit":
                 return False
             elif answer == "no":
@@ -143,7 +143,7 @@ class SourcePackage(object):
             cmd = ["dput", "--force", upload, self._changes_file]
             Logger.command(cmd)
             if subprocess.call(cmd) != 0:
-                Logger.error("Upload of %s to %s failed." % \
+                Logger.error("Upload of %s to %s failed." %
                              (os.path.basename(self._changes_file), upload))
                 sys.exit(1)
 
@@ -175,8 +175,8 @@ class SourcePackage(object):
 
         if dist is None:
             dist = re.sub("-.*$", "", self._changelog.distributions)
-        build_name = self._package + "_" + strip_epoch(self._version) + \
-                     "_" + self._builder.get_architecture() + ".build"
+        build_name = "{}_{}_{}.build".format(self._package, strip_epoch(self._version),
+                                             self._builder.get_architecture())
         self._build_log = os.path.join(self._buildresult, build_name)
 
         successful_built = False
@@ -195,8 +195,7 @@ class SourcePackage(object):
                                          self._buildresult)
             if result != 0:
                 question = Question(["yes", "update", "retry", "no"])
-                answer =  question.ask("Do you want to resolve this issue "
-                                       "manually", "yes")
+                answer = question.ask("Do you want to resolve this issue manually", "yes")
                 if answer == "yes":
                     break
                 elif answer == "update":
@@ -237,7 +236,7 @@ class SourcePackage(object):
             cmd.append("-sd")
         else:
             cmd.append("-sa")
-        if not keyid is None:
+        if keyid is not None:
             cmd += ["-k" + keyid]
         env = os.environ
         if upload == 'ubuntu':
@@ -253,9 +252,8 @@ class SourcePackage(object):
     @property
     def _changes_file(self):
         """Returns the file name of the .changes file."""
-        return os.path.join(self._workdir, self._package + "_" +
-                                           strip_epoch(self._version) +
-                                           "_source.changes")
+        return os.path.join(self._workdir, "{}_{}_source.changes"
+                            .format(self._package, strip_epoch(self._version)))
 
     def check_target(self, upload, launchpad):
         """Make sure that the target is correct.
@@ -271,16 +269,14 @@ class SourcePackage(object):
                       [s + "-proposed" for s in supported_series] + \
                       [devel_series]
             if self._changelog.distributions not in allowed:
-                Logger.error(("%s is not an allowed series. It needs to be one "
-                             "of %s.") % (self._changelog.distributions,
-                                          ", ".join(allowed)))
+                Logger.error("%s is not an allowed series. It needs to be one of %s." %
+                             (self._changelog.distributions, ", ".join(allowed)))
                 return ask_for_ignoring_or_fixing()
         elif upload and upload.startswith("ppa/"):
             allowed = supported_series + [devel_series]
             if self._changelog.distributions not in allowed:
-                Logger.error(("%s is not an allowed series. It needs to be one "
-                             "of %s.") % (self._changelog.distributions,
-                                          ", ".join(allowed)))
+                Logger.error("%s is not an allowed series. It needs to be one of %s." %
+                             (self._changelog.distributions, ", ".join(allowed)))
                 return ask_for_ignoring_or_fixing()
         return True
 
@@ -303,24 +299,22 @@ class SourcePackage(object):
 
         if not task.title_contains(self._version):
             print("Bug #%i title: %s" % (bug_number, task.get_bug_title()))
-            msg = "Is %s %s the version that should be synced" % (self._package,
-                                                                  self._version)
-            answer =  YesNoQuestion().ask(msg, "no")
+            msg = "Is %s %s the version that should be synced" % (self._package, self._version)
+            answer = YesNoQuestion().ask(msg, "no")
             if answer == "no":
                 user_abort()
 
     @property
     def _debdiff_filename(self):
         """Returns the file name of the .debdiff file."""
-        debdiff_name = self._package + "_" + strip_epoch(self._version) + \
-                       ".debdiff"
+        debdiff_name = "{}_{}.debdiff".format(self._package, strip_epoch(self._version))
         return os.path.join(self._workdir, debdiff_name)
 
     @property
     def _dsc_file(self):
         """Returns the file name of the .dsc file."""
-        return os.path.join(self._workdir, self._package + "_" +
-                                           strip_epoch(self._version) + ".dsc")
+        return os.path.join(self._workdir, "{}_{}.dsc".format(self._package,
+                                                              strip_epoch(self._version)))
 
     def generate_debdiff(self, dsc_file):
         """Generates a debdiff between the given .dsc file and this source
@@ -348,8 +342,7 @@ class SourcePackage(object):
         change something.
         """
 
-        assert os.path.isfile(self._changes_file), "%s does not exist." % \
-               (self._changes_file)
+        assert os.path.isfile(self._changes_file), "%s does not exist." % (self._changes_file)
         changes = debian.deb822.Changes(open(self._changes_file))
         fixed_bugs = []
         if "Launchpad-Bugs-Fixed" in changes:
@@ -362,8 +355,7 @@ class SourcePackage(object):
             lp_bug = lp_bug.duplicate_of
 
         if lp_bug.id not in fixed_bugs:
-            Logger.error("Launchpad bug #%i is not closed by new version." % \
-                         (lp_bug.id))
+            Logger.error("Launchpad bug #%i is not closed by new version." % (lp_bug.id))
             return ask_for_ignoring_or_fixing()
         return True
 
@@ -377,7 +369,6 @@ class SourcePackage(object):
         print("file://" + lintian_filename)
         if self._build_log:
             print("file://" + self._build_log)
-
 
     def reload_changelog(self):
         """Reloads debian/changelog and updates the version.
@@ -400,7 +391,7 @@ class SourcePackage(object):
         try:
             self._version = self._changelog.get_version()
         except IndexError:
-            Logger.error("Debian package version could not be determined. " \
+            Logger.error("Debian package version could not be determined. "
                          "debian/changelog is probably malformed.")
             ask_for_manual_fixing()
             return False

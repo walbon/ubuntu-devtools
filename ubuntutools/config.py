@@ -25,6 +25,7 @@ import locale
 
 from ubuntutools.logger import Logger
 
+
 class UDTConfig(object):
     """Ubuntu Dev Tools configuration file (devscripts config file) and
     environment variable parsing.
@@ -140,12 +141,8 @@ def ubu_email(name=None, email=None, export=True):
     if export and not name and not email and 'UBUMAIL' not in os.environ:
         export = False
 
-    for var, target in (('UBUMAIL', 'email'),
-                        ('DEBFULLNAME', 'name'),
-                        ('DEBEMAIL', 'email'),
-                        ('EMAIL', 'email'),
-                        ('NAME', 'name'),
-                       ):
+    for var, target in (('UBUMAIL', 'email'), ('DEBFULLNAME', 'name'), ('DEBEMAIL', 'email'),
+                        ('EMAIL', 'email'), ('NAME', 'name')):
         if name and email:
             break
         if var in os.environ:

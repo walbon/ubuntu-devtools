@@ -25,7 +25,7 @@ from ubuntutools import subprocess
 class PylintTestCase(unittest.TestCase):
     def test_pylint(self):
         "Test: Run pylint on Python source code"
-        files = ['ubuntutools']
+        files = ['ubuntutools', 'setup.py']
         for script in setup.scripts:
             with open(script, 'r') as script_file:
                 shebang = script_file.readline()

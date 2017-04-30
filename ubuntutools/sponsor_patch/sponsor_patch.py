@@ -75,12 +75,14 @@ def get_source_package_name(bug_task):
         package = bug_task.bug_target_name.split(" ")[0]
     return package
 
+
 def get_user_shell():
     try:
         shell = os.environ["SHELL"]
     except KeyError:
         shell = pwd.getpwuid(os.getuid())[6]
     return shell
+
 
 def edit_source():
     # Spawn shell to allow modifications
@@ -95,6 +97,7 @@ process, exit the shell such that it returns an exit code other than zero.
     if returncode != 0:
         Logger.error("Shell exited with exit value %i." % (returncode))
         sys.exit(1)
+
 
 def ask_for_patch_or_branch(bug, attached_patches, linked_branches):
     patch = None
@@ -130,6 +133,7 @@ def ask_for_patch_or_branch(bug, attached_patches, linked_branches):
         patch = Patch(attached_patches[selected - len(linked_branches) - 1])
     return (patch, branch)
 
+
 def get_patch_or_branch(bug):
     patch = None
     branch = None
@@ -155,6 +159,7 @@ def get_patch_or_branch(bug):
                                                     linked_branches)
     return (patch, branch)
 
+
 def download_branch(branch):
     dir_name = os.path.basename(branch)
     if os.path.isdir(dir_name):
@@ -166,6 +171,7 @@ def download_branch(branch):
         sys.exit(1)
     return dir_name
 
+
 def merge_branch(branch):
     edit = False
     cmd = ["bzr", "merge", branch]
@@ -176,6 +182,7 @@ def merge_branch(branch):
         edit = True
     return edit
 
+
 def extract_source(dsc_file, verbose=False):
     cmd = ["dpkg-source", "--no-preparation", "-x", dsc_file]
     if not verbose:
@@ -184,6 +191,7 @@ def extract_source(dsc_file, verbose=False):
     if subprocess.call(cmd) != 0:
         Logger.error("Extraction of %s failed." % (os.path.basename(dsc_file)))
         sys.exit(1)
+
 
 def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     """Returns an open Ubuntu bug task for a given Launchpad bug.
@@ -207,12 +215,11 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     elif len(ubuntu_tasks) == 1:
         task = ubuntu_tasks[0]
     if len(ubuntu_tasks) > 1 and branch and branch[1] == 'ubuntu':
-        tasks = [task for task in ubuntu_tasks
-                      if task.get_series() == branch[2]
-                         and task.package == branch[3]]
+        tasks = [t for t in ubuntu_tasks if
+                 t.get_series() == branch[2] and t.package == branch[3]]
         if len(tasks) > 1:
             # A bug targeted to the development series?
-            tasks = [task for task in tasks if task.series is not None]
+            tasks = [t for t in tasks if t.series is not None]
         assert len(tasks) == 1
         task = tasks[0]
     elif len(ubuntu_tasks) > 1:
@@ -223,8 +230,8 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
         if len(open_ubuntu_tasks) == 1:
             task = open_ubuntu_tasks[0]
         else:
-            Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" \
-                          % (bug_id, len(ubuntu_tasks)))
+            Logger.normal("https://launchpad.net/bugs/%i has %i Ubuntu tasks:" %
+                          (bug_id, len(ubuntu_tasks)))
             for i in range(len(ubuntu_tasks)):
                 print("%i) %s" % (i + 1,
                                   ubuntu_tasks[i].get_package_and_series()))
@@ -234,6 +241,7 @@ def get_open_ubuntu_bug_task(launchpad, bug, branch=None):
     Logger.info("Selected Ubuntu task: %s" % (task.get_short_info()))
     return task
 
+
 def _create_and_change_into(workdir):
     """Create (if it does not exits) and change into given working directory."""
 
@@ -241,12 +249,13 @@ def _create_and_change_into(workdir):
         try:
             os.makedirs(workdir)
         except os.error as error:
-            Logger.error("Failed to create the working directory %s [Errno " \
-                         "%i]: %s." % (workdir, error.errno, error.strerror))
+            Logger.error("Failed to create the working directory %s [Errno %i]: %s." %
+                         (workdir, error.errno, error.strerror))
             sys.exit(1)
     if workdir != os.getcwd():
         Logger.command(["cd", workdir])
         os.chdir(workdir)
+
 
 def _update_maintainer_field():
     """Update the Maintainer field in debian/control."""
@@ -257,12 +266,14 @@ def _update_maintainer_field():
         Logger.error("update-maintainer failed: %s", str(e))
         sys.exit(1)
 
+
 def _update_timestamp():
     """Run dch to update the timestamp of debian/changelog."""
     cmd = ["dch", "--maintmaint", "--release", ""]
     Logger.command(cmd)
     if subprocess.call(cmd) != 0:
         Logger.info("Failed to update timestamp in debian/changelog.")
+
 
 def _download_and_change_into(task, dsc_file, patch, branch):
     """Downloads the patch and branch and changes into the source directory."""
@@ -290,15 +301,14 @@ def _download_and_change_into(task, dsc_file, patch, branch):
         Logger.command(["cd", directory])
         os.chdir(directory)
 
+
 def sponsor_patch(bug_number, build, builder, edit, keyid, lpinstance, update,
                   upload, workdir):
     workdir = os.path.realpath(os.path.expanduser(workdir))
     _create_and_change_into(workdir)
 
     launchpad = Launchpad.login_with("sponsor-patch", lpinstance)
-    #pylint: disable=E1101
     bug = launchpad.bugs[bug_number]
-    #pylint: enable=E1101
 
     (patch, branch) = get_patch_or_branch(bug)
     task = get_open_ubuntu_bug_task(launchpad, bug, branch)

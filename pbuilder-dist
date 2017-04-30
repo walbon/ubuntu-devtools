@@ -490,10 +490,11 @@ def main():
             sys.exit(1)
 
     # Execute the pbuilder command
-    if not '--debug-echo' in args:
+    if '--debug-echo' not in args:
         sys.exit(subprocess.call(app.get_command(args)))
     else:
         print app.get_command([arg for arg in args if arg != '--debug-echo'])
+
 
 if __name__ == '__main__':
     try:

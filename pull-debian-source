@@ -112,7 +112,7 @@ def main():
         line = list(rmadison('debian', package, suite, 'source'))
         if not line:
             source_package = source_package_for(package, suite)
-            if source_package != None and package != source_package:
+            if source_package is not None and package != source_package:
                 package = source_package
                 line = list(rmadison('debian', package, suite, 'source'))
             if not line:
@@ -134,6 +134,7 @@ def main():
         sys.exit(1)
     if not options.download_only:
         srcpkg.unpack()
+
 
 if __name__ == '__main__':
     try:
