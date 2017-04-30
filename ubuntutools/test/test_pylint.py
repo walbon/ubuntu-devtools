@@ -1,6 +1,7 @@
 # test_pylint.py - Run pylint in errors-only mode.
 #
 # Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+# Copyright (C) 2017, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,56 +15,34 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-import re
+import sys
 
 import setup
 from ubuntutools.test import unittest
 from ubuntutools import subprocess
 
-WHITELIST = [re.compile(': %s$' % x) for x in (
-    # Wildcard import:
-    r"No name '\w+Error' in module 'launchpadlib\.errors'",
-    # http://www.logilab.org/ticket/51250:
-    r"Module 'hashlib' has no '(md5|sha(1|224|256|384|512))' member",
-    # pylint doesn't like *args/**kwargs
-    r"Instance of 'Popen' has no '.*' member",
-)]
 
 class PylintTestCase(unittest.TestCase):
     def test_pylint(self):
         "Test: Run pylint on Python source code"
         files = ['ubuntutools']
         for script in setup.scripts:
-            f = open(script, 'r')
-            if 'python' in f.readline():
+            with open(script, 'r') as script_file:
+                shebang = script_file.readline()
+            if ((sys.version_info[0] == 3 and 'python3' in shebang) or
+                    ('python' in shebang and 'python3' not in shebang)):
                 files.append(script)
-            f.close()
-        cmd = ['pylint', '--rcfile=ubuntutools/test/pylint.conf', '-E',
-               '--include-ids=y', '--'] + files
+
+        if sys.version_info[0] == 3:
+            pylint_binary = 'pylint3'
+        else:
+            pylint_binary = 'pylint'
+        cmd = [pylint_binary, '--rcfile=ubuntutools/test/pylint.conf', '-E',
+               '--reports=n', '--'] + files
+        sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, close_fds=True)
 
         out, err = process.communicate()
-        if err != '':
-            raise unittest.SkipTest('pylint crashed :/')
-
-        filtered_out = []
-        detected_in = ''
-        # pylint bug: http://www.logilab.org/ticket/46273
-        # pylint: disable=E1103
-        for line in out.splitlines():
-            # pylint: enable=E1103
-            if line.startswith('************* '):
-                detected_in = line
-                continue
-
-            for reg_exp in WHITELIST:
-                if reg_exp.search(line):
-                    break
-            else:
-                filtered_out.append(detected_in)
-                filtered_out.append(line)
-
-        self.assertEqual(filtered_out, [],
-                         "pylint found errors.\n"
-                         "Filtered Output:\n" + '\n'.join(filtered_out))
+        self.assertFalse(err, pylint_binary + ' crashed. Error output:\n' + err.decode())
+        self.assertFalse(out, pylint_binary + " found issues:\n" + out.decode())
