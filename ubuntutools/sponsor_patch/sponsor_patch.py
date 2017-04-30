@@ -22,9 +22,6 @@ import pwd
 import shutil
 import sys
 
-if sys.version_info[0] < 3:
-    range = xrange
-
 from distro_info import UbuntuDistroInfo
 
 from launchpadlib.launchpad import Launchpad
@@ -39,6 +36,9 @@ from ubuntutools.sponsor_patch.bugtask import BugTask, is_sync
 from ubuntutools.sponsor_patch.patch import Patch
 from ubuntutools.sponsor_patch.question import ask_for_manual_fixing
 from ubuntutools.sponsor_patch.source_package import SourcePackage
+
+if sys.version_info[0] < 3:
+    range = xrange  # noqa, pylint: disable=redefined-builtin,undefined-variable
 
 
 def is_command_available(command, check_sbin=False):
