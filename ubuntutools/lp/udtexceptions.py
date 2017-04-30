@@ -17,3 +17,7 @@ class ArchiveNotFoundException(BaseException):
 class AlreadyLoggedInError(Exception):
     '''Raised when a second login is attempted.'''
     pass
+
+class ArchSeriesNotFoundException(BaseException):
+    """Thrown when a distroarchseries is not found."""
+    pass

@@ -58,6 +58,7 @@ from lazr.restfulclient.resource import Entry
 from ubuntutools.lp import (service, api_version)
 from ubuntutools.lp.udtexceptions import (AlreadyLoggedInError,
                                           ArchiveNotFoundException,
+                                          ArchSeriesNotFoundException,
                                           PackageNotFoundException,
                                           PocketDoesNotExistError,
                                           SeriesNotFoundException)
@@ -288,11 +289,39 @@ class Distribution(BaseWrapper):
         return dev
 
 
+class DistroArchSeries(BaseWrapper):
+    '''
+    Wrapper class around a LP distro arch series object.
+    '''
+    resource_type = 'distro_arch_series'
+
+
 class DistroSeries(BaseWrapper):
     '''
     Wrapper class around a LP distro series object.
     '''
     resource_type = 'distro_series'
+
+    def __init__(self, *args):
+        if "_architectures" not in self.__dict__:
+            self._architectures = dict()
+
+    def getArchSeries(self, archtag):
+        '''
+        Returns a DistroArchSeries object for an architecture passed by name
+        (e.g. 'amd64').
+        If the architecture is not found: raise ArchSeriesNotFoundException.
+        '''
+        if archtag not in self._architectures:
+            try:
+                architecture = DistroArchSeries(
+                    self().getDistroArchSeries(archtag=archtag))
+                self._architectures[architecture.architecture_tag] = (
+                    architecture)
+            except HTTPError:
+                message = "Architecture %s is unknown." % archtag
+                raise ArchSeriesNotFoundException(message)
+        return self._architectures[archtag]
 
 
 class Archive(BaseWrapper):
@@ -327,11 +356,11 @@ class Archive(BaseWrapper):
                                       name_key='source_name',
                                       wrapper=SourcePackagePublishingHistory)
 
-    def getBinaryPackage(self, name, series=None, pocket=None):
+    def getBinaryPackage(self, name, archtag=None, series=None, pocket=None):
         '''
         Returns a BinaryPackagePublishingHistory object for the most
-        recent source package in the distribution 'dist', series and
-        pocket.
+        recent source package in the distribution 'dist', architecture
+        'archtag', series and pocket.
 
         series defaults to the current development series if not specified.
 
@@ -341,13 +370,16 @@ class Archive(BaseWrapper):
         If the requested binary package doesn't exist a
         PackageNotFoundException is raised.
         '''
-        return self._getPublishedItem(name, series, pocket, cache=self._binpkgs,
+        if archtag is None:
+            archtag = []
+        return self._getPublishedItem(name, series, pocket, archtag=archtag,
+                                      cache=self._binpkgs,
                                       function='getPublishedBinaries',
                                       name_key='binary_name',
                                       wrapper=BinaryPackagePublishingHistory)
 
-    def _getPublishedItem(self, name, series, pocket, cache, function, name_key,
-                          wrapper):
+    def _getPublishedItem(self, name, series, pocket, cache,
+                          function, name_key, wrapper, archtag=None):
         '''Common code between getSourcePackage and getBinaryPackage
         '''
         if pocket is None:
@@ -363,21 +395,38 @@ class Archive(BaseWrapper):
                                               pocket)
 
         dist = Distribution(self.distribution_link)
-        # Check if series is already a DistoSeries object or not
+        # Check if series is already a DistroSeries object or not
         if not isinstance(series, DistroSeries):
             if series:
                 series = dist.getSeries(series)
             else:
                 series = dist.getDevelopmentSeries()
 
-        index = (name, series.name, pockets)
+        # getPublishedSources requires a distro_series, while
+        # getPublishedBinaries requires a distro_arch_series.
+        # If archtag is not None, I'll assume it's getPublishedBinaries.
+        if archtag is not None and archtag != []:
+            if not isinstance(archtag, DistroArchSeries):
+                arch_series = series.getArchSeries(archtag=archtag)
+            else:
+                arch_series = archtag
+
+        if archtag is not None and archtag != []:
+            index = (name, series.name, archtag, pockets)
+        else:
+            index = (name, series.name, pockets)
+
         if index not in cache:
             params = {
                 name_key: name,
-                'distro_series': series(),
                 'status': 'Published',
                 'exact_match': True,
             }
+            if archtag is not None and archtag != []:
+                params['distro_arch_series'] = arch_series()
+            else:
+                params['distro_series'] = series()
+
             if len(pockets) == 1:
                 params['pocket'] = list(pockets)[0]
 
@@ -398,8 +447,10 @@ class Archive(BaseWrapper):
                     package_type = "source package"
                 else:
                     package_type = "package"
-                msg = "The %s '%s' does not exist in the %s %s archive" % \
-                      (package_type, name, dist.display_name, self.name)
+                msg = ("The %s '%s' does not exist in the %s %s archive" %
+                        (package_type, name, dist.display_name, self.name))
+                if archtag is not None and archtag != []:
+                    msg += " for architecture %s" % archtag
                 pockets = [series.name if pocket == 'Release'
                            else '%s-%s' % (series.name, pocket.lower())
                            for pocket in pockets]
@@ -639,6 +690,17 @@ class BinaryPackagePublishingHistory(BaseWrapper):
         Returns the component of the binary package.
         '''
         return self._lpobject.component_name
+
+    def binaryFileUrls(self):
+        '''
+        Return the URL for this binary publication's files.
+        Only available in the devel API, not 1.0
+        '''
+        try:
+            return self._lpobject.binaryFileUrls()
+        except AttributeError:
+            raise AttributeError("binaryFileUrls can only be found in lpapi "
+                    "devel, not 1.0. Login using devel to have it.")
 
 
 class MetaPersonTeam(MetaWrapper):
