@@ -26,7 +26,7 @@ import sys
 import ubuntutools.subprocess
 
 if sys.version_info[0] < 3:
-    input = raw_input  # noqa
+    input = raw_input  # noqa, pylint: disable=undefined-variable
 
 
 class Question(object):

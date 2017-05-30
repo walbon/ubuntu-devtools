@@ -199,16 +199,30 @@ Content-Type: text/plain; charset=UTF-8
                           mailserver_port)
             s = smtplib.SMTP(mailserver_host, mailserver_port)
             break
-        except socket.error as s:
-            Logger.error('Could not connect to %s:%s: %s (%i)',
-                         mailserver_host, mailserver_port, s[1], s[0])
-            return
         except smtplib.SMTPConnectError as s:
-            Logger.error('Could not connect to %s:%s: %s (%i)',
-                         mailserver_host, mailserver_port, s[1], s[0])
+            try:
+                # py2 path
+                # pylint: disable=unsubscriptable-object
+                Logger.error('Could not connect to %s:%s: %s (%i)',
+                             mailserver_host, mailserver_port, s[1], s[0])
+            except TypeError:
+                # pylint: disable=no-member
+                Logger.error('Could not connect to %s:%s: %s (%i)',
+                             mailserver_host, mailserver_port, s.strerror, s.errno)
             if s.smtp_code == 421:
                 confirmation_prompt(message='This is a temporary error, press [Enter] '
                                             'to retry. Press [Ctrl-C] to abort now.')
+        except socket.error as s:
+            try:
+                # py2 path
+                # pylint: disable=unsubscriptable-object
+                Logger.error('Could not connect to %s:%s: %s (%i)',
+                             mailserver_host, mailserver_port, s[1], s[0])
+            except TypeError:
+                # pylint: disable=no-member
+                Logger.error('Could not connect to %s:%s: %s (%i)',
+                             mailserver_host, mailserver_port, s.strerror, s.errno)
+            return
 
     if mailserver_user and mailserver_pass:
         try:

@@ -38,7 +38,7 @@ class PylintTestCase(unittest.TestCase):
         else:
             pylint_binary = 'pylint'
         cmd = [pylint_binary, '--rcfile=ubuntutools/test/pylint.conf', '-E',
-               '--reports=n', '--'] + files
+               '--reports=n', '--confidence=HIGH', '--'] + files
         sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, close_fds=True)
