@@ -1,8 +1,50 @@
-ubuntu-dev-tools (0.159) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.159) experimental; urgency=medium
 
-  * wip
+  [ Mattia Rizzolo ]
+  * [1c6b989] Move packaging to git.
+  * [3c138f6] Bump Standards-Version to 3.9.8, no changes needed.
+  * [88fbffa] Bump debhelper compat level to 10.
 
- -- Mattia Rizzolo <mattia@debian.org>  Thu, 30 Mar 2017 21:11:58 +0200
+  [ Unit 193 ]
+  * [f67601c] mk-sbuild, pull-debian-{debdiff,source}: Switch from
+    httpredir.debian.org to deb.debian.org as the default mirror for Debian.
+
+  [ Ursula Junque (Ursinha) ]
+  * [6fea8fb] Fix behavior of getBinaryPackage in lpapicache.  It was using
+    the same parameters to get Source and Binary packages build history, but
+    source packages need a distro series, and binary packages need distro arch
+    series, as the results are arch dependent.
+
+  [ Anatoly Techtonik ]
+  * [bf52bd6] backportpackage: improve python3 compatibility.
+
+  [ Benjamin Drung ]
+  * [6ee0915] Add .gitignore
+  * [ba16daf] Repair pylint test case.  The --include-ids parameter was
+    dropped from pylint and thus the command failed as was skipped. Repair the
+    pylint check and add support for Python 3.
+  * [67c353d] Raise maximum line length to 99
+  * [3a6cd3a] Fix pylint3 error (for Python 2 support code)
+  * [cc7170e] Fix all flake8 issues
+  * [18ae4d8] Add flake8 check to test suite
+
+  [ Mattia Rizzolo ]
+  * [001d108] Recommend cowbuilder, not cowdancer.
+
+  [ Iain Lane ]
+  * [a6043a6] Remove the `harvest' command, and all other integration with the
+    Harvest service, since it has been shut down.
+  * [4471193] ubuntu-build: Pass the pocket through to the archive permission
+    check. So that we can retry builds in releases where the release pocket is
+    frozen - for example so that backporters can retry backports builds.
+  * [179f45c] Add some more ignores for pylint. It doesn't work very well
+    with apt_pkg.
+  * [44dc0a9] debian/gbp.conf: Add gbp-dch configuration
+  * [d41602b] debian/README.source: Add with some instructions about changelog
+  * [0a3738c] Fix some 2/3 differences and run pylint with confidence=HIGH.
+    Too many false positives otherwise.
+
+ -- Iain Lane <laney@ubuntu.com>  Tue, 30 May 2017 11:23:48 +0100
 
 ubuntu-dev-tools (0.158) experimental; urgency=medium
 
