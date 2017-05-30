@@ -159,7 +159,8 @@ def main():
         if op == "retry":
             necessary_privs = me.canUploadPackage(ubuntu_archive, distroseries,
                                                   sources.getPackageName(),
-                                                  sources.getComponent())
+                                                  sources.getComponent(),
+                                                  pocket=pocket)
 
         if op in ('rescore', 'retry') and not necessary_privs:
             print >> sys.stderr, ("You cannot perform the %s operation on a %s "
