@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.160) experimental; urgency=medium
+
+  * [798a36c] subprocess: Use getfullargspec on python3
+
+ -- Iain Lane <laney@ubuntu.com>  Tue, 13 Jun 2017 10:14:14 +0100
+
 ubuntu-dev-tools (0.159) experimental; urgency=medium
 
   [ Mattia Rizzolo ]
