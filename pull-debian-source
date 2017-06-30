@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # pull-debian-source -- pull a source package from Launchpad
 # Copyright (C) 2011, Stefano Rivera <stefanor@ubuntu.com>
@@ -19,7 +19,8 @@
 import json
 import optparse
 import sys
-import urllib2
+import urllib.request
+import urllib.error
 
 from distro_info import DebianDistroInfo, DistroDataOutdated
 
@@ -54,17 +55,17 @@ def source_package_for(binary, release):
     """Query DDE to find the source package for a particular binary"""
     try:
         release = DebianDistroInfo().codename(release, default=release)
-    except DistroDataOutdated, e:
+    except DistroDataOutdated as e:
         Logger.warn(e)
     url = ('http://dde.debian.net/dde/q/udd/dist/d:debian/r:%s/p:%s/?t=json'
            % (release, binary))
     data = None
     try:
-        data = json.load(urllib2.urlopen(url))['r']
-    except urllib2.URLError, e:
+        data = json.load(urllib.request.urlopen(url))['r']
+    except urllib.error.URLError as e:
         Logger.error('Unable to retrieve package information from DDE: '
                      '%s (%s)', url, str(e))
-    except ValueError, e:
+    except ValueError as e:
         Logger.error('Unable to parse JSON response from DDE: '
                      '%s (%s)', url, str(e))
     if not data:
@@ -132,8 +133,8 @@ def main():
                                  mirrors=[options.debian_mirror,
                                           options.debsec_mirror])
     try:
-        srcpkg.pull()
-    except DownloadError, e:
+        srcpkg.pull(verify_signature=options.verify_signature)
+    except DownloadError as e:
         Logger.error('Failed to download: %s', str(e))
         sys.exit(1)
     if not options.download_only:
