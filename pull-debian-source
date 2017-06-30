@@ -89,6 +89,10 @@ def main():
     parser.add_option('--no-conf',
                       dest='no_conf', default=False, action='store_true',
                       help="Don't read config files or environment variables")
+    parser.add_option('--no-verify-signature',
+                      dest='verify_signature', default=True,
+                      action='store_false',
+                      help="Allow signature verification failure")
     (options, args) = parser.parse_args()
     if not args:
         parser.error('Must specify package name')

@@ -303,10 +303,10 @@ class SourcePackage(object):
         else:
             Logger.info(message)
 
-    def _write_dsc(self):
+    def _write_dsc(self, verify_signature=True):
         "Write dsc file to workdir"
         if self._dsc is None:
-            self.pull_dsc()
+            self.pull_dsc(verify_signature=verify_signature)
         with open(self.dsc_pathname, 'wb') as f:
             f.write(self.dsc.raw_text)
 
@@ -359,9 +359,9 @@ class SourcePackage(object):
             return False
         return True
 
-    def pull(self):
+    def pull(self, verify_signature=True):
         "Pull into workdir"
-        self._write_dsc()
+        self._write_dsc(verify_signature=verify_signature)
         for entry in self.dsc['Files']:
             name = entry['name']
             for url in self._source_urls(name):
@@ -471,7 +471,7 @@ class DebianSourcePackage(SourcePackage):
         if self.snapshot_list:
             yield self._snapshot_url(name)
 
-    def pull_dsc(self):
+    def pull_dsc(self, verify_signature=True):
         "Retrieve dscfile and parse"
         try:
             super(DebianSourcePackage, self).pull_dsc()
@@ -489,7 +489,7 @@ class DebianSourcePackage(SourcePackage):
             break
         else:
             raise DownloadError('dsc could not be found anywhere')
-        self._check_dsc(verify_signature=True)
+        self._check_dsc(verify_signature=verify_signature)
 
     # Local methods:
     @property
