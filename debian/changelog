@@ -1,6 +1,14 @@
+ubuntu-dev-tools (0.161) unstable; urgency=medium
+
+  * Team upload.
+  * Upload to unstable.
+  * [939c2a2] Bump Standards-Version to 4.0.0, no changes needed.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 18 Jul 2017 07:38:01 +0200
+
 ubuntu-dev-tools (0.160) experimental; urgency=medium
 
-  * [798a36c] subprocess: Use getfullargspec on python3
+  * [798a36c] subprocess: Use getfullargspec on python3.  Closes: #867901
 
  -- Iain Lane <laney@ubuntu.com>  Tue, 13 Jun 2017 10:14:14 +0100
 
