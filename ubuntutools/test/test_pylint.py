@@ -40,9 +40,10 @@ class PylintTestCase(unittest.TestCase):
         cmd = [pylint_binary, '--rcfile=ubuntutools/test/pylint.conf', '-E',
                '--reports=n', '--confidence=HIGH', '--'] + files
         sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE, close_fds=True)
-
-        out, err = process.communicate()
-        self.assertFalse(err, pylint_binary + ' crashed. Error output:\n' + err.decode())
-        self.assertFalse(out, pylint_binary + " found issues:\n" + out.decode())
+        try:
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            self.fail(
+                '%s crashed (%d).  Error output:\n%s' %
+                (pylint_binary, e.returncode, e.output.decode())
+            )

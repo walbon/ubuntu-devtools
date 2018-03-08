@@ -20,7 +20,7 @@ import sys
 import locale
 try:
     from StringIO import StringIO
-except:
+except ImportError:
     from io import StringIO
 
 import mock

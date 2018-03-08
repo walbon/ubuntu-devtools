@@ -232,7 +232,7 @@ Content-Type: text/plain; charset=UTF-8
                          'invalid username and password.')
             s.quit()
             return
-        except:
+        except smtplib.SMTPException:
             Logger.error('Unknown SMTP error.')
             s.quit()
             return

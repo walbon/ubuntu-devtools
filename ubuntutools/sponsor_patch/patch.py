@@ -73,7 +73,7 @@ class Patch(object):
         cmd = ["diffstat", "-l", "-p0", self._full_path]
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         changed_files = process.communicate()[0]
-        self._changed_files = [l for l in changed_files.split("\n") if l != ""]
+        self._changed_files = [f for f in changed_files.split("\n") if f != ""]
 
     def get_strip_level(self):
         """Returns the stript level for the patch."""
