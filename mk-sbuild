@@ -26,7 +26,7 @@
 # ##################################################################
 #
 # This script creates chroots designed to be used in a snapshot mode
-# (with LVM, btrfs, overlayfs, or aufs) with schroot and sbuild.
+# (with LVM, btrfs, overlay, or aufs) with schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #
@@ -626,9 +626,11 @@ case "$SCHROOT_TYPE" in
     MNT=`mktemp -d -t schroot-XXXXXX`
 esac
 
-# Debian doesn't have overlayfs yet
 case "$SCHROOT_TYPE" in
     directory|file)
+    if grep -q '\soverlay$' /proc/filesystems \
+            || /sbin/modprobe -q --dry-run overlay; then
+        OVERLAY_FS=overlay
     if grep -q '\soverlayfs$' /proc/filesystems \
             || /sbin/modprobe -q --dry-run overlayfs; then
         OVERLAY_FS=overlayfs

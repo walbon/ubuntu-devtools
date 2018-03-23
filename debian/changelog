@@ -1,7 +1,11 @@
 ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
 
+  [ Mattia Rizzolo ]
   * Team upload.
   * Fix test failures with newer flake8 and pylint.  Closes: #891721
+
+  [ Dimitri John Ledkov ]
+  * Add support for 'overlay' in favor of older 'overlayfs'.
 
  -- Mattia Rizzolo <mattia@debian.org>  Thu, 08 Mar 2018 12:35:24 +0100
 
