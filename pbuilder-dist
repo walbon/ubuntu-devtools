@@ -60,6 +60,7 @@ class PbuilderDist(object):
         self.enable_security = True
         self.enable_updates = True
         self.enable_proposed = True
+        self.enable_backports = False
 
         # File where the log of the last operation will be saved.
         self.logfile = None
@@ -299,6 +300,9 @@ class PbuilderDist(object):
             if self.enable_proposed:
                 othermirrors.append('deb %s %s-proposed-updates %s'
                                     % (mirror, self.target_distro, components))
+            if self.enable_backports:
+                othermirrors.append('deb %s %s-backports %s'
+                                    % (mirror, self.target_distro, components))
 
             aptcache = os.path.join(self.base, 'aptcache', 'debian')
         else:
@@ -475,6 +479,9 @@ def main():
     elif '--updates-only' in sys.argv:
         args.remove('--updates-only')
         app.enable_proposed = False
+    elif '--backports' in sys.argv:
+        args.remove('--backports')
+        app.enable_backports = True
 
     if len(args) < 1:
         Logger.error('Insufficient number of arguments.')

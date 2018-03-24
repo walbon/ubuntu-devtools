@@ -7,6 +7,10 @@ ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
   [ Dimitri John Ledkov ]
   * Add support for 'overlay' in favor of older 'overlayfs'.
 
+  [ Scott Kitterman ]
+  * Add --backports option to pbuilder-dist to make it easier to build for
+    backports when dependencies from backports are needed
+
  -- Mattia Rizzolo <mattia@debian.org>  Thu, 08 Mar 2018 12:35:24 +0100
 
 ubuntu-dev-tools (0.161) unstable; urgency=medium
