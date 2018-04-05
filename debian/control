@@ -34,8 +34,6 @@ Build-Depends: dctrl-tools,
                python3-mock,
                python3-setuptools
 Standards-Version: 4.1.4
-X-Python-Version: >= 2.6
-X-Python3-Version: >= 3.2
 Vcs-Git: https://git.launchpad.net/ubuntu-dev-tools
 Vcs-Browser: https://git.launchpad.net/ubuntu-dev-tools
 Homepage: https://launchpad.net/ubuntu-dev-tools
