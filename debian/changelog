@@ -7,6 +7,8 @@ ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
   * Set Rules-Requires-Root:no.
   * Drop superseded X-Python(3)-Version fields.
   * Add a dependency on sensible-utils, as we use sensible-editor(1).
+  * Change Maintainer address to ubuntu-dev-tools@packages.debian.org, to
+    assist with the alioth deprecation.
 
   [ Dimitri John Ledkov ]
   * Add support for 'overlay' in favor of older 'overlayfs'.
