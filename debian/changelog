@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.162) unstable; urgency=medium
 
   [ Mattia Rizzolo ]
   * Team upload.
@@ -11,13 +11,13 @@ ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
     assist with the alioth deprecation.
 
   [ Dimitri John Ledkov ]
-  * Add support for 'overlay' in favor of older 'overlayfs'.
+  * mk-sbuild: add support for 'overlay' in favor of older 'overlayfs'.
 
   [ Scott Kitterman ]
-  * Add --backports option to pbuilder-dist to make it easier to build for
-    backports when dependencies from backports are needed
+  * pbuilder-dist: add a --backports option to make it easier to build for
+    backports when dependencies from backports are needed.
 
- -- Mattia Rizzolo <mattia@debian.org>  Thu, 08 Mar 2018 12:35:24 +0100
+ -- Mattia Rizzolo <mattia@debian.org>  Thu, 05 Apr 2018 18:58:15 +0200
 
 ubuntu-dev-tools (0.161) unstable; urgency=medium
 
