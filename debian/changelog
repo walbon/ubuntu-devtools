@@ -6,6 +6,7 @@ ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
   * Bump Standards-Version to 4.1.4, no changes needed.
   * Set Rules-Requires-Root:no.
   * Drop superseded X-Python(3)-Version fields.
+  * Add a dependency on sensible-utils, as we use sensible-editor(1).
 
   [ Dimitri John Ledkov ]
   * Add support for 'overlay' in favor of older 'overlayfs'.
