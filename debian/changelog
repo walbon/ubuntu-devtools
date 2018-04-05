@@ -4,6 +4,7 @@ ubuntu-dev-tools (0.162) UNRELEASED; urgency=medium
   * Team upload.
   * Fix test failures with newer flake8 and pylint.  Closes: #891721
   * Bump Standards-Version to 4.1.4, no changes needed.
+  * Set Rules-Requires-Root:no.
   * Drop superseded X-Python(3)-Version fields.
 
   [ Dimitri John Ledkov ]
