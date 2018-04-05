@@ -631,7 +631,7 @@ case "$SCHROOT_TYPE" in
         if grep -q '\soverlay$' /proc/filesystems \
                 || /sbin/modprobe -q --dry-run overlay; then
             OVERLAY_FS=overlay
-        if grep -q '\soverlayfs$' /proc/filesystems \
+        elif grep -q '\soverlayfs$' /proc/filesystems \
                 || /sbin/modprobe -q --dry-run overlayfs; then
             OVERLAY_FS=overlayfs
         else
