@@ -33,7 +33,7 @@ Build-Depends: dctrl-tools,
                python3-launchpadlib,
                python3-mock,
                python3-setuptools
-Standards-Version: 4.0.0
+Standards-Version: 4.1.4
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.2
 Vcs-Git: https://git.launchpad.net/ubuntu-dev-tools
