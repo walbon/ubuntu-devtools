@@ -330,6 +330,29 @@ elif [ -z "$DISTRO" ]; then
     exit 1
 fi
 
+if [ "$DISTRO" = "ubuntu" ]; then
+    ubuntu_dist_ge() {
+      local releases="$(ubuntu-distro-info --all)"
+      local seq=1
+      for i in $releases; do
+        if [ $1 = $i ]; then
+          local left=$seq
+          break
+        fi
+        seq=$((seq+1))
+      done
+      seq=1
+      for i in $releases; do
+        if [ $2 = $i ]; then
+          local right=$seq
+          break
+        fi
+        seq=$((seq+1))
+      done
+      [ $left -ge $right ] && return 0 || return 1
+    }
+fi
+
 # By default, name the schroot the same as the release
 if [ -z "$name" ]; then
     name="$RELEASE"
@@ -494,11 +517,17 @@ ubuntu)
         esac
     fi
     # Add edgy+ buildd tools
-    if [ "$RELEASE" != "breezy" ] && [ "$RELEASE" != "dapper" ]; then
+    if ubuntu_dist_ge "$RELEASE" "edgy"; then
+        # Add pkgbinarymangler (edgy and later)
+        BUILD_PKGS="$BUILD_PKGS pkgbinarymangler"
         # Disable recommends for a smaller chroot (gutsy and later only)
-        BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
-        # Add buildd tools
-        BUILD_PKGS="$BUILD_PKGS pkg-create-dbgsym pkgbinarymangler"
+        if ubuntu_dist_ge "$RELEASE" "gutsy"; then
+            BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
+        fi
+        # Add pkg-create-dbgsym (edgy through zesty)
+        if ! ubuntu_dist_ge "$RELEASE" "artful"; then
+            BUILD_PKGS="$BUILD_PKGS pkg-create-dbgsym"
+        fi
     fi
     ;;
 debian)

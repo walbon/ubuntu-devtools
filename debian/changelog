@@ -1,3 +1,9 @@
+ubuntu-dev-tools (0.163) unstable; urgency=medium
+
+  * mk-sbuild: Add ubuntu_dist_ge and use it to set BUILD_PKGS for Ubuntu.
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Tue, 24 Apr 2018 05:11:18 -0600
+
 ubuntu-dev-tools (0.162) unstable; urgency=medium
 
   [ Mattia Rizzolo ]
