@@ -333,6 +333,8 @@ fi
 if [ "$DISTRO" = "ubuntu" ]; then
     ubuntu_dist_ge() {
       local releases="$(ubuntu-distro-info --all)"
+      local left=999
+      local right=0
       local seq=1
       for i in $releases; do
         if [ $1 = $i ]; then
