@@ -35,10 +35,15 @@ class ExamplePackage(object):
         "Create .orig.tar.gz"
         orig = '%s_%s.orig.tar.gz' % (self.source,
                                       self.version.upstream_version)
-        subprocess.check_call(('tar', '-czf', orig,
-                               os.path.basename(self.srcdir),
-                               '--exclude', 'debian'),
-                              cwd='test-data')
+        subprocess.check_call(
+            (
+                'tar',
+                '-czf', orig,
+                '--exclude', 'debian',
+                os.path.basename(self.srcdir),
+            ),
+            cwd='test-data'
+        )
 
     def changelog_entry(self, version=None, create=False):
         "Add a changelog entry"
