@@ -1,3 +1,12 @@
+ubuntu-dev-tools (0.165) unstable; urgency=medium
+
+  * Team upload.
+  * Bump debhelper compat level to 11.
+  * Fix FTBFS due to newest tar being picker about arguments order.
+    Closes: #897478
+
+ -- Mattia Rizzolo <mattia@debian.org>  Thu, 10 May 2018 10:40:49 +0200
+
 ubuntu-dev-tools (0.164) unstable; urgency=medium
 
   * mk-sbuild: Initialise ubuntu_dist_ge vars so unknown releases work.
