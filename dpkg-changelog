@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Script to read the changelog of debian files.
+# Author Gustavo Walbon <gustavowalbon@gmail.com>
+#
+# ##################################################################
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# See file /usr/share/common-licenses/GPL for more details.
+#
+# ##################################################################
+#
+# This script extracts and show from a .deb package the changelog
+# which was generated with debian build to show.
+#
+#
+
+BASENAME="$(basename "${0}")"
+PACKAGE="${1}"
+PROGRAMS="tar unxz ar zless"
+usage() {
+	printf "
+usage: %s <debian package>\\n\
+\\n\
+Error: %s
+\\n" "${BASENAME}" "${1}">&2
+}
+
+if_exist () {
+if ! type "${1}" &> /dev/null; then
+  usage "${1} not found. Please install it."
+  exit 1
+fi
+}
+
+: Validate if there are all commands
+for comm in ${PROGRAMS}; do
+  if_exist "${comm}"
+done
+
+: Verifying if PACKAGE exist
+if [ ! -e "${PACKAGE}" ]; then
+   usage "Source file not found."
+   exit 2
+fi
+
+: Looking for changelog.Debian.gz inside PACKAGE
+CHANGELOG_ADDR="$( (ar p "${PACKAGE}" data.tar.xz || ar p "${PACKAGE}" data.tar.bz2) \
+| unxz | tar --list | grep changelog.Debian.gz)"
+if [ ! "$?" ]; then
+   usage "Changelog file not found."
+   exit 3
+fi
+
+: Uncompress and view changelog
+(ar p "${PACKAGE}" data.tar.xz ||ar p "${PACKAGE}" data.tar.bz2) \
+| unxz | tar --get "${CHANGELOG_ADDR}" -O | zless
+if [ ! "$?" ]; then
+   usage "Occurred an error while read the changelog of ${PACKAGE}."
+   exit 4
+fi
+
+
+: Happy end
+exit 0
