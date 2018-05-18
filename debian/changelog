@@ -1,6 +1,8 @@
 ubuntu-dev-tools (0.166) UNRELEASED; urgency=medium
 
-  * 
+  [ Felipe Reyes ]
+  * pbuilder-dist:
+    + Fix handling of --othermirror when a local archive found.  LP: #1314076
 
  -- Mattia Rizzolo <mattia@debian.org>  Fri, 18 May 2018 17:57:21 +0200
 

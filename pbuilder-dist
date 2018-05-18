@@ -249,13 +249,6 @@ class PbuilderDist(object):
         if os.path.exists('/var/cache/archive/'):
             arguments += ['--bindmounts', '/var/cache/archive/']
 
-        localrepo = '/var/cache/archive/' + self.target_distro
-        if os.path.exists(localrepo):
-            arguments += [
-                '--othermirror',
-                'deb file:///var/cache/archive/ %s/' % self.target_distro,
-            ]
-
         config = UDTConfig()
         if self.target_distro in self._debian_distros:
             mirror = os.environ.get('MIRRORSITE',
@@ -276,6 +269,11 @@ class PbuilderDist(object):
         arguments += ['--mirror', mirror]
 
         othermirrors = []
+        localrepo = '/var/cache/archive/' + self.target_distro
+        if os.path.exists(localrepo):
+            repo = 'deb file:///var/cache/archive/ %s/' % self.target_distro
+            othermirrors.append(repo)
+
         if self.target_distro in self._debian_distros:
             debian_info = DebianDistroInfo()
             try:
