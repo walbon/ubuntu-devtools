@@ -4,6 +4,10 @@ ubuntu-dev-tools (0.166) UNRELEASED; urgency=medium
   * pbuilder-dist:
     + Fix handling of --othermirror when a local archive found.  LP: #1314076
 
+  [ Jelmer Vernooĳ ]
+  * Recommend Bazaar (brz) or Breezy (brz); the latter provides a
+    command-line compatible interface.
+
  -- Mattia Rizzolo <mattia@debian.org>  Fri, 18 May 2018 17:57:21 +0200
 
 ubuntu-dev-tools (0.165) unstable; urgency=medium
