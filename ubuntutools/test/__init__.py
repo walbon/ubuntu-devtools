@@ -17,6 +17,8 @@
 import os
 import sys
 
+import setup
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
@@ -28,3 +30,26 @@ def discover():
     __main__ = sys.modules['__main__']
     setupDir = os.path.abspath(os.path.dirname(__main__.__file__))
     return unittest.defaultTestLoader.discover(setupDir)
+
+
+def get_source_files():
+    """Return a list of sources files/directories (to check with flake8/pylint)"""
+    modules = ["ubuntutools"]
+    py_files = ["setup.py"]
+
+    files = []
+    for code_file in setup.scripts + modules + py_files:
+        is_script = code_file in setup.scripts
+        if not os.path.exists(code_file):  # pragma: no cover
+            # The alternative path is needed for Debian's pybuild
+            alternative = os.path.join(os.environ.get("OLDPWD", ""), code_file)
+            code_file = alternative if os.path.exists(alternative) else code_file
+        if is_script:
+            with open(code_file, "rb") as script_file:
+                shebang = script_file.readline().decode("utf-8")
+            if ((sys.version_info[0] == 3 and "python3" in shebang)
+                    or ("python" in shebang and "python3" not in shebang)):
+                files.append(code_file)
+        else:
+            files.append(code_file)
+    return files

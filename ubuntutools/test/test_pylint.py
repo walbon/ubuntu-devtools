@@ -17,28 +17,19 @@
 
 import sys
 
-import setup
-from ubuntutools.test import unittest
+from ubuntutools.test import get_source_files, unittest
 from ubuntutools import subprocess
 
 
 class PylintTestCase(unittest.TestCase):
     def test_pylint(self):
         "Test: Run pylint on Python source code"
-        files = ['ubuntutools', 'setup.py']
-        for script in setup.scripts:
-            with open(script, 'r') as script_file:
-                shebang = script_file.readline()
-            if ((sys.version_info[0] == 3 and 'python3' in shebang) or
-                    ('python' in shebang and 'python3' not in shebang)):
-                files.append(script)
-
         if sys.version_info[0] == 3:
             pylint_binary = 'pylint3'
         else:
             pylint_binary = 'pylint'
         cmd = [pylint_binary, '--rcfile=ubuntutools/test/pylint.conf', '-E',
-               '--reports=n', '--confidence=HIGH', '--'] + files
+               '--reports=n', '--confidence=HIGH', '--'] + get_source_files()
         sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)

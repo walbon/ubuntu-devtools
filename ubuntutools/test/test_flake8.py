@@ -17,24 +17,15 @@
 import subprocess
 import sys
 
-import setup
-from ubuntutools.test import unittest
+from ubuntutools.test import get_source_files, unittest
 
 
 class Flake8TestCase(unittest.TestCase):
     def test_flake8(self):
         "Test: Run flake8 on Python source code"
-        files = ['ubuntutools', 'setup.py']
-        for script in setup.scripts:
-            with open(script, 'r') as script_file:
-                shebang = script_file.readline()
-            if ((sys.version_info[0] == 3 and 'python3' in shebang) or
-                    ('python' in shebang and 'python3' not in shebang)):
-                files.append(script)
-
         with open('/proc/self/cmdline', 'r') as cmdline_file:
             python_binary = cmdline_file.read().split('\0')[0]
-        cmd = [python_binary, '-m', 'flake8', '--max-line-length=99'] + files
+        cmd = [python_binary, '-m', 'flake8', '--max-line-length=99'] + get_source_files()
         sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, close_fds=True)
