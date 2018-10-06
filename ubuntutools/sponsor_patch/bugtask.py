@@ -43,7 +43,7 @@ class BugTask(object):
         self.bug_task = bug_task
         self.launchpad = launchpad
 
-        components = re.split(" \(| ", self.bug_task.bug_target_name.strip(")"))
+        components = re.split(r" \(| ", self.bug_task.bug_target_name.strip(")"))
         assert len(components) >= 1 and len(components) <= 3
         if len(components) == 1:
             self.package = None
@@ -59,7 +59,7 @@ class BugTask(object):
             self.series = components[2].lower()
 
         if self.package is None:
-            title_re = '^Sync ([a-z0-9+.-]+) [a-z0-9.+:~-]+ \([a-z]+\) from.*'
+            title_re = r'^Sync ([a-z0-9+.-]+) [a-z0-9.+:~-]+ \([a-z]+\) from.*'
             match = re.match(title_re, self.get_bug_title(), re.U | re.I)
             if match is not None:
                 self.package = match.group(1)

@@ -11,7 +11,7 @@ import codecs
 changelog = "debian/changelog"
 if os.path.exists(changelog):
     head = codecs.open(changelog, 'r', 'utf-8', 'replace').readline()
-    match = re.compile(".*\((.*)\).*").match(head)
+    match = re.compile(r".*\((.*)\).*").match(head)
     if match:
         version = match.group(1)
 
