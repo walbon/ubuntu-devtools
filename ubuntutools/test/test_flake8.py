@@ -1,4 +1,4 @@
-# Copyright (C) 2017, Benjamin Drung <bdrung@debian.org>
+# Copyright (C) 2017-2018, Benjamin Drung <bdrung@debian.org>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -17,19 +17,34 @@
 import subprocess
 import sys
 
-from ubuntutools.test import get_source_files, unittest
+from ubuntutools.test import get_source_files, unittest, unittest_verbosity
 
 
 class Flake8TestCase(unittest.TestCase):
+    """
+    This unittest class provides a test that runs the flake8 code
+    checker (which combines pycodestyle and pyflakes) on the Python
+    source code. The list of source files is provided by the
+    get_source_files() function.
+    """
+
     def test_flake8(self):
-        "Test: Run flake8 on Python source code"
-        with open('/proc/self/cmdline', 'r') as cmdline_file:
-            python_binary = cmdline_file.read().split('\0')[0]
-        cmd = [python_binary, '-m', 'flake8', '--max-line-length=99'] + get_source_files()
-        sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
+        """Test: Run flake8 on Python source code"""
+        cmd = [sys.executable, "-m", "flake8", "--max-line-length=99"] + get_source_files()
+        if unittest_verbosity() >= 2:
+            sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, close_fds=True)
 
         out, err = process.communicate()
-        self.assertFalse(err, "Unexpected standard error from flake8 run:\n" + err.decode())
-        self.assertFalse(out, "flake8 found issues:\n" + out.decode())
+        if process.returncode != 0:  # pragma: no cover
+            msgs = []
+            if err:
+                msgs.append("flake8 exited with code {} and has unexpected output on stderr:\n{}"
+                            .format(process.returncode, err.decode().rstrip()))
+            if out:
+                msgs.append("flake8 found issues:\n{}".format(out.decode().rstrip()))
+            if not msgs:
+                msgs.append("flake8 exited with code {} and has no output on stdout or stderr."
+                            .format(process.returncode))
+            self.fail("\n".join(msgs))

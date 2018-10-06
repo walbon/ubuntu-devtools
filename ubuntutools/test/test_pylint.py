@@ -1,7 +1,5 @@
-# test_pylint.py - Run pylint in errors-only mode.
-#
 # Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
-# Copyright (C) 2017, Benjamin Drung <bdrung@ubuntu.com>
+# Copyright (C) 2017-2018, Benjamin Drung <bdrung@ubuntu.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -15,26 +13,56 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+"""test_pylint.py - Run pylint in errors-only mode."""
+
+import os
+import re
 import sys
 
-from ubuntutools.test import get_source_files, unittest
+from ubuntutools.test import get_source_files, unittest, unittest_verbosity
 from ubuntutools import subprocess
+
+CONFIG = os.path.join(os.path.dirname(__file__), "pylint.conf")
 
 
 class PylintTestCase(unittest.TestCase):
+    """
+    This unittest class provides a test that runs the pylint code check
+    on the Python source code. The list of source files is provided by
+    the get_source_files() function and pylint is configured via a
+    config file.
+    """
+
     def test_pylint(self):
-        "Test: Run pylint on Python source code"
-        if sys.version_info[0] == 3:
-            pylint_binary = 'pylint3'
-        else:
-            pylint_binary = 'pylint'
-        cmd = [pylint_binary, '--rcfile=ubuntutools/test/pylint.conf', '-E',
-               '--reports=n', '--confidence=HIGH', '--'] + get_source_files()
-        sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
-        try:
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            self.fail(
-                '%s crashed (%d).  Error output:\n%s' %
-                (pylint_binary, e.returncode, e.output.decode())
-            )
+        """Test: Run pylint on Python source code"""
+
+        cmd = [sys.executable, "-m", "pylint", "--rcfile=" + CONFIG,
+               "-E", "--"] + get_source_files()
+        if unittest_verbosity() >= 2:
+            sys.stderr.write("Running following command:\n{}\n".format(" ".join(cmd)))
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   close_fds=True)
+        out, err = process.communicate()
+
+        if process.returncode != 0:  # pragma: no cover
+            # Strip trailing summary (introduced in pylint 1.7). This summary might look like:
+            #
+            # ------------------------------------
+            # Your code has been rated at 10.00/10
+            #
+            out = re.sub("^(-+|Your code has been rated at .*)$", "", out.decode(),
+                         flags=re.MULTILINE).rstrip()
+
+            # Strip logging of used config file (introduced in pylint 1.8)
+            err = re.sub("^Using config file .*\n", "", err.decode()).rstrip()
+
+            msgs = []
+            if err:
+                msgs.append("pylint exited with code {} and has unexpected output on stderr:\n{}"
+                            .format(process.returncode, err))
+            if out:
+                msgs.append("pylint found issues:\n{}".format(out))
+            if not msgs:
+                msgs.append("pylint exited with code {} and has no output on stdout or stderr."
+                            .format(process.returncode))
+            self.fail("\n".join(msgs))

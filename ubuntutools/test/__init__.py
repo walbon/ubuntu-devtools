@@ -1,6 +1,5 @@
-# Test suite for ubuntutools
-#
 # Copyright (C) 2010, Stefano Rivera <stefanor@ubuntu.com>
+# Copyright (C) 2017, Benjamin Drung <benjamin.drung@profitbricks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +13,9 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+"""Test suite for ubuntutools"""
+
+import inspect
 import os
 import sys
 
@@ -53,3 +55,16 @@ def get_source_files():
         else:
             files.append(code_file)
     return files
+
+
+def unittest_verbosity():
+    """Return the verbosity setting of the currently running unittest
+    program, or None if none is running.
+    """
+    frame = inspect.currentframe()
+    while frame:
+        self = frame.f_locals.get("self")
+        if isinstance(self, unittest.TestProgram):
+            return self.verbosity
+        frame = frame.f_back
+    return None  # pragma: no cover
