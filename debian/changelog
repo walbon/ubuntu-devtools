@@ -1,5 +1,7 @@
 ubuntu-dev-tools (0.166) UNRELEASED; urgency=medium
 
+  * Team upload.
+
   [ Felipe Reyes ]
   * pbuilder-dist:
     + Fix handling of --othermirror when a local archive found.  LP: #1314076
@@ -8,7 +10,16 @@ ubuntu-dev-tools (0.166) UNRELEASED; urgency=medium
   * Recommend Bazaar (brz) or Breezy (brz); the latter provides a
     command-line compatible interface.
 
- -- Mattia Rizzolo <mattia@debian.org>  Fri, 18 May 2018 17:57:21 +0200
+  [ Mathieu Trudel-Lapierre ]
+  * Add a new tool "ubuntu-archive-assistant" tool for
+    proposed-migration / mir review.
+
+  [ Benjamin Drung ]
+  * ubuntutools/test: Introduce get_source_files helper function.
+  * Update pylint and flake8 unittests.
+  * Fix invalid escape sequences '\(' or '\)'.  Closes: #911689
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 23 Oct 2018 20:30:57 +0200
 
 ubuntu-dev-tools (0.165) unstable; urgency=medium
 
