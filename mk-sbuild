@@ -525,6 +525,7 @@ ubuntu)
         # Disable recommends for a smaller chroot (gutsy and later only)
         if ubuntu_dist_ge "$RELEASE" "gutsy"; then
             BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
+            SKIP_RECOMMENDS=1
         fi
         # Add pkg-create-dbgsym (edgy through zesty)
         if ! ubuntu_dist_ge "$RELEASE" "artful"; then
@@ -561,6 +562,7 @@ debian)
     fi
     # Keep the chroot as minimal as possible
     BUILD_PKGS="--no-install-recommends $BUILD_PKGS"
+    SKIP_RECOMMENDS=1
     ;;
 *)
     echo "Unknown --distro '$DISTRO': aborting" >&2
@@ -845,6 +847,16 @@ Acquire { HTTP { Proxy "$proxy"; }; };
 EOF
 fi
 EOM
+
+if [ -n "$SKIP_RECOMMENDS" ]; then
+    sudo bash -c "cat >> $MNT/finish.sh" <<EOM
+   mkdir -p /etc/apt/apt.conf.d/
+   cat > /etc/apt/apt.conf.d/99mk-sbuild-no-recommends <<EOF
+// disable install recommends
+APT::Install-Recommends "0";
+EOF
+EOM
+fi
 
 if [ -n "$TARGET_ARCH" ]; then
     sudo bash -c "cat >> $MNT/finish.sh" <<EOM
