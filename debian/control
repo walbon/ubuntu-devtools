@@ -146,11 +146,11 @@ Breaks:
  ubuntu-dev-tools (<< 0.154),
 Replaces:
  ubuntu-dev-tools (<< 0.154),
-Description: useful library of APIs for Ubuntu developer tools (Python 2)
+Description: useful APIs for Ubuntu developer tools — Python 2 library
  This package ships a collection of APIs, helpers and wrappers used to
  develop useful utilities for Ubuntu developers.
  .
- Python 2 variant.
+ This package installs the library for Python 2.
 
 Package: python3-ubuntutools
 Architecture: all
@@ -159,8 +159,8 @@ Depends:
  sensible-utils,
  ${misc:Depends},
  ${python3:Depends},
-Description: useful library of APIs for Ubuntu developer tools
+Description: useful APIs for Ubuntu developer tools — Python 3 library
  This package ships a collection of APIs, helpers and wrappers used to
  develop useful utilities for Ubuntu developers.
  .
- Python 3 variant.
+ This package installs the library for Python 3.
