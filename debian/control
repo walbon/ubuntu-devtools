@@ -2,40 +2,42 @@ Source: ubuntu-dev-tools
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-dev-tools@packages.debian.org>
-Uploaders: Benjamin Drung <bdrung@debian.org>,
-           Stefano Rivera <stefanor@debian.org>
-Build-Depends: dctrl-tools,
-               debhelper (>= 11),
-               devscripts (>= 2.11.0~),
-               dh-python,
-               distro-info (>= 0.2~),
-               libwww-perl,
-               lsb-release,
-               pylint,
-               pylint3,
-               python-all (>= 2.6.5-13~),
-               python-apt (>= 0.7.93~),
-               python-debian (>= 0.1.20~),
-               python-distro-info (>= 0.4~),
-               python-flake8,
-               python-httplib2,
-               python-launchpadlib (>= 1.5.7),
-               python-mock,
-               python-setuptools,
-               python-soappy,
-               python-unittest2,
-               python3-all,
-               python3-apt,
-               python3-debian,
-               python3-distro-info,
-               python3-flake8,
-               python3-httplib2,
-               python3-launchpadlib,
-               python3-mock,
-               python3-requests <!nocheck>,
-               python3-setuptools,
-               python3-termcolor <!nocheck>,
-               python3-yaml <!nocheck>,
+Uploaders:
+ Benjamin Drung <bdrung@debian.org>,
+ Stefano Rivera <stefanor@debian.org>,
+Build-Depends:
+ dctrl-tools,
+ debhelper (>= 11),
+ devscripts (>= 2.11.0~),
+ dh-python,
+ distro-info (>= 0.2~),
+ libwww-perl,
+ lsb-release,
+ pylint,
+ pylint3,
+ python-all (>= 2.6.5-13~),
+ python-apt (>= 0.7.93~),
+ python-debian (>= 0.1.20~),
+ python-distro-info (>= 0.4~),
+ python-flake8,
+ python-httplib2,
+ python-launchpadlib (>= 1.5.7),
+ python-mock,
+ python-setuptools,
+ python-soappy,
+ python-unittest2,
+ python3-all,
+ python3-apt,
+ python3-debian,
+ python3-distro-info,
+ python3-flake8,
+ python3-httplib2,
+ python3-launchpadlib,
+ python3-mock,
+ python3-requests <!nocheck>,
+ python3-setuptools,
+ python3-termcolor <!nocheck>,
+ python3-yaml <!nocheck>,
 Standards-Version: 4.1.4
 Rules-Requires-Root: no
 Vcs-Git: https://git.launchpad.net/ubuntu-dev-tools
@@ -44,42 +46,46 @@ Homepage: https://launchpad.net/ubuntu-dev-tools
 
 Package: ubuntu-dev-tools
 Architecture: all
-Depends: binutils,
-         dctrl-tools,
-         devscripts (>= 2.11.0~),
-         diffstat,
-         distro-info (>= 0.2~),
-         dpkg-dev,
-         lsb-release,
-         python-apt (>= 0.7.93~),
-         python-debian (>= 0.1.20~),
-         python-distro-info (>= 0.4~),
-         python-httplib2,
-         python-launchpadlib (>= 1.5.7),
-         python-lazr.restfulclient,
-         python-ubuntutools,
-         sensible-utils,
-         sudo,
-         ${misc:Depends},
-         ${perl:Depends},
-         ${python:Depends}
-Recommends: bzr | brz,
-            bzr-builddeb | brz-debian,
-            ca-certificates,
-            debian-archive-keyring,
-            debian-keyring,
-            debootstrap,
-            dput,
-            genisoimage,
-            libwww-perl,
-            lintian,
-            patch,
-            pbuilder | cowbuilder | sbuild,
-            python-dns,
-            python-soappy,
-            quilt,
-            reportbug (>= 3.39ubuntu1)
-Suggests: python-simplejson | python (>= 2.7), qemu-user-static
+Depends:
+ binutils,
+ dctrl-tools,
+ devscripts (>= 2.11.0~),
+ diffstat,
+ distro-info (>= 0.2~),
+ dpkg-dev,
+ lsb-release,
+ python-apt (>= 0.7.93~),
+ python-debian (>= 0.1.20~),
+ python-distro-info (>= 0.4~),
+ python-httplib2,
+ python-launchpadlib (>= 1.5.7),
+ python-lazr.restfulclient,
+ python-ubuntutools,
+ sensible-utils,
+ sudo,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${python:Depends},
+Recommends:
+ bzr | brz,
+ bzr-builddeb | brz-debian,
+ ca-certificates,
+ debian-archive-keyring,
+ debian-keyring,
+ debootstrap,
+ dput,
+ genisoimage,
+ libwww-perl,
+ lintian,
+ patch,
+ pbuilder | cowbuilder | sbuild,
+ python-dns,
+ python-soappy,
+ quilt,
+ reportbug (>= 3.39ubuntu1),
+Suggests:
+ python-simplejson | python (>= 2.7),
+ qemu-user-static,
 Description: useful tools for Ubuntu developers
  This is a collection of useful tools that Ubuntu developers use to make their
  packaging work a lot easier.
@@ -132,9 +138,14 @@ Description: useful tools for Ubuntu developers
 Package: python-ubuntutools
 Architecture: all
 Section: python
-Depends: ${misc:Depends}, ${python:Depends}, sensible-utils
-Breaks: ubuntu-dev-tools (<< 0.154)
-Replaces: ubuntu-dev-tools (<< 0.154)
+Depends:
+ sensible-utils,
+ ${misc:Depends},
+ ${python:Depends},
+Breaks:
+ ubuntu-dev-tools (<< 0.154),
+Replaces:
+ ubuntu-dev-tools (<< 0.154),
 Description: useful library of APIs for Ubuntu developer tools (Python 2)
  This package ships a collection of APIs, helpers and wrappers used to
  develop useful utilities for Ubuntu developers.
@@ -144,7 +155,10 @@ Description: useful library of APIs for Ubuntu developer tools (Python 2)
 Package: python3-ubuntutools
 Architecture: all
 Section: python
-Depends: ${misc:Depends}, ${python3:Depends}, sensible-utils
+Depends:
+ sensible-utils,
+ ${misc:Depends},
+ ${python3:Depends},
 Description: useful library of APIs for Ubuntu developer tools
  This package ships a collection of APIs, helpers and wrappers used to
  develop useful utilities for Ubuntu developers.
