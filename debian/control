@@ -32,7 +32,10 @@ Build-Depends: dctrl-tools,
                python3-httplib2,
                python3-launchpadlib,
                python3-mock,
-               python3-setuptools
+               python3-requests <!nocheck>,
+               python3-setuptools,
+               python3-termcolor <!nocheck>,
+               python3-yaml <!nocheck>,
 Standards-Version: 4.1.4
 Rules-Requires-Root: no
 Vcs-Git: https://git.launchpad.net/ubuntu-dev-tools
