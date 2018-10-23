@@ -83,6 +83,7 @@ Recommends:
  python-soappy,
  quilt,
  reportbug (>= 3.39ubuntu1),
+ ubuntu-keyring | ubuntu-archive-keyring,
 Suggests:
  python-simplejson | python (>= 2.7),
  qemu-user-static,
