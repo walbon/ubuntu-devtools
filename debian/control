@@ -7,7 +7,7 @@ Uploaders:
  Stefano Rivera <stefanor@debian.org>,
 Build-Depends:
  dctrl-tools,
- debhelper (>= 11),
+ debhelper-compat (= 11),
  devscripts (>= 2.11.0~),
  dh-python,
  distro-info (>= 0.2~),
