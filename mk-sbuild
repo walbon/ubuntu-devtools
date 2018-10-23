@@ -26,7 +26,7 @@
 # ##################################################################
 #
 # This script creates chroots designed to be used in a snapshot mode
-# (with LVM, btrfs, overlay, or aufs) with schroot and sbuild.
+# (with LVM, btrfs, overlay, overlay or aufs) with schroot and sbuild.
 # Much love to "man sbuild-setup", https://wiki.ubuntu.com/PbuilderHowto,
 # and https://help.ubuntu.com/community/SbuildLVMHowto.
 #

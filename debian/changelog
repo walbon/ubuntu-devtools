@@ -56,6 +56,7 @@ ubuntu-dev-tools (0.162) unstable; urgency=medium
 
   [ Dimitri John Ledkov ]
   * mk-sbuild: add support for 'overlay' in favor of older 'overlayfs'.
+    Closes: 799267
 
   [ Scott Kitterman ]
   * pbuilder-dist: add a --backports option to make it easier to build for
