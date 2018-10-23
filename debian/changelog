@@ -19,7 +19,17 @@ ubuntu-dev-tools (0.166) UNRELEASED; urgency=medium
   * Update pylint and flake8 unittests.
   * Fix invalid escape sequences '\(' or '\)'.  Closes: #911689
 
- -- Mattia Rizzolo <mattia@debian.org>  Tue, 23 Oct 2018 20:30:57 +0200
+  [ Mattia Rizzolo ]
+  * Add missing dependencies on sensible-utils (thanks lintian!).
+  * wrap-and-sort -ast.
+  * Bump Standards-Version to 4.2.1, no changes needed.
+  * Use the new debhelper-compat(=11) notation and drop d/compat.
+  * Clarify package descriptions for Python libraries.
+    Thanks to Ben Finney for the patch.  Closes: #804198, #804199
+  * Add a recommends on ubuntu-keyring | ubuntu-archive-keyring.
+    Closes: #838254
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 23 Oct 2018 21:58:45 +0200
 
 ubuntu-dev-tools (0.165) unstable; urgency=medium
 
