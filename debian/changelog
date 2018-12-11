@@ -1,7 +1,7 @@
 ubuntu-dev-tools (0.167) UNRELEASED; urgency=medium
 
   * syncpackage:
-    + Support wildcards in sync-blacklist.
+    + Support wildcards in sync-blacklist (LP: #1807992).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 11 Dec 2018 16:39:00 +0000
 
