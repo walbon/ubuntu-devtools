@@ -21,9 +21,9 @@
 # ##################################################################
 
 import codecs
+import fnmatch
 import optparse
 import os
-import re
 import shutil
 import sys
 import textwrap
@@ -436,10 +436,13 @@ def is_blacklisted(query):
             if not line.strip():
                 applicable_lines = []
                 continue
-            m = re.match(r'^\s*([a-z0-9.+-]+)?', line)
-            source = m.group(0)
             applicable_lines.append(line)
-            if source and query == source:
+            try:
+                line = line[:line.index('#')]
+            except ValueError:
+                pass
+            source = line.strip()
+            if source and fnmatch.fnmatch(query, source):
                 comments += ["From sync-blacklist.txt:"] + applicable_lines
                 blacklisted = 'ALWAYS'
                 break
