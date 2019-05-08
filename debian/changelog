@@ -1,8 +1,8 @@
-ubuntu-dev-tools (0.168) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.168) eoan; urgency=medium
 
   * grep-merges: flake8-clean.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 07 May 2019 21:24:14 -0700
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 07 May 2019 21:26:05 -0700
 
 ubuntu-dev-tools (0.167) eoan; urgency=medium
 
