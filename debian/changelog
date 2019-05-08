@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.167) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.167) eoan; urgency=medium
 
   [ Colin Watson ]
   * syncpackage:
@@ -9,7 +9,7 @@ ubuntu-dev-tools (0.167) UNRELEASED; urgency=medium
     + support grepping by team name (full name match) now that MoM exposes
       this
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 11 Dec 2018 16:39:00 +0000
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 07 May 2019 18:53:46 -0700
 
 ubuntu-dev-tools (0.166) unstable; urgency=medium
 
