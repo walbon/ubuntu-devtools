@@ -68,12 +68,14 @@ def main():
                 uploader = '(%s)' % merge['uploader']
             try:
                 teams = merge['teams']
-            except:
+            except e:
                 teams = []
 
             pretty_uploader = u'{} {}'.format(author, uploader)
-            if match is None or match in package or match in author or match in uploader or match in teams:
-                print '%s\t%s' % (package.encode("utf-8"), pretty_uploader.encode("utf-8"))
+            if (match is None or match in package or match in author
+               or match in uploader or match in teams):
+                print '%s\t%s' % (package.encode("utf-8"),
+                                  pretty_uploader.encode("utf-8"))
 
 
 if __name__ == '__main__':
