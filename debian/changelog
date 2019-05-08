@@ -1,7 +1,13 @@
 ubuntu-dev-tools (0.167) UNRELEASED; urgency=medium
 
+  [ Colin Watson ]
   * syncpackage:
     + Support wildcards in sync-blacklist (LP: #1807992).
+
+  [ Steve Langasek ]
+  * grep-merges:
+    + support grepping by team name (full name match) now that MoM exposes
+      this
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 11 Dec 2018 16:39:00 +0000
 
