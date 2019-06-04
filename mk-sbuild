@@ -120,10 +120,13 @@ while :; do
             ;;
         --arch)
             CHROOT_ARCH="$2"
-            if [ "$2" = "i386" ] || [ "$2" = "lpia" ] && [ -z "$personality" ];
-            then
-                personality="linux32"
-            fi
+            case $2 in
+                armel|armhf|i386|lpia)
+                    if [ -z "$personality" ]; then
+                        personality="linux32"
+                    fi
+                    ;;
+            esac
             shift 2
             ;;
         --personality)

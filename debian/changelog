@@ -1,3 +1,10 @@
+ubuntu-dev-tools (0.169) UNRELEASED; urgency=medium
+
+  * mk-sbuild:
+    + Set personality=linux32 by default on armel and armhf as well.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 04 Jun 2019 10:50:06 +0100
+
 ubuntu-dev-tools (0.168) eoan; urgency=medium
 
   * grep-merges: flake8-clean.
