@@ -1,7 +1,12 @@
 ubuntu-dev-tools (0.169) UNRELEASED; urgency=medium
 
+  [ Colin Watson ]
   * mk-sbuild:
     + Set personality=linux32 by default on armel and armhf as well.
+
+  [ Sahid Orentino Ferdjaoui ]
+  * reverse-depends:
+    + New ability to find reverse-depends recursively, and print a tree.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 04 Jun 2019 10:50:06 +0100
 
