@@ -8,6 +8,10 @@ ubuntu-dev-tools (0.169) UNRELEASED; urgency=medium
   * reverse-depends:
     + New ability to find reverse-depends recursively, and print a tree.
 
+  [ Mattia Rizzolo ]
+  * d/control:
+    + Add myself to uploaders.
+
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 04 Jun 2019 10:50:06 +0100
 
 ubuntu-dev-tools (0.168) eoan; urgency=medium
