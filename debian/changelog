@@ -4,7 +4,7 @@ ubuntu-dev-tools (0.170) UNRELEASED; urgency=medium
   * pull-debian-source:
     + Add a new --no-verify-signature option option, to download a source
       package without checking its signature.
-    + Port to Python 3.
+    + Port to Python 3.  LP: #1700846
 
   [ Mattia Rizzolo ]
   * d/control:
