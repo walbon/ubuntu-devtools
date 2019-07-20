@@ -1,4 +1,4 @@
-ubuntu-dev-tools (0.169) UNRELEASED; urgency=medium
+ubuntu-dev-tools (0.169) unstable; urgency=medium
 
   [ Colin Watson ]
   * mk-sbuild:
@@ -13,7 +13,7 @@ ubuntu-dev-tools (0.169) UNRELEASED; urgency=medium
     + Add myself to uploaders.
     + Bump Standards-Version to 4.4.0, no changes needed.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 04 Jun 2019 10:50:06 +0100
+ -- Mattia Rizzolo <mattia@debian.org>  Sat, 20 Jul 2019 11:18:00 +0200
 
 ubuntu-dev-tools (0.168) eoan; urgency=medium
 
